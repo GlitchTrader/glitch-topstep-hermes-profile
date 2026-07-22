@@ -1,0 +1,80 @@
+{
+  "schema_version": "glitch.topstep.hermes.operator.v1",
+  "operator_profile": "glitch-topstep",
+  "description": "One persistent probabilistic Topstep operator behind the deterministic Glitch direct gateway.",
+  "principles": {
+    "invariant": "Hermes proposes. Glitch Topstep validates, sizes, executes, reconciles, journals, and protects. ProjectX owns venue truth. Topstep owns final rule enforcement.",
+    "credentials": "Hermes never receives ProjectX credentials, JWTs, numeric account IDs, or numeric contract IDs.",
+    "risk": "Hermes chooses only from quantities supplied by the deterministic stop-aware risk boundary.",
+    "objective": "Maximize long-run net payouts and survival under current account rules; daily profit is an outcome, never a quota.",
+    "learning": "Single trades remain episodes. Durable lessons and cognitive changes require repeated attributable evidence.",
+    "no_silent_model_downgrade": true
+  },
+  "loops": [
+    {
+      "id": "core_decision",
+      "cadence": "every 5 minutes while flat; every minute while positioned; operator directives may wake one cycle",
+      "model": "gpt-5.6-luna",
+      "provider": "openai-codex",
+      "reasoning_effort": "medium",
+      "output_schema": "glitch.intent.v2",
+      "execution_authority": false
+    },
+    {
+      "id": "trade_debrief",
+      "cadence": "every 15 minutes when new canonical outcomes exist",
+      "model": "gpt-5.6-sol",
+      "provider": "openai-codex",
+      "reasoning_effort": "high",
+      "output_schema": "glitch.topstep.trade_episode.v1",
+      "execution_authority": false
+    },
+    {
+      "id": "portfolio_supervision",
+      "cadence": "hourly when new episodes exist",
+      "model": "gpt-5.6-sol",
+      "provider": "openai-codex",
+      "reasoning_effort": "high",
+      "output_schema": "glitch.topstep.hourly_review.v1",
+      "execution_authority": false
+    },
+    {
+      "id": "portfolio_planning",
+      "cadence": "every 300 minutes when new reviews exist",
+      "model": "gpt-5.6-sol",
+      "provider": "openai-codex",
+      "reasoning_effort": "high",
+      "output_schema": "glitch.topstep.portfolio_plan.v1",
+      "execution_authority": false
+    },
+    {
+      "id": "daily_learning",
+      "cadence": "after the trading session when attributable evidence exists",
+      "model": "gpt-5.6-sol",
+      "provider": "openai-codex",
+      "reasoning_effort": "high",
+      "output_schema": "glitch.topstep.daily_journal.v1",
+      "execution_authority": false
+    }
+  ],
+  "skills": {
+    "native_hermes_preserved": true,
+    "installed_overlay": [
+      "topstep-observe-market",
+      "topstep-assess-risk",
+      "topstep-form-thesis",
+      "topstep-build-intent",
+      "topstep-review-outcomes",
+      "topstep-self-learning",
+      "topstep-self-heal",
+      "topstep-supervisor-ledger",
+      "topstep-learning-loop"
+    ]
+  },
+  "activation": {
+    "fresh_install": "paused",
+    "control": "Use /trade to enable scheduled cognition; the gateway independently controls shadow or armed execution.",
+    "cognitive_overlay_default": "propose_only"
+  },
+  "venue_source": "authenticated_local_glitch_topstep_gateway"
+}
