@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -23,6 +24,96 @@ def windows_hidden_subprocess_flags() -> int:
         | getattr(subprocess, "DETACHED_PROCESS", 0)
         | getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
     )
+
+
+def windows_hide_flags() -> int:
+    """Hide a short-lived child console without detaching it."""
+    if sys.platform != "win32":
+        return 0
+    return getattr(subprocess, "CREATE_NO_WINDOW", 0)
+
+
+def read_windows_pyvenv_cfg(venv_dir: Path) -> dict[str, str]:
+    cfg_path = venv_dir / "pyvenv.cfg"
+    try:
+        lines = cfg_path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return {}
+
+    parsed: dict[str, str] = {}
+    for raw in lines:
+        if "=" not in raw:
+            continue
+        key, value = raw.split("=", 1)
+        parsed[key.strip().lower()] = value.strip()
+    return parsed
+
+
+def hermes_agent_root_from_interpreter(interpreter: Path) -> Path | None:
+    resolved = interpreter.resolve()
+    if resolved.parent.name.lower() != "scripts":
+        return None
+    venv_dir = resolved.parent.parent
+    if venv_dir.name.lower() != "venv":
+        return None
+    agent_root = venv_dir.parent
+    return agent_root if (agent_root / "hermes_cli").is_dir() else None
+
+
+def windows_hidden_python_invocation(
+    python_exe: str,
+    *,
+    hermes_agent_root: Path | None = None,
+) -> tuple[str, dict[str, str]]:
+    """Return a Windows Python path that avoids uv launcher console flashes."""
+    if sys.platform != "win32":
+        return python_exe, {}
+
+    interpreter = Path(python_exe)
+    venv_dir = interpreter.parent.parent
+    env_overlay: dict[str, str] = {}
+
+    if interpreter.name.lower() == "pythonw.exe":
+        sibling = interpreter.with_name("python.exe")
+        if sibling.exists():
+            interpreter = sibling
+
+    cfg = read_windows_pyvenv_cfg(venv_dir)
+    home = cfg.get("home", "")
+    site_packages = venv_dir / "Lib" / "site-packages"
+    if "uv" in cfg and home:
+        base_python = Path(home) / "python.exe"
+        if base_python.exists() and site_packages.exists():
+            interpreter = base_python
+            env_overlay["VIRTUAL_ENV"] = str(venv_dir)
+            agent_root = hermes_agent_root or hermes_agent_root_from_interpreter(Path(python_exe))
+            pythonpath_entries: list[str] = []
+            if agent_root is not None:
+                pythonpath_entries.append(str(agent_root))
+            pythonpath_entries.append(str(site_packages))
+            existing_pythonpath = os.environ.get("PYTHONPATH", "")
+            if existing_pythonpath:
+                pythonpath_entries.append(existing_pythonpath)
+            env_overlay["PYTHONPATH"] = os.pathsep.join(pythonpath_entries)
+
+    return str(interpreter), env_overlay
+
+
+def merged_subprocess_env(overlay: dict[str, str]) -> dict[str, str]:
+    env = os.environ.copy()
+    env.update(overlay)
+    return env
+
+
+def resolve_hermes_python() -> tuple[str, dict[str, str]]:
+    executable = shutil.which("hermes")
+    if not executable:
+        raise RuntimeError("hermes_executable_not_found")
+    python_executable = Path(executable).with_name("python.exe" if sys.platform == "win32" else "python")
+    if not python_executable.is_file():
+        python_executable = Path(sys.executable)
+    agent_root = hermes_agent_root_from_interpreter(Path(executable))
+    return windows_hidden_python_invocation(str(python_executable), hermes_agent_root=agent_root)
 
 
 def utc_now() -> str:

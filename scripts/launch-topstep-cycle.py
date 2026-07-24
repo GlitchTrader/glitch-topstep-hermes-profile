@@ -9,7 +9,13 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from common import PROFILE_NAME, configure_environment, windows_hidden_subprocess_flags
+from common import (
+    PROFILE_NAME,
+    configure_environment,
+    merged_subprocess_env,
+    windows_hidden_python_invocation,
+    windows_hidden_subprocess_flags,
+)
 
 
 def lock_is_active(path: Path, stale_seconds: int) -> bool:
@@ -35,8 +41,9 @@ def main() -> int:
         print(json.dumps({"launched": False, "reason": "direct_cycle_already_running"}))
         return 0
 
+    python_executable, env_overlay = windows_hidden_python_invocation(sys.executable)
     command = [
-        sys.executable,
+        python_executable,
         str(Path(__file__).with_name("run-topstep-cycle.py")),
         "--profile", args.profile,
         "--timeout-seconds", str(args.timeout_seconds),
@@ -58,6 +65,7 @@ def main() -> int:
             stdout=output,
             stderr=subprocess.STDOUT,
             close_fds=True,
+            env=merged_subprocess_env(env_overlay),
             creationflags=windows_hidden_subprocess_flags(),
             start_new_session=sys.platform != "win32",
         )

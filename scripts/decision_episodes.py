@@ -22,7 +22,7 @@ COGNITIVE_FIREWALL_REJECTIONS = {
 
 
 def stable_episode_id(intent_id: str) -> str:
-    return str(uuid.uuid5(uuid.NamespaceURL, f"glitch-topstep:decision:{intent_id}"))
+    return str(uuid.uuid5(uuid.NAMESPACE_URL, f"glitch-topstep:decision:{intent_id}"))
 
 
 def _receipt_body(receipt: dict[str, Any] | None) -> dict[str, Any]:

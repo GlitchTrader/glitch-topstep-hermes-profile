@@ -10,7 +10,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import shutil
 import subprocess
 import sys
 import time
@@ -28,12 +27,14 @@ from common import (
     append_jsonl,
     configure_environment,
     extract_single_json_object,
+    merged_subprocess_env,
     parse_utc,
     read_jsonl,
     read_optional_json,
+    resolve_hermes_python,
     utc_now,
     write_json_atomic,
-    windows_hidden_subprocess_flags,
+    windows_hide_flags,
 )
 
 LEARNING_MODEL_DEFAULT = "nvidia/nemotron-3-ultra-550b-a55b:free"
@@ -110,12 +111,7 @@ def append_build_requests(supervisor: Path, findings: Any, *, loop_id: str, revi
 
 
 def invoke_hermes(profile: str, prompt: str, skills: str, timeout_seconds: int) -> dict[str, Any]:
-    executable = shutil.which("hermes")
-    if not executable:
-        raise RuntimeError("hermes_executable_not_found")
-    python_executable = Path(executable).with_name("python.exe" if sys.platform == "win32" else "python")
-    if not python_executable.is_file():
-        python_executable = Path(sys.executable)
+    python_executable, env_overlay = resolve_hermes_python()
     args = [
         "chat", "-Q", "--source", SOURCE,
         "--model", learning_model(), "--provider", learning_provider(),
@@ -130,7 +126,7 @@ def invoke_hermes(profile: str, prompt: str, skills: str, timeout_seconds: int) 
         "sys.argv=[sys.argv[0]]+" + repr(args) + "+['-q',prompt];main()"
     )
     completed = subprocess.run(
-        [str(python_executable), "-c", wrapper],
+        [python_executable, "-c", wrapper],
         input=prompt,
         capture_output=True,
         text=True,
@@ -138,7 +134,8 @@ def invoke_hermes(profile: str, prompt: str, skills: str, timeout_seconds: int) 
         errors="replace",
         timeout=timeout_seconds,
         check=False,
-        creationflags=windows_hidden_subprocess_flags(),
+        env=merged_subprocess_env(env_overlay),
+        creationflags=windows_hide_flags(),
     )
     if completed.returncode != 0:
         raise RuntimeError(f"hermes_failed:{completed.returncode}:{completed.stderr.strip()[:400]}")

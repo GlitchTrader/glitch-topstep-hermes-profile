@@ -12,7 +12,6 @@ import copy
 import json
 import math
 import os
-import shutil
 import subprocess
 import sys
 import time
@@ -27,15 +26,17 @@ from common import (
     configure_environment,
     extract_single_json_object,
     local_token,
+    merged_subprocess_env,
     parse_utc,
     prune_files,
     read_json,
     read_optional_json,
     request_json,
+    resolve_hermes_python,
     tail_jsonl,
     utc_now,
     write_json_atomic,
-    windows_hidden_subprocess_flags,
+    windows_hide_flags,
 )
 from telegram_notify import maybe_notify_telegram, notify_new_trade_outcomes
 from reconcile_topstep_outcomes import reconcile_outcomes
@@ -286,12 +287,7 @@ def build_prompt(
 
 
 def invoke_hermes(profile: str, prompt: str, timeout_seconds: int) -> dict[str, Any]:
-    executable = shutil.which("hermes")
-    if not executable:
-        raise RuntimeError("hermes_executable_not_found")
-    python_executable = Path(executable).with_name("python.exe" if sys.platform == "win32" else "python")
-    if not python_executable.is_file():
-        python_executable = Path(sys.executable)
+    python_executable, env_overlay = resolve_hermes_python()
     cli_args = [
         "chat", "-Q",
         "--source", TRADING_SOURCE,
@@ -309,7 +305,7 @@ def invoke_hermes(profile: str, prompt: str, timeout_seconds: int) -> dict[str, 
         "sys.argv=[sys.argv[0]]+" + repr(cli_args) + "+['-q',prompt];main()"
     )
     completed = subprocess.run(
-        [str(python_executable), "-c", wrapper],
+        [python_executable, "-c", wrapper],
         input=prompt,
         capture_output=True,
         text=True,
@@ -317,7 +313,8 @@ def invoke_hermes(profile: str, prompt: str, timeout_seconds: int) -> dict[str, 
         errors="replace",
         timeout=timeout_seconds,
         check=False,
-        creationflags=windows_hidden_subprocess_flags(),
+        env=merged_subprocess_env(env_overlay),
+        creationflags=windows_hide_flags(),
     )
     if completed.returncode != 0:
         raise RuntimeError(f"hermes_failed:{completed.returncode}:{completed.stderr.strip()[:400]}")
