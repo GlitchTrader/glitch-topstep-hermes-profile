@@ -20,6 +20,9 @@ from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from decision_episodes import collect_decision_episodes
+from reconcile_topstep_outcomes import outcomes_canonical_path, reconcile_outcomes
+from telegram_notify import maybe_notify_daily_summary, notify_new_trade_outcomes
 from common import (
     PROFILE_NAME,
     append_jsonl,
@@ -30,10 +33,21 @@ from common import (
     read_optional_json,
     utc_now,
     write_json_atomic,
+    windows_hidden_subprocess_flags,
 )
 
-MODEL = "gpt-5.6-sol"
-PROVIDER = "openai-codex"
+LEARNING_MODEL_DEFAULT = "nvidia/nemotron-3-ultra-550b-a55b:free"
+LEARNING_PROVIDER_DEFAULT = "openrouter"
+
+
+def learning_model() -> str:
+    return os.environ.get("GLITCH_TOPSTEP_LEARNING_MODEL", LEARNING_MODEL_DEFAULT)
+
+
+def learning_provider() -> str:
+    return os.environ.get("GLITCH_TOPSTEP_LEARNING_PROVIDER", LEARNING_PROVIDER_DEFAULT)
+
+
 SOURCE = "trading"
 EASTERN = ZoneInfo("America/New_York")
 LOOP_SCHEMAS = {
@@ -49,18 +63,22 @@ def stable_id(kind: str, value: str) -> str:
 
 
 def outcomes_path(root: Path) -> Path:
+    canonical = outcomes_canonical_path(root)
+    if canonical.is_file():
+        return canonical
     configured = os.environ.get("GLITCH_TOPSTEP_OUTCOMES_PATH", "").strip()
     return Path(configured).expanduser().resolve() if configured else root / "state" / "outcomes.jsonl"
 
 
 def valid_outcomes(path: Path) -> list[dict[str, Any]]:
     required = {
-        "schema_version", "outcome_id", "intent_id", "account", "instrument",
+        "outcome_id", "intent_id", "account", "instrument",
         "entry_utc", "exit_utc", "realized_pnl_usd", "fees_usd", "learning_eligible",
     }
     values = []
     for row in read_jsonl(path):
-        if row.get("schema_version") != "glitch.topstep.trade_outcome.v1":
+        schema = row.get("schema_version")
+        if schema not in {"glitch.topstep.trade_outcome.v1", "glitch.topstep.trade_outcome_canonical.v1"}:
             continue
         if not required.issubset(row):
             continue
@@ -68,6 +86,27 @@ def valid_outcomes(path: Path) -> list[dict[str, Any]]:
             continue
         values.append(row)
     return values
+
+
+def append_build_requests(supervisor: Path, findings: Any, *, loop_id: str, review_id: str) -> None:
+    if not isinstance(findings, list):
+        return
+    for finding in findings[:3]:
+        text = str(finding).strip()
+        if not text:
+            continue
+        append_jsonl(supervisor / "build-requests.jsonl", {
+            "schema_version": "glitch.topstep.supervisor.build_request.v1",
+            "request_id": stable_id("build-request", f"{loop_id}:{review_id}:{text[:80]}"),
+            "recorded_utc": utc_now(),
+            "status": "proposed",
+            "source_loop": loop_id,
+            "source_review_id": review_id,
+            "finding": text[:1200],
+            "scope": "glitch-topstep profile or gateway",
+            "acceptance_criteria": "Fix the defect without weakening deterministic risk or gateway authority.",
+            "rollback": "Revert the change and restore the prior behavior if validation or receipts regress.",
+        })
 
 
 def invoke_hermes(profile: str, prompt: str, skills: str, timeout_seconds: int) -> dict[str, Any]:
@@ -79,7 +118,7 @@ def invoke_hermes(profile: str, prompt: str, skills: str, timeout_seconds: int) 
         python_executable = Path(sys.executable)
     args = [
         "chat", "-Q", "--source", SOURCE,
-        "--model", MODEL, "--provider", PROVIDER,
+        "--model", learning_model(), "--provider", learning_provider(),
         "--max-turns", "8", "--skills", skills,
         "--toolsets", "memory",
     ]
@@ -99,7 +138,7 @@ def invoke_hermes(profile: str, prompt: str, skills: str, timeout_seconds: int) 
         errors="replace",
         timeout=timeout_seconds,
         check=False,
-        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0) if sys.platform == "win32" else 0,
+        creationflags=windows_hidden_subprocess_flags(),
     )
     if completed.returncode != 0:
         raise RuntimeError(f"hermes_failed:{completed.returncode}:{completed.stderr.strip()[:400]}")
@@ -201,8 +240,9 @@ def prompt_for(loop_id: str, evidence: Any, template: dict[str, Any], continuity
             "provider or gateway defect is a system finding, not a trading lesson."
         ),
         "hourly": (
-            "Supervise recent episodes. Separate repeated cognitive errors from venue, policy, transport, or execution "
-            "defects. Propose at most one compact cognitive change only when multiple comparable episodes support it."
+            "Supervise recent trade and decision episodes. Separate repeated cognitive errors from venue, policy, "
+            "transport, or execution defects. Policy rejections and gateway/system defects are system findings, not "
+            "trading lessons. Propose at most one compact cognitive change only when multiple comparable trade episodes support it."
         ),
         "planning": (
             "Create a five-hour advisory plan. Preserve deterministic risk and gateway authority. Do not create entry "
@@ -250,7 +290,7 @@ def invoke_loop(args: argparse.Namespace, loop_id: str, evidence: Any, ids: list
     template = output_template(loop_id, ids)
     skills = {
         "debrief": "topstep-review-outcomes,topstep-self-learning,topstep-learning-loop",
-        "hourly": "topstep-review-outcomes,topstep-self-learning,topstep-self-heal,topstep-supervisor-ledger,topstep-learning-loop",
+        "hourly": "topstep-review-outcomes,topstep-self-learning,topstep-self-heal,topstep-supervisor-ledger,topstep-learning-loop,topstep-escalate-to-codex",
         "planning": "topstep-self-learning,topstep-supervisor-ledger,topstep-learning-loop",
         "daily": "topstep-review-outcomes,topstep-self-learning,topstep-supervisor-ledger,topstep-learning-loop",
     }[loop_id]
@@ -327,6 +367,10 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
     supervisor.mkdir(parents=True, exist_ok=True)
     state_path = supervisor / "learning-state.json"
     state = read_optional_json(state_path) or {"schema_version": "glitch.topstep.learning_state.v1"}
+    reconcile_result = reconcile_outcomes(root) if not args.dry_run else {"new_outcome_ids": []}
+    if not args.dry_run and reconcile_result.get("new_outcome_ids"):
+        notify_new_trade_outcomes(state_root, reconcile_result["new_outcome_ids"], root)
+    decision_episodes = collect_decision_episodes(state_root) if not args.dry_run else read_jsonl(supervisor / "decision-episodes.jsonl")
     outcomes = valid_outcomes(outcomes_path(root))
     episodes = read_jsonl(supervisor / "trade-episodes.jsonl")
     processed = set(state.get("debriefed_outcome_ids", [])) | {
@@ -356,8 +400,12 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
     if (hourly_due or args.force_loop == "hourly") and args.force_loop in {None, "hourly"}:
         review_id = stable_id("hourly", now.strftime("%Y%m%dT%H"))
         if not args.dry_run:
-            record = invoke_loop(args, "hourly", {"episodes": episodes[-24:]}, [review_id], supervisor)[0]
+            record = invoke_loop(args, "hourly", {
+                "episodes": episodes[-24:],
+                "decision_episodes": decision_episodes[-48:],
+            }, [review_id], supervisor)[0]
             append_unique(supervisor / "hourly-reviews.jsonl", [record], "review_id")
+            append_build_requests(supervisor, record.get("system_findings"), loop_id="hourly", review_id=review_id)
             guidance = {
                 "schema_version": "glitch.topstep.guidance.v1",
                 "guidance_id": stable_id("guidance", review_id),
@@ -390,9 +438,15 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
     if (daily_due or args.force_loop == "daily") and args.force_loop in {None, "daily"}:
         journal_id = stable_id("daily", session_date)
         if not args.dry_run:
-            evidence = {"episodes": episodes[-80:], "reviews": reviews[-12:], "plans": read_jsonl(supervisor / "plans.jsonl")[-4:]}
+            evidence = {
+                "episodes": episodes[-80:],
+                "decision_episodes": decision_episodes[-80:],
+                "reviews": reviews[-12:],
+                "plans": read_jsonl(supervisor / "plans.jsonl")[-4:],
+            }
             record = invoke_loop(args, "daily", evidence, [journal_id], supervisor)[0]
             append_unique(supervisor / "daily-journal.jsonl", [record], "journal_id")
+            maybe_notify_daily_summary(state_root, record)
             process_candidate(record, supervisor, episode_ids)
             state["last_daily_session_date_et"] = session_date
         result["daily"] = True
@@ -402,6 +456,8 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
         write_json_atomic(state_path, state)
     result["canonical_outcomes"] = len(outcomes)
     result["episodes"] = len(episodes)
+    result["decision_episodes"] = len(decision_episodes)
+    result["reconciled_new_outcomes"] = len(reconcile_result.get("new_outcome_ids", []))
     return result
 
 

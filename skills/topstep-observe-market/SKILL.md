@@ -5,12 +5,12 @@ description: Observe the bounded Glitch Topstep decision packet and recent frame
 
 # Observe Market
 
-Use only `CURRENT_CYCLE.decision_packet` and `CURRENT_CYCLE.recent_frames` for current market and account facts.
+Use `CURRENT_CYCLE.decision_packet` and `CURRENT_CYCLE.recent_frames` for current market and account facts.
 
-1. Require the current packet schema, exact snapshot hash, current quote, state-complete flag, and account alias. Numeric ProjectX identifiers are intentionally absent and must never be requested or invented.
-2. Use the recent frame path to describe price direction, acceleration, spread, session range location, volatility, and state changes. Treat absent information as unknown; do not invent indicators, DOM, news, bars, or sentiment.
-3. When flat, frame the next-five-minute path. When positioned, frame the next-one-minute path and the evidence that would justify HOLD versus EXIT.
-4. Distinguish market evidence from account and policy evidence. `current_buffer`, `allowed_risk_usd`, entry eligibility, valid quantities, and entry window are authoritative constraints, not market signals.
-5. Plans, guidance, and memory are hypotheses. Fresh authenticated gateway facts win whenever they conflict.
+1. Require packet schema v2 fields: `market.bars_1m`, `market.features`, `market.levels`, `market.correlation`, `position_state`, `protection`, `reconciliation`, and `policy`.
+2. Describe structure from supplied bars and levels — session range, VWAP distance, swing highs/lows, `features.regime_1m`, `features.relative_volume`, and ES/MNQ correlation when present.
+3. Use recent frames for continuity, not to reinvent missing bars. Treat absent realtime tape/depth as unknown.
+4. When flat, frame the next decision window using `execution.setup_candidates` as admissible geometry hints. When positioned, frame HOLD vs EXIT vs MOVE_STOP using `protection` and `position_state`.
+5. Distinguish market evidence from policy evidence. `policy.daily_loss_remaining_usd`, `policy.entry_cooldown_after_losses`, and `reconciliation.state_trusted` are hard constraints.
 
-Pass a compact observation to risk and thesis: path, location, spread, volatility clues, directional evidence, contradictory evidence, missing evidence, and data quality. This skill never emits an intent.
+Pass compact observation: regime, location in range, structure, correlation, data quality, and blocking reasons. Never emit an intent.

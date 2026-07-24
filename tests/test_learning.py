@@ -62,6 +62,14 @@ class LearningTests(unittest.TestCase):
             MODULE.process_candidate(record, Path(root), ["e1", "e2"])
             self.assertFalse((Path(root) / "cognitive-candidates.jsonl").exists())
 
+    def test_append_build_request_writes_proposed_record(self):
+        with tempfile.TemporaryDirectory() as root:
+            supervisor = Path(root)
+            MODULE.append_build_requests(supervisor, ["Gateway timeout"], loop_id="hourly", review_id="r1")
+            rows = MODULE.read_jsonl(supervisor / "build-requests.jsonl")
+            self.assertEqual(rows[0]["status"], "proposed")
+            self.assertIn("Gateway timeout", rows[0]["finding"])
+
     def test_learning_prompt_keeps_gateway_truth_above_memory(self):
         template = MODULE.output_template("daily", ["j1"])
         prompt = MODULE.prompt_for("daily", {"episodes": []}, template, {})

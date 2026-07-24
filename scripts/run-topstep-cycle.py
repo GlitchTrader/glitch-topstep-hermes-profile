@@ -35,13 +35,26 @@ from common import (
     tail_jsonl,
     utc_now,
     write_json_atomic,
+    windows_hidden_subprocess_flags,
 )
+from telegram_notify import maybe_notify_telegram, notify_new_trade_outcomes
+from reconcile_topstep_outcomes import reconcile_outcomes
 
-CORE_MODEL = "gpt-5.6-luna"
-CORE_PROVIDER = "openai-codex"
+CORE_MODEL_DEFAULT = "nvidia/nemotron-3-ultra-550b-a55b:free"
+CORE_PROVIDER_DEFAULT = "openrouter"
+
+
+def core_model() -> str:
+    return os.environ.get("GLITCH_TOPSTEP_CORE_MODEL", CORE_MODEL_DEFAULT)
+
+
+def core_provider() -> str:
+    return os.environ.get("GLITCH_TOPSTEP_CORE_PROVIDER", CORE_PROVIDER_DEFAULT)
+
+
 TRADING_SOURCE = "trading"
-PROMPT_VERSION = "glitch-topstep-v1"
-ALLOWED_ACTIONS = {"ENTER_LONG", "ENTER_SHORT", "HOLD", "EXIT", "NOTHING"}
+PROMPT_VERSION = "glitch-topstep-v2"
+ALLOWED_ACTIONS = {"ENTER_LONG", "ENTER_SHORT", "HOLD", "EXIT", "NOTHING", "MOVE_STOP"}
 AUDIT_FIELDS = {
     "bull_case", "bear_case", "flat_case", "aggressive_case", "conservative_case",
     "decisive_evidence", "disconfirming_evidence", "change_condition", "final_choice",
@@ -67,9 +80,16 @@ def packet_max_age_seconds() -> int:
 
 def frame_retention() -> int:
     try:
-        return max(5, int(os.environ.get("GLITCH_TOPSTEP_FRAME_RETENTION", "180")))
+        return max(decision_frame_count(), int(os.environ.get("GLITCH_TOPSTEP_FRAME_RETENTION", "180")))
     except ValueError:
-        return 180
+        return max(decision_frame_count(), 180)
+
+
+def decision_frame_count() -> int:
+    try:
+        return max(1, int(os.environ.get("GLITCH_TOPSTEP_DECISION_FRAME_COUNT", "5")))
+    except ValueError:
+        return 5
 
 
 def packet_is_current(packet: dict[str, Any], now: datetime | None = None) -> bool:
@@ -80,6 +100,18 @@ def packet_is_current(packet: dict[str, Any], now: datetime | None = None) -> bo
     current = now or datetime.now(timezone.utc)
     age = (current - created).total_seconds()
     return -5 <= age <= packet_max_age_seconds()
+
+
+def available_actions(packet: dict[str, Any]) -> set[str]:
+    if positioned(packet):
+        actions = {"HOLD", "EXIT"}
+        if packet.get("execution", {}).get("move_stop_available"):
+            actions.add("MOVE_STOP")
+        return actions
+    actions = {"NOTHING"}
+    if entry_eligible(packet):
+        actions.update({"ENTER_LONG", "ENTER_SHORT"})
+    return actions
 
 
 def positioned(packet: dict[str, Any]) -> bool:
@@ -121,7 +153,9 @@ def capture_frame(packet: dict[str, Any], root: Path) -> Path:
     return path
 
 
-def recent_frames(root: Path, limit: int = 5) -> list[dict[str, Any]]:
+def recent_frames(root: Path, limit: int | None = None) -> list[dict[str, Any]]:
+    if limit is None:
+        limit = decision_frame_count()
     values = []
     for path in sorted((root / "minute-frames").glob("*.json"))[-limit:]:
         value = read_optional_json(path)
@@ -142,7 +176,7 @@ def packet_for_model(packet: dict[str, Any]) -> dict[str, Any]:
     template = value.get("required_output_template")
     if isinstance(template, dict):
         template["operator_profile"] = PROFILE_NAME
-        template["model_version"] = CORE_MODEL
+        template["model_version"] = core_model()
         template["prompt_version"] = PROMPT_VERSION
     return value
 
@@ -205,7 +239,7 @@ def build_prompt(
         "created_utc": utc_now(),
         "operator_profile": PROFILE_NAME,
         "action": default_action,
-        "model_version": CORE_MODEL,
+        "model_version": core_model(),
         "prompt_version": PROMPT_VERSION,
     })
     audit = template.get("decision_audit")
@@ -221,8 +255,8 @@ def build_prompt(
         "operator_directive": directive,
         "required_output_template": template,
         "current_capabilities": {
-            "available_actions": sorted(ALLOWED_ACTIONS),
-            "move_stop_available": False,
+            "available_actions": sorted(available_actions(packet)),
+            "move_stop_available": bool(packet.get("execution", {}).get("move_stop_available")),
             "move_tp_available": False,
             "single_account": True,
             "single_contract": True,
@@ -233,7 +267,11 @@ def build_prompt(
         "outranks memory, plans, prior decisions, and interpretation. ProjectX numeric identifiers and credentials are "
         "deliberately absent and must never be requested or invented. Use the recent frame path for short-horizon market "
         "context. When flat, forecast the most likely next five minutes. When positioned, choose HOLD or EXIT from the "
-        "most likely next one-minute path; MOVE_STOP and MOVE_TP are unavailable in the current gateway. Entries require "
+        "Use decision_packet.market.bars_1m, market.features, market.levels, market.correlation, "
+        "execution.setup_candidates, position_state, protection, reconciliation, and policy fields. "
+        "Prefer setup_candidates when flat; do not invent levels or indicators beyond supplied data. "
+        "most likely next one-minute path; MOVE_TP is unavailable. MOVE_STOP is allowed only when "
+        "execution.move_stop_available=true and requires stop_loss only. Entries require "
         "absolute structural stop and target prices and a quantity from decision_packet.execution.valid_entry_quantities. "
         "The deterministic allowed_risk_usd and current_buffer are hard context, not suggestions. Optimize long-run net "
         "payouts and survival without a daily profit quota. Return exactly one strict glitch.intent.v2 JSON object, no "
@@ -257,8 +295,8 @@ def invoke_hermes(profile: str, prompt: str, timeout_seconds: int) -> dict[str, 
     cli_args = [
         "chat", "-Q",
         "--source", TRADING_SOURCE,
-        "--model", CORE_MODEL,
-        "--provider", CORE_PROVIDER,
+        "--model", core_model(),
+        "--provider", core_provider(),
         "--max-turns", "4",
         "--skills", "topstep-observe-market,topstep-assess-risk,topstep-form-thesis,topstep-build-intent,topstep-self-learning",
         "--toolsets", "memory",
@@ -279,7 +317,7 @@ def invoke_hermes(profile: str, prompt: str, timeout_seconds: int) -> dict[str, 
         errors="replace",
         timeout=timeout_seconds,
         check=False,
-        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0) if sys.platform == "win32" else 0,
+        creationflags=windows_hidden_subprocess_flags(),
     )
     if completed.returncode != 0:
         raise RuntimeError(f"hermes_failed:{completed.returncode}:{completed.stderr.strip()[:400]}")
@@ -296,10 +334,15 @@ def normalize_intent(value: dict[str, Any], packet: dict[str, Any]) -> dict[str,
     intent["account"] = packet["account"]["name"]
     intent["operator_profile"] = PROFILE_NAME
     intent["snapshot_hash"] = packet["market"]["snapshot_hash"]
-    intent["model_version"] = CORE_MODEL
+    intent["model_version"] = core_model()
     intent["prompt_version"] = PROMPT_VERSION
     intent["action"] = action
-    if action not in {"ENTER_LONG", "ENTER_SHORT"}:
+    if action in {"ENTER_LONG", "ENTER_SHORT"}:
+        pass
+    elif action == "MOVE_STOP":
+        for field in ("quantity", "order_type", "take_profit_1"):
+            intent.pop(field, None)
+    else:
         for field in ENTRY_FIELDS:
             intent.pop(field, None)
     return intent
@@ -319,7 +362,13 @@ def validate_intent(
     action = intent.get("action")
     if action not in ALLOWED_ACTIONS:
         raise ValueError("unsupported_action")
-    expected_fields = CORE_FIELDS | (ENTRY_FIELDS if action in {"ENTER_LONG", "ENTER_SHORT"} else set())
+    if action not in available_actions(packet):
+        raise ValueError("action_not_available")
+    expected_fields = CORE_FIELDS | (
+        ENTRY_FIELDS if action in {"ENTER_LONG", "ENTER_SHORT"} else (
+            {"stop_loss"} if action == "MOVE_STOP" else set()
+        )
+    )
     unknown = set(intent).difference(expected_fields)
     missing = expected_fields.difference(intent)
     if unknown:
@@ -370,6 +419,16 @@ def validate_intent(
             raise ValueError("long_geometry_invalid")
         if action == "ENTER_SHORT" and not (target < reference < stop):
             raise ValueError("short_geometry_invalid")
+    elif action == "MOVE_STOP":
+        stop = _number(intent.get("stop_loss"), "stop_loss")
+        current_stop = packet.get("protection", {}).get("stop_price")
+        side = packet.get("position_state", {}).get("side")
+        if not isinstance(current_stop, (int, float)):
+            raise ValueError("move_stop_current_unknown")
+        if side == "long" and stop <= current_stop:
+            raise ValueError("move_stop_must_tighten_long")
+        if side == "short" and stop >= current_stop:
+            raise ValueError("move_stop_must_tighten_short")
     elif any(field in intent for field in ENTRY_FIELDS):
         raise ValueError("non_entry_contains_entry_fields")
     if directive and directive.get("directive_type") == "forced_entry":
@@ -408,13 +467,20 @@ def post_intent(intent: dict[str, Any]) -> dict[str, Any]:
 
 
 def run_once(args: argparse.Namespace, root: Path) -> int:
+    state = state_root(root)
+    if not args.dry_run:
+        reconcile_result = reconcile_outcomes(root)
+        notify_new_trade_outcomes(state, reconcile_result.get("new_outcome_ids", []), root)
     health_status, health = request_json("/health")
     if health_status != 200 or health.get("status") != "ok":
         raise RuntimeError("gateway_health_unavailable")
     packet_status, packet = request_json("/packet", token=local_token())
     if packet_status != 200:
         raise RuntimeError(f"gateway_packet_failed:{packet_status}")
-    if packet.get("schema_version") != "glitch.direct.decision_packet.v1" or not packet_is_current(packet):
+    if packet.get("schema_version") not in {
+        "glitch.direct.decision_packet.v1",
+        "glitch.direct.decision_packet.v2",
+    } or not packet_is_current(packet):
         return 0
 
     state = state_root(root)
@@ -422,8 +488,9 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     directive = read_directive(state)
     if not should_invoke(packet, directive):
         return 0
-    frames = recent_frames(state, 5)
-    if not positioned(packet) and len(frames) < 5:
+    required_frames = decision_frame_count()
+    frames = recent_frames(state, required_frames)
+    if not positioned(packet) and len(frames) < required_frames:
         return 0
 
     packet_id = str(packet.get("packet_id") or "")
@@ -445,8 +512,8 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
             "packet_id": packet_id,
             "started_utc": utc_now(),
             "status": "started",
-            "model": CORE_MODEL,
-            "provider": CORE_PROVIDER,
+            "model": core_model(),
+            "provider": core_provider(),
             "session_mode": "isolated",
         })
         prompt = build_prompt(packet, frames, recent_context(state), directive)
@@ -488,6 +555,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
             consume_directive(state, directive, packet_id)
 
     if args.dry_run:
+        maybe_notify_telegram(state, intent, packet, dry_run=True)
         print(json.dumps({"packet_id": packet_id, "submitted": False}, separators=(",", ":")))
         return 0
     result = post_intent(intent)
@@ -500,6 +568,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     }
     write_json_atomic(receipt_path, receipt)
     append_jsonl(state / "receipts.jsonl", receipt)
+    maybe_notify_telegram(state, intent, packet, receipt=receipt)
     print(json.dumps(receipt, separators=(",", ":")))
     return 0
 

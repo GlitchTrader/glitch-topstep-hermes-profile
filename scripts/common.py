@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
+import sys
 import tempfile
 import urllib.error
 import urllib.request
@@ -11,6 +13,16 @@ from typing import Any, Iterable
 
 PROFILE_NAME = "glitch-topstep"
 DEFAULT_GATEWAY_URL = "http://127.0.0.1:8790"
+
+
+def windows_hidden_subprocess_flags() -> int:
+    if sys.platform != "win32":
+        return 0
+    return (
+        getattr(subprocess, "CREATE_NO_WINDOW", 0)
+        | getattr(subprocess, "DETACHED_PROCESS", 0)
+        | getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+    )
 
 
 def utc_now() -> str:
@@ -24,7 +36,12 @@ def parse_utc(value: Any) -> datetime:
 def profile_root(profile: str = PROFILE_NAME) -> Path:
     explicit = os.environ.get("HERMES_HOME")
     if explicit:
-        return Path(explicit).expanduser().resolve()
+        resolved = Path(explicit).expanduser().resolve()
+        if resolved.name == profile:
+            return resolved
+        nested = resolved / "profiles" / profile
+        if nested.is_dir():
+            return nested.resolve()
     local_app_data = os.environ.get("LOCALAPPDATA")
     if local_app_data:
         return (Path(local_app_data) / "hermes" / "profiles" / profile).resolve()

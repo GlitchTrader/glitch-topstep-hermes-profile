@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import tempfile
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -227,6 +228,15 @@ def _bias_neutral(raw_args: str) -> str:
     return _write_directive("neutral", raw_args, "advisory")
 
 
+def _notify_telegram(intent: dict[str, Any], packet: dict[str, Any], *, receipt: dict[str, Any] | None = None) -> None:
+    scripts = _profile_root() / "scripts"
+    if str(scripts) not in sys.path:
+        sys.path.insert(0, str(scripts))
+    from telegram_notify import maybe_notify_telegram
+
+    maybe_notify_telegram(_profile_root() / "state", intent, packet, receipt=receipt)
+
+
 def build_exit_intent(packet: dict[str, Any]) -> dict[str, Any]:
     now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     action = "EXIT"
@@ -269,6 +279,13 @@ def _flatten(_raw_args: str) -> str:
     result_status, result = _request("/intent", method="POST", body=intent)
     if result_status not in {200, 202}:
         raise RuntimeError(f"Flatten was rejected ({result_status}): {json.dumps(result, separators=(',', ':'))}")
+    receipt = {
+        "schema_version": "glitch.topstep.delivery_receipt.v1",
+        "packet_id": packet.get("packet_id"),
+        "intent_id": intent["intent_id"],
+        "result": {"http_status": result_status, "body": result},
+    }
+    _notify_telegram(intent, packet, receipt=receipt)
     return f"Flatten intent submitted; cognition remains paused; jobs: {jobs}."
 
 

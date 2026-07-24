@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import os
 import sys
 import tempfile
 import unittest
@@ -121,7 +122,7 @@ class DirectCycleTests(unittest.TestCase):
         self.assertNotIn("id", value["contract"])
         self.assertNotIn("symbol_id", value["contract"])
         self.assertEqual(value["required_output_template"]["operator_profile"], "glitch-topstep")
-        self.assertEqual(value["required_output_template"]["prompt_version"], "glitch-topstep-v1")
+        self.assertEqual(value["required_output_template"]["prompt_version"], "glitch-topstep-v2")
 
     def test_flat_cadence_is_five_minute_boundary(self):
         self.assertTrue(MODULE.should_invoke(packet(5), None))
@@ -155,15 +156,25 @@ class DirectCycleTests(unittest.TestCase):
 
     def test_positioned_entry_fails_closed(self):
         value = MODULE.normalize_intent(intent("ENTER_LONG"), packet(positioned=True))
-        with self.assertRaisesRegex(ValueError, "positioned_entry_not_supported"):
+        with self.assertRaisesRegex(ValueError, "action_not_available"):
             MODULE.validate_intent(value, packet(positioned=True))
 
-    def test_move_actions_are_not_available(self):
-        value = MODULE.normalize_intent(intent("NOTHING"), packet(positioned=True))
-        value["action"] = "MOVE_STOP"
-        value["decision_audit"]["final_choice"] = "MOVE_STOP"
-        with self.assertRaisesRegex(ValueError, "unsupported_action"):
-            MODULE.validate_intent(value, packet(positioned=True))
+    def test_move_stop_requires_tightening(self):
+        pkt = packet(positioned=True)
+        pkt["execution"] = {"move_stop_available": True, "entry_actions_enabled": False, "valid_entry_quantities": []}
+        pkt["position_state"] = {"side": "long", "size": 1}
+        pkt["protection"] = {"stop_price": 28900.0}
+        value = MODULE.normalize_intent({
+            **intent("HOLD"),
+            "action": "MOVE_STOP",
+            "stop_loss": 28905.0,
+            "decision_audit": {field: "MOVE_STOP" if field == "final_choice" else "Replace" for field in MODULE.AUDIT_FIELDS},
+        }, pkt)
+        MODULE.validate_intent(value, pkt, None)
+        with self.assertRaisesRegex(ValueError, "move_stop_must_tighten_long"):
+            bad = dict(value)
+            bad["stop_loss"] = 28895.0
+            MODULE.validate_intent(bad, pkt, None)
 
     def test_forced_direction_must_be_honored(self):
         value = MODULE.normalize_intent(intent("NOTHING"), packet())
@@ -178,6 +189,21 @@ class DirectCycleTests(unittest.TestCase):
     def test_extract_single_json_rejects_two_distinct_intents(self):
         with self.assertRaises(json.JSONDecodeError):
             MODULE.extract_single_json_object(json.dumps(intent()) + "\n" + json.dumps(intent("HOLD")), schema="glitch.intent.v2")
+
+    def test_decision_frame_count_reads_env(self):
+        with mock.patch.dict(os.environ, {"GLITCH_TOPSTEP_DECISION_FRAME_COUNT": "12"}):
+            self.assertEqual(MODULE.decision_frame_count(), 12)
+
+    def test_flat_decision_waits_for_required_frames(self):
+        required = 12
+        with mock.patch.object(MODULE, "decision_frame_count", return_value=required):
+            with tempfile.TemporaryDirectory() as root:
+                state = Path(root)
+                for minute in range(1, required):
+                    MODULE.capture_frame(packet(minute), state)
+                frames = MODULE.recent_frames(state)
+                self.assertEqual(len(frames), required - 1)
+                self.assertLess(len(frames), required)
 
     def test_frame_capture_is_bounded_and_readable(self):
         with tempfile.TemporaryDirectory() as root:

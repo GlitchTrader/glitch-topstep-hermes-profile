@@ -1,9 +1,8 @@
-"""Launch the slow Topstep learning worker without occupying Hermes cron."""
+"""Launch the direct Topstep operator worker without occupying Hermes cron."""
 from __future__ import annotations
 
 import argparse
 import json
-import os
 import subprocess
 import sys
 import time
@@ -30,24 +29,24 @@ def main() -> int:
     state = root / "state"
     supervisor = state / "supervisor"
     supervisor.mkdir(parents=True, exist_ok=True)
-    lock_path = state / "learning-cycle.lock"
-    if lock_is_active(lock_path, max(args.timeout_seconds * 4, 1800)):
-        print(json.dumps({"launched": False, "reason": "learning_cycle_already_running"}))
+    lock_path = state / "direct-cycle.lock"
+    stale = max(args.timeout_seconds * 2, 600)
+    if lock_is_active(lock_path, stale):
+        print(json.dumps({"launched": False, "reason": "direct_cycle_already_running"}))
         return 0
 
     command = [
         sys.executable,
-        str(Path(__file__).with_name("run-topstep-learning.py")),
+        str(Path(__file__).with_name("run-topstep-cycle.py")),
         "--profile", args.profile,
         "--timeout-seconds", str(args.timeout_seconds),
     ]
     if args.dry_run:
         command.append("--dry-run")
-    creationflags = windows_hidden_subprocess_flags()
-    log_path = supervisor / "learning-worker.log"
+    log_path = supervisor / "direct-worker.log"
     with log_path.open("a", encoding="utf-8") as output:
         output.write(json.dumps({
-            "event": "learning_worker_launched",
+            "event": "direct_worker_launched",
             "launched_utc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             "profile": args.profile,
         }, separators=(",", ":")) + "\n")
@@ -59,10 +58,14 @@ def main() -> int:
             stdout=output,
             stderr=subprocess.STDOUT,
             close_fds=True,
-            creationflags=creationflags,
+            creationflags=windows_hidden_subprocess_flags(),
             start_new_session=sys.platform != "win32",
         )
-    print(json.dumps({"launched": True, "pid": process.pid, "worker": "run-topstep-learning.py"}))
+    print(json.dumps({
+        "launched": True,
+        "pid": process.pid,
+        "worker": "run-topstep-cycle.py",
+    }, separators=(",", ":")))
     return 0
 
 

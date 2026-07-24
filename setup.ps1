@@ -132,7 +132,7 @@ try {
     $directJob = Ensure-CronJob `
         -Name 'glitch-topstep-direct-operator' `
         -Schedule '* * * * *' `
-        -Script 'run-topstep-cycle.py' `
+        -Script 'launch-topstep-cycle.py' `
         -Workdir (Join-Path $profileRoot 'scripts')
     $learningJob = Ensure-CronJob `
         -Name 'glitch-topstep-learning-supervisor' `
