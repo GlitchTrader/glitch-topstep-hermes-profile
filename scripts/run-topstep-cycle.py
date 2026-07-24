@@ -1,10 +1,12 @@
-"""Deterministic Glitch Topstep operator worker.
+"""Run one Glitch Topstep cognition and delivery cycle.
 
-The worker fetches one authenticated gateway packet, maintains a bounded five-frame
-path, invokes one isolated Hermes decision only when due, validates the returned
-`glitch.intent.v2` object, persists an outbox, and posts the intent to the local
-Glitch Topstep gateway. ProjectX credentials never enter this process.
+The worker presents truthful gateway evidence to Hermes, validates only the
+wire contract and fixed identities, persists the decision before delivery,
+and lets the gateway perform final factual execution checks. Advisory market,
+risk, policy, cadence, and learning context must never become a hidden trading
+rule in this process.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -37,21 +39,48 @@ from common import (
     write_json_atomic,
 )
 
-CORE_MODEL = "gpt-5.6-luna"
-CORE_PROVIDER = "openai-codex"
 TRADING_SOURCE = "trading"
-PROMPT_VERSION = "glitch-topstep-v1"
+PROMPT_VERSION = "glitch-topstep-v2"
 ALLOWED_ACTIONS = {"ENTER_LONG", "ENTER_SHORT", "HOLD", "EXIT", "NOTHING"}
 AUDIT_FIELDS = {
-    "bull_case", "bear_case", "flat_case", "aggressive_case", "conservative_case",
-    "decisive_evidence", "disconfirming_evidence", "change_condition", "final_choice",
+    "bull_case",
+    "bear_case",
+    "flat_case",
+    "aggressive_case",
+    "conservative_case",
+    "decisive_evidence",
+    "disconfirming_evidence",
+    "change_condition",
+    "final_choice",
 }
 CORE_FIELDS = {
-    "schema_version", "intent_id", "created_utc", "instrument", "account",
-    "operator_profile", "action", "confidence", "snapshot_hash", "model_version",
-    "prompt_version", "reason", "decision_audit",
+    "schema_version",
+    "intent_id",
+    "created_utc",
+    "instrument",
+    "account",
+    "operator_profile",
+    "action",
+    "confidence",
+    "snapshot_hash",
+    "model_version",
+    "prompt_version",
+    "reason",
+    "decision_audit",
 }
 ENTRY_FIELDS = {"quantity", "order_type", "stop_loss", "take_profit_1"}
+SUPPORTED_PACKET_SCHEMAS = {
+    "glitch.direct.decision_packet.v1",
+    "glitch.direct.decision_packet.v2",
+}
+
+
+def core_model() -> str:
+    return os.environ.get("GLITCH_TOPSTEP_CORE_MODEL", "gpt-5.6-luna").strip() or "gpt-5.6-luna"
+
+
+def core_provider() -> str:
+    return os.environ.get("GLITCH_TOPSTEP_CORE_PROVIDER", "openai-codex").strip() or "openai-codex"
 
 
 def state_root(profile_root: Path) -> Path:
@@ -72,57 +101,76 @@ def frame_retention() -> int:
         return 180
 
 
-def packet_is_current(packet: dict[str, Any], now: datetime | None = None) -> bool:
+def flat_decision_interval_minutes() -> int:
+    """Return scheduling cadence only; never infer trade eligibility from it."""
+    try:
+        return max(
+            1,
+            min(
+                60,
+                int(os.environ.get("GLITCH_TOPSTEP_FLAT_DECISION_INTERVAL_MINUTES", "1")),
+            ),
+        )
+    except ValueError:
+        return 1
+
+
+def packet_is_current(
+    packet: dict[str, Any],
+    now: datetime | None = None,
+) -> bool:
+    current = now or datetime.now(timezone.utc)
     try:
         created = parse_utc(packet["created_utc"])
+        expires = parse_utc(packet["expires_utc"]) if packet.get("expires_utc") else None
     except (KeyError, TypeError, ValueError):
         return False
-    current = now or datetime.now(timezone.utc)
-    age = (current - created).total_seconds()
-    return -5 <= age <= packet_max_age_seconds()
+
+    age_seconds = (current - created).total_seconds()
+    if not -5 <= age_seconds <= packet_max_age_seconds():
+        return False
+    return expires is None or current < expires
 
 
 def positioned(packet: dict[str, Any]) -> bool:
     account = packet.get("account")
-    return isinstance(account, dict) and int(account.get("instrument_open_contracts") or 0) != 0
-
-
-def entry_eligible(packet: dict[str, Any]) -> bool:
-    execution = packet.get("execution")
-    if not isinstance(execution, dict):
+    if not isinstance(account, dict):
         return False
-    quantities = execution.get("valid_entry_quantities")
-    return execution.get("entry_actions_enabled") is True and isinstance(quantities, list) and bool(quantities)
+    return int(account.get("instrument_open_contracts") or 0) != 0
 
 
 def packet_minute(packet: dict[str, Any]) -> int:
     return parse_utc(packet["created_utc"]).minute
 
 
-def should_invoke(packet: dict[str, Any], directive: dict[str, Any] | None = None) -> bool:
-    if directive is not None:
+def should_invoke(
+    packet: dict[str, Any],
+    directive: dict[str, Any] | None = None,
+) -> bool:
+    if directive is not None or positioned(packet):
         return True
-    if positioned(packet):
-        return True
-    return entry_eligible(packet) and packet_minute(packet) % 5 == 0
+    return packet_minute(packet) % flat_decision_interval_minutes() == 0
 
 
 def capture_frame(packet: dict[str, Any], root: Path) -> Path:
     created = parse_utc(packet["created_utc"])
     minute_id = created.strftime("%Y%m%dT%H%MZ")
     path = root / "minute-frames" / f"{minute_id}.json"
-    write_json_atomic(path, {
-        "schema_version": "glitch.topstep.minute_frame.v1",
-        "minute_id": minute_id,
-        "captured_utc": utc_now(),
-        "packet": packet,
-    })
+    write_json_atomic(
+        path,
+        {
+            "schema_version": "glitch.topstep.minute_frame.v2",
+            "minute_id": minute_id,
+            "captured_utc": utc_now(),
+            "packet": packet,
+        },
+    )
     prune_files((root / "minute-frames").glob("*.json"), frame_retention())
     return path
 
 
 def recent_frames(root: Path, limit: int = 5) -> list[dict[str, Any]]:
-    values = []
+    values: list[dict[str, Any]] = []
     for path in sorted((root / "minute-frames").glob("*.json"))[-limit:]:
         value = read_optional_json(path)
         if value:
@@ -132,49 +180,71 @@ def recent_frames(root: Path, limit: int = 5) -> list[dict[str, Any]]:
 
 def packet_for_model(packet: dict[str, Any]) -> dict[str, Any]:
     value = copy.deepcopy(packet)
+
     account = value.get("account")
     if isinstance(account, dict):
         account.pop("id", None)
+
     contract = value.get("contract")
     if isinstance(contract, dict):
         contract.pop("id", None)
         contract.pop("symbol_id", None)
+
     template = value.get("required_output_template")
     if isinstance(template, dict):
         template["operator_profile"] = PROFILE_NAME
-        template["model_version"] = CORE_MODEL
+        template["model_version"] = core_model()
         template["prompt_version"] = PROMPT_VERSION
+
     return value
 
 
 def read_directive(root: Path) -> dict[str, Any] | None:
     path = root / "operator-directive.json"
     value = read_optional_json(path)
-    if not value or value.get("schema_version") != "glitch.topstep.operator_directive.v1":
+    if (
+        not value
+        or value.get("schema_version") != "glitch.topstep.operator_directive.v1"
+        or value.get("status") != "pending"
+    ):
         return None
-    if value.get("status") != "pending":
-        return None
+
     try:
         expiry = parse_utc(value.get("expires_utc"))
     except (TypeError, ValueError):
         return None
+
     if datetime.now(timezone.utc) >= expiry:
-        expired = dict(value)
-        expired["status"] = "expired"
-        expired["expired_utc"] = utc_now()
+        expired = {
+            **value,
+            "status": "expired",
+            "expired_utc": utc_now(),
+        }
         write_json_atomic(path, expired)
         return None
+
     return value
 
 
-def consume_directive(root: Path, directive: dict[str, Any], packet_id: str) -> None:
+def consume_directive(
+    root: Path,
+    directive: dict[str, Any],
+    packet_id: str,
+) -> None:
     path = root / "operator-directive.json"
     current = read_optional_json(path)
-    if not current or current.get("directive_id") != directive.get("directive_id") or current.get("status") != "pending":
+    if (
+        not current
+        or current.get("directive_id") != directive.get("directive_id")
+        or current.get("status") != "pending"
+    ):
         return
-    current["status"] = "consumed"
-    current["consumed_utc"] = utc_now()
-    current["packet_id"] = packet_id
+
+    current.update(
+        status="consumed",
+        consumed_utc=utc_now(),
+        packet_id=packet_id,
+    )
     write_json_atomic(path, current)
 
 
@@ -186,7 +256,9 @@ def recent_context(root: Path) -> dict[str, Any]:
         "outcomes": tail_jsonl(root / "outcomes.jsonl", 6),
         "current_plan": read_optional_json(supervisor / "current-plan.json"),
         "current_guidance": read_optional_json(supervisor / "current-guidance.json"),
-        "active_cognitive_overlay": read_optional_json(supervisor / "active-cognitive-overlay.json"),
+        "active_cognitive_overlay": read_optional_json(
+            supervisor / "active-cognitive-overlay.json"
+        ),
     }
 
 
@@ -199,76 +271,111 @@ def build_prompt(
     model_packet = packet_for_model(packet)
     template = copy.deepcopy(model_packet.get("required_output_template") or {})
     default_action = "HOLD" if positioned(packet) else "NOTHING"
-    template.update({
-        "schema_version": "glitch.intent.v2",
-        "intent_id": str(uuid.uuid5(uuid.NAMESPACE_URL, f"glitch-topstep:{packet['packet_id']}")),
-        "created_utc": utc_now(),
-        "operator_profile": PROFILE_NAME,
-        "action": default_action,
-        "model_version": CORE_MODEL,
-        "prompt_version": PROMPT_VERSION,
-    })
-    audit = template.get("decision_audit")
-    if not isinstance(audit, dict):
-        audit = {}
-        template["decision_audit"] = audit
+    template.update(
+        schema_version="glitch.intent.v2",
+        intent_id=str(
+            uuid.uuid5(uuid.NAMESPACE_URL, f"glitch-topstep:{packet['packet_id']}")
+        ),
+        created_utc=utc_now(),
+        operator_profile=PROFILE_NAME,
+        action=default_action,
+        model_version=core_model(),
+        prompt_version=PROMPT_VERSION,
+    )
+
+    audit = template.setdefault("decision_audit", {})
     for field in AUDIT_FIELDS:
         audit.setdefault(field, default_action if field == "final_choice" else "Replace")
+
     envelope = {
         "decision_packet": model_packet,
-        "recent_frames": [packet_for_model(frame.get("packet", {})) for frame in frames],
+        "recent_frames": [
+            packet_for_model(frame.get("packet", {})) for frame in frames
+        ],
         "recent_glitch_ledger": context,
         "operator_directive": directive,
         "required_output_template": template,
-        "current_capabilities": {
-            "available_actions": sorted(ALLOWED_ACTIONS),
-            "move_stop_available": False,
-            "move_tp_available": False,
-            "single_account": True,
-            "single_contract": True,
+        "operator_authority": {
+            "principle": (
+                "Hermes chooses the trade; Glitch verifies factual execution safety."
+            ),
+            "data_quality_is_evidence": True,
+            "capacity_is_evidence": True,
+            "policy_is_evidence": True,
+            "gateway_may_reject_only_factual_execution_invalidity": True,
         },
     }
+
     return (
-        "Apply the Glitch Topstep SOUL and loaded skills to CURRENT_CYCLE. The authenticated current gateway packet "
-        "outranks memory, plans, prior decisions, and interpretation. ProjectX numeric identifiers and credentials are "
-        "deliberately absent and must never be requested or invented. Use the recent frame path for short-horizon market "
-        "context. When flat, forecast the most likely next five minutes. When positioned, choose HOLD or EXIT from the "
-        "most likely next one-minute path; MOVE_STOP and MOVE_TP are unavailable in the current gateway. Entries require "
-        "absolute structural stop and target prices and a quantity from decision_packet.execution.valid_entry_quantities. "
-        "The deterministic allowed_risk_usd and current_buffer are hard context, not suggestions. Optimize long-run net "
-        "payouts and survival without a daily profit quota. Return exactly one strict glitch.intent.v2 JSON object, no "
-        "markdown, prose, tool calls, or trailing text. Preserve account, instrument, snapshot_hash, and operator_profile "
-        "exactly. decision_audit must contain exactly bull_case, bear_case, flat_case, aggressive_case, conservative_case, "
-        "decisive_evidence, disconfirming_evidence, change_condition, and final_choice; final_choice must equal action. "
-        "For HOLD, EXIT, and NOTHING omit quantity, order_type, stop_loss, and take_profit_1. For entries use MARKET and "
-        "include all four entry fields. Before deciding, retrieve relevant durable Glitch Topstep lessons exactly once "
-        "through native memory, then return JSON without writing memory. CURRENT_CYCLE="
+        "Apply the Glitch Topstep SOUL and loaded skills to CURRENT_CYCLE. "
+        "You are the trading operator, not a suggestion engine. Evaluate "
+        "ENTER_LONG, ENTER_SHORT, and NOTHING symmetrically while flat; when "
+        "positioned evaluate HOLD or EXIT. Use every available recent frame. "
+        "A short frame history, imperfect evidence, data_quality warning, "
+        "capacity field, account buffer, or policy field is information to "
+        "reason about, not an automatic cognitive veto. Do not invent missing "
+        "facts. The local gateway independently verifies current ProjectX "
+        "truth, hard account capacity, structural geometry, hard loss-floor "
+        "survival, packet issuance, and order transport. A gateway rejection "
+        "is an attributable episode, not permission to hide or pre-empt the "
+        "decision. Entries require positive integer quantity, MARKET, and "
+        "absolute structural stop and target prices. Numeric provider IDs and "
+        "credentials are absent and must never be requested or invented. "
+        "Return exactly one strict glitch.intent.v2 JSON object with no prose. "
+        "Preserve account, instrument, snapshot_hash, and operator_profile "
+        "exactly. decision_audit must contain exactly bull_case, bear_case, "
+        "flat_case, aggressive_case, conservative_case, decisive_evidence, "
+        "disconfirming_evidence, change_condition, and final_choice; "
+        "final_choice must equal action. For non-entry actions omit entry "
+        "fields. Retrieve relevant durable lessons once through native memory, "
+        "then return JSON without writing memory. CURRENT_CYCLE="
         + json.dumps(envelope, separators=(",", ":"), ensure_ascii=False)
     )
 
 
-def invoke_hermes(profile: str, prompt: str, timeout_seconds: int) -> dict[str, Any]:
+def invoke_hermes(
+    profile: str,
+    prompt: str,
+    timeout_seconds: int,
+) -> dict[str, Any]:
     executable = shutil.which("hermes")
     if not executable:
         raise RuntimeError("hermes_executable_not_found")
-    python_executable = Path(executable).with_name("python.exe" if sys.platform == "win32" else "python")
+
+    python_executable = Path(executable).with_name(
+        "python.exe" if sys.platform == "win32" else "python"
+    )
     if not python_executable.is_file():
         python_executable = Path(sys.executable)
+
     cli_args = [
-        "chat", "-Q",
-        "--source", TRADING_SOURCE,
-        "--model", CORE_MODEL,
-        "--provider", CORE_PROVIDER,
-        "--max-turns", "4",
-        "--skills", "topstep-observe-market,topstep-assess-risk,topstep-form-thesis,topstep-build-intent,topstep-self-learning",
-        "--toolsets", "memory",
+        "chat",
+        "-Q",
+        "--source",
+        TRADING_SOURCE,
+        "--model",
+        core_model(),
+        "--provider",
+        core_provider(),
+        "--max-turns",
+        "4",
+        "--skills",
+        (
+            "topstep-observe-market,topstep-assess-risk,topstep-form-thesis,"
+            "topstep-build-intent,topstep-self-learning"
+        ),
+        "--toolsets",
+        "memory",
     ]
     wrapper = (
         "import os,sys;from pathlib import Path;"
-        "os.environ['HERMES_HOME']=str(Path.home()/'AppData'/'Local'/'hermes'/'profiles'/"
+        "os.environ['HERMES_HOME']=str(Path.home()/'AppData'/'Local'/'hermes'/"
+        "'profiles'/"
         + repr(profile)
         + ");from hermes_cli.main import main;prompt=sys.stdin.read();"
-        "sys.argv=[sys.argv[0]]+" + repr(cli_args) + "+['-q',prompt];main()"
+        "sys.argv=[sys.argv[0]]+"
+        + repr(cli_args)
+        + "+['-q',prompt];main()"
     )
     completed = subprocess.run(
         [str(python_executable), "-c", wrapper],
@@ -279,26 +386,42 @@ def invoke_hermes(profile: str, prompt: str, timeout_seconds: int) -> dict[str, 
         errors="replace",
         timeout=timeout_seconds,
         check=False,
-        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0) if sys.platform == "win32" else 0,
+        creationflags=(
+            getattr(subprocess, "CREATE_NO_WINDOW", 0)
+            if sys.platform == "win32"
+            else 0
+        ),
     )
     if completed.returncode != 0:
-        raise RuntimeError(f"hermes_failed:{completed.returncode}:{completed.stderr.strip()[:400]}")
-    return extract_single_json_object(completed.stdout, schema="glitch.intent.v2")
+        raise RuntimeError(
+            f"hermes_failed:{completed.returncode}:{completed.stderr.strip()[:400]}"
+        )
+    return extract_single_json_object(
+        completed.stdout,
+        schema="glitch.intent.v2",
+    )
 
 
-def normalize_intent(value: dict[str, Any], packet: dict[str, Any]) -> dict[str, Any]:
+def normalize_intent(
+    value: dict[str, Any],
+    packet: dict[str, Any],
+) -> dict[str, Any]:
     intent = copy.deepcopy(value)
     action = "NOTHING" if intent.get("action") == "NO_ACTION" else intent.get("action")
-    intent["schema_version"] = "glitch.intent.v2"
-    intent["intent_id"] = str(uuid.uuid5(uuid.NAMESPACE_URL, f"glitch-topstep:{packet['packet_id']}"))
-    intent["created_utc"] = utc_now()
-    intent["instrument"] = packet["instrument"]
-    intent["account"] = packet["account"]["name"]
-    intent["operator_profile"] = PROFILE_NAME
-    intent["snapshot_hash"] = packet["market"]["snapshot_hash"]
-    intent["model_version"] = CORE_MODEL
-    intent["prompt_version"] = PROMPT_VERSION
-    intent["action"] = action
+    intent.update(
+        schema_version="glitch.intent.v2",
+        intent_id=str(
+            uuid.uuid5(uuid.NAMESPACE_URL, f"glitch-topstep:{packet['packet_id']}")
+        ),
+        created_utc=utc_now(),
+        instrument=packet["instrument"],
+        account=packet["account"]["name"],
+        operator_profile=PROFILE_NAME,
+        snapshot_hash=packet["market"]["snapshot_hash"],
+        model_version=core_model(),
+        prompt_version=PROMPT_VERSION,
+        action=action,
+    )
     if action not in {"ENTER_LONG", "ENTER_SHORT"}:
         for field in ENTRY_FIELDS:
             intent.pop(field, None)
@@ -306,7 +429,11 @@ def normalize_intent(value: dict[str, Any], packet: dict[str, Any]) -> dict[str,
 
 
 def _number(value: Any, field: str) -> float:
-    if not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(float(value)):
+    if (
+        not isinstance(value, (int, float))
+        or isinstance(value, bool)
+        or not math.isfinite(float(value))
+    ):
         raise ValueError(f"invalid_number:{field}")
     return float(value)
 
@@ -319,13 +446,17 @@ def validate_intent(
     action = intent.get("action")
     if action not in ALLOWED_ACTIONS:
         raise ValueError("unsupported_action")
-    expected_fields = CORE_FIELDS | (ENTRY_FIELDS if action in {"ENTER_LONG", "ENTER_SHORT"} else set())
+
+    expected_fields = CORE_FIELDS | (
+        ENTRY_FIELDS if action in {"ENTER_LONG", "ENTER_SHORT"} else set()
+    )
     unknown = set(intent).difference(expected_fields)
     missing = expected_fields.difference(intent)
     if unknown:
         raise ValueError("unknown_fields:" + ",".join(sorted(unknown)))
     if missing:
         raise ValueError("missing_fields:" + ",".join(sorted(missing)))
+
     if intent.get("schema_version") != "glitch.intent.v2":
         raise ValueError("schema_version_invalid")
     if intent.get("instrument") != packet.get("instrument"):
@@ -338,27 +469,33 @@ def validate_intent(
         raise ValueError("snapshot_hash_mismatch")
     if not isinstance(intent.get("reason"), str) or not intent["reason"].strip():
         raise ValueError("reason_invalid")
+
     confidence = _number(intent.get("confidence"), "confidence")
     if not 0 <= confidence <= 1:
         raise ValueError("confidence_out_of_range")
+
     audit = intent.get("decision_audit")
     if not isinstance(audit, dict) or set(audit) != AUDIT_FIELDS:
         raise ValueError("decision_audit_invalid")
-    if any(not isinstance(audit[field], str) or not audit[field].strip() for field in AUDIT_FIELDS):
+    if any(
+        not isinstance(audit[field], str) or not audit[field].strip()
+        for field in AUDIT_FIELDS
+    ):
         raise ValueError("decision_audit_value_invalid")
     if audit.get("final_choice") != action:
         raise ValueError("decision_audit_choice_mismatch")
+
     if action in {"ENTER_LONG", "ENTER_SHORT"}:
-        if positioned(packet):
-            raise ValueError("positioned_entry_not_supported")
-        if not entry_eligible(packet):
-            raise ValueError("entry_not_eligible")
         quantity = intent.get("quantity")
-        valid_quantities = packet.get("execution", {}).get("valid_entry_quantities", [])
-        if not isinstance(quantity, int) or isinstance(quantity, bool) or quantity not in valid_quantities:
+        if (
+            not isinstance(quantity, int)
+            or isinstance(quantity, bool)
+            or quantity < 1
+        ):
             raise ValueError("entry_quantity_invalid")
         if intent.get("order_type") != "MARKET":
             raise ValueError("entry_order_type_invalid")
+
         stop = _number(intent.get("stop_loss"), "stop_loss")
         target = _number(intent.get("take_profit_1"), "take_profit_1")
         market = packet.get("market", {})
@@ -366,15 +503,19 @@ def validate_intent(
         if not isinstance(reference, (int, float)) or reference <= 0:
             reference = market.get("last")
         reference = _number(reference, "reference_price")
-        if action == "ENTER_LONG" and not (stop < reference < target):
+
+        if action == "ENTER_LONG" and not stop < reference < target:
             raise ValueError("long_geometry_invalid")
-        if action == "ENTER_SHORT" and not (target < reference < stop):
+        if action == "ENTER_SHORT" and not target < reference < stop:
             raise ValueError("short_geometry_invalid")
     elif any(field in intent for field in ENTRY_FIELDS):
         raise ValueError("non_entry_contains_entry_fields")
+
     if directive and directive.get("directive_type") == "forced_entry":
-        expected = "ENTER_LONG" if directive.get("bias") == "long" else "ENTER_SHORT"
-        if action != expected:
+        expected_action = (
+            "ENTER_LONG" if directive.get("bias") == "long" else "ENTER_SHORT"
+        )
+        if action != expected_action:
             raise ValueError("forced_entry_not_honored")
 
 
@@ -388,33 +529,51 @@ def invoke_valid_intent(
     current_prompt = prompt
     for repair_count in range(2):
         try:
-            value = invoke_hermes(profile, current_prompt, timeout_seconds)
-            intent = normalize_intent(value, packet)
+            intent = normalize_intent(
+                invoke_hermes(profile, current_prompt, timeout_seconds),
+                packet,
+            )
             validate_intent(intent, packet, directive)
             return intent, repair_count
         except ValueError as error:
             if repair_count:
                 raise
-            current_prompt += "\nSTRICT_OUTPUT_CORRECTION=" + json.dumps({
-                "validation_error": str(error)[:240],
-                "instruction": "Regenerate the same current decision as one complete strict glitch.intent.v2 object. Preserve current account, instrument, snapshot, and requested forced direction.",
-            }, separators=(",", ":"))
+            current_prompt += "\nSTRICT_OUTPUT_CORRECTION=" + json.dumps(
+                {
+                    "validation_error": str(error)[:240],
+                    "instruction": (
+                        "Regenerate the same current decision as one complete "
+                        "strict glitch.intent.v2 object. Preserve current "
+                        "identities and requested forced direction."
+                    ),
+                },
+                separators=(",", ":"),
+            )
     raise AssertionError("unreachable")
 
 
 def post_intent(intent: dict[str, Any]) -> dict[str, Any]:
-    status, body = request_json("/intent", method="POST", body=intent, token=local_token())
+    status, body = request_json(
+        "/intent",
+        method="POST",
+        body=intent,
+        token=local_token(),
+    )
     return {"http_status": status, "body": body}
 
 
 def run_once(args: argparse.Namespace, root: Path) -> int:
     health_status, health = request_json("/health")
-    if health_status != 200 or health.get("status") != "ok":
+    if health_status != 200 or health.get("status") not in {"ok", "degraded"}:
         raise RuntimeError("gateway_health_unavailable")
+
     packet_status, packet = request_json("/packet", token=local_token())
     if packet_status != 200:
         raise RuntimeError(f"gateway_packet_failed:{packet_status}")
-    if packet.get("schema_version") != "glitch.direct.decision_packet.v1" or not packet_is_current(packet):
+    if (
+        packet.get("schema_version") not in SUPPORTED_PACKET_SCHEMAS
+        or not packet_is_current(packet)
+    ):
         return 0
 
     state = state_root(root)
@@ -422,77 +581,102 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     directive = read_directive(state)
     if not should_invoke(packet, directive):
         return 0
-    frames = recent_frames(state, 5)
-    if not positioned(packet) and len(frames) < 5:
-        return 0
 
+    frames = recent_frames(state, 5)
     packet_id = str(packet.get("packet_id") or "")
     if not packet_id:
         raise ValueError("packet_id_missing")
+
     receipt_path = state / "receipts" / f"{packet_id}.json"
     outbox_path = state / "outbox" / f"{packet_id}.json"
     attempt_path = state / "attempts" / f"{packet_id}.json"
     if receipt_path.is_file():
         return 0
+
     if outbox_path.is_file():
         intent = read_json(outbox_path)
         validate_intent(intent, packet, None)
     else:
         if attempt_path.is_file():
             return 0
-        write_json_atomic(attempt_path, {
-            "schema_version": "glitch.topstep.model_attempt.v1",
-            "packet_id": packet_id,
-            "started_utc": utc_now(),
-            "status": "started",
-            "model": CORE_MODEL,
-            "provider": CORE_PROVIDER,
-            "session_mode": "isolated",
-        })
-        prompt = build_prompt(packet, frames, recent_context(state), directive)
+
+        write_json_atomic(
+            attempt_path,
+            {
+                "schema_version": "glitch.topstep.model_attempt.v2",
+                "packet_id": packet_id,
+                "started_utc": utc_now(),
+                "status": "started",
+                "model": core_model(),
+                "provider": core_provider(),
+                "session_mode": "isolated",
+            },
+        )
         try:
             intent, repair_count = invoke_valid_intent(
-                args.profile, prompt, packet, directive, args.timeout_seconds
+                args.profile,
+                build_prompt(
+                    packet,
+                    frames,
+                    recent_context(state),
+                    directive,
+                ),
+                packet,
+                directive,
+                args.timeout_seconds,
             )
         except Exception as error:
             attempt = read_json(attempt_path)
-            attempt.update({
-                "completed_utc": utc_now(),
-                "status": "failed",
-                "error": f"{type(error).__name__}:{error}"[:500],
-            })
+            attempt.update(
+                completed_utc=utc_now(),
+                status="failed",
+                error=f"{type(error).__name__}:{error}"[:500],
+            )
             write_json_atomic(attempt_path, attempt)
-            append_jsonl(state / "events.jsonl", {
-                "schema_version": "glitch.topstep.cycle_event.v1",
-                "event": "decision_failed",
+            append_jsonl(
+                state / "events.jsonl",
+                {
+                    "schema_version": "glitch.topstep.cycle_event.v2",
+                    "event": "decision_failed",
+                    "recorded_utc": utc_now(),
+                    "packet_id": packet_id,
+                    "error": attempt["error"],
+                },
+            )
+            raise
+
+        write_json_atomic(outbox_path, intent)
+        append_jsonl(
+            state / "decisions.jsonl",
+            {
+                "schema_version": "glitch.topstep.decision_record.v2",
                 "recorded_utc": utc_now(),
                 "packet_id": packet_id,
-                "error": attempt["error"],
-            })
-            raise
-        write_json_atomic(outbox_path, intent)
-        append_jsonl(state / "decisions.jsonl", {
-            "schema_version": "glitch.topstep.decision_record.v1",
-            "recorded_utc": utc_now(),
-            "packet_id": packet_id,
-            "intent": intent,
-        })
+                "intent": intent,
+            },
+        )
         attempt = read_json(attempt_path)
-        attempt.update({
-            "completed_utc": utc_now(),
-            "status": "decision_ready",
-            "output_repair_count": repair_count,
-        })
+        attempt.update(
+            completed_utc=utc_now(),
+            status="decision_ready",
+            output_repair_count=repair_count,
+        )
         write_json_atomic(attempt_path, attempt)
         if directive:
             consume_directive(state, directive, packet_id)
 
     if args.dry_run:
-        print(json.dumps({"packet_id": packet_id, "submitted": False}, separators=(",", ":")))
+        print(
+            json.dumps(
+                {"packet_id": packet_id, "submitted": False},
+                separators=(",", ":"),
+            )
+        )
         return 0
+
     result = post_intent(intent)
     receipt = {
-        "schema_version": "glitch.topstep.delivery_receipt.v1",
+        "schema_version": "glitch.topstep.delivery_receipt.v2",
         "recorded_utc": utc_now(),
         "packet_id": packet_id,
         "intent_id": intent["intent_id"],
@@ -507,23 +691,33 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--profile", default=PROFILE_NAME)
-    parser.add_argument("--timeout-seconds", type=int, default=int(os.environ.get("GLITCH_TOPSTEP_MODEL_TIMEOUT_SECONDS", "240")))
+    parser.add_argument(
+        "--timeout-seconds",
+        type=int,
+        default=int(os.environ.get("GLITCH_TOPSTEP_MODEL_TIMEOUT_SECONDS", "240")),
+    )
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
+
     root = configure_environment()
     state = state_root(root)
     state.mkdir(parents=True, exist_ok=True)
     lock_path = state / "direct-cycle.lock"
+
     try:
         descriptor = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
     except FileExistsError:
         try:
-            if time.time() - lock_path.stat().st_mtime <= max(args.timeout_seconds * 2, 600):
+            if time.time() - lock_path.stat().st_mtime <= max(
+                args.timeout_seconds * 2,
+                600,
+            ):
                 return 0
             lock_path.unlink()
             descriptor = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
         except (FileNotFoundError, FileExistsError):
             return 0
+
     try:
         os.write(descriptor, str(os.getpid()).encode("ascii"))
         return run_once(args, root)
@@ -536,5 +730,10 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except Exception as error:
-        print(json.dumps({"event": "topstep_cycle_failed", "error": str(error)}), file=sys.stderr)
+        print(
+            json.dumps(
+                {"event": "topstep_cycle_failed", "error": str(error)}
+            ),
+            file=sys.stderr,
+        )
         raise SystemExit(1)
