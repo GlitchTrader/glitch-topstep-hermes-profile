@@ -153,9 +153,17 @@ def load_dotenv(path: Path) -> None:
             os.environ[key] = value
 
 
+def apply_provider_env_aliases() -> None:
+    if not os.environ.get("OPENROUTER_API_KEY", "").strip():
+        topstep_key = os.environ.get("GLITCH_TOPSTEP_OPENROUTER_API_KEY", "").strip()
+        if topstep_key:
+            os.environ["OPENROUTER_API_KEY"] = topstep_key
+
+
 def configure_environment(root: Path | None = None) -> Path:
     resolved = (root or profile_root()).resolve()
     load_dotenv(resolved / ".env")
+    apply_provider_env_aliases()
     return resolved
 
 
