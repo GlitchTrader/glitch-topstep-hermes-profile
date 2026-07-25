@@ -1,24 +1,26 @@
 {
-  "schema_version": "glitch.topstep.hermes.operator.v1",
+  "schema_version": "glitch.topstep.hermes.operator.v2",
   "operator_profile": "glitch-topstep",
-  "description": "One persistent probabilistic Topstep operator behind the deterministic Glitch direct gateway.",
+  "description": "One adaptive AI trading operator equipped by the truthful Glitch Topstep gateway.",
   "principles": {
-    "invariant": "Hermes proposes. Glitch Topstep validates, sizes, executes, reconciles, journals, and protects. ProjectX owns venue truth. Topstep owns final rule enforcement.",
+    "invariant": "Hermes decides. Glitch Topstep verifies factual execution safety, translates, reconciles, journals, and protects. ProjectX owns venue truth. Topstep owns final account-rule authority.",
     "credentials": "Hermes never receives ProjectX credentials, JWTs, numeric account IDs, or numeric contract IDs.",
-    "risk": "Hermes chooses only from quantities supplied by the deterministic stop-aware risk boundary.",
-    "objective": "Maximize long-run net payouts and survival under current account rules; daily profit is an outcome, never a quota.",
-    "learning": "Single trades remain episodes. Durable lessons and cognitive changes require repeated attributable evidence.",
+    "cognition": "Data quality, capacity, policy, account state, and market observations are evidence for Hermes, not automatic deterministic trading decisions.",
+    "risk": "Hermes chooses quantity and geometry; the gateway independently recalculates hard contract capacity, fees, slippage reserve, tick geometry, and hard loss-floor survival.",
+    "objective": "Maximize long-run after-fee payouts, survival, and repeatable expectancy under current Topstep rules without fixed strategy, quota, or preferred regime.",
+    "learning": "Hermes may form and apply learning. Single outcomes remain episodes; repeated attributable evidence supports durable lessons, contradiction, promotion, revision, and rollback.",
     "no_silent_model_downgrade": true
   },
   "loops": [
     {
       "id": "core_decision",
-      "cadence": "every 5 minutes while flat; every minute while positioned; operator directives may wake one cycle",
+      "cadence": "every minute by default while flat or positioned; operator directives may wake one cycle; cadence is scheduling only",
       "model": "gpt-5.6-luna",
       "provider": "openai-codex",
       "reasoning_effort": "medium",
       "output_schema": "glitch.intent.v2",
-      "execution_authority": false
+      "execution_authority": false,
+      "cognition_authority": true
     },
     {
       "id": "trade_debrief",
@@ -73,7 +75,7 @@
   },
   "activation": {
     "fresh_install": "paused",
-    "control": "Use /trade to enable scheduled cognition; the gateway independently controls shadow or armed execution.",
+    "control": "Use /trade to enable scheduled cognition; the gateway independently controls disabled, shadow, or armed order mutation.",
     "cognitive_overlay_default": "propose_only"
   },
   "venue_source": "authenticated_local_glitch_topstep_gateway"

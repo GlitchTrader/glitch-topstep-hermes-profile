@@ -104,6 +104,7 @@ function Ensure-CronJob {
 Assert-DistributionIntegrity
 $requiredFiles = @(
     'scripts\common.py',
+    'scripts\launch-topstep-cycle.py',
     'scripts\run-topstep-cycle.py',
     'scripts\launch-topstep-learning.py',
     'scripts\run-topstep-learning.py',
@@ -122,7 +123,7 @@ New-Item -ItemType Directory -Force -Path (Join-Path $profileRoot 'state') | Out
 New-Item -ItemType Directory -Force -Path (Join-Path $profileRoot 'state\supervisor') | Out-Null
 
 & hermes -p $Profile plugins enable topstep-control --no-allow-tool-override | Out-Null
-if ($LASTEXITCODE -ne 0) { throw 'Could not enable the deterministic Topstep control plugin.' }
+if ($LASTEXITCODE -ne 0) { throw 'Could not enable the Topstep control plugin.' }
 & hermes -p $Profile gateway install --start-now --start-on-login
 if ($LASTEXITCODE -ne 0) { throw 'Could not install the supervised Glitch Topstep Hermes gateway.' }
 
@@ -132,7 +133,7 @@ try {
     $directJob = Ensure-CronJob `
         -Name 'glitch-topstep-direct-operator' `
         -Schedule '* * * * *' `
-        -Script 'run-topstep-cycle.py' `
+        -Script 'launch-topstep-cycle.py' `
         -Workdir (Join-Path $profileRoot 'scripts')
     $learningJob = Ensure-CronJob `
         -Name 'glitch-topstep-learning-supervisor' `
@@ -147,7 +148,7 @@ finally {
 [ordered]@{
     schema_version = 'glitch.topstep.hermes.setup.v1'
     profile = $Profile
-    distribution_version = '0.1.0'
+    distribution_version = '0.1.1'
     gateway_supervised = $true
     plugin_enabled = $true
     jobs = @($directJob, $learningJob)
