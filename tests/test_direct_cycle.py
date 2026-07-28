@@ -243,6 +243,59 @@ class DirectCycleTests(unittest.TestCase):
             MODULE.evidence_fingerprint(second),
         )
 
+    def test_stale_gateway_skip_when_flat_and_incomplete(self):
+        current = packet(6, state_complete=False)
+        self.assertEqual(
+            MODULE.stale_gateway_skip_reason(current, None),
+            "incomplete_gateway_state",
+        )
+
+    def test_stale_gateway_skip_not_when_positioned(self):
+        current = packet(6, state_complete=False, positioned=True)
+        self.assertIsNone(MODULE.stale_gateway_skip_reason(current, None))
+
+    def test_stale_gateway_skip_on_quote_age(self):
+        current = packet(6)
+        current["data_quality"]["quote_age_ms"] = 12000
+        self.assertEqual(
+            MODULE.stale_gateway_skip_reason(current, None),
+            "stale_gateway_quote",
+        )
+
+    def test_retry_after_failure_blocks_unchanged_skip(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            attempts = state / "attempts"
+            attempts.mkdir(parents=True)
+            write_json = MODULE.write_json_atomic
+            write_json(
+                attempts / "prior.json",
+                {
+                    "schema_version": "glitch.topstep.model_attempt.v2",
+                    "packet_id": "prior",
+                    "status": "failed",
+                },
+            )
+            current = packet(6)
+            write_json(
+                state / "last-evidence.json",
+                {
+                    "schema_version": "glitch.topstep.last_evidence.v1",
+                    "fingerprint": MODULE.evidence_fingerprint(current),
+                },
+            )
+            with mock.patch.dict(
+                os.environ,
+                {"GLITCH_TOPSTEP_SKIP_UNCHANGED_EVIDENCE": "true"},
+            ):
+                self.assertFalse(
+                    MODULE.should_skip_unchanged_evidence(
+                        current,
+                        None,
+                        state,
+                    )
+                )
+
     def test_entry_is_not_pre_gated_by_gateway_capacity_metadata(self):
         current_packet = packet(state_complete=False)
         value = MODULE.normalize_intent(intent("ENTER_LONG", 9), current_packet)
