@@ -1,109 +1,161 @@
-# Glitch Topstep Hermes Profile v0.1.1
+# Glitch Topstep Hermes Profile
 
-Dedicated Hermes cognition, skills, learning workers, and operator controls for [`GlitchTrader/glitch-topstep`](https://github.com/GlitchTrader/glitch-topstep).
+Hermes cognition, skills, learning workers, and operator controls for [`GlitchTrader/glitch-topstep`](https://github.com/GlitchTrader/glitch-topstep).
 
 ```text
 ProjectX / TopstepX
         │
         ▼
-Glitch Topstep local gateway
-  truthful state · hard account facts · execution · receipts
+Glitch Topstep gateway (separate repo, must be running)
         │ authenticated sanitized packet
         ▼
-Hermes profile: glitch-topstep
+Hermes profile: glitch-topstep  (this repo)
   observation · judgment · decision · review · learning
         │ strict glitch.intent.v2
         ▼
-Glitch Topstep local gateway
-  factual verification · translation · reconciliation · protection
+Glitch Topstep gateway
+  factual verification · execution · receipts
 ```
 
-## Authority
+**Status:** Experimental. Fresh installs create jobs **paused**. No profitability, payout, unattended-operation, or live-readiness claim.
 
-```text
-Hermes decides.
-Glitch Topstep verifies factual execution safety, translates, reconciles, journals, and protects.
-ProjectX owns venue truth.
-Topstep owns final account-rule authority.
-```
+**Authority:** Hermes decides. Glitch verifies. This profile never holds ProjectX credentials. See [`docs/AUTHORITY.md`](docs/AUTHORITY.md).
 
-The profile never contains or receives ProjectX credentials, JWTs, numeric account IDs, or numeric contract IDs. It communicates only with the authenticated loopback gateway.
+Current work: [`docs/ledger/ledger.json`](docs/ledger/ledger.json). Gateway work: [`glitch-topstep/docs/ledger/ledger.json`](https://github.com/GlitchTrader/glitch-topstep/blob/main/docs/ledger/ledger.json).
 
-Market observations, data-quality warnings, account headroom, capacity, stage, payout state, and policy fields are evidence for Hermes. They are not deterministic trading decisions. The gateway may reject an executable intent only when it cannot prove factual correctness or an authoritative hard venue/account boundary would be violated.
+---
 
-## Status
+## Prerequisites
 
-Experimental Topstep-first implementation. Fresh installations create operator and learning jobs in a paused state. The profile makes no profitability, payout, unattended-operation, funded-account, or live-readiness claim.
+- **Windows** with the **glitch-topstep** gateway installed and running in shadow (or disabled)
+- **Hermes 0.18.2+**
+- **OpenAI Codex OAuth** on the `glitch-topstep` profile (or another explicitly configured provider)
+- **Same local bearer token** in gateway `.env` and profile `.env`
+- **Python 3.12+** — for developing and testing this repo
 
-Implemented:
+---
 
-- isolated Luna/Codex decision sessions, with explicit model/provider configuration and no silent downgrade;
-- every-minute flat and positioned cognition by default, configurable as scheduling only;
-- available-frame continuity with no five-frame or `state_complete` cognition prerequisite;
-- strict `glitch.intent.v2` identity, schema, finite-number, and geometry validation;
-- durable outbox, decisions, receipts, attempt records, and operator directives;
-- nonblocking operator and learning launchers so model latency does not occupy native cron;
-- `/trade`, `/pause_trading`, `/flatten_all`, `/topstep_status`, `/long`, `/short`, and bias controls;
-- Sol debrief, hourly review, five-hour planning, and daily learning workers;
-- canonical outcome-only durable learning;
-- proposed-by-default cognitive overlays with an explicit activation switch;
-- checksum-verified installation and supervised Hermes gateway.
+## Install (operators)
 
-Current gateway limitations remain authoritative: one configured account and contract, one entry tranche, no verified `MOVE_STOP`/`MOVE_TP`, manual account-policy evidence, no durable provider bracket ownership, and no complete payout lifecycle.
-
-## Requirements
-
-- A personal Windows device with the local `glitch-topstep` Node service installed and running.
-- Hermes `0.18.2` or newer.
-- OpenAI Codex OAuth authorized for the `glitch-topstep` profile, unless the operator explicitly configures another supported model/provider.
-- The same `GLITCH_TOPSTEP_LOCAL_TOKEN` configured in both repositories.
-
-## Install
+Gateway first, then profile:
 
 ```powershell
+# 1. Gateway — see glitch-topstep README
+cd glitch-topstep
+npm start
+
+# 2. Profile
 hermes profile install github.com/GlitchTrader/glitch-topstep-hermes-profile --alias
 hermes -p glitch-topstep auth add openai-codex --type oauth
 notepad "$env:LOCALAPPDATA\hermes\profiles\glitch-topstep\.env"
+```
+
+Minimum profile `.env`:
+
+```text
+GLITCH_TOPSTEP_LOCAL_TOKEN=<same as gateway GLITCH_LOCAL_TOKEN>
+```
+
+```powershell
 powershell -ExecutionPolicy Bypass -File "$env:LOCALAPPDATA\hermes\profiles\glitch-topstep\setup.ps1"
 ```
 
-Set at minimum:
-
-```text
-GLITCH_TOPSTEP_LOCAL_TOKEN=<same local token used by the gateway>
-```
-
-Then:
+In Hermes:
 
 ```text
 /topstep_status
 /trade
 ```
 
-`/trade` enables scheduled Hermes cognition only. The Node gateway independently remains `disabled`, `shadow`, or `armed` according to explicit human configuration.
+`/trade` enables scheduled cognition only. Gateway execution mode (`disabled` / `shadow` / `armed`) is set **only** in the gateway repo.
 
-## Controls
-
-- `/topstep_status` — gateway health, mode, account visibility, and Hermes job state.
-- `/trade` — resume the minute operator and 15-minute learning launcher.
-- `/pause_trading` — pause both jobs without altering provider-side protection.
-- `/flatten_all` — pause cognition and submit one risk-reducing `EXIT` through the gateway contract.
-- `/long`, `/short` — queue one operator-directed experiment for the next cycle; the gateway still verifies factual execution.
-- `/bias_long`, `/bias_short`, `/bias_neutral` — soft one-cycle advisory.
-
-## Updating
+### Update installed profile
 
 ```powershell
 hermes profile update glitch-topstep
 powershell -ExecutionPolicy Bypass -File "$env:LOCALAPPDATA\hermes\profiles\glitch-topstep\setup.ps1"
 ```
 
-Authentication, `.env`, sessions, memory, state, ledgers, and existing enabled/paused job state are preserved. Distribution-owned files are replaced and checksum-verified.
+Auth, `.env`, sessions, memory, state, and job pause/enabled state are preserved.
+
+---
+
+## Clone and develop (contributors)
+
+```powershell
+git clone https://github.com/GlitchTrader/glitch-topstep-hermes-profile.git
+cd glitch-topstep-hermes-profile
+cp .env.EXAMPLE .env
+python -m unittest discover -s tests -p 'test_*.py'
+```
+
+CI runs `py_compile` on scripts/plugins plus the same unittest suite on every push/PR.
+
+To test against a live gateway, point `.env` at your local instance and ensure `GLITCH_TOPSTEP_LOCAL_TOKEN` matches.
+
+### Edit → verify → commit → push
+
+```powershell
+python -m unittest discover -s tests -p 'test_*.py'
+git checkout -b agent/your-topic
+git add <files>
+git commit -m "docs: short description"
+git push -u origin agent/your-topic
+gh pr create
+```
+
+After merging profile changes operators care about, bump distribution metadata if required and remind users to `hermes profile update glitch-topstep`.
+
+### Where to edit
+
+| Area | Path |
+|------|------|
+| Operator doctrine | `SOUL.md`, `docs/AUTHORITY.md` |
+| Decision cycle | `scripts/run-topstep-cycle.py`, `scripts/launch-topstep-cycle.py` |
+| Intent skill | `skills/topstep-build-intent/SKILL.md` |
+| Hermes chat controls | `plugins/topstep-control/` |
+| Learning workers | `scripts/run-topstep-learning.py`, `skills/topstep-*` |
+| Tests | `tests/test_*.py` |
+
+### Never commit
+
+`.env`, Hermes `state/`, sessions, memory, logs, or operator-specific ledgers.
+
+---
+
+## Operator controls
+
+| Command | Effect |
+|---------|--------|
+| `/topstep_status` | Gateway health, mode, account visibility, job state |
+| `/trade` | Resume minute operator + learning launcher |
+| `/pause_trading` | Pause jobs; does not cancel provider orders |
+| `/flatten_all` | Pause jobs + submit one risk-reducing `EXIT` via gateway |
+| `/long`, `/short` | Queue one operator-directed experiment for next cycle |
+| `/bias_long`, `/bias_short`, `/bias_neutral` | Soft one-cycle advisory |
+
+---
+
+## Doctrine (aligned with gateway + NinjaTrader learnings)
+
+- Packet fields are **evidence**, not hidden strategy gates.
+- Native MTF bars, rolling tape, and bounded DOM are described in `SOUL.md` — Hermes interprets; Glitch does not veto cognition on incomplete history alone.
+- **Duplicate `intent_id` retries** are gateway-owned replay. Do not resubmit a changed body under the same UUID or bypass reconciliation with timers.
+- Cognitive overlays stay **proposed** until explicitly activated (`GLITCH_TOPSTEP_AUTO_ACTIVATE_OVERLAY=false` by default).
+
+Gateway limitations remain authoritative until gateway ledger items close: one account/contract, no verified `MOVE_STOP`/`MOVE_TP`, manual policy evidence, no durable provider bracket ownership.
+
+---
 
 ## Documentation
 
-- [`docs/AUTHORITY.md`](docs/AUTHORITY.md)
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
-- [`docs/OPERATIONS.md`](docs/OPERATIONS.md)
-- [`docs/OUTCOME-CONTRACT.md`](docs/OUTCOME-CONTRACT.md)
-- [`docs/HANDOFF.md`](docs/HANDOFF.md)
+| Doc | Purpose |
+|-----|---------|
+| [`docs/AUTHORITY.md`](docs/AUTHORITY.md) | Cognition vs validation boundary |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Profile layout and workers |
+| [`docs/OPERATIONS.md`](docs/OPERATIONS.md) | Startup order, incidents |
+| [`docs/OUTCOME-CONTRACT.md`](docs/OUTCOME-CONTRACT.md) | Learning input contract |
+| [`docs/ledger/ledger.json`](docs/ledger/ledger.json) | Profile rail (`RAIL-*`) |
+| [`docs/HANDOFF.md`](docs/HANDOFF.md) | Historical handoff notes |
+
+Gateway README (install, API, contributing): [glitch-topstep](https://github.com/GlitchTrader/glitch-topstep).

@@ -1,5 +1,7 @@
 # Codex handoff
 
+> **Contributor onboarding moved to [`README.md`](../README.md)** (install, develop, push, operator controls).
+
 ## What is implemented
 
 The repository contains a standalone Hermes distribution aligned to the current `glitch-topstep` gateway contract:
