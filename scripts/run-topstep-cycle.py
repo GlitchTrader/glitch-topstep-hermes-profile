@@ -53,6 +53,13 @@ AUDIT_FIELDS = {
     "change_condition",
     "final_choice",
 }
+GATEWAY_REASON_MAX_LENGTH = 1000
+GATEWAY_AUDIT_FIELD_MAX_LENGTH = 500
+
+
+def truncate_gateway_string(value: str, max_length: int) -> str:
+    # ponytail: hard cap aligned with gateway stringField limits
+    return value.strip()[:max_length]
 CORE_FIELDS = {
     "schema_version",
     "intent_id",
@@ -569,6 +576,12 @@ def prepare_intent_for_delivery(
     fresh_hash = fresh_packet.get("market", {}).get("snapshot_hash")
     if aligned.get("snapshot_hash") != fresh_hash:
         aligned["snapshot_hash"] = fresh_hash
+    aligned["reason"] = truncate_gateway_string(aligned["reason"], GATEWAY_REASON_MAX_LENGTH)
+    audit = aligned.get("decision_audit")
+    if isinstance(audit, dict):
+        for field in AUDIT_FIELDS:
+            if isinstance(audit.get(field), str):
+                audit[field] = truncate_gateway_string(audit[field], GATEWAY_AUDIT_FIELD_MAX_LENGTH)
     validate_intent(aligned, fresh_packet, directive)
     return aligned
 

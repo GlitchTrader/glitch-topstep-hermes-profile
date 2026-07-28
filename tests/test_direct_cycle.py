@@ -242,6 +242,20 @@ class DirectCycleTests(unittest.TestCase):
             aligned = MODULE.prepare_intent_for_delivery(intent(), None)
         self.assertEqual(aligned["snapshot_hash"], "hash-2")
 
+    def test_prepare_intent_for_delivery_truncates_gateway_string_fields(self):
+        value = MODULE.normalize_intent(intent(), packet())
+        value["reason"] = "r" * 1100
+        value["decision_audit"]["bear_case"] = "x" * 600
+        value["decision_audit"]["decisive_evidence"] = "y" * 586
+        with mock.patch.object(MODULE, "request_json") as request_json:
+            request_json.return_value = (200, packet())
+            with mock.patch.object(MODULE, "local_token", return_value="test-token"):
+                with mock.patch.object(MODULE, "packet_is_current", return_value=True):
+                    delivered = MODULE.prepare_intent_for_delivery(value, None)
+        self.assertEqual(len(delivered["reason"]), MODULE.GATEWAY_REASON_MAX_LENGTH)
+        self.assertEqual(len(delivered["decision_audit"]["bear_case"]), MODULE.GATEWAY_AUDIT_FIELD_MAX_LENGTH)
+        self.assertEqual(len(delivered["decision_audit"]["decisive_evidence"]), MODULE.GATEWAY_AUDIT_FIELD_MAX_LENGTH)
+
 
 if __name__ == "__main__":
     unittest.main()
