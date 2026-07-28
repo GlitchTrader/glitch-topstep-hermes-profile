@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "project": "glitch-topstep-hermes-profile",
+  "updated": "2026-07-27",
+  "roadmap_ref": "README.md",
+  "items": [
+    {
+      "id": "RAIL-002",
+      "title": "Mirror NinjaTrader intent ownership doctrine in profile handoff",
+      "status": "done",
+      "priority": "P1",
+      "owner_role": "coder",
+      "acceptance": [
+        "Profile worker treats duplicate intent UUID retries as gateway-owned replay, not new decisions.",
+        "Profile docs forbid time-based resubmission or hidden deterministic gates.",
+        "SOUL and AUTHORITY describe truthful evidence-only cognition aligned with gateway receipts."
+      ],
+      "depends_on": [],
+      "evidence": [
+        "2026-07-25 commits d9a1ab0, a828e1f, ab0f480: truthful Topstep evidence, native MTF, rolling tape and partial depth doctrine.",
+        "2026-07-27: gateway atomic UUID+body claim and conflict receipts (glitch-topstep); profile AUTHORITY cross-ref updated."
+      ],
+      "sources": [
+        "docs/AUTHORITY.md",
+        "SOUL.md",
+        "skills/topstep-build-intent/SKILL.md"
+      ]
+    },
+      "title": "Bind work to glitch-topstep ledger",
+      "status": "deferred",
+      "priority": "P3",
+      "owner_role": "orchestrator",
+      "acceptance": [
+        "Resume when operator promotes this repo to active development."
+      ],
+      "depends_on": [],
+      "evidence": [],
+      "sources": [
+        "projects/glitch/glitch-topstep/docs/ledger/ledger.json"
+      ]
+    }
+  ]
+}

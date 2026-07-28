@@ -52,6 +52,8 @@ Hermes may learn. The builder must not require permission for ordinary cognition
 
 Durable memory still requires truthful attribution. Completed canonical outcomes are stronger evidence than balance changes, position disappearance, transport errors, or local guesses. Persisted overlays default to proposed state so they remain inspectable and reversible.
 
+Duplicate intent UUID retries are gateway-owned replay. The profile must not resubmit a changed body under the same `intent_id` or use wall-clock TTL, callback delay, or retry counters to bypass gateway reconciliation.
+
 ## Scheduling
 
 Cadence controls when Hermes observes and decides. It does not define whether the market is tradable. The default flat and positioned cadence is every minute. Operators may reduce flat cadence for cost or attention reasons without changing the trading doctrine.
