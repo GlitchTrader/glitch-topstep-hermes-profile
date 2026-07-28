@@ -275,8 +275,96 @@ def should_skip_unchanged_evidence(
         return False
     if directive is not None or positioned(packet):
         return False
+    if should_retry_after_failure(root, str(packet.get("packet_id") or "")):
+        return False
     fingerprint = evidence_fingerprint(packet)
     return fingerprint == read_last_evidence_fingerprint(root)
+
+
+def max_quote_age_ms() -> int:
+    try:
+        return max(1, int(os.environ.get("GLITCH_TOPSTEP_MAX_QUOTE_AGE_MS", "6000")))
+    except ValueError:
+        return 6000
+
+
+def skip_stale_gateway_evidence_enabled() -> bool:
+    return os.environ.get(
+        "GLITCH_TOPSTEP_SKIP_STALE_GATEWAY_EVIDENCE",
+        "true",
+    ).strip().lower() in {"1", "true", "yes"}
+
+
+def gateway_evidence_is_fresh(packet: dict[str, Any]) -> bool:
+    data_quality = (
+        packet.get("data_quality")
+        if isinstance(packet.get("data_quality"), dict)
+        else {}
+    )
+    if data_quality.get("state_complete") is not True:
+        return False
+    quote_age = data_quality.get("quote_age_ms")
+    if isinstance(quote_age, (int, float)) and not isinstance(quote_age, bool):
+        if float(quote_age) > max_quote_age_ms():
+            return False
+    return True
+
+
+RETRYABLE_ATTEMPT_STATUSES = frozenset(
+    {"started", "failed", "execution_failed", "delivery_incomplete"}
+)
+
+
+def latest_prior_attempt(root: Path, packet_id: str) -> dict[str, Any] | None:
+    attempts_dir = root / "attempts"
+    if not attempts_dir.is_dir():
+        return None
+    latest_path: Path | None = None
+    latest_mtime = 0.0
+    for path in attempts_dir.glob("*.json"):
+        if path.stem == packet_id:
+            continue
+        try:
+            mtime = path.stat().st_mtime
+        except OSError:
+            continue
+        if mtime >= latest_mtime:
+            latest_mtime = mtime
+            latest_path = path
+    if latest_path is None:
+        return None
+    try:
+        value = read_json(latest_path)
+    except (OSError, ValueError, TypeError):
+        return None
+    return value if isinstance(value, dict) else None
+
+
+def should_retry_after_failure(root: Path, packet_id: str) -> bool:
+    attempt = latest_prior_attempt(root, packet_id)
+    if attempt is None:
+        return False
+    return attempt.get("status") in RETRYABLE_ATTEMPT_STATUSES
+
+
+def stale_gateway_skip_reason(
+    packet: dict[str, Any],
+    directive: dict[str, Any] | None,
+) -> str | None:
+    if not skip_stale_gateway_evidence_enabled():
+        return None
+    if directive is not None or positioned(packet):
+        return None
+    if gateway_evidence_is_fresh(packet):
+        return None
+    data_quality = (
+        packet.get("data_quality")
+        if isinstance(packet.get("data_quality"), dict)
+        else {}
+    )
+    if data_quality.get("state_complete") is not True:
+        return "incomplete_gateway_state"
+    return "stale_gateway_quote"
 
 
 def capture_frame(packet: dict[str, Any], root: Path) -> Path:
@@ -734,6 +822,25 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     capture_frame(packet, state)
     directive = read_directive(state)
     if not should_invoke(packet, directive):
+        return 0
+
+    stale_reason = stale_gateway_skip_reason(packet, directive)
+    if stale_reason:
+        append_jsonl(
+            state / "events.jsonl",
+            {
+                "schema_version": "glitch.topstep.cycle_event.v2",
+                "event": "llm_skipped",
+                "recorded_utc": utc_now(),
+                "packet_id": packet.get("packet_id"),
+                "reason": stale_reason,
+                "quote_age_ms": (
+                    packet.get("data_quality", {}).get("quote_age_ms")
+                    if isinstance(packet.get("data_quality"), dict)
+                    else None
+                ),
+            },
+        )
         return 0
 
     if should_skip_unchanged_evidence(packet, directive, state):
