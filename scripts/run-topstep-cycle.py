@@ -23,6 +23,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from regime import detect_regime
 from common import (
     PROFILE_NAME,
     append_jsonl,
@@ -686,6 +687,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
                 "schema_version": "glitch.topstep.decision_record.v2",
                 "recorded_utc": utc_now(),
                 "packet_id": packet_id,
+                "regime_detected": detect_regime(packet),
                 "intent": intent,
             },
         )
