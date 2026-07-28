@@ -552,6 +552,27 @@ def invoke_valid_intent(
     raise AssertionError("unreachable")
 
 
+def prepare_intent_for_delivery(
+    intent: dict[str, Any],
+    directive: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    packet_status, fresh_packet = request_json("/packet", token=local_token())
+    if packet_status != 200:
+        raise RuntimeError(f"gateway_packet_failed:{packet_status}")
+    if (
+        fresh_packet.get("schema_version") not in SUPPORTED_PACKET_SCHEMAS
+        or not packet_is_current(fresh_packet)
+    ):
+        raise RuntimeError("gateway_packet_stale_before_delivery")
+
+    aligned = copy.deepcopy(intent)
+    fresh_hash = fresh_packet.get("market", {}).get("snapshot_hash")
+    if aligned.get("snapshot_hash") != fresh_hash:
+        aligned["snapshot_hash"] = fresh_hash
+    validate_intent(aligned, fresh_packet, directive)
+    return aligned
+
+
 def post_intent(intent: dict[str, Any]) -> dict[str, Any]:
     status, body = request_json(
         "/intent",
@@ -674,7 +695,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         )
         return 0
 
-    result = post_intent(intent)
+    result = post_intent(prepare_intent_for_delivery(intent, directive))
     receipt = {
         "schema_version": "glitch.topstep.delivery_receipt.v2",
         "recorded_utc": utc_now(),
