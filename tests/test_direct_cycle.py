@@ -1,3 +1,4 @@
+import copy
 import importlib.util
 import json
 import os
@@ -224,6 +225,22 @@ class DirectCycleTests(unittest.TestCase):
             schema="glitch.intent.v2",
         )
         self.assertEqual(value["action"], "NOTHING")
+
+    def test_prepare_intent_for_delivery_refreshes_snapshot_hash(self):
+        current_packet = packet()
+        fresh_packet = copy.deepcopy(current_packet)
+        fresh_packet["market"]["snapshot_hash"] = "hash-2"
+        with mock.patch.object(
+            MODULE,
+            "request_json",
+            side_effect=[(200, fresh_packet)],
+        ), mock.patch.object(MODULE, "local_token", return_value="token"), mock.patch.object(
+            MODULE,
+            "packet_is_current",
+            return_value=True,
+        ):
+            aligned = MODULE.prepare_intent_for_delivery(intent(), None)
+        self.assertEqual(aligned["snapshot_hash"], "hash-2")
 
 
 if __name__ == "__main__":
