@@ -189,6 +189,60 @@ class DirectCycleTests(unittest.TestCase):
         self.assertTrue(MODULE.should_invoke(packet(6, positioned=True), None))
         self.assertTrue(MODULE.should_invoke(packet(6), {"status": "pending"}))
 
+    def test_evidence_fingerprint_ignores_snapshot_hash(self):
+        first = packet(6)
+        second = copy.deepcopy(first)
+        second["packet_id"] = "packet-6b"
+        second["market"]["snapshot_hash"] = "hash-2"
+        second["data_quality"]["quote_age_ms"] = 99999
+        self.assertEqual(
+            MODULE.evidence_fingerprint(first),
+            MODULE.evidence_fingerprint(second),
+        )
+
+    def test_skip_unchanged_evidence_when_flat(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            current = packet(6)
+            MODULE.write_last_evidence_fingerprint(
+                state,
+                current,
+                MODULE.evidence_fingerprint(current),
+            )
+            with mock.patch.dict(
+                os.environ,
+                {"GLITCH_TOPSTEP_SKIP_UNCHANGED_EVIDENCE": "true"},
+            ):
+                self.assertTrue(
+                    MODULE.should_skip_unchanged_evidence(current, None, state)
+                )
+
+    def test_never_skip_unchanged_evidence_when_positioned(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            current = packet(6, positioned=True)
+            MODULE.write_last_evidence_fingerprint(
+                state,
+                current,
+                MODULE.evidence_fingerprint(current),
+            )
+            with mock.patch.dict(
+                os.environ,
+                {"GLITCH_TOPSTEP_SKIP_UNCHANGED_EVIDENCE": "true"},
+            ):
+                self.assertFalse(
+                    MODULE.should_skip_unchanged_evidence(current, None, state)
+                )
+
+    def test_fingerprint_changes_when_price_changes(self):
+        first = packet(6)
+        second = copy.deepcopy(first)
+        second["market"]["last"] = float(second["market"]["last"]) + 1.0
+        self.assertNotEqual(
+            MODULE.evidence_fingerprint(first),
+            MODULE.evidence_fingerprint(second),
+        )
+
     def test_entry_is_not_pre_gated_by_gateway_capacity_metadata(self):
         current_packet = packet(state_complete=False)
         value = MODULE.normalize_intent(intent("ENTER_LONG", 9), current_packet)

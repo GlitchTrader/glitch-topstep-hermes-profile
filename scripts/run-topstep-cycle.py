@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import hashlib
 import json
 import math
 import os
@@ -158,6 +159,124 @@ def should_invoke(
     if directive is not None or positioned(packet):
         return True
     return packet_minute(packet) % flat_decision_interval_minutes() == 0
+
+
+def skip_unchanged_evidence_enabled() -> bool:
+    return os.environ.get(
+        "GLITCH_TOPSTEP_SKIP_UNCHANGED_EVIDENCE",
+        "true",
+    ).strip().lower() in {"1", "true", "yes"}
+
+
+def evidence_fingerprint(packet: dict[str, Any]) -> str:
+    """Stable hash of decision-relevant gateway evidence (not packet lease noise)."""
+    account = packet.get("account") if isinstance(packet.get("account"), dict) else {}
+    market = packet.get("market") if isinstance(packet.get("market"), dict) else {}
+    execution = (
+        packet.get("execution") if isinstance(packet.get("execution"), dict) else {}
+    )
+    data_quality = (
+        packet.get("data_quality")
+        if isinstance(packet.get("data_quality"), dict)
+        else {}
+    )
+
+    order_flow_wrap = (
+        packet.get("order_flow") if isinstance(packet.get("order_flow"), dict) else {}
+    )
+    order_flow = (
+        order_flow_wrap.get("observation")
+        if isinstance(order_flow_wrap.get("observation"), dict)
+        else {}
+    )
+
+    market_obs_wrap = (
+        packet.get("market_observation")
+        if isinstance(packet.get("market_observation"), dict)
+        else {}
+    )
+    market_obs = (
+        market_obs_wrap.get("observation")
+        if isinstance(market_obs_wrap.get("observation"), dict)
+        else {}
+    )
+
+    trade_count_60s = None
+    for window in order_flow.get("windows") or []:
+        if isinstance(window, dict) and window.get("window_seconds") == 60:
+            trade_count_60s = window.get("trade_count")
+            break
+
+    bar_1m_close = None
+    bar_1m_utc = None
+    for timeframe in market_obs.get("timeframes") or []:
+        if not isinstance(timeframe, dict) or timeframe.get("timeframe_minutes") != 1:
+            continue
+        features = timeframe.get("features")
+        if isinstance(features, dict):
+            bar_1m_close = features.get("latest_close")
+        bar_1m_utc = timeframe.get("latest_bar_utc")
+        break
+
+    payload = {
+        "instrument_open_contracts": account.get("instrument_open_contracts"),
+        "working_orders": account.get("working_orders"),
+        "conservative_equity": account.get("conservative_equity"),
+        "last": market.get("last"),
+        "bid": market.get("bid"),
+        "ask": market.get("ask"),
+        "gateway_mode": execution.get("gateway_mode"),
+        "new_exposure": execution.get("new_exposure_technically_supported"),
+        "state_complete": data_quality.get("state_complete"),
+        "issues": sorted(data_quality.get("issues") or []),
+        "order_flow_through": order_flow.get("through_sequence"),
+        "order_flow_trade_count_60s": trade_count_60s,
+        "market_obs_generated_utc": market_obs.get("generated_utc"),
+        "bar_1m_close": bar_1m_close,
+        "bar_1m_utc": bar_1m_utc,
+    }
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
+def read_last_evidence_fingerprint(root: Path) -> str | None:
+    value = read_optional_json(root / "last-evidence.json")
+    if (
+        isinstance(value, dict)
+        and value.get("schema_version") == "glitch.topstep.last_evidence.v1"
+        and isinstance(value.get("fingerprint"), str)
+    ):
+        return value["fingerprint"]
+    return None
+
+
+def write_last_evidence_fingerprint(
+    root: Path,
+    packet: dict[str, Any],
+    fingerprint: str,
+) -> None:
+    write_json_atomic(
+        root / "last-evidence.json",
+        {
+            "schema_version": "glitch.topstep.last_evidence.v1",
+            "recorded_utc": utc_now(),
+            "packet_id": packet.get("packet_id"),
+            "fingerprint": fingerprint,
+        },
+    )
+
+
+def should_skip_unchanged_evidence(
+    packet: dict[str, Any],
+    directive: dict[str, Any] | None,
+    root: Path,
+) -> bool:
+    if not skip_unchanged_evidence_enabled():
+        return False
+    if directive is not None or positioned(packet):
+        return False
+    fingerprint = evidence_fingerprint(packet)
+    return fingerprint == read_last_evidence_fingerprint(root)
 
 
 def capture_frame(packet: dict[str, Any], root: Path) -> Path:
@@ -617,6 +736,20 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     if not should_invoke(packet, directive):
         return 0
 
+    if should_skip_unchanged_evidence(packet, directive, state):
+        append_jsonl(
+            state / "events.jsonl",
+            {
+                "schema_version": "glitch.topstep.cycle_event.v2",
+                "event": "cognition_skipped",
+                "recorded_utc": utc_now(),
+                "packet_id": packet.get("packet_id"),
+                "reason": "unchanged_evidence",
+                "fingerprint": evidence_fingerprint(packet),
+            },
+        )
+        return 0
+
     frames = recent_frames(state, 5)
     packet_id = str(packet.get("packet_id") or "")
     if not packet_id:
@@ -690,6 +823,11 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
                 "regime_detected": detect_regime(packet),
                 "intent": intent,
             },
+        )
+        write_last_evidence_fingerprint(
+            state,
+            packet,
+            evidence_fingerprint(packet),
         )
         attempt = read_json(attempt_path)
         attempt.update(
