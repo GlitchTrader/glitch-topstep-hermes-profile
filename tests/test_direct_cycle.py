@@ -319,6 +319,32 @@ class DirectCycleTests(unittest.TestCase):
         self.assertIn("not an automatic cognitive veto", value)
         self.assertIn("gateway independently verifies", value)
 
+    def test_prompt_recent_frames_use_compact_snapshots(self):
+        frame = {
+            "schema_version": "glitch.topstep.minute_frame.v2",
+            "minute_id": "20990101T1404Z",
+            "captured_utc": "2099-01-01T14:04:01Z",
+            "packet": packet(4),
+        }
+        prompt = MODULE.build_prompt(packet(5), [frame], {}, None)
+        envelope = json.loads(prompt.split("CURRENT_CYCLE=", 1)[1])
+        self.assertEqual(
+            envelope["recent_frames"][0]["schema_version"],
+            "glitch.topstep.frame_snapshot.v2",
+        )
+        self.assertNotIn(
+            "required_output_template",
+            envelope["recent_frames"][0]["packet"],
+        )
+        self.assertIn("required_output_template", envelope["decision_packet"])
+
+    def test_decision_frame_count_defaults_to_five(self):
+        self.assertEqual(MODULE.decision_frame_count(), 5)
+
+    def test_decision_frame_count_reads_env(self):
+        with mock.patch.dict(os.environ, {"GLITCH_TOPSTEP_DECISION_FRAME_COUNT": "3"}):
+            self.assertEqual(MODULE.decision_frame_count(), 3)
+
     def test_frame_capture_accepts_first_frame(self):
         with tempfile.TemporaryDirectory() as root:
             state = Path(root)
