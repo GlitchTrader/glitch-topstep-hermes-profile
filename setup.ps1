@@ -150,6 +150,8 @@ try {
     $env:HERMES_HOME = $profileRoot
     $directJob = Ensure-CronJob `
         -Name 'glitch-topstep-direct-operator' `
+        # Every minute: capture frames, deliver pending intents, and invoke LLM on the
+        # flat 5-minute boundary (or every minute while positioned).
         -Schedule '* * * * *' `
         -Script 'launch-topstep-cycle.py' `
         -Workdir (Join-Path $profileRoot 'scripts')

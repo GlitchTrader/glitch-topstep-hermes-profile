@@ -501,11 +501,15 @@ def discard_stale_outbox_intent(
     *,
     token: str,
 ) -> bool:
+    """Discard only when the decision packet was never captured locally.
+
+    A newer gateway packet id must not invalidate a completed decision: delivery
+    realigns snapshot_hash against the current packet before POST /intent.
+    """
+    del token  # retained for call-site compatibility
     reason: str | None = None
     if packet_for_outbox_id(state, packet_id) is None:
         reason = "stored_packet_not_found"
-    elif packet_has_advanced(packet_id, token=token):
-        reason = "newer_packet_published_before_delivery"
     if reason is None:
         return False
     try:

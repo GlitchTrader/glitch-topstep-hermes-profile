@@ -246,12 +246,9 @@ class DirectCycleTests(unittest.TestCase):
             MODULE.evidence_fingerprint(second),
         )
 
-    def test_stale_gateway_skip_when_flat_and_incomplete(self):
+    def test_stale_gateway_skip_not_when_state_incomplete(self):
         current = packet(6, state_complete=False)
-        self.assertEqual(
-            MODULE.stale_gateway_skip_reason(current, None),
-            "incomplete_gateway_state",
-        )
+        self.assertIsNone(MODULE.stale_gateway_skip_reason(current, None))
 
     def test_stale_gateway_skip_not_when_positioned(self):
         current = packet(6, state_complete=False, positioned=True)
@@ -528,7 +525,7 @@ class DirectCycleTests(unittest.TestCase):
         post_intent.assert_called_once()
         self.assertFalse((outbox / "packet-5.json").exists())
 
-    def test_discard_stale_outbox_intent_for_nothing_when_packet_advanced(self):
+    def test_discard_stale_outbox_intent_only_when_stored_packet_missing(self):
         with tempfile.TemporaryDirectory() as root:
             state = Path(root)
             outbox = state / "outbox"
@@ -550,8 +547,8 @@ class DirectCycleTests(unittest.TestCase):
                     intent("NOTHING"),
                     token="token",
                 )
-        self.assertTrue(discarded)
-        self.assertFalse(outbox_path.exists())
+            self.assertFalse(discarded)
+            self.assertTrue(outbox_path.exists())
 
     def test_packet_has_advanced_uses_inequality_not_ordering(self):
         with mock.patch.object(
