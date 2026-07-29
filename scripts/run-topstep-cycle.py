@@ -32,7 +32,7 @@ from common import (
     append_jsonl,
     configure_environment,
     extract_single_json_object,
-    gateway_packet_evidence_is_fresh,
+    max_quote_age_ms,
     hermes_chat_model_cli_args,
     hermes_model_version_label,
     local_token,
@@ -374,16 +374,16 @@ def stale_gateway_skip_reason(
         return None
     if directive is not None or positioned(packet):
         return None
-    if gateway_packet_evidence_is_fresh(packet):
-        return None
     data_quality = (
         packet.get("data_quality")
         if isinstance(packet.get("data_quality"), dict)
         else {}
     )
-    if data_quality.get("state_complete") is not True:
-        return "incomplete_gateway_state"
-    return "stale_gateway_quote"
+    quote_age = data_quality.get("quote_age_ms")
+    if isinstance(quote_age, (int, float)) and not isinstance(quote_age, bool):
+        if float(quote_age) > max_quote_age_ms():
+            return "stale_gateway_quote"
+    return None
 
 
 def capture_frame(packet: dict[str, Any], root: Path) -> Path:

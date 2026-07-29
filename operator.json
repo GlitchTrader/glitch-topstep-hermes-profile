@@ -14,7 +14,7 @@
   "loops": [
     {
       "id": "core_decision",
-      "cadence": "every minute by default while flat or positioned; operator directives may wake one cycle; cadence is scheduling only",
+      "cadence": "cron every minute for frame capture and positioned review; flat LLM decisions every 5 minutes (GLITCH_TOPSTEP_FLAT_DECISION_INTERVAL_MINUTES); operator directives may wake one cycle",
       "model": "gpt-5.6-luna",
       "provider": "openai-codex",
       "reasoning_effort": "medium",
