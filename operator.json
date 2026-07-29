@@ -70,7 +70,9 @@
       "topstep-self-learning",
       "topstep-self-heal",
       "topstep-supervisor-ledger",
-      "topstep-learning-loop"
+      "topstep-learning-loop",
+      "topstep-submit-intent",
+      "topstep-escalate-to-codex"
     ]
   },
   "activation": {
