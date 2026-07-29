@@ -1,3 +1,4 @@
+import argparse
 import copy
 import importlib
 import importlib.util
@@ -434,6 +435,131 @@ class DirectCycleTests(unittest.TestCase):
         rendered = PARITY.apply_cognitive_overlay(f"Before. {old} After.", overlay)
         self.assertIn("Use bounded evidence only.", rendered)
         self.assertNotIn(old, rendered)
+
+    def test_packet_for_outbox_id_finds_stored_frame(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            frames = state / "minute-frames"
+            frames.mkdir(parents=True)
+            stored = packet(5)
+            MODULE.write_json_atomic(
+                frames / "20990101T1405Z.json",
+                {"minute_id": "20990101T1405Z", "packet": stored},
+            )
+            found = PARITY.packet_for_outbox_id(state, "packet-5")
+        self.assertEqual(found, stored)
+
+    def test_prune_delivered_outboxes_removes_with_receipt(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            outbox = state / "outbox"
+            receipts = state / "receipts"
+            outbox.mkdir(parents=True)
+            receipts.mkdir(parents=True)
+            MODULE.write_json_atomic(outbox / "packet-1.json", intent())
+            MODULE.write_json_atomic(
+                receipts / "packet-1.json",
+                {
+                    "schema_version": "glitch.topstep.delivery_receipt.v2",
+                    "result": {"http_status": 200, "body": {"executor": "ok"}},
+                },
+            )
+            pruned = PARITY.prune_delivered_outboxes(state)
+        self.assertEqual(pruned, 1)
+        self.assertFalse((outbox / "packet-1.json").exists())
+
+    def test_pending_outbox_validates_against_stored_packet_not_current(self):
+        stored = packet(5)
+        stored["account"]["name"] = "TopstepX-50K"
+        current = packet(6)
+        current["account"]["name"] = "Other-Account"
+        current["market"]["snapshot_hash"] = "hash-other"
+        pending_intent = intent("NOTHING")
+
+        with tempfile.TemporaryDirectory() as root:
+            profile_root = Path(root)
+            state = MODULE.state_root(profile_root)
+            state.mkdir(parents=True)
+            frames = state / "minute-frames"
+            outbox = state / "outbox"
+            frames.mkdir(parents=True)
+            outbox.mkdir(parents=True)
+            MODULE.write_json_atomic(
+                frames / "20990101T1405Z.json",
+                {"minute_id": "20990101T1405Z", "packet": stored},
+            )
+            MODULE.write_json_atomic(outbox / "packet-5.json", pending_intent)
+
+            args = argparse.Namespace(
+                profile="glitch-topstep",
+                timeout_seconds=30,
+                packet_rollover_wait_seconds=0,
+                dry_run=False,
+            )
+            def fake_request_json(path, token=None):
+                if path == "/health":
+                    return (200, {"status": "ok"})
+                return (200, current)
+
+            with mock.patch.object(MODULE, "local_token", return_value="token"), mock.patch.object(
+                PARITY,
+                "packet_has_advanced",
+                return_value=False,
+            ), mock.patch.object(
+                MODULE,
+                "request_json",
+                side_effect=fake_request_json,
+            ), mock.patch.object(MODULE, "wait_for_packet_rollover", return_value=current), mock.patch.object(
+                MODULE,
+                "packet_is_current",
+                return_value=True,
+            ), mock.patch.object(
+                MODULE,
+                "prepare_intent_for_delivery",
+                side_effect=lambda value, _directive: value,
+            ), mock.patch.object(
+                MODULE,
+                "post_intent",
+                return_value={"http_status": 200, "body": {"executor": "ok"}},
+            ) as post_intent:
+                exit_code = MODULE.run_once(args, profile_root)
+
+        self.assertEqual(exit_code, 0)
+        post_intent.assert_called_once()
+        self.assertFalse((outbox / "packet-5.json").exists())
+
+    def test_discard_stale_outbox_intent_for_nothing_when_packet_advanced(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            outbox = state / "outbox"
+            frames = state / "minute-frames"
+            outbox.mkdir(parents=True)
+            frames.mkdir(parents=True)
+            stored = packet(5)
+            MODULE.write_json_atomic(
+                frames / "20990101T1405Z.json",
+                {"packet": stored},
+            )
+            outbox_path = outbox / "packet-5.json"
+            MODULE.write_json_atomic(outbox_path, intent("NOTHING"))
+            with mock.patch.object(PARITY, "packet_has_advanced", return_value=True):
+                discarded = PARITY.discard_stale_outbox_intent(
+                    state,
+                    outbox_path,
+                    "packet-5",
+                    intent("NOTHING"),
+                    token="token",
+                )
+        self.assertTrue(discarded)
+        self.assertFalse(outbox_path.exists())
+
+    def test_packet_has_advanced_uses_inequality_not_ordering(self):
+        with mock.patch.object(
+            PARITY,
+            "request_json",
+            return_value=(200, {"packet_id": "packet-10"}),
+        ):
+            self.assertTrue(PARITY.packet_has_advanced("packet-9", token="token"))
 
 
 if __name__ == "__main__":

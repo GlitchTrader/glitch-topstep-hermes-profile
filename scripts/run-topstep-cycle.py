@@ -53,12 +53,14 @@ from parity import (
     active_trade_state,
     apply_cognitive_overlay,
     classify_delivery_result,
-    discard_stale_entry_intent,
+    discard_stale_outbox_intent,
     invocation_reason,
     learning_context,
     mark_attempt_from_receipt,
+    packet_for_outbox_id,
     pending_outbox,
     persist_wake_triggers,
+    prune_delivered_outboxes,
     require_explicit_wake_triggers,
     validate_wake_triggers,
     wait_for_packet_rollover,
@@ -860,6 +862,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         return 0
 
     state = state_root(root)
+    prune_delivered_outboxes(state)
     capture_frame(packet, state)
     directive = read_directive(state)
 
@@ -867,7 +870,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     if pending is not None:
         pending_id, pending_path = pending
         pending_intent = read_json(pending_path)
-        if discard_stale_entry_intent(
+        if discard_stale_outbox_intent(
             state,
             pending_path,
             pending_id,
@@ -875,7 +878,10 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
             token=token,
         ):
             return run_once(args, root)
-        validate_intent(pending_intent, packet, None)
+        pending_packet = packet_for_outbox_id(state, pending_id)
+        if pending_packet is None:
+            raise ValueError("pending_outbox_packet_not_found")
+        validate_intent(pending_intent, pending_packet, None)
         if args.dry_run:
             print(
                 json.dumps(
@@ -896,6 +902,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
             }
             write_json_atomic(state / "receipts" / f"{pending_id}.json", receipt)
             append_jsonl(state / "receipts.jsonl", receipt)
+            pending_path.unlink(missing_ok=True)
         mark_attempt_from_receipt(state, pending_id, result)
         print(json.dumps({"packet_id": pending_id, "result": result}, separators=(",", ":")))
         return 0 if classification == "successful" else 1
@@ -1011,7 +1018,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
             )
             raise
 
-        if discard_stale_entry_intent(state, outbox_path, packet_id, intent, token=token):
+        if discard_stale_outbox_intent(state, outbox_path, packet_id, intent, token=token):
             attempt = read_json(attempt_path)
             attempt.update(
                 completed_utc=utc_now(),
@@ -1080,6 +1087,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         }
         write_json_atomic(receipt_path, receipt)
         append_jsonl(state / "receipts.jsonl", receipt)
+        outbox_path.unlink(missing_ok=True)
         print(json.dumps(receipt, separators=(",", ":")))
     else:
         print(json.dumps({"packet_id": packet_id, "result": result}, separators=(",", ":")))
