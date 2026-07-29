@@ -24,37 +24,37 @@
     },
     {
       "id": "trade_debrief",
-      "cadence": "every 15 minutes when new canonical outcomes exist",
-      "model": "gpt-5.6-sol",
+      "cadence": "every 30 minutes when new canonical outcomes exist",
+      "model": "gpt-5.6-luna",
       "provider": "openai-codex",
-      "reasoning_effort": "high",
+      "reasoning_effort": "medium",
       "output_schema": "glitch.topstep.trade_episode.v1",
       "execution_authority": false
     },
     {
       "id": "portfolio_supervision",
       "cadence": "hourly when new episodes exist",
-      "model": "gpt-5.6-sol",
+      "model": "gpt-5.6-luna",
       "provider": "openai-codex",
-      "reasoning_effort": "high",
+      "reasoning_effort": "medium",
       "output_schema": "glitch.topstep.hourly_review.v1",
       "execution_authority": false
     },
     {
       "id": "portfolio_planning",
-      "cadence": "every 300 minutes when new reviews exist",
-      "model": "gpt-5.6-sol",
+      "cadence": "every 360 minutes when new reviews exist",
+      "model": "gpt-5.6-luna",
       "provider": "openai-codex",
-      "reasoning_effort": "high",
+      "reasoning_effort": "medium",
       "output_schema": "glitch.topstep.portfolio_plan.v1",
       "execution_authority": false
     },
     {
       "id": "daily_learning",
       "cadence": "after the trading session when attributable evidence exists",
-      "model": "gpt-5.6-sol",
+      "model": "gpt-5.6-luna",
       "provider": "openai-codex",
-      "reasoning_effort": "high",
+      "reasoning_effort": "medium",
       "output_schema": "glitch.topstep.daily_journal.v1",
       "execution_authority": false
     }

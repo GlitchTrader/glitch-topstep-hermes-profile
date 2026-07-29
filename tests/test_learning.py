@@ -10,6 +10,7 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
+import common as common_module
 SPEC = importlib.util.spec_from_file_location("topstep_learning", SCRIPTS / "run-topstep-learning.py")
 MODULE = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
@@ -67,6 +68,95 @@ class LearningTests(unittest.TestCase):
         prompt = MODULE.prompt_for("daily", {"episodes": []}, template, {})
         self.assertIn("Canonical outcome records and gateway evidence outrank memory", prompt)
         self.assertIn("never manufacture a daily target", prompt)
+
+    def test_gateway_feed_is_fresh_requires_health_packet_and_quote(self):
+        packet = {"data_quality": {"state_complete": True, "quote_age_ms": 100}}
+        with mock.patch.object(
+            common_module,
+            "request_json",
+            side_effect=[(200, {"status": "ok"}), (200, packet)],
+        ), mock.patch.object(common_module, "local_token", return_value="token"):
+            self.assertTrue(common_module.gateway_feed_is_fresh())
+
+    def test_gateway_feed_is_fresh_fails_on_stale_quote(self):
+        packet = {"data_quality": {"state_complete": True, "quote_age_ms": 12000}}
+        with mock.patch.object(
+            common_module,
+            "request_json",
+            side_effect=[(200, {"status": "ok"}), (200, packet)],
+        ), mock.patch.object(common_module, "local_token", return_value="token"):
+            self.assertFalse(common_module.gateway_feed_is_fresh())
+
+    def test_maintenance_daily_prompt_ignores_market_packets(self):
+        template = MODULE.output_template("daily", ["j1"])
+        evidence = {"scope": {"kind": "maintenance_distillation"}}
+        prompt = MODULE.prompt_for("daily", evidence, template, {})
+        self.assertIn("maintenance learning journal", prompt)
+        self.assertIn("Do not reconstruct a whole trading session", prompt)
+
+    def test_collect_decision_episode_from_flat_nothing(self):
+        with tempfile.TemporaryDirectory() as root:
+            state_root = Path(root) / "state"
+            supervisor = state_root / "supervisor"
+            frames = state_root / "minute-frames"
+            outbox = state_root / "outbox"
+            receipts = state_root / "receipts"
+            for path in (supervisor, frames, outbox, receipts):
+                path.mkdir(parents=True)
+            packet = {
+                "packet_id": "20260728T2130Z",
+                "created_utc": "2026-07-28T21:30:00Z",
+                "market": {"last": 100.0, "high": 100.5, "low": 99.5},
+                "account": {"name": "PRAC", "instrument_open_contracts": 0},
+                "contract": {"symbol": "MNQ"},
+            }
+            for minute_id, last in (
+                ("20260728T2130Z", 100.0),
+                ("20260728T2131Z", 101.0),
+                ("20260728T2132Z", 102.0),
+                ("20260728T2133Z", 101.5),
+                ("20260728T2134Z", 103.0),
+                ("20260728T2135Z", 102.5),
+            ):
+                (frames / f"{minute_id}.json").write_text(
+                    json.dumps(
+                        {
+                            "schema_version": "glitch.topstep.minute_frame.v2",
+                            "minute_id": minute_id,
+                            "packet": {**packet, "market": {"last": last, "high": last + 0.5, "low": last - 0.5}},
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+            intent = {
+                "schema_version": "glitch.intent.v2",
+                "intent_id": "intent-flat-1",
+                "action": "NOTHING",
+                "created_utc": "2026-07-28T21:30:01Z",
+            }
+            (outbox / "20260728T2130Z.json").write_text(json.dumps(intent), encoding="utf-8")
+            (receipts / "20260728T2130Z.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": "glitch.topstep.delivery_receipt.v2",
+                        "intent_id": "intent-flat-1",
+                        "result": {"http_status": 202, "body": {"status": "accepted"}},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            episodes = MODULE.collect_decision_episodes(state_root, supervisor)
+        self.assertEqual(len(episodes), 1)
+        self.assertEqual(episodes[0]["evidence_kind"], "flat_nothing")
+        self.assertEqual(episodes[0]["action"], "NOTHING")
+
+    def test_gateway_cognitive_rejection_detects_client_errors(self):
+        self.assertTrue(
+            MODULE.is_gateway_cognitive_rejection({"http_status": 422, "body": {"status": "invalid"}})
+        )
+        self.assertFalse(
+            MODULE.is_gateway_cognitive_rejection({"http_status": 202, "body": {"status": "accepted"}})
+        )
 
 
 if __name__ == "__main__":

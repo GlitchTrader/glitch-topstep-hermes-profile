@@ -30,13 +30,19 @@ from common import (
     append_jsonl,
     configure_environment,
     extract_single_json_object,
+    gateway_packet_evidence_is_fresh,
+    hermes_chat_model_cli_args,
+    hermes_model_version_label,
     local_token,
     parse_utc,
+    profile_root,
     prune_files,
     read_json,
+    read_model_config,
     read_optional_json,
     request_json,
     tail_jsonl,
+    use_hermes_model_routing,
     utc_now,
     write_json_atomic,
 )
@@ -84,11 +90,17 @@ SUPPORTED_PACKET_SCHEMAS = {
 }
 
 
-def core_model() -> str:
-    return os.environ.get("GLITCH_TOPSTEP_CORE_MODEL", "gpt-5.6-luna").strip() or "gpt-5.6-luna"
+def core_model(root: Path | None = None) -> str:
+    return hermes_model_version_label(
+        root or profile_root(),
+        model_env="GLITCH_TOPSTEP_CORE_MODEL",
+        fallback="gpt-5.6-luna",
+    )
 
 
-def core_provider() -> str:
+def core_provider(root: Path | None = None) -> str:
+    if use_hermes_model_routing():
+        return read_model_config(root or profile_root())[1]
     return os.environ.get("GLITCH_TOPSTEP_CORE_PROVIDER", "openai-codex").strip() or "openai-codex"
 
 
@@ -117,7 +129,7 @@ def flat_decision_interval_minutes() -> int:
             1,
             min(
                 60,
-                int(os.environ.get("GLITCH_TOPSTEP_FLAT_DECISION_INTERVAL_MINUTES", "1")),
+                int(os.environ.get("GLITCH_TOPSTEP_FLAT_DECISION_INTERVAL_MINUTES", "5")),
             ),
         )
     except ValueError:
@@ -281,33 +293,11 @@ def should_skip_unchanged_evidence(
     return fingerprint == read_last_evidence_fingerprint(root)
 
 
-def max_quote_age_ms() -> int:
-    try:
-        return max(1, int(os.environ.get("GLITCH_TOPSTEP_MAX_QUOTE_AGE_MS", "6000")))
-    except ValueError:
-        return 6000
-
-
 def skip_stale_gateway_evidence_enabled() -> bool:
     return os.environ.get(
         "GLITCH_TOPSTEP_SKIP_STALE_GATEWAY_EVIDENCE",
         "true",
     ).strip().lower() in {"1", "true", "yes"}
-
-
-def gateway_evidence_is_fresh(packet: dict[str, Any]) -> bool:
-    data_quality = (
-        packet.get("data_quality")
-        if isinstance(packet.get("data_quality"), dict)
-        else {}
-    )
-    if data_quality.get("state_complete") is not True:
-        return False
-    quote_age = data_quality.get("quote_age_ms")
-    if isinstance(quote_age, (int, float)) and not isinstance(quote_age, bool):
-        if float(quote_age) > max_quote_age_ms():
-            return False
-    return True
 
 
 RETRYABLE_ATTEMPT_STATUSES = frozenset(
@@ -355,7 +345,7 @@ def stale_gateway_skip_reason(
         return None
     if directive is not None or positioned(packet):
         return None
-    if gateway_evidence_is_fresh(packet):
+    if gateway_packet_evidence_is_fresh(packet):
         return None
     data_quality = (
         packet.get("data_quality")
@@ -563,15 +553,17 @@ def invoke_hermes(
     if not python_executable.is_file():
         python_executable = Path(sys.executable)
 
+    root = profile_root(profile)
     cli_args = [
         "chat",
         "-Q",
         "--source",
         TRADING_SOURCE,
-        "--model",
-        core_model(),
-        "--provider",
-        core_provider(),
+        *hermes_chat_model_cli_args(
+            root,
+            model_env="GLITCH_TOPSTEP_CORE_MODEL",
+            provider_env="GLITCH_TOPSTEP_CORE_PROVIDER",
+        ),
         "--max-turns",
         "4",
         "--skills",

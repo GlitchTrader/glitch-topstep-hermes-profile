@@ -31,6 +31,10 @@ def profile_root(profile: str = PROFILE_NAME) -> Path:
     return (Path.home() / ".hermes" / "profiles" / profile).resolve()
 
 
+# ponytail: profile .env wins for cron routing keys — Hermes daemon may carry stale values
+_DOTENV_FORCE_OVERRIDE_PREFIXES = ("GLITCH_TOPSTEP_",)
+
+
 def load_dotenv(path: Path) -> None:
     if not path.is_file():
         return
@@ -41,14 +45,74 @@ def load_dotenv(path: Path) -> None:
         key, value = line.split("=", 1)
         key = key.strip()
         value = value.strip().strip('"').strip("'")
-        if key and key not in os.environ:
-            os.environ[key] = value
+        if not key:
+            continue
+        if key in os.environ and not key.startswith(_DOTENV_FORCE_OVERRIDE_PREFIXES):
+            continue
+        os.environ[key] = value
 
 
 def configure_environment(root: Path | None = None) -> Path:
     resolved = (root or profile_root()).resolve()
     load_dotenv(resolved / ".env")
     return resolved
+
+
+def use_hermes_model_routing() -> bool:
+    return os.environ.get("GLITCH_TOPSTEP_USE_HERMES_MODEL", "true").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+    }
+
+
+def read_model_config(root: Path) -> tuple[str, str]:
+    """Read model.default and model.provider from config.yaml (no PyYAML)."""
+    model = "gpt-5.6-luna"
+    provider = "openai-codex"
+    path = root / "config.yaml"
+    if not path.is_file():
+        return model, provider
+    in_model = False
+    for raw in path.read_text(encoding="utf-8-sig", errors="replace").splitlines():
+        line = raw.rstrip()
+        stripped = line.strip()
+        if stripped.startswith("model:"):
+            in_model = True
+            continue
+        if in_model and line and not line[0].isspace() and ":" in stripped:
+            in_model = False
+        if not in_model:
+            continue
+        if stripped.startswith("default:"):
+            model = stripped.split(":", 1)[1].strip() or model
+        elif stripped.startswith("provider:"):
+            provider = stripped.split(":", 1)[1].strip() or provider
+    return model, provider
+
+
+def hermes_model_version_label(
+    root: Path,
+    *,
+    model_env: str,
+    fallback: str,
+) -> str:
+    if use_hermes_model_routing():
+        return read_model_config(root)[0]
+    return os.environ.get(model_env, fallback).strip() or fallback
+
+
+def hermes_chat_model_cli_args(
+    root: Path,
+    *,
+    model_env: str,
+    provider_env: str,
+) -> list[str]:
+    if use_hermes_model_routing():
+        return []
+    model = os.environ.get(model_env, "gpt-5.6-luna").strip() or "gpt-5.6-luna"
+    provider = os.environ.get(provider_env, "openai-codex").strip() or "openai-codex"
+    return ["--model", model, "--provider", provider]
 
 
 def gateway_url() -> str:
@@ -60,6 +124,42 @@ def local_token() -> str:
     if not token:
         raise RuntimeError("GLITCH_TOPSTEP_LOCAL_TOKEN is not configured")
     return token
+
+
+def max_quote_age_ms() -> int:
+    try:
+        return max(1, int(os.environ.get("GLITCH_TOPSTEP_MAX_QUOTE_AGE_MS", "6000")))
+    except ValueError:
+        return 6000
+
+
+def gateway_packet_evidence_is_fresh(packet: dict[str, Any]) -> bool:
+    data_quality = (
+        packet.get("data_quality")
+        if isinstance(packet.get("data_quality"), dict)
+        else {}
+    )
+    if data_quality.get("state_complete") is not True:
+        return False
+    quote_age = data_quality.get("quote_age_ms")
+    if isinstance(quote_age, (int, float)) and not isinstance(quote_age, bool):
+        if float(quote_age) > max_quote_age_ms():
+            return False
+    return True
+
+
+def gateway_feed_is_fresh() -> bool:
+    """Gateway /health ok and current packet evidence complete and not stale."""
+    try:
+        health_status, health = request_json("/health")
+        if health_status != 200 or health.get("status") not in {"ok", "degraded"}:
+            return False
+        packet_status, packet = request_json("/packet", token=local_token())
+        if packet_status != 200 or not isinstance(packet, dict):
+            return False
+        return gateway_packet_evidence_is_fresh(packet)
+    except (RuntimeError, OSError, ValueError, TypeError):
+        return False
 
 
 def request_timeout_seconds() -> float:

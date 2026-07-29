@@ -127,6 +127,24 @@ if ($LASTEXITCODE -ne 0) { throw 'Could not enable the Topstep control plugin.' 
 & hermes -p $Profile gateway install --start-now --start-on-login
 if ($LASTEXITCODE -ne 0) { throw 'Could not install the supervised Glitch Topstep Hermes gateway.' }
 
+$hermesCommand = Get-Command hermes -ErrorAction Stop
+$python = Join-Path (Split-Path $hermesCommand.Source -Parent) 'python.exe'
+if (-not (Test-Path -LiteralPath $python -PathType Leaf)) {
+    throw "Could not locate the Hermes Python runtime: $python"
+}
+
+$previousHermesHome = $env:HERMES_HOME
+try {
+    $env:HERMES_HOME = $profileRoot
+    & $python -c "from hermes_cli.config import load_config, save_config; from hermes_cli.fallback_cmd import _write_chain; c=load_config(); m=c.setdefault('model', {}); m['default']='gpt-5.6-luna'; m['provider']='openai-codex'; m['base_url']='https://chatgpt.com/backend-api/codex'; m['api_mode']='chat_completions'; a=c.setdefault('agent', {}); a['reasoning_effort']='medium'; a.pop('reasoning_overrides', None); _write_chain(c, []); save_config(c)"
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Could not reconcile the Topstep profile to Luna-medium without model fallbacks.'
+    }
+}
+finally {
+    $env:HERMES_HOME = $previousHermesHome
+}
+
 $previousHermesHome = $env:HERMES_HOME
 try {
     $env:HERMES_HOME = $profileRoot
@@ -137,7 +155,7 @@ try {
         -Workdir (Join-Path $profileRoot 'scripts')
     $learningJob = Ensure-CronJob `
         -Name 'glitch-topstep-learning-supervisor' `
-        -Schedule '*/15 * * * *' `
+        -Schedule '*/30 * * * *' `
         -Script 'launch-topstep-learning.py' `
         -Workdir (Join-Path $profileRoot 'scripts')
 }
