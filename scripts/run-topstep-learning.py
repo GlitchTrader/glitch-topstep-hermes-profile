@@ -130,31 +130,32 @@ def collect_decision_episodes(state_root: Path, supervisor: Path) -> list[dict[s
     existing = {str(row.get("intent_id")) for row in read_jsonl(output_path) if row.get("intent_id")}
     frames_root = state_root / "minute-frames"
     records: list[dict[str, Any]] = []
-    for outbox_path in sorted((state_root / "outbox").glob("*.json")):
-        packet_id = outbox_path.stem
+    seen_intents: set[str] = set()
+
+    def enqueue(packet_id: str, intent: dict[str, Any]) -> None:
+        nonlocal records
         receipt_path = state_root / "receipts" / f"{packet_id}.json"
         if not receipt_path.is_file():
-            continue
-        intent = read_optional_json(outbox_path)
+            return
         receipt = read_optional_json(receipt_path)
-        if not isinstance(intent, dict) or not isinstance(receipt, dict):
-            continue
+        if not isinstance(receipt, dict):
+            return
         if classify_delivery_result(
             receipt.get("result") if isinstance(receipt.get("result"), dict) else {}
         ) == "transport_uncertain":
-            continue
+            return
         intent_id = str(intent.get("intent_id") or receipt.get("intent_id") or "")
-        if not intent_id or intent_id in existing:
-            continue
+        if not intent_id or intent_id in existing or intent_id in seen_intents:
+            return
         frame = frame_for_packet_id(frames_root, packet_id)
         if frame is None:
-            continue
+            return
         minute_id = str(frame.get("minute_id") or "")
         if not minute_id:
-            continue
+            return
         future_paths = [path for path in sorted(frames_root.glob("*.json")) if path.stem > minute_id][:5]
         if len(future_paths) < 5:
-            continue
+            return
         future: list[dict[str, Any]] = []
         for path in future_paths:
             observed = price_observation(read_optional_json(path) or {})
@@ -163,10 +164,10 @@ def collect_decision_episodes(state_root: Path, supervisor: Path) -> list[dict[s
                 break
             future.append(observed)
         if len(future) < 5:
-            continue
+            return
         packet = frame.get("packet")
         if not isinstance(packet, dict):
-            continue
+            return
         action = str(intent.get("action") or "")
         flat_nothing = action == "NOTHING" and packet_is_flat(packet)
         relevant_failure = (
@@ -174,11 +175,11 @@ def collect_decision_episodes(state_root: Path, supervisor: Path) -> list[dict[s
             and is_gateway_cognitive_rejection(receipt.get("result"))
         )
         if not flat_nothing and not relevant_failure:
-            continue
+            return
         try:
             initial = float(packet["market"]["last"])
         except (KeyError, TypeError, ValueError):
-            continue
+            return
         forward_high = max(row["high"] for row in future)
         forward_low = min(row["low"] for row in future)
         account = packet.get("account") if isinstance(packet.get("account"), dict) else {}
@@ -231,7 +232,20 @@ def collect_decision_episodes(state_root: Path, supervisor: Path) -> list[dict[s
             ),
             "classification_owner": "hermes",
         })
+        seen_intents.add(intent_id)
         existing.add(intent_id)
+
+    for row in read_jsonl(state_root / "decisions.jsonl"):
+        packet_id = str(row.get("packet_id") or "")
+        intent = row.get("intent")
+        if packet_id and isinstance(intent, dict):
+            enqueue(packet_id, intent)
+
+    for outbox_path in sorted((state_root / "outbox").glob("*.json")):
+        intent = read_optional_json(outbox_path)
+        if isinstance(intent, dict):
+            enqueue(outbox_path.stem, intent)
+
     append_unique(output_path, records, "episode_id")
     return read_jsonl(output_path)
 
