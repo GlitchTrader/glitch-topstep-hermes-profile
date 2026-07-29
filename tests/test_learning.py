@@ -1,3 +1,4 @@
+import importlib
 import importlib.util
 import json
 import os
@@ -15,6 +16,7 @@ SPEC = importlib.util.spec_from_file_location("topstep_learning", SCRIPTS / "run
 MODULE = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
 SPEC.loader.exec_module(MODULE)
+PARITY = importlib.import_module("parity")
 
 
 class LearningTests(unittest.TestCase):
@@ -157,6 +159,119 @@ class LearningTests(unittest.TestCase):
         self.assertFalse(
             MODULE.is_gateway_cognitive_rejection({"http_status": 202, "body": {"status": "accepted"}})
         )
+
+    def test_debrief_evidence_enriches_outcome_context(self):
+        with tempfile.TemporaryDirectory() as root:
+            state_root = Path(root) / "state"
+            frames = state_root / "minute-frames"
+            frames.mkdir(parents=True)
+            outcome = {
+                "schema_version": "glitch.topstep.trade_outcome.v1",
+                "outcome_id": "o1",
+                "intent_id": "intent-1",
+                "account": "PRAC",
+                "instrument": "MNQ",
+                "entry_utc": "2026-07-28T21:30:00Z",
+                "exit_utc": "2026-07-28T21:35:00Z",
+                "realized_pnl_usd": 10,
+                "fees_usd": 0,
+                "learning_eligible": True,
+            }
+            (state_root / "decisions.jsonl").write_text(
+                json.dumps(
+                    {
+                        "recorded_utc": "2026-07-28T21:30:01Z",
+                        "packet_id": "20260728T2130Z",
+                        "intent": {
+                            "intent_id": "intent-1",
+                            "account": "PRAC",
+                            "action": "ENTER_LONG",
+                            "created_utc": "2026-07-28T21:30:01Z",
+                        },
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            (frames / "20260728T2130Z.json").write_text(
+                json.dumps(
+                    {
+                        "minute_id": "20260728T2130Z",
+                        "packet": {
+                            "created_utc": "2026-07-28T21:30:00Z",
+                            "market": {"last": 100.0, "high": 100.5, "low": 99.5},
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            evidence = PARITY.debrief_evidence(state_root, [outcome])
+        self.assertEqual(len(evidence), 1)
+        self.assertEqual(evidence[0]["outcome"]["outcome_id"], "o1")
+        self.assertEqual(evidence[0]["entry_decision"]["intent_id"], "intent-1")
+
+    def test_weekly_output_template_schema(self):
+        template = MODULE.output_template("weekly", ["proposal-1"])
+        self.assertEqual(template["loop_id"], "weekly")
+        self.assertEqual(
+            template["records"][0]["schema_version"],
+            "glitch.topstep.weekly_skill_proposal.v1",
+        )
+        self.assertEqual(template["records"][0]["skill_proposal_id"], "proposal-1")
+
+    def test_collect_decision_episodes_skips_transport_uncertain(self):
+        with tempfile.TemporaryDirectory() as root:
+            state_root = Path(root) / "state"
+            supervisor = state_root / "supervisor"
+            frames = state_root / "minute-frames"
+            outbox = state_root / "outbox"
+            receipts = state_root / "receipts"
+            for path in (supervisor, frames, outbox, receipts):
+                path.mkdir(parents=True)
+            packet = {
+                "packet_id": "20260728T2130Z",
+                "created_utc": "2026-07-28T21:30:00Z",
+                "market": {"last": 100.0, "high": 100.5, "low": 99.5},
+                "account": {"name": "PRAC", "instrument_open_contracts": 0},
+                "contract": {"symbol": "MNQ"},
+            }
+            for minute_id, last in (
+                ("20260728T2130Z", 100.0),
+                ("20260728T2131Z", 101.0),
+                ("20260728T2132Z", 102.0),
+                ("20260728T2133Z", 101.5),
+                ("20260728T2134Z", 103.0),
+                ("20260728T2135Z", 102.5),
+            ):
+                (frames / f"{minute_id}.json").write_text(
+                    json.dumps(
+                        {
+                            "schema_version": "glitch.topstep.minute_frame.v2",
+                            "minute_id": minute_id,
+                            "packet": {**packet, "market": {"last": last, "high": last + 0.5, "low": last - 0.5}},
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+            intent = {
+                "schema_version": "glitch.intent.v2",
+                "intent_id": "intent-transport",
+                "action": "NOTHING",
+                "created_utc": "2026-07-28T21:30:01Z",
+            }
+            (outbox / "20260728T2130Z.json").write_text(json.dumps(intent), encoding="utf-8")
+            (receipts / "20260728T2130Z.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": "glitch.topstep.delivery_receipt.v2",
+                        "intent_id": "intent-transport",
+                        "result": {"transport_error": "timeout"},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            episodes = MODULE.collect_decision_episodes(state_root, supervisor)
+        self.assertEqual(episodes, [])
 
 
 if __name__ == "__main__":

@@ -1,4 +1,5 @@
 import copy
+import importlib
 import importlib.util
 import json
 import os
@@ -19,6 +20,7 @@ SPEC = importlib.util.spec_from_file_location(
 MODULE = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
 SPEC.loader.exec_module(MODULE)
+PARITY = importlib.import_module("parity")
 
 
 def packet(
@@ -362,6 +364,76 @@ class DirectCycleTests(unittest.TestCase):
         self.assertEqual(len(delivered["reason"]), MODULE.GATEWAY_REASON_MAX_LENGTH)
         self.assertEqual(len(delivered["decision_audit"]["bear_case"]), MODULE.GATEWAY_AUDIT_FIELD_MAX_LENGTH)
         self.assertEqual(len(delivered["decision_audit"]["decisive_evidence"]), MODULE.GATEWAY_AUDIT_FIELD_MAX_LENGTH)
+
+    def test_invocation_reason_first_packet_without_last_evidence(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            reason = PARITY.invocation_reason(packet(5), state, None, flat_decision_interval_minutes=5)
+        self.assertEqual(reason, "first_packet")
+
+    def test_invocation_reason_scheduled_on_cadence(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            MODULE.write_json_atomic(
+                state / "last-evidence.json",
+                {"schema_version": "glitch.topstep.last_evidence.v1", "fingerprint": "x"},
+            )
+            reason = PARITY.invocation_reason(packet(5), state, None, flat_decision_interval_minutes=5)
+        self.assertEqual(reason, "scheduled")
+
+    def test_wake_trigger_fires_on_price_cross(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            supervisor = state / "supervisor"
+            supervisor.mkdir(parents=True)
+            frames = state / "minute-frames"
+            frames.mkdir(parents=True)
+            prior = packet(4)
+            prior["market"]["last"] = 19990.0
+            MODULE.write_json_atomic(
+                frames / "20990101T1404Z.json",
+                {"minute_id": "20990101T1404Z", "packet": prior},
+            )
+            current = packet(5)
+            current["market"]["last"] = 20010.0
+            MODULE.write_json_atomic(
+                PARITY.wake_trigger_path(supervisor),
+                {
+                    "schema_version": "glitch.topstep.wake_triggers.v1",
+                    "triggers": [{"type": "PRICE_CROSS", "direction": "ABOVE", "price": 20000.0}],
+                },
+            )
+            self.assertTrue(PARITY.wake_trigger_fired(state, current))
+
+    def test_classify_delivery_result_transport_uncertain(self):
+        self.assertEqual(
+            PARITY.classify_delivery_result({"transport_error": "timeout"}),
+            "transport_uncertain",
+        )
+        self.assertEqual(
+            PARITY.classify_delivery_result({"http_status": 500, "body": {}}),
+            "transport_uncertain",
+        )
+
+    def test_classify_delivery_result_terminal_rejection(self):
+        self.assertEqual(
+            PARITY.classify_delivery_result({"http_status": 422, "body": {"status": "invalid"}}),
+            "terminal_rejection",
+        )
+
+    def test_apply_cognitive_overlay_replaces_verified_text(self):
+        old = "Replace with the current evidence-based decision."
+        overlay = {
+            "status": "active",
+            "operation": "replace",
+            "target": "core_prompt",
+            "expected_old_text": old,
+            "expected_old_sha256": __import__("hashlib").sha256(old.encode()).hexdigest(),
+            "replacement_text": "Use bounded evidence only.",
+        }
+        rendered = PARITY.apply_cognitive_overlay(f"Before. {old} After.", overlay)
+        self.assertIn("Use bounded evidence only.", rendered)
+        self.assertNotIn(old, rendered)
 
 
 if __name__ == "__main__":

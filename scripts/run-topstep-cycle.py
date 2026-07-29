@@ -19,6 +19,7 @@ import shutil
 import subprocess
 import sys
 import time
+import urllib.error
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -27,6 +28,7 @@ from typing import Any
 from regime import detect_regime
 from common import (
     PROFILE_NAME,
+    acquire_cycle_lock,
     append_jsonl,
     configure_environment,
     extract_single_json_object,
@@ -46,9 +48,23 @@ from common import (
     utc_now,
     write_json_atomic,
 )
+from parity import (
+    PROMPT_VERSION,
+    active_trade_state,
+    apply_cognitive_overlay,
+    classify_delivery_result,
+    discard_stale_entry_intent,
+    invocation_reason,
+    learning_context,
+    mark_attempt_from_receipt,
+    pending_outbox,
+    persist_wake_triggers,
+    require_explicit_wake_triggers,
+    validate_wake_triggers,
+    wait_for_packet_rollover,
+)
 
 TRADING_SOURCE = "trading"
-PROMPT_VERSION = "glitch-topstep-v2"
 ALLOWED_ACTIONS = {"ENTER_LONG", "ENTER_SHORT", "HOLD", "EXIT", "NOTHING"}
 AUDIT_FIELDS = {
     "bull_case",
@@ -167,10 +183,21 @@ def packet_minute(packet: dict[str, Any]) -> int:
 def should_invoke(
     packet: dict[str, Any],
     directive: dict[str, Any] | None = None,
+    state: Path | None = None,
 ) -> bool:
-    if directive is not None or positioned(packet):
-        return True
-    return packet_minute(packet) % flat_decision_interval_minutes() == 0
+    if state is None:
+        if directive is not None or positioned(packet):
+            return True
+        return packet_minute(packet) % flat_decision_interval_minutes() == 0
+    return (
+        invocation_reason(
+            packet,
+            state,
+            directive,
+            flat_decision_interval_minutes=flat_decision_interval_minutes(),
+        )
+        is not None
+    )
 
 
 def skip_unchanged_evidence_enabled() -> bool:
@@ -455,16 +482,15 @@ def consume_directive(
 
 def recent_context(root: Path) -> dict[str, Any]:
     supervisor = root / "supervisor"
-    return {
-        "decisions": tail_jsonl(root / "decisions.jsonl", 6),
-        "receipts": tail_jsonl(root / "receipts.jsonl", 6),
-        "outcomes": tail_jsonl(root / "outcomes.jsonl", 6),
-        "current_plan": read_optional_json(supervisor / "current-plan.json"),
-        "current_guidance": read_optional_json(supervisor / "current-guidance.json"),
-        "active_cognitive_overlay": read_optional_json(
-            supervisor / "active-cognitive-overlay.json"
-        ),
-    }
+    context = learning_context(supervisor)
+    context.update(
+        {
+            "decisions": tail_jsonl(root / "decisions.jsonl", 6),
+            "receipts": tail_jsonl(root / "receipts.jsonl", 6),
+            "outcomes": tail_jsonl(root / "outcomes.jsonl", 6),
+        }
+    )
+    return context
 
 
 def build_prompt(
@@ -472,6 +498,7 @@ def build_prompt(
     frames: list[dict[str, Any]],
     context: dict[str, Any],
     directive: dict[str, Any] | None,
+    trade_state: dict[str, Any] | None = None,
 ) -> str:
     model_packet = packet_for_model(packet)
     template = copy.deepcopy(model_packet.get("required_output_template") or {})
@@ -498,6 +525,7 @@ def build_prompt(
             packet_for_model(frame.get("packet", {})) for frame in frames
         ],
         "recent_glitch_ledger": context,
+        "active_trade_state": trade_state,
         "operator_directive": directive,
         "required_output_template": template,
         "operator_authority": {
@@ -511,7 +539,7 @@ def build_prompt(
         },
     }
 
-    return (
+    return apply_cognitive_overlay(
         "Apply the Glitch Topstep SOUL and loaded skills to CURRENT_CYCLE. "
         "You are the trading operator, not a suggestion engine. Evaluate "
         "ENTER_LONG, ENTER_SHORT, and NOTHING symmetrically while flat; when "
@@ -532,9 +560,12 @@ def build_prompt(
         "flat_case, aggressive_case, conservative_case, decisive_evidence, "
         "disconfirming_evidence, change_condition, and final_choice; "
         "final_choice must equal action. For non-entry actions omit entry "
-        "fields. Retrieve relevant durable lessons once through native memory, "
+        "fields. wake_triggers is mandatory and must be an array of "
+        "{type: \"PRICE_CROSS\", direction: \"ABOVE\"|\"BELOW\", price: number}. "
+        "Retrieve relevant durable lessons once through native memory, "
         "then return JSON without writing memory. CURRENT_CYCLE="
-        + json.dumps(envelope, separators=(",", ":"), ensure_ascii=False)
+        + json.dumps(envelope, separators=(",", ":"), ensure_ascii=False),
+        context.get("active_cognitive_overlay"),
     )
 
 
@@ -614,6 +645,11 @@ def normalize_intent(
     packet: dict[str, Any],
 ) -> dict[str, Any]:
     intent = copy.deepcopy(value)
+    if "wake_triggers" not in intent and "wake_trigger" in intent:
+        legacy = intent.pop("wake_trigger")
+        intent["wake_triggers"] = [] if legacy is None else [legacy]
+    if "wake_triggers" not in intent:
+        intent["wake_triggers"] = []
     action = "NOTHING" if intent.get("action") == "NO_ACTION" else intent.get("action")
     intent.update(
         schema_version="glitch.intent.v2",
@@ -657,7 +693,7 @@ def validate_intent(
     expected_fields = CORE_FIELDS | (
         ENTRY_FIELDS if action in {"ENTER_LONG", "ENTER_SHORT"} else set()
     )
-    unknown = set(intent).difference(expected_fields)
+    unknown = set(intent).difference(expected_fields | {"wake_triggers"})
     missing = expected_fields.difference(intent)
     if unknown:
         raise ValueError("unknown_fields:" + ",".join(sorted(unknown)))
@@ -691,6 +727,9 @@ def validate_intent(
         raise ValueError("decision_audit_value_invalid")
     if audit.get("final_choice") != action:
         raise ValueError("decision_audit_choice_mismatch")
+
+    validate_wake_triggers(intent.get("wake_triggers", []))
+    require_explicit_wake_triggers(audit, intent.get("wake_triggers", []))
 
     if action in {"ENTER_LONG", "ENTER_SHORT"}:
         quantity = intent.get("quantity")
@@ -773,6 +812,7 @@ def prepare_intent_for_delivery(
         raise RuntimeError("gateway_packet_stale_before_delivery")
 
     aligned = copy.deepcopy(intent)
+    aligned.pop("wake_triggers", None)
     fresh_hash = fresh_packet.get("market", {}).get("snapshot_hash")
     if aligned.get("snapshot_hash") != fresh_hash:
         aligned["snapshot_hash"] = fresh_hash
@@ -787,23 +827,32 @@ def prepare_intent_for_delivery(
 
 
 def post_intent(intent: dict[str, Any]) -> dict[str, Any]:
-    status, body = request_json(
-        "/intent",
-        method="POST",
-        body=intent,
-        token=local_token(),
-    )
-    return {"http_status": status, "body": body}
+    try:
+        status, body = request_json(
+            "/intent",
+            method="POST",
+            body=intent,
+            token=local_token(),
+        )
+        return {"http_status": status, "body": body}
+    except (urllib.error.URLError, TimeoutError, OSError) as error:
+        return {"transport_error": str(error)}
 
 
 def run_once(args: argparse.Namespace, root: Path) -> int:
+    token = local_token()
     health_status, health = request_json("/health")
     if health_status != 200 or health.get("status") not in {"ok", "degraded"}:
         raise RuntimeError("gateway_health_unavailable")
 
-    packet_status, packet = request_json("/packet", token=local_token())
+    packet_status, packet = request_json("/packet", token=token)
     if packet_status != 200:
         raise RuntimeError(f"gateway_packet_failed:{packet_status}")
+    packet = wait_for_packet_rollover(
+        packet,
+        float(getattr(args, "packet_rollover_wait_seconds", 0) or 0),
+        token=token,
+    )
     if (
         packet.get("schema_version") not in SUPPORTED_PACKET_SCHEMAS
         or not packet_is_current(packet)
@@ -813,7 +862,51 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     state = state_root(root)
     capture_frame(packet, state)
     directive = read_directive(state)
-    if not should_invoke(packet, directive):
+
+    pending = pending_outbox(state)
+    if pending is not None:
+        pending_id, pending_path = pending
+        pending_intent = read_json(pending_path)
+        if discard_stale_entry_intent(
+            state,
+            pending_path,
+            pending_id,
+            pending_intent,
+            token=token,
+        ):
+            return run_once(args, root)
+        validate_intent(pending_intent, packet, None)
+        if args.dry_run:
+            print(
+                json.dumps(
+                    {"packet_id": pending_id, "submitted": False, "reused_outbox": True},
+                    separators=(",", ":"),
+                )
+            )
+            return 0
+        result = post_intent(prepare_intent_for_delivery(pending_intent, None))
+        classification = classify_delivery_result(result)
+        if classification != "transport_uncertain":
+            receipt = {
+                "schema_version": "glitch.topstep.delivery_receipt.v2",
+                "recorded_utc": utc_now(),
+                "packet_id": pending_id,
+                "intent_id": pending_intent["intent_id"],
+                "result": result,
+            }
+            write_json_atomic(state / "receipts" / f"{pending_id}.json", receipt)
+            append_jsonl(state / "receipts.jsonl", receipt)
+        mark_attempt_from_receipt(state, pending_id, result)
+        print(json.dumps({"packet_id": pending_id, "result": result}, separators=(",", ":")))
+        return 0 if classification == "successful" else 1
+
+    reason = invocation_reason(
+        packet,
+        state,
+        directive,
+        flat_decision_interval_minutes=flat_decision_interval_minutes(),
+    )
+    if reason is None:
         return 0
 
     stale_reason = stale_gateway_skip_reason(packet, directive)
@@ -825,6 +918,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
                 "event": "llm_skipped",
                 "recorded_utc": utc_now(),
                 "packet_id": packet.get("packet_id"),
+                "invocation_reason": reason,
                 "reason": stale_reason,
                 "quote_age_ms": (
                     packet.get("data_quality", {}).get("quote_age_ms")
@@ -843,6 +937,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
                 "event": "cognition_skipped",
                 "recorded_utc": utc_now(),
                 "packet_id": packet.get("packet_id"),
+                "invocation_reason": reason,
                 "reason": "unchanged_evidence",
                 "fingerprint": evidence_fingerprint(packet),
             },
@@ -858,7 +953,14 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     outbox_path = state / "outbox" / f"{packet_id}.json"
     attempt_path = state / "attempts" / f"{packet_id}.json"
     if receipt_path.is_file():
-        return 0
+        receipt = read_json(receipt_path)
+        if classify_delivery_result(receipt.get("result", {})) != "transport_uncertain":
+            mark_attempt_from_receipt(state, packet_id, receipt.get("result", {}))
+            return 0
+
+    trade_state = active_trade_state(state, packet)
+    context = recent_context(state)
+    context["active_trade_state"] = trade_state
 
     if outbox_path.is_file():
         intent = read_json(outbox_path)
@@ -877,17 +979,13 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
                 "model": core_model(),
                 "provider": core_provider(),
                 "session_mode": "isolated",
+                "invocation_reason": reason,
             },
         )
         try:
             intent, repair_count = invoke_valid_intent(
                 args.profile,
-                build_prompt(
-                    packet,
-                    frames,
-                    recent_context(state),
-                    directive,
-                ),
+                build_prompt(packet, frames, context, directive, trade_state),
                 packet,
                 directive,
                 args.timeout_seconds,
@@ -907,11 +1005,23 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
                     "event": "decision_failed",
                     "recorded_utc": utc_now(),
                     "packet_id": packet_id,
+                    "invocation_reason": reason,
                     "error": attempt["error"],
                 },
             )
             raise
 
+        if discard_stale_entry_intent(state, outbox_path, packet_id, intent, token=token):
+            attempt = read_json(attempt_path)
+            attempt.update(
+                completed_utc=utc_now(),
+                status="stale_packet_discarded",
+                invocation_reason=reason,
+            )
+            write_json_atomic(attempt_path, attempt)
+            return run_once(args, root)
+
+        persist_wake_triggers(state, intent, packet_id)
         write_json_atomic(outbox_path, intent)
         append_jsonl(
             state / "decisions.jsonl",
@@ -933,8 +1043,19 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
             completed_utc=utc_now(),
             status="decision_ready",
             output_repair_count=repair_count,
+            invocation_reason=reason,
         )
         write_json_atomic(attempt_path, attempt)
+        append_jsonl(
+            state / "events.jsonl",
+            {
+                "schema_version": "glitch.topstep.cycle_event.v2",
+                "event": "decision_ready",
+                "recorded_utc": utc_now(),
+                "packet_id": packet_id,
+                "invocation_reason": reason,
+            },
+        )
         if directive:
             consume_directive(state, directive, packet_id)
 
@@ -948,17 +1069,22 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         return 0
 
     result = post_intent(prepare_intent_for_delivery(intent, directive))
-    receipt = {
-        "schema_version": "glitch.topstep.delivery_receipt.v2",
-        "recorded_utc": utc_now(),
-        "packet_id": packet_id,
-        "intent_id": intent["intent_id"],
-        "result": result,
-    }
-    write_json_atomic(receipt_path, receipt)
-    append_jsonl(state / "receipts.jsonl", receipt)
-    print(json.dumps(receipt, separators=(",", ":")))
-    return 0
+    classification = classify_delivery_result(result)
+    if classification != "transport_uncertain":
+        receipt = {
+            "schema_version": "glitch.topstep.delivery_receipt.v2",
+            "recorded_utc": utc_now(),
+            "packet_id": packet_id,
+            "intent_id": intent["intent_id"],
+            "result": result,
+        }
+        write_json_atomic(receipt_path, receipt)
+        append_jsonl(state / "receipts.jsonl", receipt)
+        print(json.dumps(receipt, separators=(",", ":")))
+    else:
+        print(json.dumps({"packet_id": packet_id, "result": result}, separators=(",", ":")))
+    mark_attempt_from_receipt(state, packet_id, result)
+    return 0 if classification == "successful" else 1
 
 
 def main() -> int:
@@ -969,6 +1095,11 @@ def main() -> int:
         type=int,
         default=int(os.environ.get("GLITCH_TOPSTEP_MODEL_TIMEOUT_SECONDS", "240")),
     )
+    parser.add_argument(
+        "--packet-rollover-wait-seconds",
+        type=float,
+        default=float(os.environ.get("GLITCH_TOPSTEP_PACKET_ROLLOVER_WAIT_SECONDS", "5")),
+    )
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
@@ -977,25 +1108,11 @@ def main() -> int:
     state.mkdir(parents=True, exist_ok=True)
     lock_path = state / "direct-cycle.lock"
 
+    if not acquire_cycle_lock(lock_path):
+        return 0
     try:
-        descriptor = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-    except FileExistsError:
-        try:
-            if time.time() - lock_path.stat().st_mtime <= max(
-                args.timeout_seconds * 2,
-                600,
-            ):
-                return 0
-            lock_path.unlink()
-            descriptor = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-        except (FileNotFoundError, FileExistsError):
-            return 0
-
-    try:
-        os.write(descriptor, str(os.getpid()).encode("ascii"))
         return run_once(args, root)
     finally:
-        os.close(descriptor)
         lock_path.unlink(missing_ok=True)
 
 

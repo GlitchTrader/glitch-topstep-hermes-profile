@@ -21,6 +21,8 @@ def worker_command(args: argparse.Namespace) -> list[str]:
         args.profile,
         "--timeout-seconds",
         str(args.timeout_seconds),
+        "--packet-rollover-wait-seconds",
+        str(args.packet_rollover_wait_seconds),
     ]
     if args.dry_run:
         command.append("--dry-run")
@@ -83,6 +85,11 @@ def main() -> int:
         "--timeout-seconds",
         type=int,
         default=int(os.environ.get("GLITCH_TOPSTEP_MODEL_TIMEOUT_SECONDS", "240")),
+    )
+    parser.add_argument(
+        "--packet-rollover-wait-seconds",
+        type=float,
+        default=float(os.environ.get("GLITCH_TOPSTEP_PACKET_ROLLOVER_WAIT_SECONDS", "5")),
     )
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
