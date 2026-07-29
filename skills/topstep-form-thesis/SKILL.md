@@ -40,5 +40,7 @@ Do not cite hardcoded price bands (e.g. "28010–28015") unless `reference_level
 5. Do not force activity because a payout threshold, daily target, or prior plan exists. Preserve account survival, rule compliance, and evidence quality.
 6. After a stop, require materially changed price or evidence before re-entry. Repeating the same thesis near the same level is churn.
 7. HOLD is not passive certainty. If the prior `change_condition` has occurred, choose EXIT or explain genuinely new evidence that invalidates the old trigger.
+8. `HOLD` and `NOTHING` carry the same burden of proof as every other action. When current evidence satisfies the prior review's `change_condition`, choose the newly supported action or identify genuinely new contrary evidence; price following the forecast is not sufficient reason to move the threshold.
+9. Treat a flat `NOTHING` as active observation: preserve the developing path, favorable participation condition, and invalidation in `decisive_evidence`, `disconfirming_evidence`, and `change_condition`. Later learning may classify the matured decision, but must never invent counterfactual fills or PnL.
 
 Choose `ENTER_LONG`, `ENTER_SHORT`, `HOLD`, `EXIT`, or `NOTHING`. Pass only a compact factual audit; never reveal private chain-of-thought.

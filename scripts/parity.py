@@ -539,6 +539,36 @@ def discard_stale_entry_intent(
     )
 
 
+FLAT_ABSTENTION_CLASSIFICATIONS = frozenset({
+    "justified_abstention",
+    "avoided_adverse_movement",
+    "missed_directional_participation",
+    "ambiguous",
+})
+
+
+def suggest_flat_abstention_classification(
+    *,
+    initial_price: float,
+    forward_high: float,
+    forward_low: float,
+    forward_close: float,
+    tick_size: float = 0.25,
+) -> str:
+    # ponytail: coarse price-path heuristic; Hermes may override in hourly review
+    up = forward_high - initial_price
+    down = initial_price - forward_low
+    move = abs(forward_close - initial_price)
+    noise = max(tick_size * 8, initial_price * 0.00005)
+    if move <= noise and max(up, down) <= noise * 2:
+        return "justified_abstention"
+    if up > down * 1.5 and up > noise * 2:
+        return "missed_directional_participation"
+    if down > up * 1.5 and down > noise * 2:
+        return "avoided_adverse_movement"
+    return "ambiguous"
+
+
 def wait_for_packet_rollover(
     packet: dict[str, Any],
     wait_seconds: float,

@@ -273,6 +273,35 @@ class LearningTests(unittest.TestCase):
             episodes = MODULE.collect_decision_episodes(state_root, supervisor)
         self.assertEqual(episodes, [])
 
+    def test_suggest_flat_abstention_classification(self):
+        self.assertEqual(
+            PARITY.suggest_flat_abstention_classification(
+                initial_price=20000.0,
+                forward_high=20000.5,
+                forward_low=19999.5,
+                forward_close=20000.0,
+            ),
+            "justified_abstention",
+        )
+        self.assertEqual(
+            PARITY.suggest_flat_abstention_classification(
+                initial_price=20000.0,
+                forward_high=20020.0,
+                forward_low=19999.0,
+                forward_close=20015.0,
+            ),
+            "missed_directional_participation",
+        )
+        self.assertEqual(
+            PARITY.suggest_flat_abstention_classification(
+                initial_price=20000.0,
+                forward_high=20001.0,
+                forward_low=19970.0,
+                forward_close=19975.0,
+            ),
+            "avoided_adverse_movement",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

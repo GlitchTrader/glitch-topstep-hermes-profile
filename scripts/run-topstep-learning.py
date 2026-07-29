@@ -41,6 +41,7 @@ from parity import (
     PROMPT_VERSION,
     classify_delivery_result,
     debrief_evidence,
+    suggest_flat_abstention_classification,
 )
 
 
@@ -218,6 +219,16 @@ def collect_decision_episodes(state_root: Path, supervisor: Path) -> list[dict[s
             "upward_excursion_points": forward_high - initial,
             "downward_excursion_points": initial - forward_low,
             "classification": None,
+            "classification_hint": (
+                suggest_flat_abstention_classification(
+                    initial_price=initial,
+                    forward_high=forward_high,
+                    forward_low=forward_low,
+                    forward_close=future[-1]["close"],
+                )
+                if flat_nothing
+                else None
+            ),
             "classification_owner": "hermes",
         })
         existing.add(intent_id)
@@ -339,6 +350,12 @@ def output_template(loop_id: str, record_ids: list[str]) -> dict[str, Any]:
                 "repeated_patterns": ["REPLACE"],
                 "system_findings": ["REPLACE"],
                 "guidance": {"summary": "REPLACE", "consider": ["REPLACE"], "avoid": ["REPLACE"]},
+                "decision_episode_classifications": [{
+                    "episode_id": "COPY_FROM_EVIDENCE",
+                    "classification": "justified_abstention|avoided_adverse_movement|missed_directional_participation|ambiguous",
+                    "counterfactual_summary": "REPLACE",
+                    "change_condition_review": "met|reassessed|threshold_moved|not_applicable",
+                }],
                 "cognitive_change_candidate": {
                     "propose": False,
                     "candidate_id": "",
@@ -419,12 +436,23 @@ def prompt_for(loop_id: str, evidence: Any, template: dict[str, Any], continuity
             "provider or gateway defect is a system finding, not a trading lesson."
         ),
         "hourly": (
-            "Supervise recent episodes. Separate repeated cognitive errors from venue, policy, transport, or execution "
-            "defects. Propose at most one compact cognitive change only when multiple comparable episodes support it."
+            "Supervise recent trade and decision episodes. For each flat NOTHING, preserve the "
+            "developing movement, favorable participation condition, invalidation, and later observed "
+            "path. Classify matured flat abstentions as justified_abstention, avoided_adverse_movement, "
+            "missed_directional_participation, or ambiguous by comparing the declared forecast and "
+            "change_condition with the observed path. Label the actual outcome no trade and every "
+            "counterfactual informational only; never invent counterfactual fills, geometry, or PnL. "
+            "For each prior change_condition, record met, reassessed, threshold_moved, or not_applicable. "
+            "Separate repeated cognitive errors from venue, policy, transport, or execution defects. "
+            "Propose at most one compact cognitive change only when multiple comparable episodes support it. "
+            "Decision episodes may improve questions and attention, but must not create entry pressure, "
+            "anti-abstention pressure, or quantity pressure."
         ),
         "planning": (
             "Create a six-hour advisory plan. Preserve deterministic risk and gateway authority. Do not create entry "
-            "gates, fixed quantities, daily profit quotas, or instructions that bypass current packets."
+            "gates, fixed quantities, daily profit quotas, or instructions that bypass current packets. "
+            "Use completed decision episodes to question habitual abstention and rejected geometry while preserving "
+            "uncertainty; decision-only findings are observational and cannot pressure entries or size."
         ),
         "daily": (
             "Distill the supplied supervision summaries and plans into a compact maintenance learning journal. Do not "
