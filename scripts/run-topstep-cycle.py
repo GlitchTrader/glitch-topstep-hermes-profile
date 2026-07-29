@@ -25,6 +25,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from packet_model import frame_for_model, packet_for_model as build_model_packet
 from regime import detect_regime
 from common import (
     PROFILE_NAME,
@@ -135,9 +136,16 @@ def packet_max_age_seconds() -> int:
 
 def frame_retention() -> int:
     try:
-        return max(5, int(os.environ.get("GLITCH_TOPSTEP_FRAME_RETENTION", "180")))
+        return max(decision_frame_count(), int(os.environ.get("GLITCH_TOPSTEP_FRAME_RETENTION", "180")))
     except ValueError:
-        return 180
+        return max(decision_frame_count(), 180)
+
+
+def decision_frame_count() -> int:
+    try:
+        return max(1, int(os.environ.get("GLITCH_TOPSTEP_DECISION_FRAME_COUNT", "5")))
+    except ValueError:
+        return 5
 
 
 def flat_decision_interval_minutes() -> int:
@@ -403,7 +411,9 @@ def capture_frame(packet: dict[str, Any], root: Path) -> Path:
     return path
 
 
-def recent_frames(root: Path, limit: int = 5) -> list[dict[str, Any]]:
+def recent_frames(root: Path, limit: int | None = None) -> list[dict[str, Any]]:
+    if limit is None:
+        limit = decision_frame_count()
     values: list[dict[str, Any]] = []
     for path in sorted((root / "minute-frames").glob("*.json"))[-limit:]:
         value = read_optional_json(path)
@@ -413,24 +423,12 @@ def recent_frames(root: Path, limit: int = 5) -> list[dict[str, Any]]:
 
 
 def packet_for_model(packet: dict[str, Any]) -> dict[str, Any]:
-    value = copy.deepcopy(packet)
-
-    account = value.get("account")
-    if isinstance(account, dict):
-        account.pop("id", None)
-
-    contract = value.get("contract")
-    if isinstance(contract, dict):
-        contract.pop("id", None)
-        contract.pop("symbol_id", None)
-
-    template = value.get("required_output_template")
-    if isinstance(template, dict):
-        template["operator_profile"] = PROFILE_NAME
-        template["model_version"] = core_model()
-        template["prompt_version"] = PROMPT_VERSION
-
-    return value
+    return build_model_packet(
+        packet,
+        profile_name=PROFILE_NAME,
+        core_model=core_model(),
+        prompt_version=PROMPT_VERSION,
+    )
 
 
 def read_directive(root: Path) -> dict[str, Any] | None:
@@ -523,9 +521,7 @@ def build_prompt(
 
     envelope = {
         "decision_packet": model_packet,
-        "recent_frames": [
-            packet_for_model(frame.get("packet", {})) for frame in frames
-        ],
+        "recent_frames": [frame_for_model(frame) for frame in frames],
         "recent_glitch_ledger": context,
         "active_trade_state": trade_state,
         "operator_directive": directive,
@@ -545,8 +541,10 @@ def build_prompt(
         "Apply the Glitch Topstep SOUL and loaded skills to CURRENT_CYCLE. "
         "You are the trading operator, not a suggestion engine. Evaluate "
         "ENTER_LONG, ENTER_SHORT, and NOTHING symmetrically while flat; when "
-        "positioned evaluate HOLD or EXIT. Use every available recent frame. "
-        "A short frame history, imperfect evidence, data_quality warning, "
+        "positioned evaluate HOLD or EXIT. Use decision_packet for the full "
+        "current gateway snapshot and recent_frames as compact minute continuity "
+        "snapshots (same semantic fields, without output templates or lease "
+        "metadata). A short frame history, imperfect evidence, data_quality warning, "
         "capacity field, account buffer, or policy field is information to "
         "reason about, not an automatic cognitive veto. Do not invent missing "
         "facts. The local gateway independently verifies current ProjectX "
@@ -960,7 +958,10 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         )
         return 0
 
-    frames = recent_frames(state, 5)
+    frames = recent_frames(state, decision_frame_count())
+    if not positioned(packet) and len(frames) < decision_frame_count():
+        return 0
+
     packet_id = str(packet.get("packet_id") or "")
     if not packet_id:
         raise ValueError("packet_id_missing")
