@@ -273,6 +273,72 @@ class LearningTests(unittest.TestCase):
             episodes = MODULE.collect_decision_episodes(state_root, supervisor)
         self.assertEqual(episodes, [])
 
+    def test_collect_decision_episodes_from_decisions_jsonl(self):
+        with tempfile.TemporaryDirectory() as root:
+            state_root = Path(root) / "state"
+            supervisor = state_root / "supervisor"
+            frames = state_root / "minute-frames"
+            receipts = state_root / "receipts"
+            decisions = state_root / "decisions.jsonl"
+            for path in (supervisor, frames, receipts):
+                path.mkdir(parents=True)
+            packet_id = "pkt-decision-1"
+            packet = {
+                "packet_id": packet_id,
+                "created_utc": "2026-07-28T21:30:00Z",
+                "market": {"last": 100.0, "high": 100.5, "low": 99.5},
+                "account": {"name": "PRAC", "instrument_open_contracts": 0},
+                "contract": {"symbol": "MNQ"},
+            }
+            for minute_id, last in (
+                ("20260728T2130Z", 100.0),
+                ("20260728T2131Z", 101.0),
+                ("20260728T2132Z", 102.0),
+                ("20260728T2133Z", 101.5),
+                ("20260728T2134Z", 103.0),
+                ("20260728T2135Z", 102.5),
+            ):
+                (frames / f"{minute_id}.json").write_text(
+                    json.dumps(
+                        {
+                            "schema_version": "glitch.topstep.minute_frame.v2",
+                            "minute_id": minute_id,
+                            "packet": {**packet, "packet_id": packet_id, "market": {"last": last, "high": last + 0.5, "low": last - 0.5}},
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+            intent = {
+                "schema_version": "glitch.intent.v2",
+                "intent_id": "intent-from-decisions",
+                "action": "NOTHING",
+                "created_utc": "2026-07-28T21:30:01Z",
+            }
+            decisions.write_text(
+                json.dumps(
+                    {
+                        "schema_version": "glitch.topstep.decision_record.v2",
+                        "packet_id": packet_id,
+                        "intent": intent,
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            (receipts / f"{packet_id}.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": "glitch.topstep.delivery_receipt.v2",
+                        "intent_id": "intent-from-decisions",
+                        "result": {"http_status": 200, "body": {"executor": "ok"}},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            episodes = MODULE.collect_decision_episodes(state_root, supervisor)
+        self.assertEqual(len(episodes), 1)
+        self.assertEqual(episodes[0]["intent_id"], "intent-from-decisions")
+
     def test_suggest_flat_abstention_classification(self):
         self.assertEqual(
             PARITY.suggest_flat_abstention_classification(
