@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import tempfile
+import time
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -258,6 +260,109 @@ def append_jsonl(path: Path, value: dict[str, Any]) -> None:
 
 def tail_jsonl(path: Path, count: int) -> list[dict[str, Any]]:
     return read_jsonl(path)[-max(0, count):]
+
+
+def process_is_alive(pid: int) -> bool:
+    if pid <= 0:
+        return False
+    if sys.platform == "win32":
+        import ctypes
+
+        handle = ctypes.windll.kernel32.OpenProcess(0x1000, False, pid)
+        if not handle:
+            return False
+        ctypes.windll.kernel32.CloseHandle(handle)
+        return True
+    try:
+        os.kill(pid, 0)
+        return True
+    except (ProcessLookupError, PermissionError):
+        return False
+
+
+def process_start_utc(pid: int) -> datetime | None:
+    if pid <= 0 or sys.platform != "win32":
+        return None
+    import ctypes
+    from ctypes import wintypes
+
+    handle = ctypes.windll.kernel32.OpenProcess(0x1000, False, pid)
+    if not handle:
+        return None
+    try:
+        creation = wintypes.FILETIME()
+        exit_time = wintypes.FILETIME()
+        kernel = wintypes.FILETIME()
+        user = wintypes.FILETIME()
+        if not ctypes.windll.kernel32.GetProcessTimes(
+            handle,
+            ctypes.byref(creation),
+            ctypes.byref(exit_time),
+            ctypes.byref(kernel),
+            ctypes.byref(user),
+        ):
+            return None
+        ticks = (creation.dwHighDateTime << 32) | creation.dwLowDateTime
+        return datetime.fromtimestamp(
+            (ticks - 116444736000000000) / 10_000_000,
+            tz=timezone.utc,
+        )
+    finally:
+        ctypes.windll.kernel32.CloseHandle(handle)
+
+
+def process_matches_owner(pid: int, started_utc: Any) -> bool:
+    if not process_is_alive(pid):
+        return False
+    actual = process_start_utc(pid)
+    if actual is None:
+        return True
+    try:
+        recorded = datetime.fromisoformat(str(started_utc).replace("Z", "+00:00")).astimezone(
+            timezone.utc
+        )
+    except (TypeError, ValueError):
+        return False
+    return abs((actual - recorded).total_seconds()) <= 30
+
+
+def acquire_cycle_lock(lock_path: Path, unreadable_grace_seconds: int = 15) -> bool:
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    for _ in range(2):
+        try:
+            descriptor = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError:
+            try:
+                owner = read_json(lock_path)
+                if process_matches_owner(int(owner.get("pid", 0)), owner.get("started_utc")):
+                    return False
+                lock_path.unlink()
+                continue
+            except (OSError, ValueError, TypeError, json.JSONDecodeError):
+                try:
+                    if time.time() - lock_path.stat().st_mtime <= unreadable_grace_seconds:
+                        return False
+                    lock_path.unlink()
+                    continue
+                except (FileNotFoundError, OSError):
+                    continue
+        else:
+            try:
+                started = process_start_utc(os.getpid())
+                payload = json.dumps(
+                    {
+                        "pid": os.getpid(),
+                        "started_utc": (started or datetime.now(timezone.utc))
+                        .isoformat()
+                        .replace("+00:00", "Z"),
+                    },
+                    separators=(",", ":"),
+                )
+                os.write(descriptor, payload.encode("utf-8"))
+            finally:
+                os.close(descriptor)
+            return True
+    return False
 
 
 def prune_files(paths: Iterable[Path], keep: int) -> None:
