@@ -444,18 +444,56 @@ def intent_is_entry(intent: dict[str, Any]) -> bool:
     return str(intent.get("action") or "") in {"ENTER_LONG", "ENTER_SHORT"}
 
 
+def packet_for_outbox_id(state: Path, packet_id: str) -> dict[str, Any] | None:
+    # ponytail: O(n) scan over minute-frames; fine at typical retention sizes
+    frames_dir = state / "minute-frames"
+    if not frames_dir.is_dir():
+        return None
+    for path in frames_dir.glob("*.json"):
+        frame = read_optional_json(path)
+        if not frame:
+            continue
+        packet = frame.get("packet")
+        if isinstance(packet, dict) and str(packet.get("packet_id") or "") == packet_id:
+            return packet
+    return None
+
+
+def prune_delivered_outboxes(state: Path) -> int:
+    outbox_dir = state / "outbox"
+    if not outbox_dir.is_dir():
+        return 0
+    pruned = 0
+    for path in outbox_dir.glob("*.json"):
+        receipt_path = state / "receipts" / f"{path.stem}.json"
+        if not receipt_path.is_file():
+            continue
+        receipt = read_optional_json(receipt_path)
+        if not isinstance(receipt, dict):
+            continue
+        result = receipt.get("result") if isinstance(receipt.get("result"), dict) else {}
+        if classify_delivery_result(result) == "transport_uncertain":
+            continue
+        try:
+            path.unlink(missing_ok=True)
+            pruned += 1
+        except OSError:
+            continue
+    return pruned
+
+
 def packet_has_advanced(packet_id: str, *, token: str) -> bool:
     try:
         status, current = request_json("/packet", token=token)
         if status != 200 or not isinstance(current, dict):
             return False
         latest_id = str(current.get("packet_id") or "")
-        return bool(latest_id and latest_id > packet_id)
+        return bool(latest_id and packet_id and latest_id != packet_id)
     except (OSError, RuntimeError, ValueError, TypeError):
         return False
 
 
-def discard_stale_entry_intent(
+def discard_stale_outbox_intent(
     state: Path,
     outbox_path: Path,
     packet_id: str,
@@ -463,7 +501,12 @@ def discard_stale_entry_intent(
     *,
     token: str,
 ) -> bool:
-    if not intent_is_entry(intent) or not packet_has_advanced(packet_id, token=token):
+    reason: str | None = None
+    if packet_for_outbox_id(state, packet_id) is None:
+        reason = "stored_packet_not_found"
+    elif packet_has_advanced(packet_id, token=token):
+        reason = "newer_packet_published_before_delivery"
+    if reason is None:
         return False
     try:
         outbox_path.unlink(missing_ok=True)
@@ -474,12 +517,26 @@ def discard_stale_entry_intent(
         {
             "schema_version": "glitch.topstep.cycle_event.v2",
             "event": "intent_discarded_stale_packet",
-            "reason": "newer_packet_published_before_entry_delivery",
+            "reason": reason,
             "recorded_utc": utc_now(),
             "packet_id": packet_id,
+            "action": str(intent.get("action") or ""),
         },
     )
     return True
+
+
+def discard_stale_entry_intent(
+    state: Path,
+    outbox_path: Path,
+    packet_id: str,
+    intent: dict[str, Any],
+    *,
+    token: str,
+) -> bool:
+    return discard_stale_outbox_intent(
+        state, outbox_path, packet_id, intent, token=token
+    )
 
 
 def wait_for_packet_rollover(
