@@ -525,10 +525,6 @@ class DirectCycleTests(unittest.TestCase):
                 return (200, current)
 
             with mock.patch.object(MODULE, "local_token", return_value="token"), mock.patch.object(
-                PARITY,
-                "packet_has_advanced",
-                return_value=False,
-            ), mock.patch.object(
                 MODULE,
                 "request_json",
                 side_effect=fake_request_json,
@@ -565,24 +561,15 @@ class DirectCycleTests(unittest.TestCase):
             )
             outbox_path = outbox / "packet-5.json"
             MODULE.write_json_atomic(outbox_path, intent("NOTHING"))
-            with mock.patch.object(PARITY, "packet_has_advanced", return_value=True):
-                discarded = PARITY.discard_stale_outbox_intent(
-                    state,
-                    outbox_path,
-                    "packet-5",
-                    intent("NOTHING"),
-                    token="token",
-                )
+            discarded = PARITY.discard_stale_outbox_intent(
+                state,
+                outbox_path,
+                "packet-5",
+                intent("NOTHING"),
+                token="token",
+            )
             self.assertFalse(discarded)
             self.assertTrue(outbox_path.exists())
-
-    def test_packet_has_advanced_uses_inequality_not_ordering(self):
-        with mock.patch.object(
-            PARITY,
-            "request_json",
-            return_value=(200, {"packet_id": "packet-10"}),
-        ):
-            self.assertTrue(PARITY.packet_has_advanced("packet-9", token="token"))
 
 
 if __name__ == "__main__":

@@ -482,17 +482,6 @@ def prune_delivered_outboxes(state: Path) -> int:
     return pruned
 
 
-def packet_has_advanced(packet_id: str, *, token: str) -> bool:
-    try:
-        status, current = request_json("/packet", token=token)
-        if status != 200 or not isinstance(current, dict):
-            return False
-        latest_id = str(current.get("packet_id") or "")
-        return bool(latest_id and packet_id and latest_id != packet_id)
-    except (OSError, RuntimeError, ValueError, TypeError):
-        return False
-
-
 def discard_stale_outbox_intent(
     state: Path,
     outbox_path: Path,
@@ -528,19 +517,6 @@ def discard_stale_outbox_intent(
         },
     )
     return True
-
-
-def discard_stale_entry_intent(
-    state: Path,
-    outbox_path: Path,
-    packet_id: str,
-    intent: dict[str, Any],
-    *,
-    token: str,
-) -> bool:
-    return discard_stale_outbox_intent(
-        state, outbox_path, packet_id, intent, token=token
-    )
 
 
 FLAT_ABSTENTION_CLASSIFICATIONS = frozenset({

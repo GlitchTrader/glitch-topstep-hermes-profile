@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-07-27",
+  "updated": "2026-07-30",
   "roadmap_ref": "README.md",
   "items": [
     {
@@ -18,7 +18,8 @@
       "depends_on": [],
       "evidence": [
         "2026-07-25 commits d9a1ab0, a828e1f, ab0f480: truthful Topstep evidence, native MTF, rolling tape and partial depth doctrine.",
-        "2026-07-27: gateway atomic UUID+body claim and conflict receipts (glitch-topstep); profile AUTHORITY cross-ref updated."
+        "2026-07-27: gateway atomic UUID+body claim and conflict receipts (glitch-topstep); profile AUTHORITY cross-ref updated.",
+        "PR #16 merged: discard_stale_outbox_intent only on stored_packet_not_found."
       ],
       "sources": [
         "docs/AUTHORITY.md",
@@ -26,17 +27,104 @@
         "skills/topstep-build-intent/SKILL.md"
       ]
     },
-      "title": "Bind work to glitch-topstep ledger",
-      "status": "deferred",
-      "priority": "P3",
-      "owner_role": "orchestrator",
+    {
+      "id": "RAIL-003",
+      "title": "Compact frame snapshots for LLM prompts",
+      "status": "done",
+      "priority": "P1",
+      "owner_role": "coder",
       "acceptance": [
-        "Resume when operator promotes this repo to active development."
+        "decision_packet stays full; recent_frames use glitch.topstep.frame_snapshot.v2.",
+        "GLITCH_TOPSTEP_DECISION_FRAME_COUNT configures frame window (default 5).",
+        "Tests cover packet_model and prompt envelope shape."
+      ],
+      "depends_on": [],
+      "evidence": [
+        "PR #17 merged: scripts/packet_model.py, run-topstep-cycle integration, 61 tests passing."
+      ],
+      "sources": [
+        "scripts/packet_model.py",
+        "scripts/run-topstep-cycle.py",
+        "skills/topstep-observe-market/SKILL.md"
+      ]
+    },
+    {
+      "id": "RAIL-004",
+      "title": "Profile worker dedup and dead-code removal",
+      "status": "done",
+      "priority": "P2",
+      "owner_role": "coder",
+      "acceptance": [
+        "Single latest_prior_attempt implementation (parity.py); cycle imports it.",
+        "Remove packet_has_advanced and discard_stale_entry_intent leftovers from PR #16.",
+        "Remove duplicate active_trade_state inside recent_glitch_ledger prompt envelope.",
+        "Tests updated; no behavior change to outbox discard or invocation_reason."
+      ],
+      "depends_on": ["RAIL-003"],
+      "evidence": [
+        "2026-07-30: run-topstep-cycle imports latest_prior_attempt and RETRYABLE_ATTEMPT_STATUSES from parity.py.",
+        "2026-07-30: removed packet_has_advanced and discard_stale_entry_intent from parity.py.",
+        "2026-07-30: active_trade_state only at prompt envelope top-level; not duplicated in recent_glitch_ledger.",
+        "2026-07-30: unittest green (60 tests)."
+      ],
+      "sources": [
+        "scripts/run-topstep-cycle.py",
+        "scripts/parity.py",
+        "tests/test_direct_cycle.py"
+      ]
+    },
+    {
+      "id": "RAIL-005",
+      "title": "Align ARCHITECTURE with flat frame warmup gate",
+      "status": "done",
+      "priority": "P2",
+      "owner_role": "coder",
+      "acceptance": [
+        "docs/ARCHITECTURE.md and AUTHORITY.md state whether flat cycles require N frames before first LLM call.",
+        "Either document GLITCH_TOPSTEP_DECISION_FRAME_COUNT as scheduling warmup, or remove silent flat gate and invoke with available frames."
+      ],
+      "depends_on": ["RAIL-003"],
+      "evidence": [
+        "2026-07-30 decision: keep flat warmup at GLITCH_TOPSTEP_DECISION_FRAME_COUNT (default 5).",
+        "2026-07-30: ARCHITECTURE.md and AUTHORITY.md document flat scheduling warmup vs positioned immediate invoke.",
+        "2026-07-30 audit: run-topstep-cycle returns 0 when len(frames) < decision_frame_count() while flat."
+      ],
+      "sources": [
+        "docs/ARCHITECTURE.md",
+        "docs/AUTHORITY.md",
+        "scripts/run-topstep-cycle.py"
+      ]
+    },
+    {
+      "id": "RAIL-006",
+      "title": "Consolidate minute-frame lookup helpers",
+      "status": "ready",
+      "priority": "P3",
+      "owner_role": "coder",
+      "acceptance": [
+        "Single helper for packet_id -> stored frame/packet used by cycle and learning workers.",
+        "No semantic change to debrief_evidence or outbox validation."
       ],
       "depends_on": [],
       "evidence": [],
       "sources": [
-        "projects/glitch/glitch-topstep/docs/ledger/ledger.json"
+        "scripts/parity.py",
+        "scripts/run-topstep-learning.py"
+      ]
+    },
+    {
+      "id": "RAIL-007",
+      "title": "Bind work to glitch-topstep gateway ledger",
+      "status": "deferred",
+      "priority": "P3",
+      "owner_role": "orchestrator",
+      "acceptance": [
+        "Resume when operator promotes cross-repo gateway parity to active development."
+      ],
+      "depends_on": [],
+      "evidence": [],
+      "sources": [
+        "glitch-topstep/docs/ledger/ledger.json"
       ]
     }
   ]

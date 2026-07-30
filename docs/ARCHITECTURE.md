@@ -44,13 +44,13 @@ ProjectX owns venue truth.
 Topstep owns final account-rule authority.
 ```
 
-The worker validates schema, fixed identity, finite values, entry field completeness, and basic directional geometry. It does not enforce a strategy, a risk percentage, a daily quota, a minimum frame count, an eligibility flag, or a supplied quantity list. Current gateway rejection remains visible as an attributable outcome episode.
+The worker validates schema, fixed identity, finite values, entry field completeness, and basic directional geometry. It does not enforce a strategy, a risk percentage, a daily quota, an eligibility flag, or a supplied quantity list. Current gateway rejection remains visible as an attributable outcome episode.
 
 ## Decision cadence
 
 Native Hermes cron runs every minute and launches the worker without waiting for model latency. By default, the worker considers one isolated decision every minute while flat or positioned. `GLITCH_TOPSTEP_FLAT_DECISION_INTERVAL_MINUTES` may reduce flat-book observation frequency, but it is scheduling only and never a statement that a trade is permitted or forbidden.
 
-Operator directives may wake a cycle. The worker uses every available recent frame, including a first frame. Five frames are useful continuity, not a cognition prerequisite.
+Operator directives may wake a cycle. While positioned, the worker invokes Hermes with every available recent frame. While flat, the worker waits until `GLITCH_TOPSTEP_DECISION_FRAME_COUNT` minute frames exist (default **5**) before the first model call. That flat warmup is scheduling continuity, not a cognition veto: once the window is full, Hermes receives compact frame snapshots plus the current decision packet and may still choose NOTHING on thin evidence.
 
 ## Truth and degradation
 

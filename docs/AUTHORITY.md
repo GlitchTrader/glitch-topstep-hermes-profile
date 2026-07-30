@@ -58,6 +58,8 @@ Duplicate intent UUID retries are gateway-owned replay. The profile must not res
 
 Cadence controls when Hermes observes and decides. It does not define whether the market is tradable. The default flat and positioned cadence is every minute. Operators may reduce flat cadence for cost or attention reasons without changing the trading doctrine.
 
+While flat, `run-topstep-cycle.py` skips the model until `GLITCH_TOPSTEP_DECISION_FRAME_COUNT` minute frames are captured (default 5). That warmup is worker scheduling only: it does not reject an intent and is not a hidden strategy gate. Positioned cycles invoke with available frames immediately.
+
 ## Builder responsibility
 
 Codex owns the reliability of the profile distribution, launcher, persistence, schema validation, and delivery. Failures must be visible, append-only, and recoverable. Codex must not choose the trade.

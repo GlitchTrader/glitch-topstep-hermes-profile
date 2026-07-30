@@ -56,6 +56,7 @@ from parity import (
     classify_delivery_result,
     discard_stale_outbox_intent,
     invocation_reason,
+    latest_prior_attempt,
     learning_context,
     mark_attempt_from_receipt,
     packet_for_outbox_id,
@@ -63,6 +64,7 @@ from parity import (
     persist_wake_triggers,
     prune_delivered_outboxes,
     require_explicit_wake_triggers,
+    RETRYABLE_ATTEMPT_STATUSES,
     validate_wake_triggers,
     wait_for_packet_rollover,
 )
@@ -335,36 +337,6 @@ def skip_stale_gateway_evidence_enabled() -> bool:
         "GLITCH_TOPSTEP_SKIP_STALE_GATEWAY_EVIDENCE",
         "true",
     ).strip().lower() in {"1", "true", "yes"}
-
-
-RETRYABLE_ATTEMPT_STATUSES = frozenset(
-    {"started", "failed", "execution_failed", "delivery_incomplete"}
-)
-
-
-def latest_prior_attempt(root: Path, packet_id: str) -> dict[str, Any] | None:
-    attempts_dir = root / "attempts"
-    if not attempts_dir.is_dir():
-        return None
-    latest_path: Path | None = None
-    latest_mtime = 0.0
-    for path in attempts_dir.glob("*.json"):
-        if path.stem == packet_id:
-            continue
-        try:
-            mtime = path.stat().st_mtime
-        except OSError:
-            continue
-        if mtime >= latest_mtime:
-            latest_mtime = mtime
-            latest_path = path
-    if latest_path is None:
-        return None
-    try:
-        value = read_json(latest_path)
-    except (OSError, ValueError, TypeError):
-        return None
-    return value if isinstance(value, dict) else None
 
 
 def should_retry_after_failure(root: Path, packet_id: str) -> bool:
@@ -977,7 +949,6 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
 
     trade_state = active_trade_state(state, packet)
     context = recent_context(state)
-    context["active_trade_state"] = trade_state
 
     if outbox_path.is_file():
         intent = read_json(outbox_path)
