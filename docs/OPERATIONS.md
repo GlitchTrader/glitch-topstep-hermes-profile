@@ -34,4 +34,6 @@ If the gateway is unavailable, jobs remain paused and the command reports that i
 
 The profile-local `state/` directory is intentionally excluded from distribution updates. Back it up before migration, but never copy it into another account without reviewing account aliases and gateway configuration.
 
+`/topstep_status` reports the detached operator worker's actual `running`, `ok`, or `failed` state from `state/supervisor/direct-worker-status.json`. The cron launcher can finish successfully before that worker does, so use the worker state when diagnosing decision delivery.
+
 Do not commit `.env`, sessions, memory, state, or logs.

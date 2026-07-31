@@ -22,6 +22,7 @@ function Assert-DistributionIntegrity {
         throw 'SHA256SUMS is missing; reinstall the profile before setup.'
     }
     foreach ($line in Get-Content -LiteralPath $manifestPath) {
+        $line = $line.TrimStart([char]0xFEFF)
         if ([string]::IsNullOrWhiteSpace($line)) { continue }
         $parts = $line -split '\s{2,}', 2
         if ($parts.Count -ne 2 -or $parts[0] -notmatch '^[0-9A-Fa-f]{64}$') {
@@ -168,7 +169,7 @@ finally {
 [ordered]@{
     schema_version = 'glitch.topstep.hermes.setup.v1'
     profile = $Profile
-    distribution_version = '0.1.1'
+    distribution_version = '0.1.2'
     gateway_supervised = $true
     plugin_enabled = $true
     jobs = @($directJob, $learningJob)
