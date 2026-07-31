@@ -375,6 +375,54 @@ class DirectCycleTests(unittest.TestCase):
             aligned = MODULE.prepare_intent_for_delivery(intent(), None)
         self.assertEqual(aligned["snapshot_hash"], "hash-2")
 
+    def test_prepare_intent_for_delivery_validates_wake_triggers_before_stripping_them(self):
+        value = intent()
+        value["decision_audit"]["change_condition"] = (
+            "Enter long above 20010 or short below 19990."
+        )
+        value["wake_triggers"] = [
+            {"type": "PRICE_CROSS", "direction": "ABOVE", "price": 20010},
+            {"type": "PRICE_CROSS", "direction": "BELOW", "price": 19990},
+        ]
+        with mock.patch.object(
+            MODULE,
+            "request_json",
+            return_value=(200, packet()),
+        ), mock.patch.object(
+            MODULE,
+            "local_token",
+            return_value="token",
+        ), mock.patch.object(
+            MODULE,
+            "packet_is_current",
+            return_value=True,
+        ):
+            delivered = MODULE.prepare_intent_for_delivery(value, None)
+        self.assertNotIn("wake_triggers", delivered)
+
+    def test_prepare_intent_for_delivery_rejects_missing_explicit_wake_trigger(self):
+        value = intent()
+        value["decision_audit"]["change_condition"] = "Enter long above 20010."
+        value["wake_triggers"] = []
+        with mock.patch.object(
+            MODULE,
+            "request_json",
+            return_value=(200, packet()),
+        ), mock.patch.object(
+            MODULE,
+            "local_token",
+            return_value="token",
+        ), mock.patch.object(
+            MODULE,
+            "packet_is_current",
+            return_value=True,
+        ):
+            with self.assertRaisesRegex(
+                ValueError,
+                "wake_triggers_missing_for_change_condition",
+            ):
+                MODULE.prepare_intent_for_delivery(value, None)
+
     def test_prepare_intent_for_delivery_truncates_gateway_string_fields(self):
         value = MODULE.normalize_intent(intent(), packet())
         value["reason"] = "r" * 1100
@@ -495,9 +543,15 @@ class DirectCycleTests(unittest.TestCase):
         stored = packet(5)
         stored["account"]["name"] = "TopstepX-50K"
         current = packet(6)
-        current["account"]["name"] = "Other-Account"
         current["market"]["snapshot_hash"] = "hash-other"
         pending_intent = intent("NOTHING")
+        pending_intent["decision_audit"]["change_condition"] = (
+            "Reassess above 20010 or below 19990."
+        )
+        pending_intent["wake_triggers"] = [
+            {"type": "PRICE_CROSS", "direction": "ABOVE", "price": 20010},
+            {"type": "PRICE_CROSS", "direction": "BELOW", "price": 19990},
+        ]
 
         with tempfile.TemporaryDirectory() as root:
             profile_root = Path(root)
@@ -534,10 +588,6 @@ class DirectCycleTests(unittest.TestCase):
                 return_value=True,
             ), mock.patch.object(
                 MODULE,
-                "prepare_intent_for_delivery",
-                side_effect=lambda value, _directive: value,
-            ), mock.patch.object(
-                MODULE,
                 "post_intent",
                 return_value={"http_status": 200, "body": {"executor": "ok"}},
             ) as post_intent:
@@ -546,6 +596,40 @@ class DirectCycleTests(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         post_intent.assert_called_once()
         self.assertFalse((outbox / "packet-5.json").exists())
+
+    def test_main_records_detached_worker_failure(self):
+        with tempfile.TemporaryDirectory() as root, mock.patch.object(
+            MODULE,
+            "configure_environment",
+            return_value=Path(root),
+        ), mock.patch.object(
+            MODULE,
+            "acquire_cycle_lock",
+            return_value=True,
+        ), mock.patch.object(
+            MODULE,
+            "run_once",
+            side_effect=ValueError("wake_triggers_missing_for_change_condition"),
+        ), mock.patch.object(
+            sys,
+            "argv",
+            ["run-topstep-cycle.py"],
+        ):
+            with self.assertRaisesRegex(
+                ValueError,
+                "wake_triggers_missing_for_change_condition",
+            ):
+                MODULE.main()
+            status = json.loads(
+                (
+                    Path(root)
+                    / "state"
+                    / "supervisor"
+                    / "direct-worker-status.json"
+                ).read_text(encoding="utf-8")
+            )
+        self.assertEqual(status["status"], "failed")
+        self.assertIn("wake_triggers_missing_for_change_condition", status["error"])
 
     def test_discard_stale_outbox_intent_only_when_stored_packet_missing(self):
         with tempfile.TemporaryDirectory() as root:

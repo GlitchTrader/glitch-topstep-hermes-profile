@@ -79,6 +79,19 @@ def _job(name: str) -> Optional[dict[str, Any]]:
     return next((job for job in list_jobs(include_disabled=True) if job.get("name") == name), None)
 
 
+def _direct_worker_status() -> str:
+    path = _profile_root() / "state" / "supervisor" / "direct-worker-status.json"
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError):
+        return "unknown"
+    status = str(value.get("status") or "unknown")
+    if status != "failed":
+        return status
+    error = str(value.get("error") or "").strip()
+    return f"failed ({error[:160]})" if error else "failed"
+
+
 def _pause_jobs(reason: str) -> str:
     from cron.jobs import pause_job
     states = []
@@ -123,7 +136,10 @@ def _status_text() -> str:
     else:
         job_state = "partial"
     if health_status != 200:
-        return f"Glitch Topstep gateway: unavailable; Hermes jobs: {job_state}."
+        return (
+            f"Glitch Topstep gateway: unavailable; Hermes jobs: {job_state}; "
+            f"operator worker: {_direct_worker_status()}."
+        )
     mode = str(health.get("trading_mode") or "unknown")
     try:
         state_status, state = _request("/state")
@@ -135,7 +151,8 @@ def _status_text() -> str:
     state_text = "available" if state_status == 200 else "unavailable"
     return (
         f"Glitch Topstep gateway: {mode}; state: {state_text}; account: {account_name}; "
-        f"canTrade: {can_trade}; Hermes jobs: {job_state}."
+        f"canTrade: {can_trade}; Hermes jobs: {job_state}; "
+        f"operator worker: {_direct_worker_status()}."
     )
 
 

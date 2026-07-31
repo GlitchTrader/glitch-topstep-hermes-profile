@@ -793,7 +793,6 @@ def prepare_intent_for_delivery(
         raise RuntimeError("gateway_packet_stale_before_delivery")
 
     aligned = copy.deepcopy(intent)
-    aligned.pop("wake_triggers", None)
     fresh_hash = fresh_packet.get("market", {}).get("snapshot_hash")
     if aligned.get("snapshot_hash") != fresh_hash:
         aligned["snapshot_hash"] = fresh_hash
@@ -804,6 +803,9 @@ def prepare_intent_for_delivery(
             if isinstance(audit.get(field), str):
                 audit[field] = truncate_gateway_string(audit[field], GATEWAY_AUDIT_FIELD_MAX_LENGTH)
     validate_intent(aligned, fresh_packet, directive)
+    # wake_triggers drives the local scheduler and is not part of glitch.intent.v2 on the gateway.
+    # Validate the complete decision first, then project the already-valid wire payload.
+    aligned.pop("wake_triggers", None)
     return aligned
 
 
@@ -1099,8 +1101,41 @@ def main() -> int:
 
     if not acquire_cycle_lock(lock_path):
         return 0
+    supervisor = state / "supervisor"
+    supervisor.mkdir(parents=True, exist_ok=True)
+    status_path = supervisor / "direct-worker-status.json"
+    write_json_atomic(
+        status_path,
+        {
+            "schema_version": "glitch.topstep.direct_worker_status.v1",
+            "recorded_utc": utc_now(),
+            "status": "running",
+        },
+    )
     try:
-        return run_once(args, root)
+        try:
+            exit_code = run_once(args, root)
+        except Exception as error:
+            write_json_atomic(
+                status_path,
+                {
+                    "schema_version": "glitch.topstep.direct_worker_status.v1",
+                    "recorded_utc": utc_now(),
+                    "status": "failed",
+                    "error": f"{type(error).__name__}:{error}"[:500],
+                },
+            )
+            raise
+        write_json_atomic(
+            status_path,
+            {
+                "schema_version": "glitch.topstep.direct_worker_status.v1",
+                "recorded_utc": utc_now(),
+                "status": "ok" if exit_code == 0 else "failed",
+                "exit_code": exit_code,
+            },
+        )
+        return exit_code
     finally:
         lock_path.unlink(missing_ok=True)
 
