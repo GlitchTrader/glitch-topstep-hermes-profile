@@ -149,10 +149,10 @@ finally {
 $previousHermesHome = $env:HERMES_HOME
 try {
     $env:HERMES_HOME = $profileRoot
+    # Every minute: capture frames, deliver pending intents, and invoke LLM on the
+    # flat 5-minute boundary (or every minute while positioned).
     $directJob = Ensure-CronJob `
         -Name 'glitch-topstep-direct-operator' `
-        # Every minute: capture frames, deliver pending intents, and invoke LLM on the
-        # flat 5-minute boundary (or every minute while positioned).
         -Schedule '* * * * *' `
         -Script 'launch-topstep-cycle.py' `
         -Workdir (Join-Path $profileRoot 'scripts')
@@ -169,7 +169,7 @@ finally {
 [ordered]@{
     schema_version = 'glitch.topstep.hermes.setup.v1'
     profile = $Profile
-    distribution_version = '0.1.3'
+    distribution_version = '0.1.4'
     gateway_supervised = $true
     plugin_enabled = $true
     jobs = @($directJob, $learningJob)
