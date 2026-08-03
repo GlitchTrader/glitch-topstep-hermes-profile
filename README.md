@@ -143,7 +143,7 @@ After merging profile changes operators care about, bump distribution metadata i
 - **Duplicate `intent_id` retries** are gateway-owned replay. Do not resubmit a changed body under the same UUID or bypass reconciliation with timers.
 - Cognitive overlays stay **proposed** until explicitly activated (`GLITCH_TOPSTEP_AUTO_ACTIVATE_OVERLAY=false` by default).
 
-Gateway limitations remain authoritative until gateway ledger items close: one account/contract, no verified `MOVE_STOP`/`MOVE_TP`, manual policy evidence, no durable provider bracket ownership.
+Gateway limitations remain authoritative for anything not advertised in `execution.supported_actions`: one account/contract per profile install, manual policy evidence until gateway session truth exists, and no native TP1/TP2/TP3 multi-leg entry beyond a single `take_profit_1` bracket.
 
 ---
 

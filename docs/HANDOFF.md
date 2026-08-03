@@ -43,7 +43,7 @@ Then install into Hermes and run:
 
 ## Profile tasks after gateway maturity
 
-- allow MOVE_STOP and MOVE_TP only after gateway ownership proof exists;
+- promote `MOVE_STOP`, `MOVE_TP`, partial `EXIT`, and multi-tranche `target_intent_id` in SOUL, skills, and cycle validation when gateway PM acceptance is green;
 - add payout/account-phase context to prompts only after authoritative policy state exists;
 - add native copier health and payout-unlink context;
 - calibrate cognitive-overlay evidence thresholds from paper results;

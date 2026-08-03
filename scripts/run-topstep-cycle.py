@@ -15,6 +15,7 @@ import hashlib
 import json
 import math
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -70,7 +71,19 @@ from parity import (
 )
 
 TRADING_SOURCE = "trading"
-ALLOWED_ACTIONS = {"ENTER_LONG", "ENTER_SHORT", "HOLD", "EXIT", "NOTHING"}
+ALLOWED_ACTIONS = {
+    "ENTER_LONG",
+    "ENTER_SHORT",
+    "HOLD",
+    "EXIT",
+    "NOTHING",
+    "MOVE_STOP",
+    "MOVE_TP",
+}
+TARGET_INTENT_ID_RE = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+    re.IGNORECASE,
+)
 AUDIT_FIELDS = {
     "bull_case",
     "bear_case",
@@ -105,6 +118,8 @@ CORE_FIELDS = {
     "decision_audit",
 }
 ENTRY_FIELDS = {"quantity", "order_type", "stop_loss", "take_profit_1"}
+AMENDMENT_FIELDS = {"new_stop_price", "new_take_profit", "target_intent_id"}
+EXIT_FIELDS = {"quantity", "exit_fraction", "target_intent_id"}
 SUPPORTED_PACKET_SCHEMAS = {
     "glitch.direct.decision_packet.v1",
     "glitch.direct.decision_packet.v2",
@@ -513,7 +528,11 @@ def build_prompt(
         "Apply the Glitch Topstep SOUL and loaded skills to CURRENT_CYCLE. "
         "You are the trading operator, not a suggestion engine. Evaluate "
         "ENTER_LONG, ENTER_SHORT, and NOTHING symmetrically while flat; when "
-        "positioned evaluate HOLD or EXIT. Use decision_packet for the full "
+        "positioned evaluate HOLD, MOVE_STOP, MOVE_TP, partial or full EXIT, and scale-in "
+        "only when execution.supported_actions includes the matching ENTER_* action. "
+        "Choose actions only from execution.supported_actions. When protection.tranches "
+        "lists more than one open tranche, name target_intent_id on MOVE_STOP, MOVE_TP, "
+        "and targeted EXIT. Use decision_packet for the full "
         "current gateway snapshot and recent_frames as compact minute continuity "
         "snapshots (same semantic fields, without output templates or lease "
         "metadata). A short frame history, imperfect evidence, data_quality warning, "
@@ -540,8 +559,10 @@ def build_prompt(
         "matured flat NOTHING as justified_abstention, avoided_adverse_movement, "
         "missed_directional_participation, or ambiguous from the declared forecast and "
         "observed path, but must never invent counterfactual fills, geometry, or PnL. "
-        "For non-entry actions omit entry "
-        "fields. wake_triggers is mandatory and must be an array of "
+        "For non-entry actions omit entry fields. MOVE_STOP requires new_stop_price. "
+        "MOVE_TP requires new_take_profit or take_profit_1. EXIT may omit quantity and "
+        "exit_fraction for a full flat, or specify one of them for partial reduction. "
+        "wake_triggers is mandatory and must be an array of "
         "{type: \"PRICE_CROSS\", direction: \"ABOVE\"|\"BELOW\", price: number}. "
         "Retrieve relevant durable lessons once through native memory, "
         "then return JSON without writing memory. CURRENT_CYCLE="
@@ -621,6 +642,55 @@ def invoke_hermes(
     )
 
 
+def active_tranches(packet: dict[str, Any]) -> list[dict[str, Any]]:
+    protection = packet.get("protection")
+    if not isinstance(protection, dict):
+        return []
+    tranches = protection.get("tranches")
+    if not isinstance(tranches, list):
+        return []
+    return [
+        tranche
+        for tranche in tranches
+        if isinstance(tranche, dict) and int(tranche.get("remaining_qty") or 0) > 0
+    ]
+
+
+def allowed_intent_fields(action: str) -> set[str]:
+    fields = set(CORE_FIELDS)
+    if action in {"ENTER_LONG", "ENTER_SHORT"}:
+        fields |= ENTRY_FIELDS
+    elif action == "MOVE_STOP":
+        fields |= {"new_stop_price", "target_intent_id"}
+    elif action == "MOVE_TP":
+        fields |= {"new_take_profit", "take_profit_1", "target_intent_id"}
+    elif action == "EXIT":
+        fields |= EXIT_FIELDS
+    return fields
+
+
+def validate_target_intent_id(
+    intent: dict[str, Any],
+    packet: dict[str, Any],
+    *,
+    required: bool,
+) -> None:
+    target = intent.get("target_intent_id")
+    if target is None:
+        if required:
+            raise ValueError("target_intent_id_required")
+        return
+    if not isinstance(target, str) or not TARGET_INTENT_ID_RE.match(target):
+        raise ValueError("target_intent_id_invalid")
+    active_ids = {
+        str(tranche.get("intent_id"))
+        for tranche in active_tranches(packet)
+        if tranche.get("intent_id")
+    }
+    if active_ids and target not in active_ids:
+        raise ValueError("target_intent_id_not_active")
+
+
 def normalize_intent(
     value: dict[str, Any],
     packet: dict[str, Any],
@@ -649,6 +719,18 @@ def normalize_intent(
     if action not in {"ENTER_LONG", "ENTER_SHORT"}:
         for field in ENTRY_FIELDS:
             intent.pop(field, None)
+    if action != "MOVE_STOP":
+        intent.pop("new_stop_price", None)
+    if action != "MOVE_TP":
+        intent.pop("new_take_profit", None)
+        if action not in {"ENTER_LONG", "ENTER_SHORT"}:
+            intent.pop("take_profit_1", None)
+    if action not in {"EXIT", "MOVE_STOP", "MOVE_TP"}:
+        intent.pop("target_intent_id", None)
+    if action not in {"ENTER_LONG", "ENTER_SHORT", "EXIT"}:
+        intent.pop("quantity", None)
+    if action != "EXIT":
+        intent.pop("exit_fraction", None)
     return intent
 
 
@@ -671,15 +753,21 @@ def validate_intent(
     if action not in ALLOWED_ACTIONS:
         raise ValueError("unsupported_action")
 
-    expected_fields = CORE_FIELDS | (
-        ENTRY_FIELDS if action in {"ENTER_LONG", "ENTER_SHORT"} else set()
-    )
-    unknown = set(intent).difference(expected_fields | {"wake_triggers"})
-    missing = expected_fields.difference(intent)
+    allowed_fields = allowed_intent_fields(action)
+    unknown = set(intent).difference(allowed_fields | {"wake_triggers"})
+    missing = CORE_FIELDS.difference(intent)
     if unknown:
         raise ValueError("unknown_fields:" + ",".join(sorted(unknown)))
     if missing:
         raise ValueError("missing_fields:" + ",".join(sorted(missing)))
+
+    supported = packet.get("execution", {}).get("supported_actions")
+    if (
+        isinstance(supported, list)
+        and action in {"MOVE_STOP", "MOVE_TP"}
+        and action not in supported
+    ):
+        raise ValueError("action_not_supported_by_gateway")
 
     if intent.get("schema_version") != "glitch.intent.v2":
         raise ValueError("schema_version_invalid")
@@ -735,8 +823,44 @@ def validate_intent(
             raise ValueError("long_geometry_invalid")
         if action == "ENTER_SHORT" and not target < reference < stop:
             raise ValueError("short_geometry_invalid")
+    elif action == "MOVE_STOP":
+        _number(intent.get("new_stop_price"), "new_stop_price")
+        validate_target_intent_id(
+            intent,
+            packet,
+            required=len(active_tranches(packet)) > 1,
+        )
+    elif action == "MOVE_TP":
+        target_price = intent.get("new_take_profit", intent.get("take_profit_1"))
+        _number(target_price, "move_tp_target_price")
+        validate_target_intent_id(
+            intent,
+            packet,
+            required=len(active_tranches(packet)) > 1,
+        )
+    elif action == "EXIT":
+        quantity = intent.get("quantity")
+        exit_fraction = intent.get("exit_fraction")
+        if quantity is not None:
+            if not isinstance(quantity, int) or isinstance(quantity, bool) or quantity < 1:
+                raise ValueError("exit_quantity_invalid")
+        if exit_fraction is not None:
+            fraction = _number(exit_fraction, "exit_fraction")
+            if not 0 < fraction <= 1:
+                raise ValueError("exit_fraction_invalid")
+        if quantity is not None and exit_fraction is not None:
+            raise ValueError("exit_quantity_and_fraction_conflict")
+        validate_target_intent_id(
+            intent,
+            packet,
+            required=len(active_tranches(packet)) > 1 and (
+                quantity is not None or exit_fraction is not None
+            ),
+        )
     elif any(field in intent for field in ENTRY_FIELDS):
         raise ValueError("non_entry_contains_entry_fields")
+    elif any(field in intent for field in AMENDMENT_FIELDS | EXIT_FIELDS):
+        raise ValueError("non_action_contains_management_fields")
 
     if directive and directive.get("directive_type") == "forced_entry":
         expected_action = (

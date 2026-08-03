@@ -16,7 +16,7 @@
 - Cognitive overlays: proposed, not activated.
 - Scheduled model toolsets: memory only.
 - Flat cognition: one call per five-minute boundary after five frames.
-- Positioned cognition: one call per minute, HOLD or EXIT only.
+- Positioned cognition: one call per minute; manage with `HOLD`, `MOVE_STOP`, `MOVE_TP`, partial or full `EXIT`, and scale-in only when advertised in `execution.supported_actions`.
 
 ## Incident controls
 

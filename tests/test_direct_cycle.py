@@ -313,6 +313,89 @@ class DirectCycleTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "long_geometry_invalid"):
             MODULE.validate_intent(value, current_packet)
 
+    def test_move_stop_requires_gateway_support(self):
+        current_packet = packet(positioned=True)
+        value = MODULE.normalize_intent(
+            {
+                **intent("HOLD"),
+                "action": "MOVE_STOP",
+                "decision_audit": {
+                    field: "MOVE_STOP" if field == "final_choice" else "Evidence"
+                    for field in MODULE.AUDIT_FIELDS
+                },
+                "new_stop_price": 19995,
+            },
+            current_packet,
+        )
+        with self.assertRaisesRegex(ValueError, "action_not_supported_by_gateway"):
+            MODULE.validate_intent(value, current_packet)
+
+    def test_move_stop_accepts_proven_protection_packet(self):
+        current_packet = packet(positioned=True)
+        current_packet["execution"]["supported_actions"] = [
+            "HOLD",
+            "EXIT",
+            "MOVE_STOP",
+            "MOVE_TP",
+            "NOTHING",
+        ]
+        current_packet["protection"] = {
+            "status": "proven",
+            "reason": "all_tranches_protected",
+            "intent_id": "00000000-0000-4000-8000-000000000101",
+            "stop": {
+                "provider_order_id": 1,
+                "custom_tag": "glt-sl",
+                "price": 19990,
+            },
+            "target": {
+                "provider_order_id": 2,
+                "custom_tag": "glt-tp",
+                "price": 20020,
+            },
+            "tranches": [
+                {
+                    "intent_id": "00000000-0000-4000-8000-000000000101",
+                    "entry_order_id": 100,
+                    "filled_qty": 1,
+                    "remaining_qty": 1,
+                    "created_utc": "2099-01-01T14:05:00Z",
+                    "protection": {
+                        "status": "proven",
+                        "reason": "matched",
+                        "stop": {
+                            "provider_order_id": 1,
+                            "custom_tag": "glt-sl",
+                            "price": 19990,
+                        },
+                        "target": {
+                            "provider_order_id": 2,
+                            "custom_tag": "glt-tp",
+                            "price": 20020,
+                        },
+                    },
+                }
+            ],
+        }
+        value = MODULE.normalize_intent(
+            {
+                **intent("HOLD"),
+                "action": "MOVE_STOP",
+                "decision_audit": {
+                    field: "MOVE_STOP" if field == "final_choice" else "Evidence"
+                    for field in MODULE.AUDIT_FIELDS
+                },
+                "new_stop_price": 19995,
+            },
+            current_packet,
+        )
+        MODULE.validate_intent(value, current_packet)
+
+    def test_prompt_states_position_management(self):
+        value = MODULE.build_prompt(packet(positioned=True), [], {}, None)
+        self.assertIn("MOVE_STOP", value)
+        self.assertIn("execution.supported_actions", value)
+
     def test_prompt_states_agent_authority(self):
         value = MODULE.build_prompt(packet(state_complete=False), [], {}, None)
         self.assertIn("You are the trading operator", value)
