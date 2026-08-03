@@ -1,6 +1,7 @@
 name: Apply RAIL-006 frame lookup consolidation
 
 on:
+  pull_request:
   push:
     branches:
       - refactor/rail-006-frame-lookup-v2
@@ -24,17 +25,25 @@ jobs:
           python - <<'PY'
           import hashlib
           import json
-          import re
           from pathlib import Path
 
           parity_path = Path("scripts/parity.py")
           parity = parity_path.read_text(encoding="utf-8")
-          pattern = re.compile(
-              r"def packet_for_outbox_id\(state: Path, packet_id: str\) -> dict\[str, Any\] \| None:\n"
-              r"(?:    .*\n)+?    return None\n",
-              re.MULTILINE,
-          )
-          replacement = '''def frame_for_packet_id(frames_root: Path, packet_id: str) -> dict[str, Any] | None:
+          old_parity = '''def packet_for_outbox_id(state: Path, packet_id: str) -> dict[str, Any] | None:
+              # ponytail: O(n) scan over minute-frames; fine at typical retention sizes
+              frames_dir = state / "minute-frames"
+              if not frames_dir.is_dir():
+                  return None
+              for path in frames_dir.glob("*.json"):
+                  frame = read_optional_json(path)
+                  if not frame:
+                      continue
+                  packet = frame.get("packet")
+                  if isinstance(packet, dict) and str(packet.get("packet_id") or "") == packet_id:
+                      return packet
+              return None
+          '''.replace("          ", "")
+          new_parity = '''def frame_for_packet_id(frames_root: Path, packet_id: str) -> dict[str, Any] | None:
               # O(n) over bounded minute-frame retention; an index would add needless state.
               if not frames_root.is_dir():
                   return None
@@ -53,39 +62,49 @@ jobs:
               packet = frame.get("packet") if isinstance(frame, dict) else None
               return packet if isinstance(packet, dict) else None
           '''.replace("          ", "")
-          parity, count = pattern.subn(replacement, parity, count=1)
-          if count != 1:
-              raise SystemExit(f"expected one parity lookup implementation, found {count}")
-          parity_path.write_text(parity, encoding="utf-8")
+          if parity.count(old_parity) != 1:
+              raise SystemExit("expected exactly one parity packet lookup")
+          parity_path.write_text(parity.replace(old_parity, new_parity), encoding="utf-8")
 
           learning_path = Path("scripts/run-topstep-learning.py")
           learning = learning_path.read_text(encoding="utf-8")
-          learning, import_count = re.subn(
-              r"(from parity import \(\n(?:    .*\n)*?    debrief_evidence,\n)",
-              r"\1    frame_for_packet_id,\n",
-              learning,
-              count=1,
+          old_import = '''from parity import (
+              PROMPT_VERSION,
+              classify_delivery_result,
+              debrief_evidence,
+              suggest_flat_abstention_classification,
           )
-          local_pattern = re.compile(
-              r"\ndef frame_for_packet_id\(frames_root: Path, packet_id: str\) -> dict\[str, Any\] \| None:\n"
-              r"(?:    .*\n)+?    return None\n\n",
-              re.MULTILINE,
+          '''.replace("          ", "")
+          new_import = '''from parity import (
+              PROMPT_VERSION,
+              classify_delivery_result,
+              debrief_evidence,
+              frame_for_packet_id,
+              suggest_flat_abstention_classification,
           )
-          learning, local_count = local_pattern.subn("\n", learning, count=1)
-          if import_count != 1 or local_count != 1:
-              raise SystemExit(
-                  f"expected one learning import/local helper, found {import_count}/{local_count}"
-              )
+          '''.replace("          ", "")
+          old_local = '''def frame_for_packet_id(frames_root: Path, packet_id: str) -> dict[str, Any] | None:
+              for path in sorted(frames_root.glob("*.json")):
+                  frame = read_optional_json(path)
+                  if not isinstance(frame, dict):
+                      continue
+                  packet = frame.get("packet")
+                  if isinstance(packet, dict) and str(packet.get("packet_id") or "") == packet_id:
+                      return frame
+              return None
+
+
+          '''.replace("          ", "")
+          if learning.count(old_import) != 1 or learning.count(old_local) != 1:
+              raise SystemExit("expected exactly one learning import and local frame helper")
+          learning = learning.replace(old_import, new_import).replace(old_local, "")
           learning_path.write_text(learning, encoding="utf-8")
 
           distribution = Path("distribution.yaml")
           dist_text = distribution.read_text(encoding="utf-8")
-          dist_text, version_count = re.subn(
-              r"(?m)^version: 0\.1\.5$", "version: 0.1.6", dist_text, count=1
-          )
-          if version_count != 1:
+          if dist_text.count("version: 0.1.5") != 1:
               raise SystemExit("expected profile version 0.1.5")
-          distribution.write_text(dist_text, encoding="utf-8")
+          distribution.write_text(dist_text.replace("version: 0.1.5", "version: 0.1.6"), encoding="utf-8")
 
           ledger_path = Path("docs/ledger/ledger.json")
           ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
