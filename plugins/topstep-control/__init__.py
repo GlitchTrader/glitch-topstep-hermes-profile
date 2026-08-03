@@ -9,8 +9,31 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Optional
 
+import sys
+
 PROFILE_NAME = "glitch-topstep"
 JOB_NAMES = ("glitch-topstep-direct-operator", "glitch-topstep-learning-supervisor")
+
+
+def _ensure_scripts_path() -> None:
+    scripts = _profile_root() / "scripts"
+    path = str(scripts)
+    if scripts.is_dir() and path not in sys.path:
+        sys.path.insert(0, path)
+
+
+def _compatibility_summary(health: dict[str, Any]) -> str:
+    _ensure_scripts_path()
+    from compatibility import compatibility_summary
+
+    return compatibility_summary(health)
+
+
+def _verify_gateway_compatibility(health: dict[str, Any]) -> None:
+    _ensure_scripts_path()
+    from compatibility import verify_gateway_compatibility
+
+    verify_gateway_compatibility(health)
 
 
 def _profile_root() -> Path:
@@ -141,6 +164,7 @@ def _status_text() -> str:
             f"operator worker: {_direct_worker_status()}."
         )
     mode = str(health.get("trading_mode") or "unknown")
+    compatibility = _compatibility_summary(health)
     try:
         state_status, state = _request("/state")
     except Exception:
@@ -150,7 +174,8 @@ def _status_text() -> str:
     can_trade = account.get("canTrade") if isinstance(account, dict) else None
     state_text = "available" if state_status == 200 else "unavailable"
     return (
-        f"Glitch Topstep gateway: {mode}; state: {state_text}; account: {account_name}; "
+        f"Glitch Topstep gateway: {mode}; compatibility: {compatibility}; "
+        f"state: {state_text}; account: {account_name}; "
         f"canTrade: {can_trade}; Hermes jobs: {job_state}; "
         f"operator worker: {_direct_worker_status()}."
     )
@@ -160,6 +185,7 @@ def _trade(_raw_args: str) -> str:
     status, health = _request("/health", authenticated=False)
     if status != 200 or health.get("status") != "ok":
         raise RuntimeError("The Glitch Topstep gateway is not healthy; jobs remain paused.")
+    _verify_gateway_compatibility(health)
     mode = str(health.get("trading_mode") or "unknown")
     if mode == "disabled":
         raise RuntimeError("The gateway is disabled. Start it in shadow or armed mode before enabling Hermes cycles.")

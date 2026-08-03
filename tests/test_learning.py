@@ -73,19 +73,55 @@ class LearningTests(unittest.TestCase):
 
     def test_gateway_feed_is_fresh_requires_health_packet_and_quote(self):
         packet = {"data_quality": {"state_complete": True, "quote_age_ms": 100}}
+        compatible_health = {
+            "schema_version": "glitch.direct.health.v2",
+            "status": "ok",
+            "compatibility": {
+                "gateway_name": "glitch-topstep",
+                "gateway_version": "0.1.2",
+                "intent_schemas": ["glitch.intent.v2"],
+                "decision_packet_schemas": [
+                    "glitch.direct.decision_packet.v1",
+                    "glitch.direct.decision_packet.v2",
+                ],
+                "capabilities": [
+                    "packet_supported_actions",
+                    "durable_mutation_receipts",
+                    "restart_reconciliation",
+                ],
+            },
+        }
         with mock.patch.object(
             common_module,
             "request_json",
-            side_effect=[(200, {"status": "ok"}), (200, packet)],
+            side_effect=[(200, compatible_health), (200, packet)],
         ), mock.patch.object(common_module, "local_token", return_value="token"):
             self.assertTrue(common_module.gateway_feed_is_fresh())
 
     def test_gateway_feed_is_fresh_fails_on_stale_quote(self):
         packet = {"data_quality": {"state_complete": True, "quote_age_ms": 12000}}
+        compatible_health = {
+            "schema_version": "glitch.direct.health.v2",
+            "status": "ok",
+            "compatibility": {
+                "gateway_name": "glitch-topstep",
+                "gateway_version": "0.1.2",
+                "intent_schemas": ["glitch.intent.v2"],
+                "decision_packet_schemas": [
+                    "glitch.direct.decision_packet.v1",
+                    "glitch.direct.decision_packet.v2",
+                ],
+                "capabilities": [
+                    "packet_supported_actions",
+                    "durable_mutation_receipts",
+                    "restart_reconciliation",
+                ],
+            },
+        }
         with mock.patch.object(
             common_module,
             "request_json",
-            side_effect=[(200, {"status": "ok"}), (200, packet)],
+            side_effect=[(200, compatible_health), (200, packet)],
         ), mock.patch.object(common_module, "local_token", return_value="token"):
             self.assertFalse(common_module.gateway_feed_is_fresh())
 

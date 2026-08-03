@@ -1,18 +1,20 @@
 {
   "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-08-02",
+  "updated": "2026-08-03",
   "release_target": "paired gateway/profile beta",
   "profile_version": "0.1.5",
   "gateway": {
     "repository": "GlitchTrader/glitch-topstep",
-    "current_version": "0.1.1",
+    "current_version": "0.1.2",
     "intent_schema": "glitch.intent.v2",
     "decision_packet_schemas": [
       "glitch.direct.decision_packet.v1",
       "glitch.direct.decision_packet.v2"
-    ]
+    ],
+    "beta_acceptance": "glitch-topstep:TS-BETA-01"
   },
+  "compatibility_manifest": "scripts/compatibility.py",
   "constitution": {
     "cognition": "Hermes owns market judgment, direction, timing, quantity, geometry, management, abstention, review, and learning.",
     "worker": "The profile worker schedules explicit invocations and validates identity/schema/finite values/geometry/directives; it does not turn evidence into a hidden strategy.",
@@ -44,12 +46,22 @@
     {
       "id": "GTHP-010",
       "title": "Enforce gateway/profile/schema compatibility and reconcile current capabilities",
-      "status": "todo",
+      "status": "done",
       "priority": "P0",
       "owner_role": "release_architecture",
       "issue": 22,
       "depends_on": [
         "GTHP-009"
+      ],
+      "evidence": [
+        "scripts/compatibility.py",
+        "scripts/common.py",
+        "scripts/run-topstep-cycle.py",
+        "plugins/topstep-control/__init__.py",
+        "setup.ps1",
+        "tests/test_compatibility.py",
+        "docs/specs/GTHP-010.md",
+        "regenerated SHA256SUMS"
       ]
     },
     {
