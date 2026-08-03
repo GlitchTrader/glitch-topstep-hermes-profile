@@ -45,6 +45,7 @@ from common import (
     read_model_config,
     read_optional_json,
     request_json,
+    sync_gateway_outcomes,
     tail_jsonl,
     use_hermes_model_routing,
     utc_now,
@@ -953,6 +954,9 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     if health_status != 200 or health.get("status") not in {"ok", "degraded"}:
         raise RuntimeError("gateway_health_unavailable")
     verify_gateway_compatibility(health)
+
+    state = state_root(root)
+    sync_gateway_outcomes(state)
 
     packet_status, packet = request_json("/packet", token=token)
     if packet_status != 200:
