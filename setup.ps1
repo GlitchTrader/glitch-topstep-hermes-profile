@@ -39,6 +39,24 @@ function Get-DistributionVersion {
 
 Remove-StagingArtifacts
 
+function Ensure-HermesDistributionPatch {
+    $hermesCommand = Get-Command hermes -ErrorAction Stop
+    $python = Join-Path (Split-Path $hermesCommand.Source -Parent) 'python.exe'
+    $patchScript = Join-Path $profileRoot 'scripts\ensure_hermes_distribution_patch.py'
+    if (-not (Test-Path -LiteralPath $patchScript -PathType Leaf)) {
+        throw "Missing Hermes distribution patch helper: $patchScript"
+    }
+    $output = & $python $patchScript 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0) {
+        throw "Could not ensure Hermes distribution patch: $($output.Trim())"
+    }
+    if ($output.Trim()) {
+        Write-Host $output.Trim()
+    }
+}
+
+Ensure-HermesDistributionPatch
+
 function Assert-DistributionIntegrity {
     $manifestPath = Join-Path $profileRoot 'SHA256SUMS'
     if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {

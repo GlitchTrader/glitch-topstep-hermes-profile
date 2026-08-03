@@ -129,6 +129,28 @@ function Get-RecordedSource {
     throw 'distribution.yaml has no source: field — reinstall from GitHub first.'
 }
 
+function Ensure-HermesDistributionPatch {
+    $hermesCommand = Get-Command hermes -ErrorAction Stop
+    $python = Join-Path (Split-Path $hermesCommand.Source -Parent) 'python.exe'
+    $patchScript = Join-Path $profileRoot 'scripts\ensure_hermes_distribution_patch.py'
+    if (-not (Test-Path -LiteralPath $patchScript -PathType Leaf)) {
+        $patchScript = Join-Path $PSScriptRoot 'ensure_hermes_distribution_patch.py'
+    }
+    if (-not (Test-Path -LiteralPath $patchScript -PathType Leaf)) {
+        throw @"
+ensure_hermes_distribution_patch.py is missing. Install profile v0.1.13+ first:
+  hermes profile install github.com/GlitchTrader/glitch-topstep-hermes-profile --name glitch-topstep --force -y
+"@
+    }
+    $output = & $python $patchScript 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0) {
+        throw "Could not ensure Hermes distribution patch: $($output.Trim())"
+    }
+    if ($output.Trim()) {
+        Write-Host $output.Trim()
+    }
+}
+
 $source = Get-RecordedSource
 if ($source -match '^[A-Za-z]:\\' -or $source -match '^/') {
     Write-Warning @"
@@ -146,6 +168,7 @@ Set-ProfileCronJobsPaused -Paused $true
 Stop-ProfileProcesses
 Wait-ProfileQuiescent
 Remove-StagingArtifacts -Root $profileRoot
+Ensure-HermesDistributionPatch
 
 $updateArgs = @('profile', 'update', $Profile, '-y')
 if ($ForceConfig) { $updateArgs += '--force-config' }
