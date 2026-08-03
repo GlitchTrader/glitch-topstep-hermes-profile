@@ -597,7 +597,27 @@ class DirectCycleTests(unittest.TestCase):
             )
             def fake_request_json(path, token=None):
                 if path == "/health":
-                    return (200, {"status": "ok"})
+                    return (
+                        200,
+                        {
+                            "schema_version": "glitch.direct.health.v2",
+                            "status": "ok",
+                            "compatibility": {
+                                "gateway_name": "glitch-topstep",
+                                "gateway_version": "0.1.2",
+                                "intent_schemas": ["glitch.intent.v2"],
+                                "decision_packet_schemas": [
+                                    "glitch.direct.decision_packet.v1",
+                                    "glitch.direct.decision_packet.v2",
+                                ],
+                                "capabilities": [
+                                    "packet_supported_actions",
+                                    "durable_mutation_receipts",
+                                    "restart_reconciliation",
+                                ],
+                            },
+                        },
+                    )
                 return (200, current)
 
             with mock.patch.object(MODULE, "local_token", return_value="token"), mock.patch.object(

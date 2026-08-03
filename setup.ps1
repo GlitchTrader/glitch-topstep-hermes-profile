@@ -166,11 +166,52 @@ finally {
     $env:HERMES_HOME = $previousHermesHome
 }
 
+$gatewayCompatibility = 'not_checked'
+$previousHermesHome = $env:HERMES_HOME
+try {
+    $env:HERMES_HOME = $profileRoot
+    $check = @'
+import json
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from common import configure_environment, request_json
+from compatibility import compatibility_summary, verify_gateway_compatibility
+configure_environment()
+status, health = request_json('/health')
+if status != 200:
+    print(json.dumps({'state': 'unavailable', 'http_status': status}))
+else:
+    try:
+        verify_gateway_compatibility(health)
+        print(json.dumps({'state': 'compatible', 'summary': compatibility_summary(health)}))
+    except RuntimeError as error:
+        print(json.dumps({'state': 'incompatible', 'summary': compatibility_summary(health), 'error': str(error)}))
+'@
+    $checkPath = Join-Path $profileRoot 'scripts\_setup_gateway_check.py'
+    Set-Content -LiteralPath $checkPath -Value $check -Encoding UTF8
+    $checkOutput = & $python $checkPath 2>$null
+    Remove-Item -LiteralPath $checkPath -ErrorAction SilentlyContinue
+    if ($LASTEXITCODE -eq 0 -and $checkOutput) {
+        $gatewayCompatibility = ($checkOutput | ConvertFrom-Json)
+    }
+    else {
+        $gatewayCompatibility = @{ state = 'unavailable' }
+    }
+}
+catch {
+    $gatewayCompatibility = @{ state = 'unavailable'; error = $_.Exception.Message }
+}
+finally {
+    $env:HERMES_HOME = $previousHermesHome
+}
+
 [ordered]@{
     schema_version = 'glitch.topstep.hermes.setup.v1'
     profile = $Profile
-    distribution_version = '0.1.4'
+    distribution_version = '0.1.5'
     gateway_supervised = $true
+    gateway_compatibility = $gatewayCompatibility
     plugin_enabled = $true
     jobs = @($directJob, $learningJob)
     fresh_install_jobs_paused = (-not $directJob.enabled -and -not $learningJob.enabled)

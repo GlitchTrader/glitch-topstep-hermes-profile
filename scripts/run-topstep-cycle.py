@@ -47,6 +47,7 @@ from common import (
     tail_jsonl,
     use_hermes_model_routing,
     utc_now,
+    verify_gateway_compatibility,
     write_json_atomic,
 )
 from parity import (
@@ -827,6 +828,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     health_status, health = request_json("/health")
     if health_status != 200 or health.get("status") not in {"ok", "degraded"}:
         raise RuntimeError("gateway_health_unavailable")
+    verify_gateway_compatibility(health)
 
     packet_status, packet = request_json("/packet", token=token)
     if packet_status != 200:
