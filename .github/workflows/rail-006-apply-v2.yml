@@ -28,7 +28,7 @@ jobs:
           from pathlib import Path
 
           parity_path = Path("scripts/parity.py")
-          parity = parity_path.read_text(encoding="utf-8")
+          parity = parity_path.read_text(encoding="utf-8").replace("\r\n", "\n").replace("\r", "\n")
           old_parity = '''def packet_for_outbox_id(state: Path, packet_id: str) -> dict[str, Any] | None:
               # ponytail: O(n) scan over minute-frames; fine at typical retention sizes
               frames_dir = state / "minute-frames"
@@ -67,7 +67,7 @@ jobs:
           parity_path.write_text(parity.replace(old_parity, new_parity), encoding="utf-8")
 
           learning_path = Path("scripts/run-topstep-learning.py")
-          learning = learning_path.read_text(encoding="utf-8")
+          learning = learning_path.read_text(encoding="utf-8").replace("\r\n", "\n").replace("\r", "\n")
           old_import = '''from parity import (
               PROMPT_VERSION,
               classify_delivery_result,
@@ -101,7 +101,7 @@ jobs:
           learning_path.write_text(learning, encoding="utf-8")
 
           distribution = Path("distribution.yaml")
-          dist_text = distribution.read_text(encoding="utf-8")
+          dist_text = distribution.read_text(encoding="utf-8").replace("\r\n", "\n").replace("\r", "\n")
           if dist_text.count("version: 0.1.5") != 1:
               raise SystemExit("expected profile version 0.1.5")
           distribution.write_text(dist_text.replace("version: 0.1.5", "version: 0.1.6"), encoding="utf-8")
