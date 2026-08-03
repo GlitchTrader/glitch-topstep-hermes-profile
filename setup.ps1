@@ -209,7 +209,7 @@ finally {
 [ordered]@{
     schema_version = 'glitch.topstep.hermes.setup.v1'
     profile = $Profile
-    distribution_version = '0.1.5'
+    distribution_version = '0.1.6'
     gateway_supervised = $true
     gateway_compatibility = $gatewayCompatibility
     plugin_enabled = $true

@@ -3,7 +3,7 @@
   "project": "glitch-topstep-hermes-profile",
   "updated": "2026-08-03",
   "release_target": "paired gateway/profile beta",
-  "profile_version": "0.1.5",
+  "profile_version": "0.1.6",
   "gateway": {
     "repository": "GlitchTrader/glitch-topstep",
     "current_version": "0.1.2",
@@ -123,6 +123,31 @@
         "glitch-topstep:TS-R2-07"
       ],
       "stop_line": "No beta-ready or unattended evaluation/live claim until exact paired artifacts and operator promotion are recorded."
+    },
+    {
+      "id": "RAIL-010",
+      "title": "Align Topstep SOUL doctrine with Glitch NinjaTrader operator contract",
+      "status": "done",
+      "priority": "P1",
+      "owner_role": "coder",
+      "depends_on": [
+        "RAIL-009"
+      ],
+      "acceptance": [
+        "SOUL carries cadence, initiating/progressing/exhausting, active management, overlay activation, and /long /short doctrine aligned with Glitch NT where venue permits.",
+        "Intentional non-portable stop lines are explicit.",
+        "topstep-observe-market and GTHP-010 no longer describe HOLD-only positioned management."
+      ],
+      "evidence": [
+        "2026-08-03: SOUL.md prompt_version glitch-topstep-v4; distribution 0.1.6.",
+        "skills/topstep-observe-market/SKILL.md updated for MOVE_STOP/MOVE_TP/partial EXIT."
+      ],
+      "sources": [
+        "SOUL.md",
+        "skills/topstep-observe-market/SKILL.md",
+        "docs/specs/GTHP-010.md",
+        "scripts/parity.py"
+      ]
     }
   ]
 }
