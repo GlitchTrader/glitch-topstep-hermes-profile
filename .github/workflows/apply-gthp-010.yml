@@ -1,6 +1,7 @@
 name: apply-gthp-010
 
 on:
+  pull_request:
   push:
     branches:
       - architect/gthp-010-compatibility
