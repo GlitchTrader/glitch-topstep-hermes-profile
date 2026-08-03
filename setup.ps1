@@ -16,6 +16,29 @@ if ($profileRoot.TrimEnd('\') -ne $expectedRoot.TrimEnd('\')) {
     throw "Run setup from the installed glitch-topstep profile: $expectedRoot"
 }
 
+function Remove-StagingArtifacts {
+    foreach ($name in @('.git', '.gitattributes')) {
+        $path = Join-Path $profileRoot $name
+        if (-not (Test-Path -LiteralPath $path)) { continue }
+        if (Test-Path -LiteralPath $path -PathType Container) {
+            cmd /c "attrib -R `"$path\*`" /S /D" 2>$null | Out-Null
+        }
+        Remove-Item -LiteralPath $path -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
+function Get-DistributionVersion {
+    $yaml = Join-Path $profileRoot 'distribution.yaml'
+    foreach ($line in Get-Content -LiteralPath $yaml) {
+        if ($line -match '^version:\s*["'']?([^"'']+)') {
+            return $Matches[1].Trim()
+        }
+    }
+    throw 'distribution.yaml missing version'
+}
+
+Remove-StagingArtifacts
+
 function Assert-DistributionIntegrity {
     $manifestPath = Join-Path $profileRoot 'SHA256SUMS'
     if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
@@ -209,7 +232,7 @@ finally {
 [ordered]@{
     schema_version = 'glitch.topstep.hermes.setup.v1'
     profile = $Profile
-    distribution_version = '0.1.6'
+    distribution_version = (Get-DistributionVersion)
     gateway_supervised = $true
     gateway_compatibility = $gatewayCompatibility
     plugin_enabled = $true

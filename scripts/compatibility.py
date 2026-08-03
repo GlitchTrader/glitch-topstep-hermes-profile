@@ -2,11 +2,16 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
+
+from distribution_manifest import read_distribution_version, PROMPT_VERSION
+
+_PROFILE_VERSION = read_distribution_version(Path(__file__).resolve().parent.parent)
 
 PROFILE_COMPATIBILITY: dict[str, Any] = {
     "profile_name": "glitch-topstep",
-    "profile_version": "0.1.6",
+    "profile_version": _PROFILE_VERSION,
     "setup_schema": "glitch.topstep.hermes.setup.v1",
     "operator_schema": "glitch.topstep.hermes.operator.v2",
     "intent_schema": "glitch.intent.v2",
@@ -14,7 +19,7 @@ PROFILE_COMPATIBILITY: dict[str, Any] = {
         "glitch.direct.decision_packet.v1",
         "glitch.direct.decision_packet.v2",
     ],
-    "prompt_version": "glitch-topstep-v2",
+    "prompt_version": PROMPT_VERSION,
     "health_schema": "glitch.direct.health.v2",
     "gateway_name": "glitch-topstep",
     "min_gateway_version": "0.1.1",
