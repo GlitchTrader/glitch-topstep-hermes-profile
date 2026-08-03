@@ -1,3 +1,4 @@
+# One-shot implementation workflow; it deletes itself after the verified commit.
 name: Apply RAIL-006 frame lookup consolidation
 
 on:
