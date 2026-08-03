@@ -59,7 +59,13 @@ function Assert-DistributionIntegrity {
         if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
             throw "Distributed file is missing: $relative"
         }
-        $actual = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash
+        $bytes = [IO.File]::ReadAllBytes($path)
+        $text = [Text.Encoding]::UTF8.GetString($bytes)
+        if ($text.Contains("`r`n")) {
+            $bytes = [Text.Encoding]::UTF8.GetBytes($text.Replace("`r`n", "`n"))
+        }
+        $sha = [System.Security.Cryptography.SHA256]::Create()
+        $actual = ([BitConverter]::ToString($sha.ComputeHash($bytes)).Replace('-', ''))
         if ($actual -ne $parts[0].ToUpperInvariant()) {
             throw "Distributed file checksum mismatch: $relative"
         }

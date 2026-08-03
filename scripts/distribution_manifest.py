@@ -41,7 +41,10 @@ def iter_sha256sums_entries(root: Path | None = None):
 
 
 def file_sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest().upper()
+    data = path.read_bytes()
+    # ponytail: CRLF on Windows must hash the same as LF from git clone installs
+    data = data.replace(b"\r\n", b"\n")
+    return hashlib.sha256(data).hexdigest().upper()
 
 
 def verify_sha256sums(root: Path | None = None) -> list[str]:

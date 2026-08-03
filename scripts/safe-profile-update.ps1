@@ -18,13 +18,21 @@ if (-not (Test-Path -LiteralPath $profileRoot -PathType Container)) {
 }
 
 function Stop-ProfileProcesses {
+    try {
+        & hermes --profile $Profile gateway stop 2>$null | Out-Null
+    }
+    catch { }
+    $escapedRoot = [regex]::Escape($profileRoot)
     Get-CimInstance Win32_Process -Filter "name='python.exe'" -ErrorAction SilentlyContinue |
-        Where-Object { $_.CommandLine -match [regex]::Escape($Profile) } |
+        Where-Object {
+            $_.CommandLine -match [regex]::Escape($Profile) -or
+            $_.CommandLine -match $escapedRoot
+        } |
         ForEach-Object {
             Write-Host "Stopping PID $($_.ProcessId)"
             Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue
         }
-    Start-Sleep -Seconds 2
+    Start-Sleep -Seconds 3
 }
 
 function Remove-StagingArtifacts {
