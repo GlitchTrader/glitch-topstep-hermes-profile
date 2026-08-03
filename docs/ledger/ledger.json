@@ -3,7 +3,7 @@
   "project": "glitch-topstep-hermes-profile",
   "updated": "2026-08-03",
   "release_target": "paired gateway/profile beta",
-  "profile_version": "0.1.6",
+  "profile_version": "0.1.13",
   "gateway": {
     "repository": "GlitchTrader/glitch-topstep",
     "current_version": "0.1.2",
@@ -165,6 +165,40 @@
         "skills/topstep-observe-market/SKILL.md",
         "docs/specs/GTHP-010.md",
         "scripts/parity.py"
+      ]
+    },
+    {
+      "id": "GTHP-011",
+      "title": "Optimize direct-cycle LLM prompt payload (reduce redundancy and token cost)",
+      "status": "planned",
+      "priority": "P1",
+      "owner_role": "architect",
+      "issue": 43,
+      "depends_on": [
+        "GTHP-009",
+        "GTHP-010",
+        "RAIL-009"
+      ],
+      "acceptance": [
+        "Phase 0 baseline logged with per-section prompt byte breakdown on operator machine.",
+        "Phase 1 removes duplicate required_output_template, shortens build_prompt wire contract, and summarizes ledger tails without breaking change_condition accountability.",
+        "Combined input tokens per direct cycle reduced ~50% vs baseline in active-session shadow without repair_rate regression >10%.",
+        "prompt_version bumped to glitch-topstep-v5 when envelope shape changes; gateway pairing documented."
+      ],
+      "stop_line": "Do not shrink positioned-cycle frame depth or remove continuity_anchor before shadow evidence; no cognition veto reintroduced via smaller prompts.",
+      "evidence": [
+        "2026-08-03: optimization plan authored from run-topstep-cycle build_prompt analysis (~16-20k tokens/cycle active session).",
+        "docs/specs/GTHP-011.md"
+      ],
+      "sources": [
+        "scripts/run-topstep-cycle.py",
+        "scripts/packet_model.py",
+        "scripts/parity.py",
+        "scripts/common.py",
+        "SOUL.md",
+        "skills/topstep-observe-market/SKILL.md",
+        "skills/topstep-build-intent/SKILL.md",
+        "docs/specs/GTHP-011.md"
       ]
     }
   ]
