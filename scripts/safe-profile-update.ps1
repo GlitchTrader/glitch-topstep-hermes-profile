@@ -56,6 +56,25 @@ function Remove-StagingArtifacts {
     }
 }
 
+function Get-ProfileCronJobIds {
+    $jobsPath = Join-Path $profileRoot 'cron\jobs.json'
+    if (-not (Test-Path -LiteralPath $jobsPath -PathType Leaf)) { return @() }
+    $document = Get-Content -LiteralPath $jobsPath -Raw | ConvertFrom-Json
+    return @($document.jobs | ForEach-Object { [string]$_.id })
+}
+
+function Set-ProfileCronJobsPaused {
+    param([bool]$Paused)
+    foreach ($jobId in Get-ProfileCronJobIds) {
+        if ($Paused) {
+            & hermes --profile $Profile cron pause $jobId 2>$null | Out-Null
+        }
+        else {
+            & hermes --profile $Profile cron resume $jobId 2>$null | Out-Null
+        }
+    }
+}
+
 function Get-RecordedSource {
     $yaml = Join-Path $profileRoot 'distribution.yaml'
     foreach ($line in Get-Content -LiteralPath $yaml) {
@@ -79,6 +98,7 @@ Reinstall once from GitHub, then use this script again:
 
 Write-Host "Updating profile '$Profile' from $source"
 Stop-ProfileProcesses
+Set-ProfileCronJobsPaused -Paused $true
 Remove-StagingArtifacts -Root $profileRoot
 
 $updateArgs = @('profile', 'update', $Profile, '-y')
@@ -95,5 +115,7 @@ $setup = Join-Path $profileRoot 'setup.ps1'
 if ($LASTEXITCODE -ne 0) {
     throw "setup.ps1 failed with exit code $LASTEXITCODE"
 }
+
+Set-ProfileCronJobsPaused -Paused $false
 
 Write-Host "Profile '$Profile' updated successfully."
