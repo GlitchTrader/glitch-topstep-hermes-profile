@@ -6,7 +6,7 @@ from typing import Any
 
 PROFILE_COMPATIBILITY: dict[str, Any] = {
     "profile_name": "glitch-topstep",
-    "profile_version": "0.1.5",
+    "profile_version": "0.1.6",
     "setup_schema": "glitch.topstep.hermes.setup.v1",
     "operator_schema": "glitch.topstep.hermes.operator.v2",
     "intent_schema": "glitch.intent.v2",

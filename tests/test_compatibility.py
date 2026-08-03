@@ -38,14 +38,14 @@ class CompatibilityTests(unittest.TestCase):
     def test_profile_version_matches_distribution(self):
         self.assertEqual(
             compatibility_module.PROFILE_COMPATIBILITY["profile_version"],
-            "0.1.5",
+            "0.1.6",
         )
 
     def test_compatible_health_passes(self):
         compatibility_module.verify_gateway_compatibility(COMPATIBLE_HEALTH)
         self.assertEqual(
             compatibility_module.compatibility_summary(COMPATIBLE_HEALTH),
-            "compatible (profile 0.1.5, gateway 0.1.2)",
+            "compatible (profile 0.1.6, gateway 0.1.2)",
         )
 
     def test_missing_contract_fails_closed(self):
