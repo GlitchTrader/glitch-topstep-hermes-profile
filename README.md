@@ -69,7 +69,22 @@ In Hermes:
 
 `/trade` enables scheduled cognition only. Gateway execution mode (`disabled` / `shadow` / `armed`) is set **only** in the gateway repo.
 
-### Update installed profile
+### Update installed profile (Windows)
+
+Use the safe updater — it stops profile processes, removes `.git` artifacts that break Hermes on Windows, runs `hermes profile update`, then `setup.ps1`:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "$env:LOCALAPPDATA\hermes\profiles\glitch-topstep\scripts\safe-profile-update.ps1"
+```
+
+**Always install and update from the GitHub source**, never from a local clone path. Local-path installs copy `.git` into the profile and future updates fail with `PermissionError` on Windows.
+
+```powershell
+# First install only — use GitHub URL
+hermes profile install github.com/GlitchTrader/glitch-topstep-hermes-profile --name glitch-topstep --alias
+```
+
+Manual fallback (not recommended on Windows):
 
 ```powershell
 hermes profile update glitch-topstep
@@ -104,7 +119,11 @@ git push -u origin agent/your-topic
 gh pr create
 ```
 
-After merging profile changes operators care about, bump distribution metadata if required and remind users to `hermes profile update glitch-topstep`.
+After merging profile changes operators care about, bump `distribution.yaml`, regenerate `SHA256SUMS`, and remind users to run `safe-profile-update.ps1`:
+
+```powershell
+python scripts/regenerate_sha256sums.py
+```
 
 ### Where to edit
 

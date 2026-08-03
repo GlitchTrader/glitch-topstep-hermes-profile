@@ -9,6 +9,7 @@ sys.path.insert(0, str(SCRIPTS))
 
 import common as common_module
 import compatibility as compatibility_module
+from distribution_manifest import read_distribution_version
 
 
 COMPATIBLE_HEALTH = {
@@ -38,14 +39,14 @@ class CompatibilityTests(unittest.TestCase):
     def test_profile_version_matches_distribution(self):
         self.assertEqual(
             compatibility_module.PROFILE_COMPATIBILITY["profile_version"],
-            "0.1.6",
+            read_distribution_version(ROOT),
         )
 
     def test_compatible_health_passes(self):
         compatibility_module.verify_gateway_compatibility(COMPATIBLE_HEALTH)
         self.assertEqual(
             compatibility_module.compatibility_summary(COMPATIBLE_HEALTH),
-            "compatible (profile 0.1.6, gateway 0.1.2)",
+            f"compatible (profile {read_distribution_version(ROOT)}, gateway 0.1.2)",
         )
 
     def test_missing_contract_fails_closed(self):

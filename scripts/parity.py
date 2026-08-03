@@ -11,6 +11,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+from distribution_manifest import PROMPT_VERSION
 from common import (
     append_jsonl,
     parse_utc,
@@ -22,7 +23,6 @@ from common import (
     write_json_atomic,
 )
 
-PROMPT_VERSION = "glitch-topstep-v4"
 CURRENT_PLAN_SCHEMA = "glitch.topstep.portfolio_plan.v1"
 CURRENT_GUIDANCE_SCHEMA = "glitch.topstep.guidance.v1"
 RETRYABLE_ATTEMPT_STATUSES = frozenset(

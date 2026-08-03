@@ -37,3 +37,15 @@ The profile-local `state/` directory is intentionally excluded from distribution
 `/topstep_status` reports the detached operator worker's actual `running`, `ok`, or `failed` state from `state/supervisor/direct-worker-status.json`. The cron launcher can finish successfully before that worker does, so use the worker state when diagnosing decision delivery.
 
 Do not commit `.env`, sessions, memory, state, or logs.
+
+## Profile updates (Windows)
+
+Always record `source: github.com/GlitchTrader/glitch-topstep-hermes-profile` in the installed `distribution.yaml`. Never install or update from a local clone path — Hermes copies `.git` into the profile and future updates fail with `PermissionError`.
+
+Canonical update command:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "$env:LOCALAPPDATA\hermes\profiles\glitch-topstep\scripts\safe-profile-update.ps1"
+```
+
+Contributors: after changing distribution-owned files, run `python scripts/regenerate_sha256sums.py` before merging. CI rejects drift.
