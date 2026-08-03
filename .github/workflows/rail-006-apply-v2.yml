@@ -1,0 +1,142 @@
+name: Apply RAIL-006 frame lookup consolidation
+
+on:
+  push:
+    branches:
+      - refactor/rail-006-frame-lookup-v2
+
+permissions:
+  contents: write
+
+jobs:
+  consolidate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/rail-006-frame-lookup-v2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Consolidate packet frame lookup
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import re
+          from pathlib import Path
+
+          parity_path = Path("scripts/parity.py")
+          parity = parity_path.read_text(encoding="utf-8")
+          pattern = re.compile(
+              r"def packet_for_outbox_id\(state: Path, packet_id: str\) -> dict\[str, Any\] \| None:\n"
+              r"(?:    .*\n)+?    return None\n",
+              re.MULTILINE,
+          )
+          replacement = '''def frame_for_packet_id(frames_root: Path, packet_id: str) -> dict[str, Any] | None:
+              # O(n) over bounded minute-frame retention; an index would add needless state.
+              if not frames_root.is_dir():
+                  return None
+              for path in frames_root.glob("*.json"):
+                  frame = read_optional_json(path)
+                  if not isinstance(frame, dict):
+                      continue
+                  packet = frame.get("packet")
+                  if isinstance(packet, dict) and str(packet.get("packet_id") or "") == packet_id:
+                      return frame
+              return None
+
+
+          def packet_for_outbox_id(state: Path, packet_id: str) -> dict[str, Any] | None:
+              frame = frame_for_packet_id(state / "minute-frames", packet_id)
+              packet = frame.get("packet") if isinstance(frame, dict) else None
+              return packet if isinstance(packet, dict) else None
+          '''.replace("          ", "")
+          parity, count = pattern.subn(replacement, parity, count=1)
+          if count != 1:
+              raise SystemExit(f"expected one parity lookup implementation, found {count}")
+          parity_path.write_text(parity, encoding="utf-8")
+
+          learning_path = Path("scripts/run-topstep-learning.py")
+          learning = learning_path.read_text(encoding="utf-8")
+          learning, import_count = re.subn(
+              r"(from parity import \(\n(?:    .*\n)*?    debrief_evidence,\n)",
+              r"\1    frame_for_packet_id,\n",
+              learning,
+              count=1,
+          )
+          local_pattern = re.compile(
+              r"\ndef frame_for_packet_id\(frames_root: Path, packet_id: str\) -> dict\[str, Any\] \| None:\n"
+              r"(?:    .*\n)+?    return None\n\n",
+              re.MULTILINE,
+          )
+          learning, local_count = local_pattern.subn("\n", learning, count=1)
+          if import_count != 1 or local_count != 1:
+              raise SystemExit(
+                  f"expected one learning import/local helper, found {import_count}/{local_count}"
+              )
+          learning_path.write_text(learning, encoding="utf-8")
+
+          distribution = Path("distribution.yaml")
+          dist_text = distribution.read_text(encoding="utf-8")
+          dist_text, version_count = re.subn(
+              r"(?m)^version: 0\.1\.5$", "version: 0.1.6", dist_text, count=1
+          )
+          if version_count != 1:
+              raise SystemExit("expected profile version 0.1.5")
+          distribution.write_text(dist_text, encoding="utf-8")
+
+          ledger_path = Path("docs/ledger/ledger.json")
+          ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+          row = next(item for item in ledger["items"] if item["id"] == "RAIL-006")
+          row["status"] = "done"
+          row["evidence"] = [
+              "scripts/parity.py owns the single packet-ID to minute-frame scan.",
+              "packet_for_outbox_id remains a thin compatibility projection.",
+              "scripts/run-topstep-learning.py imports the shared frame helper.",
+              "tests/test_frame_lookup.py and the full profile suite pass."
+          ]
+          ledger["profile_version"] = "0.1.6"
+          ledger["updated"] = "2026-08-02"
+          ledger_path.write_text(json.dumps(ledger, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+          sums_path = Path("SHA256SUMS")
+          updated = []
+          for line in sums_path.read_text(encoding="utf-8-sig").splitlines():
+              if not line.strip():
+                  continue
+              _old, raw_path = line.split(None, 1)
+              path = Path(raw_path.strip())
+              if not path.is_file():
+                  raise SystemExit(f"distribution file missing: {path}")
+              digest = hashlib.sha256(path.read_bytes()).hexdigest().upper()
+              updated.append(f"{digest}  {path.as_posix()}")
+          sums_path.write_text("\n".join(updated) + "\n", encoding="utf-8")
+          PY
+      - name: Verify profile contracts
+        run: |
+          python -m py_compile scripts/*.py plugins/topstep-control/__init__.py
+          python -m unittest discover -s tests -p 'test_*.py'
+          python -m json.tool docs/ledger/ledger.json >/dev/null
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          for line in Path('SHA256SUMS').read_text(encoding='utf-8-sig').splitlines():
+              if not line.strip():
+                  continue
+              expected, raw_path = line.split(None, 1)
+              path = Path(raw_path.strip())
+              actual = hashlib.sha256(path.read_bytes()).hexdigest().upper()
+              if actual != expected.upper():
+                  raise SystemExit(f'hash mismatch: {path}')
+          print('distribution integrity valid')
+          PY
+      - name: Commit verified consolidation and remove this one-shot workflow
+        run: |
+          rm .github/workflows/rail-006-apply-v2.yml
+          git config user.name "glitch-profile-maintainer"
+          git config user.email "actions@users.noreply.github.com"
+          git add scripts/parity.py scripts/run-topstep-learning.py tests/test_frame_lookup.py distribution.yaml docs/ledger/ledger.json SHA256SUMS .github/workflows/rail-006-apply-v2.yml
+          git commit -m "refactor(profile): consolidate packet frame lookup"
+          git push origin HEAD:refactor/rail-006-frame-lookup-v2
