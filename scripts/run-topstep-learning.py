@@ -41,6 +41,7 @@ from parity import (
     PROMPT_VERSION,
     classify_delivery_result,
     debrief_evidence,
+    frame_for_packet_id,
     suggest_flat_abstention_classification,
 )
 
@@ -112,17 +113,6 @@ def price_observation(frame: dict[str, Any]) -> dict[str, Any] | None:
         "high": high,
         "low": low,
     }
-
-
-def frame_for_packet_id(frames_root: Path, packet_id: str) -> dict[str, Any] | None:
-    for path in sorted(frames_root.glob("*.json")):
-        frame = read_optional_json(path)
-        if not isinstance(frame, dict):
-            continue
-        packet = frame.get("packet")
-        if isinstance(packet, dict) and str(packet.get("packet_id") or "") == packet_id:
-            return frame
-    return None
 
 
 def collect_decision_episodes(state_root: Path, supervisor: Path) -> list[dict[str, Any]]:

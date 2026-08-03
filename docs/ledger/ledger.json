@@ -24,7 +24,7 @@
   "history": {
     "previous_schema": "1.0",
     "previous_main_commit": "d98fc7f6b38b5c83e58e466d540fce55ef8b7a42",
-    "note": "Completed RAIL-002, RAIL-003, RAIL-004, RAIL-007, and RAIL-008 remain in Git history. RAIL-005 is superseded by GTHP-009. RAIL-006 remains a separate bounded P3 cleanup in issue #23. PROFILE-BETA-01 remains the external paired-artifact boundary in issue #24."
+    "note": "Completed RAIL-002, RAIL-003, RAIL-004, RAIL-007, and RAIL-008 remain in Git history. RAIL-005 is superseded by GTHP-009. PROFILE-BETA-01 remains the external paired-artifact boundary in issue #24."
   },
   "items": [
     {
@@ -67,14 +67,20 @@
     {
       "id": "RAIL-006",
       "title": "Consolidate packet-ID minute-frame lookup without semantic change",
-      "status": "todo",
+      "status": "done",
       "priority": "P3",
       "owner_role": "coder",
       "issue": 23,
       "depends_on": [
         "GTHP-009"
       ],
-      "stop_line": "No new index, database, cadence, prompt, or delivery abstraction."
+      "stop_line": "No new index, database, cadence, prompt, or delivery abstraction.",
+      "evidence": [
+        "scripts/parity.py",
+        "scripts/run-topstep-learning.py",
+        "tests/test_direct_cycle.py",
+        "regenerated SHA256SUMS"
+      ]
     },
     {
       "id": "PROFILE-BETA-01",

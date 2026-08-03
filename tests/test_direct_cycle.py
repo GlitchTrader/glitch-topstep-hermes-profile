@@ -542,6 +542,29 @@ class DirectCycleTests(unittest.TestCase):
             found = PARITY.packet_for_outbox_id(state, "packet-5")
         self.assertEqual(found, stored)
 
+    def test_frame_for_packet_id_returns_full_minute_frame(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            frames = state / "minute-frames"
+            frames.mkdir(parents=True)
+            stored = packet(5)
+            frame = {"minute_id": "20990101T1405Z", "packet": stored}
+            MODULE.write_json_atomic(frames / "20990101T1405Z.json", frame)
+            found = PARITY.frame_for_packet_id(state, "packet-5")
+            found_from_frames_root = PARITY.frame_for_packet_id(frames, "packet-5")
+        self.assertEqual(found, frame)
+        self.assertEqual(found_from_frames_root, frame)
+
+    def test_frame_for_packet_id_ignores_missing_or_corrupt_frames(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            frames = state / "minute-frames"
+            frames.mkdir(parents=True)
+            (frames / "broken.json").write_text("{not-json", encoding="utf-8")
+            (frames / "empty.json").write_text("{}", encoding="utf-8")
+            found = PARITY.frame_for_packet_id(state, "packet-5")
+        self.assertIsNone(found)
+
     def test_prune_delivered_outboxes_removes_with_receipt(self):
         with tempfile.TemporaryDirectory() as root:
             state = Path(root)

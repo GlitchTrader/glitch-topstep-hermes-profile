@@ -444,19 +444,34 @@ def intent_is_entry(intent: dict[str, Any]) -> bool:
     return str(intent.get("action") or "") in {"ENTER_LONG", "ENTER_SHORT"}
 
 
-def packet_for_outbox_id(state: Path, packet_id: str) -> dict[str, Any] | None:
+def _minute_frames_dir(state_or_frames_root: Path) -> Path:
+    nested = state_or_frames_root / "minute-frames"
+    if nested.is_dir():
+        return nested
+    return state_or_frames_root
+
+
+def frame_for_packet_id(state_or_frames_root: Path, packet_id: str) -> dict[str, Any] | None:
     # ponytail: O(n) scan over minute-frames; fine at typical retention sizes
-    frames_dir = state / "minute-frames"
+    frames_dir = _minute_frames_dir(state_or_frames_root)
     if not frames_dir.is_dir():
         return None
-    for path in frames_dir.glob("*.json"):
+    for path in sorted(frames_dir.glob("*.json")):
         frame = read_optional_json(path)
-        if not frame:
+        if not isinstance(frame, dict):
             continue
         packet = frame.get("packet")
         if isinstance(packet, dict) and str(packet.get("packet_id") or "") == packet_id:
-            return packet
+            return frame
     return None
+
+
+def packet_for_outbox_id(state: Path, packet_id: str) -> dict[str, Any] | None:
+    frame = frame_for_packet_id(state, packet_id)
+    if frame is None:
+        return None
+    packet = frame.get("packet")
+    return packet if isinstance(packet, dict) else None
 
 
 def prune_delivered_outboxes(state: Path) -> int:
