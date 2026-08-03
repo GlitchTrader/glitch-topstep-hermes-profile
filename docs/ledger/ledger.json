@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-07-30",
+  "updated": "2026-08-02",
   "roadmap_ref": "README.md",
   "items": [
     {
@@ -60,7 +60,9 @@
         "Remove duplicate active_trade_state inside recent_glitch_ledger prompt envelope.",
         "Tests updated; no behavior change to outbox discard or invocation_reason."
       ],
-      "depends_on": ["RAIL-003"],
+      "depends_on": [
+        "RAIL-003"
+      ],
       "evidence": [
         "2026-07-30: run-topstep-cycle imports latest_prior_attempt and RETRYABLE_ATTEMPT_STATUSES from parity.py.",
         "2026-07-30: removed packet_has_advanced and discard_stale_entry_intent from parity.py.",
@@ -83,7 +85,9 @@
         "docs/ARCHITECTURE.md and AUTHORITY.md state whether flat cycles require N frames before first LLM call.",
         "Either document GLITCH_TOPSTEP_DECISION_FRAME_COUNT as scheduling warmup, or remove silent flat gate and invoke with available frames."
       ],
-      "depends_on": ["RAIL-003"],
+      "depends_on": [
+        "RAIL-003"
+      ],
       "evidence": [
         "2026-07-30 decision: keep flat warmup at GLITCH_TOPSTEP_DECISION_FRAME_COUNT (default 5).",
         "2026-07-30: ARCHITECTURE.md and AUTHORITY.md document flat scheduling warmup vs positioned immediate invoke.",
@@ -101,6 +105,7 @@
       "status": "ready",
       "priority": "P3",
       "owner_role": "coder",
+      "issue": 23,
       "acceptance": [
         "Single helper for packet_id -> stored frame/packet used by cycle and learning workers.",
         "No semantic change to debrief_evidence or outbox validation."
@@ -115,16 +120,20 @@
     {
       "id": "RAIL-007",
       "title": "Bind work to glitch-topstep gateway ledger",
-      "status": "deferred",
+      "status": "done",
       "priority": "P3",
       "owner_role": "orchestrator",
       "acceptance": [
-        "Resume when operator promotes cross-repo gateway parity to active development."
+        "Cross-repository gateway/profile beta work has a named dependency and separate acceptance authority."
       ],
       "depends_on": [],
-      "evidence": [],
+      "evidence": [
+        "Profile issue #24 defines PROFILE-BETA-01.",
+        "Gateway issue #52 and PR #53 replace the incorrect dependency on RAIL-006 with PROFILE-BETA-01."
+      ],
       "sources": [
-        "glitch-topstep/docs/ledger/ledger.json"
+        "glitch-topstep/docs/ledger/ledger.json",
+        "docs/ledger/ledger.json"
       ]
     },
     {
@@ -154,6 +163,32 @@
         "tests/test_direct_cycle.py",
         "tests/test_control_plugin.py"
       ]
+    },
+    {
+      "id": "PROFILE-BETA-01",
+      "title": "Prove the immutable Topstep Hermes profile against the paired gateway beta artifact",
+      "status": "external_acceptance_required",
+      "priority": "P0",
+      "owner_role": "operator_tests",
+      "issue": 24,
+      "depends_on": [
+        "RAIL-002",
+        "RAIL-003",
+        "RAIL-004",
+        "RAIL-005",
+        "RAIL-008",
+        "glitch-topstep:TS-R1-04",
+        "glitch-topstep:TS-R2-06",
+        "glitch-topstep:TS-R2-07"
+      ],
+      "acceptance": [
+        "One immutable profile manifest is paired with one immutable gateway artifact.",
+        "Install/update, cron reconciliation, status, cognition, outbox delivery, restart continuity, and gateway receipts pass on the target Windows machine.",
+        "Quiet tape, volatility, spread, session, confidence, and learning observations remain evidence for Hermes rather than hidden action gates.",
+        "The operator explicitly promotes the named artifact pair."
+      ],
+      "blocked_reason": "Requires the target Windows/Hermes installation, ProjectX credentials, the paired gateway artifact, and an operator-approved PRACTICE/shadow acceptance session.",
+      "stop_line": "No beta-ready or unattended evaluation/live claim until the paired artifacts and operator promotion are recorded."
     }
   ]
 }
