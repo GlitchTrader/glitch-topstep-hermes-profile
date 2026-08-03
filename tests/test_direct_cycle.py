@@ -172,10 +172,8 @@ class DirectCycleTests(unittest.TestCase):
         self.assertNotIn("symbol_id", value["contract"])
 
     def test_flat_default_cadence_is_every_minute(self):
-        with mock.patch.dict(
-            os.environ,
-            {"GLITCH_TOPSTEP_FLAT_DECISION_INTERVAL_MINUTES": "1"},
-        ):
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("GLITCH_TOPSTEP_FLAT_DECISION_INTERVAL_MINUTES", None)
             self.assertTrue(MODULE.should_invoke(packet(6), None))
 
     def test_configurable_cadence_is_scheduling_not_eligibility(self):
@@ -220,6 +218,26 @@ class DirectCycleTests(unittest.TestCase):
                     MODULE.should_skip_unchanged_evidence(current, None, state)
                 )
 
+    def test_default_worker_does_not_skip_unchanged_or_stale_flat_evidence(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            current = packet(6)
+            current["data_quality"]["quote_age_ms"] = 12000
+            MODULE.write_last_evidence_fingerprint(
+                state, current, MODULE.evidence_fingerprint(current)
+            )
+            with mock.patch.dict(os.environ, {}, clear=False):
+                os.environ.pop("GLITCH_TOPSTEP_SKIP_UNCHANGED_EVIDENCE", None)
+                os.environ.pop("GLITCH_TOPSTEP_SKIP_STALE_GATEWAY_EVIDENCE", None)
+                self.assertFalse(
+                    MODULE.should_skip_unchanged_evidence(current, None, state)
+                )
+                self.assertIsNone(MODULE.stale_gateway_skip_reason(current, None))
+
+    def test_flat_frame_count_is_context_window_not_model_gate(self):
+        source = (SCRIPTS / "run-topstep-cycle.py").read_text(encoding="utf-8")
+        self.assertNotIn("len(frames) < decision_frame_count()", source)
+
     def test_never_skip_unchanged_evidence_when_positioned(self):
         with tempfile.TemporaryDirectory() as root:
             state = Path(root)
@@ -254,13 +272,17 @@ class DirectCycleTests(unittest.TestCase):
         current = packet(6, state_complete=False, positioned=True)
         self.assertIsNone(MODULE.stale_gateway_skip_reason(current, None))
 
-    def test_stale_gateway_skip_on_quote_age(self):
+    def test_stale_gateway_skip_on_quote_age_when_explicitly_enabled(self):
         current = packet(6)
         current["data_quality"]["quote_age_ms"] = 12000
-        self.assertEqual(
-            MODULE.stale_gateway_skip_reason(current, None),
-            "stale_gateway_quote",
-        )
+        with mock.patch.dict(
+            os.environ,
+            {"GLITCH_TOPSTEP_SKIP_STALE_GATEWAY_EVIDENCE": "true"},
+        ):
+            self.assertEqual(
+                MODULE.stale_gateway_skip_reason(current, None),
+                "stale_gateway_quote",
+            )
 
     def test_retry_after_failure_blocks_unchanged_skip(self):
         with tempfile.TemporaryDirectory() as root:
