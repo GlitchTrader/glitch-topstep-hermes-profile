@@ -220,7 +220,10 @@ def request_json(
 
 def sync_gateway_outcomes(state: Path) -> int:
     """Append new canonical trade outcomes exposed by the gateway."""
-    status, body = request_json("/outcomes?limit=100", token=local_token())
+    token = os.environ.get("GLITCH_TOPSTEP_LOCAL_TOKEN", "").strip()
+    if not token:
+        return 0
+    status, body = request_json("/outcomes?limit=100", token=token)
     if status != 200 or not isinstance(body, dict):
         return 0
     outcomes = body.get("outcomes")
