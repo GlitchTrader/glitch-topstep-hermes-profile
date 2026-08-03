@@ -56,11 +56,55 @@ function Remove-StagingArtifacts {
     }
 }
 
-function Get-ProfileCronJobIds {
+function Wait-ProfileQuiescent {
+    $lock = Join-Path $profileRoot 'state\direct-cycle.lock'
+    $deadline = (Get-Date).AddSeconds(45)
+    while ((Get-Date) -lt $deadline) {
+        $escapedRoot = [regex]::Escape($profileRoot)
+        Get-CimInstance Win32_Process -Filter "name='python.exe'" -ErrorAction SilentlyContinue |
+            Where-Object {
+                $_.CommandLine -match [regex]::Escape($Profile) -or
+                $_.CommandLine -match $escapedRoot
+            } |
+            ForEach-Object {
+                Write-Host "Stopping lingering PID $($_.ProcessId)"
+                Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue
+            }
+        if (-not (Test-Path -LiteralPath $lock -PathType Leaf)) {
+            return
+        }
+        Write-Host 'Waiting for direct-cycle.lock to clear...'
+        Start-Sleep -Seconds 2
+    }
+    throw "Profile still busy after 45s ($lock). Retry when cron workers are idle."
+}
+
+function Get-ProfileCronJobs {
     $jobsPath = Join-Path $profileRoot 'cron\jobs.json'
     if (-not (Test-Path -LiteralPath $jobsPath -PathType Leaf)) { return @() }
     $document = Get-Content -LiteralPath $jobsPath -Raw | ConvertFrom-Json
-    return @($document.jobs | ForEach-Object { [string]$_.id })
+    return @($document.jobs)
+}
+
+function Get-ProfileCronJobIds {
+    return @(Get-ProfileCronJobs | ForEach-Object { [string]$_.id })
+}
+
+function Save-ProfileCronEnabledState {
+    $state = @{}
+    foreach ($job in Get-ProfileCronJobs) {
+        $state[[string]$job.id] = [bool]$job.enabled
+    }
+    return $state
+}
+
+function Restore-ProfileCronEnabledState {
+    param([hashtable]$State)
+    foreach ($entry in $State.GetEnumerator()) {
+        if ($entry.Value) {
+            & hermes --profile $Profile cron resume $entry.Key 2>$null | Out-Null
+        }
+    }
 }
 
 function Set-ProfileCronJobsPaused {
@@ -97,8 +141,10 @@ Reinstall once from GitHub, then use this script again:
 }
 
 Write-Host "Updating profile '$Profile' from $source"
-Stop-ProfileProcesses
+$cronEnabledBefore = Save-ProfileCronEnabledState
 Set-ProfileCronJobsPaused -Paused $true
+Stop-ProfileProcesses
+Wait-ProfileQuiescent
 Remove-StagingArtifacts -Root $profileRoot
 
 $updateArgs = @('profile', 'update', $Profile, '-y')
@@ -116,6 +162,6 @@ if ($LASTEXITCODE -ne 0) {
     throw "setup.ps1 failed with exit code $LASTEXITCODE"
 }
 
-Set-ProfileCronJobsPaused -Paused $false
+Restore-ProfileCronEnabledState -State $cronEnabledBefore
 
 Write-Host "Profile '$Profile' updated successfully."
