@@ -218,6 +218,35 @@ def request_json(
         return int(error.code), value
 
 
+def sync_gateway_outcomes(state: Path) -> int:
+    """Append new canonical trade outcomes exposed by the gateway."""
+    status, body = request_json("/outcomes?limit=100", token=local_token())
+    if status != 200 or not isinstance(body, dict):
+        return 0
+    outcomes = body.get("outcomes")
+    if not isinstance(outcomes, list):
+        return 0
+    path = state / "outcomes.jsonl"
+    known = {
+        str(row.get("intent_id"))
+        for row in read_jsonl(path)
+        if isinstance(row, dict) and row.get("intent_id")
+    }
+    added = 0
+    for row in outcomes:
+        if not isinstance(row, dict):
+            continue
+        if row.get("schema_version") != "glitch.topstep.trade_outcome.v1":
+            continue
+        intent_id = str(row.get("intent_id") or "")
+        if not intent_id or intent_id in known:
+            continue
+        append_jsonl(path, row)
+        known.add(intent_id)
+        added += 1
+    return added
+
+
 def read_json(path: Path) -> dict[str, Any]:
     value = json.loads(path.read_text(encoding="utf-8-sig"))
     if not isinstance(value, dict):

@@ -110,7 +110,7 @@
     {
       "id": "PROFILE-BETA-01",
       "title": "Prove the immutable Topstep Hermes profile against the paired gateway beta artifact",
-      "status": "external_acceptance_required",
+      "status": "done",
       "priority": "P0",
       "owner_role": "operator_tests",
       "issue": 24,
@@ -118,11 +118,29 @@
         "GTHP-009",
         "GTHP-010",
         "RAIL-009",
+        "RAIL-010",
         "glitch-topstep:TS-R1-04",
         "glitch-topstep:TS-R2-06",
         "glitch-topstep:TS-R2-07"
       ],
-      "stop_line": "No beta-ready or unattended evaluation/live claim until exact paired artifacts and operator promotion are recorded."
+      "acceptance": [
+        "Clean install/update, scheduled cognition, positioned management, and armed PRAC mutation evidenced on operator machine.",
+        "Abstention and entry/management/exit path documented with paired gateway receipts.",
+        "Known limitations explicit; no beta-ready claim without operator promotion."
+      ],
+      "evidence": [
+        "2026-08-03: PRAC armed session NOTHING → ENTER_LONG → HOLD → MOVE_STOP → NOTHING.",
+        "docs/evidence/PROFILE-BETA-01-prac-session-2026-08-03.md (PR #34).",
+        "Gateway terminal receipts gateway-receipts.jsonl (PR #35).",
+        "Issue #24 operator acceptance comment 2026-08-03."
+      ],
+      "sources": [
+        "docs/evidence/PROFILE-BETA-01-prac-session-2026-08-03.md",
+        "docs/evidence/PROFILE-BETA-01-prac-session-2026-08-03.decisions.jsonl",
+        "docs/evidence/PROFILE-BETA-01-prac-session-2026-08-03.receipts.jsonl",
+        "docs/evidence/PROFILE-BETA-01-prac-session-2026-08-03.gateway-receipts.jsonl"
+      ],
+      "stop_line": "No unattended evaluation/live claim until TS-BETA-01 operator promotion and canonical outcome stream are complete."
     },
     {
       "id": "RAIL-010",
