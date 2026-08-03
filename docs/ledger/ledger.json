@@ -166,6 +166,42 @@
         "docs/specs/GTHP-010.md",
         "scripts/parity.py"
       ]
+    },
+    {
+      "id": "GTHP-012",
+      "title": "Learning parity with Glitch NT supervisor (ingestion, rich outcomes, feedback loop)",
+      "status": "planned",
+      "priority": "P1",
+      "owner_role": "architect",
+      "issue": 45,
+      "depends_on": [
+        "GTHP-010",
+        "PROFILE-BETA-01",
+        "glitch-topstep:TS-R3-01",
+        "glitch-topstep:TS-R3-03"
+      ],
+      "acceptance": [
+        "Learning worker syncs gateway outcomes independently of the direct decision cron.",
+        "Debrief evidence consumes MAE/MFE, exit_reason, and R-multiple after TS-R3-03 lands.",
+        "Gateway rejections are classified into system_defect vs cognitive_rejection for decision episodes.",
+        "Summarized outcome_backed lessons appear in the direct-cycle ledger context without unbounded prompt growth.",
+        "Overlay activation defaults conservative (no auto-activate without posterior outcome evidence)."
+      ],
+      "stop_line": "Do not port NT master/follower replication or Apex multi-account semantics; do not let learning submit intents or bypass outcome_backed gates.",
+      "evidence": [
+        "2026-08-03: NT vs Topstep learning comparison documented.",
+        "docs/specs/GTHP-012.md"
+      ],
+      "sources": [
+        "scripts/run-topstep-learning.py",
+        "scripts/run-topstep-cycle.py",
+        "scripts/parity.py",
+        "scripts/common.py",
+        "skills/topstep-review-outcomes/SKILL.md",
+        "skills/topstep-self-learning/SKILL.md",
+        "docs/OUTCOME-CONTRACT.md",
+        "docs/specs/GTHP-012.md"
+      ]
     }
   ]
 }
