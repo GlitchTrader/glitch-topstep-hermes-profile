@@ -1,158 +1,85 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
   "updated": "2026-08-03",
-  "roadmap_ref": "README.md",
+  "release_target": "paired gateway/profile beta",
+  "profile_version": "0.1.5",
+  "gateway": {
+    "repository": "GlitchTrader/glitch-topstep",
+    "current_version": "0.1.2",
+    "intent_schema": "glitch.intent.v2",
+    "decision_packet_schemas": [
+      "glitch.direct.decision_packet.v1",
+      "glitch.direct.decision_packet.v2"
+    ],
+    "beta_acceptance": "glitch-topstep:TS-BETA-01"
+  },
+  "compatibility_manifest": "scripts/compatibility.py",
+  "constitution": {
+    "cognition": "Hermes owns market judgment, direction, timing, quantity, geometry, management, abstention, review, and learning.",
+    "worker": "The profile worker schedules explicit invocations and validates identity/schema/finite values/geometry/directives; it does not turn evidence into a hidden strategy.",
+    "gateway": "The gateway owns authenticated ProjectX evidence, account and contract identity, factual execution boundaries, native mutation, protection, reconciliation, and receipts.",
+    "objective": "Optimize long-run after-fee expectancy, survival, and realized payout quality without daily PnL targets, fixed risk, quantity baselines, or trade quotas."
+  },
+  "history": {
+    "previous_schema": "1.0",
+    "previous_main_commit": "d98fc7f6b38b5c83e58e466d540fce55ef8b7a42",
+    "note": "Completed RAIL-002, RAIL-003, RAIL-004, RAIL-007, and RAIL-008 remain in Git history. RAIL-005 is superseded by GTHP-009. PROFILE-BETA-01 remains the external paired-artifact boundary in issue #24."
+  },
   "items": [
     {
-      "id": "RAIL-002",
-      "title": "Mirror NinjaTrader intent ownership doctrine in profile handoff",
+      "id": "GTHP-009",
+      "title": "Remove hidden flat-cycle vetoes and arbitrary daily-profit pressure",
       "status": "done",
-      "priority": "P1",
-      "owner_role": "coder",
-      "acceptance": [
-        "Profile worker treats duplicate intent UUID retries as gateway-owned replay, not new decisions.",
-        "Profile docs forbid time-based resubmission or hidden deterministic gates.",
-        "SOUL and AUTHORITY describe truthful evidence-only cognition aligned with gateway receipts."
-      ],
-      "depends_on": [],
+      "priority": "P0",
+      "owner_role": "architect",
+      "issue": 21,
       "evidence": [
-        "2026-07-25 commits d9a1ab0, a828e1f, ab0f480: truthful Topstep evidence, native MTF, rolling tape and partial depth doctrine.",
-        "2026-07-27: gateway atomic UUID+body claim and conflict receipts (glitch-topstep); profile AUTHORITY cross-ref updated.",
-        "PR #16 merged: discard_stale_outbox_intent only on stored_packet_not_found."
-      ],
-      "sources": [
-        "docs/AUTHORITY.md",
+        "scripts/run-topstep-cycle.py",
         "SOUL.md",
-        "skills/topstep-build-intent/SKILL.md"
-      ]
-    },
-    {
-      "id": "RAIL-003",
-      "title": "Compact frame snapshots for LLM prompts",
-      "status": "done",
-      "priority": "P1",
-      "owner_role": "coder",
-      "acceptance": [
-        "decision_packet stays full; recent_frames use glitch.topstep.frame_snapshot.v2.",
-        "GLITCH_TOPSTEP_DECISION_FRAME_COUNT configures frame window (default 5).",
-        "Tests cover packet_model and prompt envelope shape."
-      ],
-      "depends_on": [],
-      "evidence": [
-        "PR #17 merged: scripts/packet_model.py, run-topstep-cycle integration, 61 tests passing."
-      ],
-      "sources": [
-        "scripts/packet_model.py",
-        "scripts/run-topstep-cycle.py",
-        "skills/topstep-observe-market/SKILL.md"
-      ]
-    },
-    {
-      "id": "RAIL-004",
-      "title": "Profile worker dedup and dead-code removal",
-      "status": "done",
-      "priority": "P2",
-      "owner_role": "coder",
-      "acceptance": [
-        "Single latest_prior_attempt implementation (parity.py); cycle imports it.",
-        "Remove packet_has_advanced and discard_stale_entry_intent leftovers from PR #16.",
-        "Remove duplicate active_trade_state inside recent_glitch_ledger prompt envelope.",
-        "Tests updated; no behavior change to outbox discard or invocation_reason."
-      ],
-      "depends_on": ["RAIL-003"],
-      "evidence": [
-        "2026-07-30: run-topstep-cycle imports latest_prior_attempt and RETRYABLE_ATTEMPT_STATUSES from parity.py.",
-        "2026-07-30: removed packet_has_advanced and discard_stale_entry_intent from parity.py.",
-        "2026-07-30: active_trade_state only at prompt envelope top-level; not duplicated in recent_glitch_ledger.",
-        "2026-07-30: unittest green (60 tests)."
-      ],
-      "sources": [
-        "scripts/run-topstep-cycle.py",
-        "scripts/parity.py",
-        "tests/test_direct_cycle.py"
-      ]
-    },
-    {
-      "id": "RAIL-005",
-      "title": "Align ARCHITECTURE with flat frame warmup gate",
-      "status": "done",
-      "priority": "P2",
-      "owner_role": "coder",
-      "acceptance": [
-        "docs/ARCHITECTURE.md and AUTHORITY.md state whether flat cycles require N frames before first LLM call.",
-        "Either document GLITCH_TOPSTEP_DECISION_FRAME_COUNT as scheduling warmup, or remove silent flat gate and invoke with available frames."
-      ],
-      "depends_on": ["RAIL-003"],
-      "evidence": [
-        "2026-07-30 decision: keep flat warmup at GLITCH_TOPSTEP_DECISION_FRAME_COUNT (default 5).",
-        "2026-07-30: ARCHITECTURE.md and AUTHORITY.md document flat scheduling warmup vs positioned immediate invoke.",
-        "2026-07-30 audit: run-topstep-cycle returns 0 when len(frames) < decision_frame_count() while flat."
-      ],
-      "sources": [
-        "docs/ARCHITECTURE.md",
         "docs/AUTHORITY.md",
-        "scripts/run-topstep-cycle.py"
+        "tests/test_direct_cycle.py",
+        "docs/specs/GTHP-009.md",
+        "rewrite committed only after py_compile and full unittest success"
+      ]
+    },
+    {
+      "id": "GTHP-010",
+      "title": "Enforce gateway/profile/schema compatibility and reconcile current capabilities",
+      "status": "done",
+      "priority": "P0",
+      "owner_role": "release_architecture",
+      "issue": 22,
+      "depends_on": [
+        "GTHP-009"
+      ],
+      "evidence": [
+        "scripts/compatibility.py",
+        "scripts/common.py",
+        "scripts/run-topstep-cycle.py",
+        "plugins/topstep-control/__init__.py",
+        "setup.ps1",
+        "tests/test_compatibility.py",
+        "docs/specs/GTHP-010.md",
+        "regenerated SHA256SUMS"
       ]
     },
     {
       "id": "RAIL-006",
-      "title": "Consolidate minute-frame lookup helpers",
-      "status": "ready",
-      "priority": "P3",
-      "owner_role": "coder",
-      "acceptance": [
-        "Single helper for packet_id -> stored frame/packet used by cycle and learning workers.",
-        "No semantic change to debrief_evidence or outbox validation."
-      ],
-      "depends_on": [],
-      "evidence": [],
-      "sources": [
-        "scripts/parity.py",
-        "scripts/run-topstep-learning.py"
-      ]
-    },
-    {
-      "id": "RAIL-007",
-      "title": "Bind work to glitch-topstep gateway ledger",
-      "status": "deferred",
-      "priority": "P3",
-      "owner_role": "orchestrator",
-      "acceptance": [
-        "Resume when operator promotes cross-repo gateway parity to active development."
-      ],
-      "depends_on": [],
-      "evidence": [],
-      "sources": [
-        "glitch-topstep/docs/ledger/ledger.json"
-      ]
-    },
-    {
-      "id": "RAIL-008",
-      "title": "Separate local wake-trigger validation from gateway wire delivery",
+      "title": "Consolidate packet-ID minute-frame lookup without semantic change",
       "status": "done",
-      "priority": "P0",
+      "priority": "P3",
       "owner_role": "coder",
-      "acceptance": [
-        "A decision with explicit price conditions is validated with its wake triggers before local-only fields are removed.",
-        "The gateway wire payload omits wake_triggers without reapplying local scheduler validation to the stripped payload.",
-        "A pending outbox with valid wake triggers reaches delivery and cannot starve all later cognition.",
-        "Detached operator-worker failures are visible through profile status rather than masked by a successful launcher."
-      ],
+      "issue": 23,
       "depends_on": [
-        "RAIL-002"
+        "GTHP-009"
       ],
+      "stop_line": "No new index, database, cadence, prompt, or delivery abstraction.",
       "evidence": [
-        "2026-07-31 live incident: valid NOTHING decisions at 06:05, 09:06, and 12:11 UTC remained in outbox because prepare_intent_for_delivery removed wake_triggers before validate_intent required them.",
-        "2026-07-31 deterministic reproduction: explicit above/below change_condition with matching triggers raised wake_triggers_missing_for_change_condition only during delivery projection.",
-        "2026-07-31 fix: validate the complete local decision before projecting glitch.intent.v2, persist direct-worker-status.json, and expose that status through /topstep_status.",
-        "2026-07-31 regression suite: explicit trigger parity, missing trigger rejection, real pending-outbox delivery path, and detached-worker status visibility."
-      ],
-      "sources": [
-        "scripts/run-topstep-cycle.py",
-        "plugins/topstep-control/__init__.py",
+        "scripts/parity.py",
+        "scripts/run-topstep-learning.py",
         "tests/test_direct_cycle.py",
-        "tests/test_control_plugin.py"
+        "regenerated SHA256SUMS"
       ]
     },
     {
@@ -166,7 +93,9 @@
         "run-topstep-cycle validates amendment and exit intent shapes against glitch.intent.v2.",
         "MOVE_STOP and MOVE_TP are rejected locally when absent from execution.supported_actions."
       ],
-      "depends_on": ["RAIL-002"],
+      "depends_on": [
+        "GTHP-009"
+      ],
       "evidence": [
         "2026-08-03: gateway PM-0..PM-4 live acceptance on PRAC (glitch-topstep PR #38, PARITY.md).",
         "2026-08-03: SOUL.md, topstep-build-intent, topstep-assess-risk, topstep-form-thesis, run-topstep-cycle prompt_version glitch-topstep-v3."
@@ -177,6 +106,23 @@
         "scripts/run-topstep-cycle.py",
         "tests/test_direct_cycle.py"
       ]
+    },
+    {
+      "id": "PROFILE-BETA-01",
+      "title": "Prove the immutable Topstep Hermes profile against the paired gateway beta artifact",
+      "status": "external_acceptance_required",
+      "priority": "P0",
+      "owner_role": "operator_tests",
+      "issue": 24,
+      "depends_on": [
+        "GTHP-009",
+        "GTHP-010",
+        "RAIL-009",
+        "glitch-topstep:TS-R1-04",
+        "glitch-topstep:TS-R2-06",
+        "glitch-topstep:TS-R2-07"
+      ],
+      "stop_line": "No beta-ready or unattended evaluation/live claim until exact paired artifacts and operator promotion are recorded."
     }
   ]
 }

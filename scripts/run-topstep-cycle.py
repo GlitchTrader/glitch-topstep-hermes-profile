@@ -48,6 +48,7 @@ from common import (
     tail_jsonl,
     use_hermes_model_routing,
     utc_now,
+    verify_gateway_compatibility,
     write_json_atomic,
 )
 from parity import (
@@ -172,7 +173,7 @@ def flat_decision_interval_minutes() -> int:
             1,
             min(
                 60,
-                int(os.environ.get("GLITCH_TOPSTEP_FLAT_DECISION_INTERVAL_MINUTES", "5")),
+                int(os.environ.get("GLITCH_TOPSTEP_FLAT_DECISION_INTERVAL_MINUTES", "1")),
             ),
         )
     except ValueError:
@@ -230,7 +231,7 @@ def should_invoke(
 def skip_unchanged_evidence_enabled() -> bool:
     return os.environ.get(
         "GLITCH_TOPSTEP_SKIP_UNCHANGED_EVIDENCE",
-        "true",
+        "false",
     ).strip().lower() in {"1", "true", "yes"}
 
 
@@ -350,7 +351,7 @@ def should_skip_unchanged_evidence(
 def skip_stale_gateway_evidence_enabled() -> bool:
     return os.environ.get(
         "GLITCH_TOPSTEP_SKIP_STALE_GATEWAY_EVIDENCE",
-        "true",
+        "false",
     ).strip().lower() in {"1", "true", "yes"}
 
 
@@ -951,6 +952,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     health_status, health = request_json("/health")
     if health_status != 200 or health.get("status") not in {"ok", "degraded"}:
         raise RuntimeError("gateway_health_unavailable")
+    verify_gateway_compatibility(health)
 
     packet_status, packet = request_json("/packet", token=token)
     if packet_status != 200:
@@ -1057,8 +1059,6 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         return 0
 
     frames = recent_frames(state, decision_frame_count())
-    if not positioned(packet) and len(frames) < decision_frame_count():
-        return 0
 
     packet_id = str(packet.get("packet_id") or "")
     if not packet_id:

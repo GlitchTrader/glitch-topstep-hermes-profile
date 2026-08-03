@@ -172,10 +172,8 @@ class DirectCycleTests(unittest.TestCase):
         self.assertNotIn("symbol_id", value["contract"])
 
     def test_flat_default_cadence_is_every_minute(self):
-        with mock.patch.dict(
-            os.environ,
-            {"GLITCH_TOPSTEP_FLAT_DECISION_INTERVAL_MINUTES": "1"},
-        ):
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("GLITCH_TOPSTEP_FLAT_DECISION_INTERVAL_MINUTES", None)
             self.assertTrue(MODULE.should_invoke(packet(6), None))
 
     def test_configurable_cadence_is_scheduling_not_eligibility(self):
@@ -220,6 +218,26 @@ class DirectCycleTests(unittest.TestCase):
                     MODULE.should_skip_unchanged_evidence(current, None, state)
                 )
 
+    def test_default_worker_does_not_skip_unchanged_or_stale_flat_evidence(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            current = packet(6)
+            current["data_quality"]["quote_age_ms"] = 12000
+            MODULE.write_last_evidence_fingerprint(
+                state, current, MODULE.evidence_fingerprint(current)
+            )
+            with mock.patch.dict(os.environ, {}, clear=False):
+                os.environ.pop("GLITCH_TOPSTEP_SKIP_UNCHANGED_EVIDENCE", None)
+                os.environ.pop("GLITCH_TOPSTEP_SKIP_STALE_GATEWAY_EVIDENCE", None)
+                self.assertFalse(
+                    MODULE.should_skip_unchanged_evidence(current, None, state)
+                )
+                self.assertIsNone(MODULE.stale_gateway_skip_reason(current, None))
+
+    def test_flat_frame_count_is_context_window_not_model_gate(self):
+        source = (SCRIPTS / "run-topstep-cycle.py").read_text(encoding="utf-8")
+        self.assertNotIn("len(frames) < decision_frame_count()", source)
+
     def test_never_skip_unchanged_evidence_when_positioned(self):
         with tempfile.TemporaryDirectory() as root:
             state = Path(root)
@@ -254,13 +272,17 @@ class DirectCycleTests(unittest.TestCase):
         current = packet(6, state_complete=False, positioned=True)
         self.assertIsNone(MODULE.stale_gateway_skip_reason(current, None))
 
-    def test_stale_gateway_skip_on_quote_age(self):
+    def test_stale_gateway_skip_on_quote_age_when_explicitly_enabled(self):
         current = packet(6)
         current["data_quality"]["quote_age_ms"] = 12000
-        self.assertEqual(
-            MODULE.stale_gateway_skip_reason(current, None),
-            "stale_gateway_quote",
-        )
+        with mock.patch.dict(
+            os.environ,
+            {"GLITCH_TOPSTEP_SKIP_STALE_GATEWAY_EVIDENCE": "true"},
+        ):
+            self.assertEqual(
+                MODULE.stale_gateway_skip_reason(current, None),
+                "stale_gateway_quote",
+            )
 
     def test_retry_after_failure_blocks_unchanged_skip(self):
         with tempfile.TemporaryDirectory() as root:
@@ -603,6 +625,29 @@ class DirectCycleTests(unittest.TestCase):
             found = PARITY.packet_for_outbox_id(state, "packet-5")
         self.assertEqual(found, stored)
 
+    def test_frame_for_packet_id_returns_full_minute_frame(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            frames = state / "minute-frames"
+            frames.mkdir(parents=True)
+            stored = packet(5)
+            frame = {"minute_id": "20990101T1405Z", "packet": stored}
+            MODULE.write_json_atomic(frames / "20990101T1405Z.json", frame)
+            found = PARITY.frame_for_packet_id(state, "packet-5")
+            found_from_frames_root = PARITY.frame_for_packet_id(frames, "packet-5")
+        self.assertEqual(found, frame)
+        self.assertEqual(found_from_frames_root, frame)
+
+    def test_frame_for_packet_id_ignores_missing_or_corrupt_frames(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            frames = state / "minute-frames"
+            frames.mkdir(parents=True)
+            (frames / "broken.json").write_text("{not-json", encoding="utf-8")
+            (frames / "empty.json").write_text("{}", encoding="utf-8")
+            found = PARITY.frame_for_packet_id(state, "packet-5")
+        self.assertIsNone(found)
+
     def test_prune_delivered_outboxes_removes_with_receipt(self):
         with tempfile.TemporaryDirectory() as root:
             state = Path(root)
@@ -658,7 +703,27 @@ class DirectCycleTests(unittest.TestCase):
             )
             def fake_request_json(path, token=None):
                 if path == "/health":
-                    return (200, {"status": "ok"})
+                    return (
+                        200,
+                        {
+                            "schema_version": "glitch.direct.health.v2",
+                            "status": "ok",
+                            "compatibility": {
+                                "gateway_name": "glitch-topstep",
+                                "gateway_version": "0.1.2",
+                                "intent_schemas": ["glitch.intent.v2"],
+                                "decision_packet_schemas": [
+                                    "glitch.direct.decision_packet.v1",
+                                    "glitch.direct.decision_packet.v2",
+                                ],
+                                "capabilities": [
+                                    "packet_supported_actions",
+                                    "durable_mutation_receipts",
+                                    "restart_reconciliation",
+                                ],
+                            },
+                        },
+                    )
                 return (200, current)
 
             with mock.patch.object(MODULE, "local_token", return_value="token"), mock.patch.object(

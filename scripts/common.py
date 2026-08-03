@@ -11,6 +11,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
+from compatibility import (
+    PROFILE_COMPATIBILITY,
+    compatibility_issues,
+    compatibility_summary,
+    verify_gateway_compatibility,
+)
+
 PROFILE_NAME = "glitch-topstep"
 DEFAULT_GATEWAY_URL = "http://127.0.0.1:8790"
 
@@ -151,11 +158,12 @@ def gateway_packet_evidence_is_fresh(packet: dict[str, Any]) -> bool:
 
 
 def gateway_feed_is_fresh() -> bool:
-    """Gateway /health ok and current packet evidence complete and not stale."""
+    """Gateway /health ok, compatible, and current packet evidence complete and not stale."""
     try:
         health_status, health = request_json("/health")
         if health_status != 200 or health.get("status") not in {"ok", "degraded"}:
             return False
+        verify_gateway_compatibility(health)
         packet_status, packet = request_json("/packet", token=local_token())
         if packet_status != 200 or not isinstance(packet, dict):
             return False

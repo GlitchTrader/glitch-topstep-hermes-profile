@@ -15,7 +15,7 @@
 - Gateway execution mode: controlled only in the gateway repository.
 - Cognitive overlays: proposed, not activated.
 - Scheduled model toolsets: memory only.
-- Flat cognition: one call per five-minute boundary after five frames.
+- Flat cognition: one call per minute by default; operators may reduce flat cadence explicitly.
 - Positioned cognition: one call per minute; manage with `HOLD`, `MOVE_STOP`, `MOVE_TP`, partial or full `EXIT`, and scale-in only when advertised in `execution.supported_actions`.
 
 ## Incident controls
