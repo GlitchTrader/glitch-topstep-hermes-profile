@@ -143,7 +143,7 @@ After merging profile changes operators care about, bump distribution metadata i
 - **Duplicate `intent_id` retries** are gateway-owned replay. Do not resubmit a changed body under the same UUID or bypass reconciliation with timers.
 - Cognitive overlays stay **proposed** until explicitly activated (`GLITCH_TOPSTEP_AUTO_ACTIVATE_OVERLAY=false` by default).
 
-The current gateway implements one-account/contract scope, tranche-aware `MOVE_STOP`/`MOVE_TP`, native protection/rearm, durable mutation ownership, and restart reconciliation in source and deterministic fixtures. Real ProjectX mutation acceptance, historical identity retention, sustained evidence-rate measurement, and operator beta promotion remain open in the gateway ledger; the profile must not overstate those external proofs.
+The current gateway implements one-account/contract scope, tranche-aware `MOVE_STOP`/`MOVE_TP`, partial `EXIT`, native protection/rearm, durable mutation ownership, and restart reconciliation in source and deterministic fixtures. Hermes may use only actions advertised in `execution.supported_actions`. Real ProjectX mutation acceptance beyond current operator evidence, historical identity retention, sustained evidence-rate measurement, canonical outcome learning input, and operator beta promotion remain open in the gateway ledger; the profile must not overstate those external proofs. There is still no native TP1/TP2/TP3 multi-leg entry beyond a single `take_profit_1` bracket.
 
 ---
 

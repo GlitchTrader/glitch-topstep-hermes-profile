@@ -83,6 +83,31 @@
       ]
     },
     {
+      "id": "RAIL-009",
+      "title": "Promote gateway position management in Hermes cognition",
+      "status": "done",
+      "priority": "P0",
+      "owner_role": "coder",
+      "acceptance": [
+        "SOUL, skills, and cycle prompt advertise MOVE_STOP, MOVE_TP, partial EXIT, scale-in, and multi-tranche target_intent_id when gateway PM acceptance is green.",
+        "run-topstep-cycle validates amendment and exit intent shapes against glitch.intent.v2.",
+        "MOVE_STOP and MOVE_TP are rejected locally when absent from execution.supported_actions."
+      ],
+      "depends_on": [
+        "GTHP-009"
+      ],
+      "evidence": [
+        "2026-08-03: gateway PM-0..PM-4 live acceptance on PRAC (glitch-topstep PR #38, PARITY.md).",
+        "2026-08-03: SOUL.md, topstep-build-intent, topstep-assess-risk, topstep-form-thesis, run-topstep-cycle prompt_version glitch-topstep-v3."
+      ],
+      "sources": [
+        "SOUL.md",
+        "skills/topstep-build-intent/SKILL.md",
+        "scripts/run-topstep-cycle.py",
+        "tests/test_direct_cycle.py"
+      ]
+    },
+    {
       "id": "PROFILE-BETA-01",
       "title": "Prove the immutable Topstep Hermes profile against the paired gateway beta artifact",
       "status": "external_acceptance_required",
@@ -92,6 +117,7 @@
       "depends_on": [
         "GTHP-009",
         "GTHP-010",
+        "RAIL-009",
         "glitch-topstep:TS-R1-04",
         "glitch-topstep:TS-R2-06",
         "glitch-topstep:TS-R2-07"

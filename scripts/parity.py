@@ -22,7 +22,7 @@ from common import (
     write_json_atomic,
 )
 
-PROMPT_VERSION = "glitch-topstep-v2"
+PROMPT_VERSION = "glitch-topstep-v3"
 CURRENT_PLAN_SCHEMA = "glitch.topstep.portfolio_plan.v1"
 CURRENT_GUIDANCE_SCHEMA = "glitch.topstep.guidance.v1"
 RETRYABLE_ATTEMPT_STATUSES = frozenset(

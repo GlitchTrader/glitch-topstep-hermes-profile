@@ -16,7 +16,7 @@
 - Cognitive overlays: proposed, not activated.
 - Scheduled model toolsets: memory only.
 - Flat cognition: one call per minute by default; operators may reduce flat cadence explicitly.
-- Positioned cognition: one call per minute; actions derive from packet `execution.supported_actions`.
+- Positioned cognition: one call per minute; manage with `HOLD`, `MOVE_STOP`, `MOVE_TP`, partial or full `EXIT`, and scale-in only when advertised in `execution.supported_actions`.
 
 ## Incident controls
 

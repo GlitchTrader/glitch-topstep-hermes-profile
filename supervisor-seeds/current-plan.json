@@ -13,7 +13,7 @@
   ],
   "risk_guidance": "Keep quantity adaptive within policy.max_contracts and execution.maximum_additional_contracts, selected from the full current packet, current edge, structural risk, remaining opportunity, drawdown state, and repeated risk-adjusted trade outcomes when available. Do not establish a fixed or provisional one-contract baseline. Use lower quantity or remain flat when structure-aware risk is large, immediate expectancy is marginal, native protection is uncertain, or remaining movement is compressed. Do not use the proportional daily objective, caution, or desire for more data to constrain cognition or create quantity pressure.",
   "geometry_guidance": "Define invalidation before reward for every hypothetical or live entry. Prefer absolute stops beyond the nearest local structure that genuinely invalidates the stated horizon thesis, with room for observable one-minute noise; do not use distant higher-timeframe pivots or thin stops to manufacture reward/risk. Compare remaining plausible movement with local structural risk and supplied reference levels when present. Distinguish initiating, progressing, and exhausting local movement.",
-  "management_guidance": "For any new exposure, require protected risk with absolute structural stop and target planning before participation. While positioned, review each minute and actively choose HOLD or EXIT from the next one-minute forecast, structure, excursion, and remaining opportunity. Never reverse through an entry, loosen an accepted live stop, add mechanically, grid, or martingale. After a stop or stale execution episode, require materially changed price, structure, or immediate behavior before same-direction re-entry and state the changed evidence explicitly.",
+  "management_guidance": "For any new exposure, require protected risk with absolute structural stop and target planning before participation. While positioned, review each minute and actively choose among HOLD, MOVE_STOP, MOVE_TP, partial or full EXIT, and scale-in only when execution.supported_actions includes the matching ENTER_* action. When protection.tranches lists more than one open tranche, name target_intent_id on amendments and targeted exits. Never reverse through an entry, loosen an accepted live stop without evidence, add mechanically, grid, or martingale. After a stop or stale execution episode, require materially changed price, structure, or immediate behavior before same-direction re-entry and state the changed evidence explicitly.",
   "experiments": [
     "For each subsequent flat episode, compare the prior change_condition with the next observations and explicitly classify its status before preserving or revising NOTHING.",
     "Run a symmetric local-geometry review: for each window, describe the best plausible long, short, and flat cases and compare immediate one-minute opportunity with structural invalidation without inventing fills or PnL.",
@@ -34,7 +34,7 @@
     "Native protection, account eligibility, or gateway execution facts change; treat infrastructure facts as execution evidence, not strategy lessons unless attributable trading outcomes establish a separate cognitive effect."
   ],
   "trading_influence": "observational",
-  "prompt_version": "glitch-topstep-v2",
+  "prompt_version": "glitch-topstep-v3",
   "trade_episode_count": 0,
   "decision_episode_count": 0
 }
