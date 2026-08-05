@@ -1,9 +1,9 @@
 {
   "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-08-05",
+  "updated": "2026-07-31",
   "release_target": "paired gateway/profile beta",
-  "profile_version": "0.1.17",
+  "profile_version": "0.1.19",
   "gateway": {
     "repository": "GlitchTrader/glitch-topstep",
     "current_version": "0.1.4",
@@ -372,6 +372,115 @@
         "scripts/run-topstep-learning.py",
         "docs/specs/GTHP-017.md",
         "glitch-topstep:docs/specs/TS-R3-04.md"
+      ]
+    },
+    {
+      "id": "GTHP-018",
+      "title": "Market quiescence evidence gate for flat direct-operator cycles",
+      "status": "open",
+      "priority": "P1",
+      "owner_role": "coder",
+      "issue": 61,
+      "depends_on": [
+        "GTHP-009",
+        "GTHP-014",
+        "glitch-topstep:TS-R4-07"
+      ],
+      "acceptance": [
+        "Flat + market_quiescent evidence skips Luna; events.jsonl records market_quiescent not session_closed.",
+        "Evidence uses stale quote age plus zero/minimal tape thresholds, not wall-clock RTH alone.",
+        "run-topstep-learning.py is not gated by quiescence.",
+        "Positioned cycles and wake triggers still invoke Luna.",
+        "docs/specs/GTHP-018.md and tests/test_direct_cycle.py coverage."
+      ],
+      "stop_line": "No hidden strategy gate; no learning cron suppression; no skip when positioned.",
+      "evidence": [
+        "2026-08-05 PRAC: 16:00-17:00 CDT maintenance — 12x llm_skipped stale_gateway_quote, trade_count_60s=0.",
+        "docs/specs/GTHP-018.md"
+      ],
+      "sources": [
+        "scripts/parity.py",
+        "scripts/run-topstep-cycle.py",
+        "docs/OPERATIONS.md",
+        "docs/specs/GTHP-018.md",
+        "glitch-topstep:docs/specs/TS-R4-07.md"
+      ]
+    },
+    {
+      "id": "GTHP-019",
+      "title": "Persistent wake triggers and durable changeWhen monitor",
+      "status": "open",
+      "priority": "P1",
+      "owner_role": "architect",
+      "issue": 62,
+      "depends_on": [
+        "GTHP-009",
+        "GTHP-018",
+        "glitch-topstep:TS-R4-07"
+      ],
+      "acceptance": [
+        "supervisor/active-wake-triggers.json schema documented and survives restarts.",
+        "Monitor evaluates triggers against gateway evidence; fired trigger invokes direct-cycle with wake_reason.",
+        "Dedup cooldown documented; GTHP-018 quiescence skip respected when flat.",
+        "docs/specs/GTHP-019.md and regression tests."
+      ],
+      "stop_line": "Triggers schedule invocation only — no pre-baked trade decisions or hidden ENTER veto.",
+      "sources": [
+        "scripts/parity.py",
+        "supervisor/active-wake-triggers.json",
+        "docs/specs/GTHP-019.md",
+        "glitch-topstep:docs/specs/TS-R4-07.md"
+      ]
+    },
+    {
+      "id": "GTHP-020",
+      "title": "Selective V2 skills (orderflow, session, post-trade)",
+      "status": "open",
+      "priority": "P2",
+      "owner_role": "architect",
+      "issue": 63,
+      "depends_on": [
+        "GTHP-010",
+        "GTHP-012",
+        "glitch-topstep:TS-R4-07",
+        "glitch-topstep:TS-R4-08"
+      ],
+      "acceptance": [
+        "skills/orderflow-liquidity, session-playbook, post-trade-review each have SKILL.md.",
+        "SOUL.md references skills without contradicting GTHP-009 or AUTHORITY.",
+        "No guardian auto-flatten or hidden execution gates via skills.",
+        "docs/specs/GTHP-020.md."
+      ],
+      "stop_line": "Do not port v2 guardian, multi-account, or glitch-decision-v2 schema.",
+      "sources": [
+        "SOUL.md",
+        "skills/",
+        "docs/specs/GTHP-020.md"
+      ]
+    },
+    {
+      "id": "GTHP-021",
+      "title": "Learning calibration and similar-decision grouping",
+      "status": "open",
+      "priority": "P2",
+      "owner_role": "architect",
+      "issue": 64,
+      "depends_on": [
+        "GTHP-012",
+        "GTHP-015"
+      ],
+      "acceptance": [
+        "Learning worker emits descriptive similarity clusters without auto-activating overlays.",
+        "outcome_backed gate unchanged; no anti-abstention or trade quotas.",
+        "Bounded cluster tail may appear in direct-cycle ledger when configured.",
+        "docs/specs/GTHP-021.md and tests/test_learning.py."
+      ],
+      "stop_line": "Similarity clusters inform cognition only — no automatic intent submission or gateway gates.",
+      "sources": [
+        "scripts/run-topstep-learning.py",
+        "scripts/parity.py",
+        "docs/specs/GTHP-021.md",
+        "tests/test_learning.py"
       ]
     }
   ]
