@@ -17,6 +17,7 @@
 - Scheduled model toolsets: memory only.
 - Flat cognition: one call per minute by default; operators may reduce flat cadence explicitly.
 - Flat cognition outside the gateway `session.entry_window_open` window is skipped by default (`GLITCH_TOPSTEP_RESPECT_SESSION_GATE=true`); positioned cycles, operator directives, and wake triggers still invoke. Set `GLITCH_TOPSTEP_SESSION_GATE_OVERRIDE=true` for PRAC acceptance outside RTH.
+- Flat cognition during **market quiescence** (stale quote plus minimal tape) is skipped by default (`GLITCH_TOPSTEP_SKIP_MARKET_QUIESCENT=true`, GTHP-018). Evidence requires `data_quality.quote_age_ms` above `GLITCH_TOPSTEP_MAX_QUOTE_AGE_MS` (default 6000) or `quote_stale` in `data_quality.issues`, and `order_flow` 60s `trade_count` at or below `GLITCH_TOPSTEP_QUIESCENT_MAX_TRADE_COUNT_60S` (default 0). Events record `market_quiescent`, not `session_closed`. Legacy `GLITCH_TOPSTEP_SKIP_STALE_GATEWAY_EVIDENCE=true` is an alias. Set `GLITCH_TOPSTEP_SKIP_MARKET_QUIESCENT=false` to invoke Luna on every flat cadence tick regardless of tape. The learning supervisor is never gated by quiescence.
 - Positioned cognition: one call per minute; manage with `HOLD`, `MOVE_STOP`, `MOVE_TP`, partial or full `EXIT`, and scale-in only when advertised in `execution.supported_actions`.
 
 ## Incident controls

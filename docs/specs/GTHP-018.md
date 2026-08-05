@@ -1,6 +1,6 @@
 # GTHP-018 — Market quiescence evidence gate (flat direct-operator)
 
-**Status:** open  
+**Status:** done  
 **Priority:** P1  
 **Issue:** [#61](https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/61)  
 **Profile version target:** 0.1.20+  
