@@ -9,7 +9,12 @@ sys.path.insert(0, str(SCRIPTS))
 
 import common as common_module
 import compatibility as compatibility_module
-from distribution_manifest import read_distribution_version
+import parity as parity_module
+from distribution_manifest import (
+    PROMPT_VERSION,
+    TESTED_GATEWAY_VERSION,
+    read_distribution_version,
+)
 
 
 COMPATIBLE_HEALTH = {
@@ -18,7 +23,7 @@ COMPATIBLE_HEALTH = {
     "trading_mode": "shadow",
     "compatibility": {
         "gateway_name": "glitch-topstep",
-        "gateway_version": "0.1.2",
+        "gateway_version": TESTED_GATEWAY_VERSION,
         "health_schema": "glitch.direct.health.v2",
         "intent_schemas": ["glitch.intent.v2"],
         "decision_packet_schemas": [
@@ -42,11 +47,27 @@ class CompatibilityTests(unittest.TestCase):
             read_distribution_version(ROOT),
         )
 
+    def test_prompt_version_matches_parity(self):
+        self.assertEqual(parity_module.PROMPT_VERSION, PROMPT_VERSION)
+        self.assertEqual(
+            compatibility_module.PROFILE_COMPATIBILITY["prompt_version"],
+            PROMPT_VERSION,
+        )
+
+    def test_tested_gateway_version_matches_manifest(self):
+        self.assertEqual(
+            compatibility_module.PROFILE_COMPATIBILITY["tested_gateway_version"],
+            TESTED_GATEWAY_VERSION,
+        )
+
     def test_compatible_health_passes(self):
         compatibility_module.verify_gateway_compatibility(COMPATIBLE_HEALTH)
         self.assertEqual(
             compatibility_module.compatibility_summary(COMPATIBLE_HEALTH),
-            f"compatible (profile {read_distribution_version(ROOT)}, gateway 0.1.2)",
+            (
+                f"compatible (profile {read_distribution_version(ROOT)}, "
+                f"gateway {TESTED_GATEWAY_VERSION})"
+            ),
         )
 
     def test_missing_contract_fails_closed(self):
