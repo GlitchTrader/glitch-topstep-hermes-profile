@@ -27,6 +27,8 @@ FRAME_PACKET_KEYS = (
     "data_quality",
     "execution",
     "policy",
+    "session",
+    "daily_economics",
     "position_state",
     "protection",
     "reconciliation",

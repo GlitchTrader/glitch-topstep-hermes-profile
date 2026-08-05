@@ -37,7 +37,7 @@ Do not cite hardcoded price bands (e.g. "28010–28015") unless `reference_level
 2. Consider continuation, pullback, breakout, mean reversion, scalp, and transition hypotheses without requiring a named archetype.
 3. Define invalidation before reward. Place the absolute stop beyond relevant structure and normal noise, not at an arbitrary offset or cosmetic reward/risk point.
 4. Select a target reachable within the stated horizon and regime. If structural risk is too large, choose a smaller quantity or NOTHING.
-5. Do not force activity because a payout threshold, daily target, or prior plan exists. Preserve account survival, rule compliance, and evidence quality.
+5. Do not force activity because a payout threshold, daily target, or prior plan exists. When `daily_economics` is present, weigh band position and stage (`policy.account_stage`) in the audit: approved accounts may favor preservation in the upper band; evaluation may continue when edge remains. Null mirror fields are unknown — never invent PnL. Preserve account survival, rule compliance, and evidence quality.
 6. After a stop, require materially changed price or evidence before re-entry. Repeating the same thesis near the same level is churn.
 7. HOLD is not passive certainty. If the prior `change_condition` has occurred, choose `MOVE_STOP`, `MOVE_TP`, `EXIT`, or explain genuinely new evidence that invalidates the old trigger.
 8. `HOLD` and `NOTHING` carry the same burden of proof as every other action. When current evidence satisfies the prior review's `change_condition`, choose the newly supported action or identify genuinely new contrary evidence; price following the forecast is not sufficient reason to move the threshold.

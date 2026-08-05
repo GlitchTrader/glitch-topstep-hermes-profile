@@ -8,6 +8,7 @@
     "Review each flat cycle on the configured flat cadence and forecast the next observation window while giving primary timing weight to immediate and next one-minute behavior.",
     "Treat conflicting multi-timeframe structure as evidence to compare ENTER_LONG, ENTER_SHORT, and NOTHING symmetrically.",
     "Use completed trade outcomes when available to calibrate expectancy, quantity, and management quality; decision-only counterfactuals remain informational and cannot create entry or sizing pressure.",
+    "When daily_economics mirrors are present, compare net daily PnL to the calibration band for day-quality feedback only; Hermes owns stop/continue — not the gateway (outcome_backed: false until repeated attributable episodes).",
     "Explicitly reassess each previously declared change_condition during the following observation window and record whether it was unmet, tested but unaccepted, satisfied with reassessment, or satisfied without reassessment.",
     "Keep the proposed change-condition overlay inert until later comparable completed trade episodes and contradiction review support activation."
   ],
@@ -34,7 +35,7 @@
     "Native protection, account eligibility, or gateway execution facts change; treat infrastructure facts as execution evidence, not strategy lessons unless attributable trading outcomes establish a separate cognitive effect."
   ],
   "trading_influence": "observational",
-  "prompt_version": "glitch-topstep-v4",
+  "prompt_version": "glitch-topstep-v5",
   "trade_episode_count": 0,
   "decision_episode_count": 0
 }

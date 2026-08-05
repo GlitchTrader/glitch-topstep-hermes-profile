@@ -37,6 +37,12 @@ def sample_packet() -> dict:
         "data_quality": {"state_complete": True, "issues": []},
         "execution": {"gateway_mode": "shadow"},
         "policy": {"max_contracts": 5},
+        "daily_economics": {
+            "authority": "reconciled_trades",
+            "trading_day_id": "2099-01-01",
+            "net_daily_pnl_pct": 1.01,
+            "calibration_band_pct": {"low": 0.4, "high": 2.0},
+        },
         "required_output_template": {
             "schema_version": "glitch.intent.v2",
             "action": "NOTHING",
@@ -94,6 +100,14 @@ class PacketModelTests(unittest.TestCase):
         frame["packet"] = packet
         snapshot = frame_for_model(frame)["packet"]
         self.assertEqual(frame_packet_keys(snapshot), frame_packet_keys(packet))
+
+    def test_frame_for_model_preserves_daily_economics(self):
+        packet = sample_packet()
+        frame = copy.deepcopy(sample_frame())
+        frame["packet"] = packet
+        snapshot = frame_for_model(frame)["packet"]
+        self.assertIn("daily_economics", snapshot)
+        self.assertEqual(snapshot["daily_economics"]["net_daily_pnl_pct"], 1.01)
 
     def test_frame_for_model_handles_missing_packet(self):
         value = frame_for_model({"minute_id": "x", "captured_utc": "y"})

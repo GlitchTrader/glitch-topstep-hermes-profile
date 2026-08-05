@@ -134,6 +134,19 @@ class LearningTests(unittest.TestCase):
         self.assertIn("maintenance learning journal", prompt)
         self.assertIn("Do not reconstruct a whole trading session", prompt)
 
+    def test_hourly_prompt_references_daily_economics_without_entry_pressure(self):
+        template = MODULE.output_template("hourly", ["e1"])
+        prompt = MODULE.prompt_for("hourly", {"episodes": []}, template, {})
+        self.assertIn("daily_economics", prompt)
+        self.assertIn("without creating entry pressure", prompt)
+
+    def test_planning_prompt_allows_daily_intent_band_questions_not_quotas(self):
+        template = MODULE.output_template("planning", ["r1"])
+        prompt = MODULE.prompt_for("planning", {"reviews": []}, template, {})
+        self.assertIn("daily_economics", prompt)
+        self.assertIn("stop-trading questions", prompt)
+        self.assertIn("not quotas", prompt)
+
     def test_collect_decision_episode_from_flat_nothing(self):
         with tempfile.TemporaryDirectory() as root:
             state_root = Path(root) / "state"

@@ -1,6 +1,6 @@
 # GTHP-017 — Daily economics as cognition evidence (eval vs approved)
 
-**Status:** planned  
+**Status:** done  
 **Priority:** P1 cognition / account objectives  
 **Profile version target:** 0.1.15+ (`prompt_version` bump when implemented)  
 **Gateway dependency:** `glitch-topstep:TS-R3-04` (packet mirror; profile phase A may ship with existing `policy.*` only)  
