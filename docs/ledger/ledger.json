@@ -3,10 +3,10 @@
   "project": "glitch-topstep-hermes-profile",
   "updated": "2026-08-05",
   "release_target": "paired gateway/profile beta",
-  "profile_version": "0.1.6",
+  "profile_version": "0.1.17",
   "gateway": {
     "repository": "GlitchTrader/glitch-topstep",
-    "current_version": "0.1.3",
+    "current_version": "0.1.4",
     "intent_schema": "glitch.intent.v2",
     "decision_packet_schemas": [
       "glitch.direct.decision_packet.v1",
@@ -140,7 +140,7 @@
         "docs/evidence/PROFILE-BETA-01-prac-session-2026-08-03.receipts.jsonl",
         "docs/evidence/PROFILE-BETA-01-prac-session-2026-08-03.gateway-receipts.jsonl"
       ],
-      "stop_line": "No unattended evaluation/live claim until TS-BETA-01 operator promotion and canonical outcome stream are complete."
+      "stop_line": "No unattended evaluation/live claim. TS-BETA-01 promoted 2026-08-05 via operator shortcut acceptance (gateway docs/evidence/TS-BETA-01-immutable-baseline-2026-08-04.md)."
     },
     {
       "id": "RAIL-010",
