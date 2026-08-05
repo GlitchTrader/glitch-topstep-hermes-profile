@@ -200,7 +200,7 @@
     {
       "id": "GTHP-012",
       "title": "Learning parity with Glitch NT supervisor (ingestion, rich outcomes, feedback loop)",
-      "status": "planned",
+      "status": "done",
       "priority": "P1",
       "owner_role": "architect",
       "issue": 45,
@@ -220,7 +220,10 @@
       "stop_line": "Do not port NT master/follower replication or Apex multi-account semantics; do not let learning submit intents or bypass outcome_backed gates.",
       "evidence": [
         "2026-08-03: NT vs Topstep learning comparison documented.",
-        "docs/specs/GTHP-012.md"
+        "2026-08-05: learning worker sync_gateway_outcomes_meta on every run; rejection_class on decision episodes; debrief outcome_execution v1.1; outcome_backed_lessons in direct-cycle ledger context.",
+        "2026-08-05: PRAC acceptance — TS-R3-03 closed; learning_eligible outcomes debriefed into trade-episodes.jsonl.",
+        "docs/specs/GTHP-012.md",
+        "tests/test_learning.py"
       ],
       "sources": [
         "scripts/run-topstep-learning.py",

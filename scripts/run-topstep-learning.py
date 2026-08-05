@@ -34,12 +34,14 @@ from common import (
     profile_root,
     read_jsonl,
     read_optional_json,
+    sync_gateway_outcomes_meta,
     utc_now,
     write_json_atomic,
 )
 from parity import (
     PROMPT_VERSION,
     classify_delivery_result,
+    classify_gateway_rejection,
     debrief_evidence,
     frame_for_packet_id,
     suggest_flat_abstention_classification,
@@ -174,6 +176,7 @@ def collect_decision_episodes(state_root: Path, supervisor: Path) -> list[dict[s
         forward_low = min(row["low"] for row in future)
         account = packet.get("account") if isinstance(packet.get("account"), dict) else {}
         contract = packet.get("contract") if isinstance(packet.get("contract"), dict) else {}
+        delivery_result = receipt.get("result") if isinstance(receipt.get("result"), dict) else {}
         records.append({
             "schema_version": "glitch.topstep.decision_episode.v1",
             "episode_id": stable_id("decision-episode", intent_id),
@@ -200,7 +203,8 @@ def collect_decision_episodes(state_root: Path, supervisor: Path) -> list[dict[s
                 )
                 if key in intent
             },
-            "delivery_result": receipt.get("result"),
+            "delivery_result": delivery_result,
+            "rejection_class": classify_gateway_rejection(delivery_result),
             "evidence_kind": "flat_nothing" if flat_nothing else "rejected_or_nonexecuted_intent",
             "forward_observation_count": len(future),
             "forward_observations": future,
@@ -728,6 +732,7 @@ def persist_hourly(record: dict[str, Any], supervisor: Path, episode_ids: list[s
     append_unique(supervisor / "observations.jsonl", [record], "review_id")
     trade_count = len(trade_evidence_ids(supervisor))
     decision_count = len(read_jsonl(supervisor / "decision-episodes.jsonl"))
+    lesson_influence = "outcome_backed" if trade_count >= 2 else "observational"
     guidance = {
         "schema_version": "glitch.topstep.guidance.v1",
         "guidance_id": stable_id("guidance", str(record["review_id"])),
@@ -750,6 +755,7 @@ def persist_hourly(record: dict[str, Any], supervisor: Path, episode_ids: list[s
             "lesson_id": str(lesson.get("lesson_id") or stable_id("lesson", f"{record['review_id']}:{index}")),
             "recorded_utc": utc_now(),
             "source_review_id": record["review_id"],
+            "trading_influence": lesson_influence,
             **lesson,
         })
     append_unique(supervisor / "lessons.jsonl", lessons, "lesson_id")
@@ -771,6 +777,7 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
     supervisor.mkdir(parents=True, exist_ok=True)
     state_path = supervisor / "learning-state.json"
     state = read_optional_json(state_path) or {"schema_version": "glitch.topstep.learning_state.v1"}
+    sync_meta = sync_gateway_outcomes_meta(state_root)
     outcomes = valid_outcomes(outcomes_path(root))
     episodes = read_jsonl(supervisor / "trade-episodes.jsonl")
     processed = set(state.get("debriefed_outcome_ids", [])) | {
@@ -786,6 +793,8 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
         decision_episodes = read_jsonl(supervisor / "decision-episodes.jsonl")
     result: dict[str, Any] = {
         "feed_fresh": feed_fresh,
+        "outcomes_synced": int(sync_meta.get("added") or 0),
+        "outcomes_sync_http_status": sync_meta.get("http_status"),
         "debriefed": 0,
         "hourly": False,
         "planning": False,
@@ -819,6 +828,9 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
     )
     if feed_fresh and (hourly_due or args.force_loop == "hourly") and args.force_loop in {None, "hourly"}:
         review_id = stable_id("hourly", now.strftime("%Y%m%dT%H"))
+        overlay = read_optional_json(supervisor / "active-cognitive-overlay.json")
+        if overlay and overlay.get("status") not in {"active", "promoted"}:
+            overlay = None
         if not args.dry_run:
             record = invoke_loop(
                 args,
@@ -828,6 +840,7 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
                     "decision_episodes": bounded_learning_rows(
                         decision_episodes[supervision_decision_cursor:], 24, 220_000
                     ),
+                    "active_cognitive_overlay": overlay,
                     "scope": {"kind": "supervision_delta", "since_utc": state.get("last_hourly_utc")},
                 },
                 [review_id],

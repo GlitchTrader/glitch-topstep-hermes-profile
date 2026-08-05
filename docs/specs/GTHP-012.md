@@ -1,6 +1,6 @@
 # GTHP-012 — Learning parity with Glitch NT supervisor
 
-**Status:** planned  
+**Status:** done  
 **Priority:** P1 learning quality  
 **Profile version target:** 0.1.14+  
 **Gateway dependency:** `glitch-topstep:TS-R3-03`  

@@ -78,7 +78,7 @@ A packet cannot trigger a second model call after an attempt record exists. An e
 
 ## Learning
 
-The 15-minute cron job launches a separately locked process and returns immediately. The learning worker calls Sol only when canonical evidence makes a loop due:
+The 30-minute cron job launches a separately locked process and returns immediately. The learning worker syncs gateway outcomes on every run, independent of the direct decision cron, and calls Sol only when canonical evidence makes a loop due:
 
 - debrief new canonical outcomes;
 - hourly review when new episodes exist;
