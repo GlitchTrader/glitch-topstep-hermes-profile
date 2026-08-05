@@ -55,6 +55,7 @@ def sample_packet() -> dict:
                 "windows": [
                     {"window_seconds": 15, "rolling_delta": 4},
                     {"window_seconds": 60, "rolling_delta": 12},
+                    {"window_seconds": 300, "rolling_delta": 99},
                 ],
                 "depth": {
                     "best_bid": 19999.75,
@@ -120,8 +121,11 @@ class PacketModelTests(unittest.TestCase):
         self.assertEqual(timeframes[0]["features"]["latest_close"], 20000)
         self.assertNotIn("gaps", timeframes[0])
         windows = value["order_flow"]["observation"]["windows"]
-        self.assertEqual(len(windows), 1)
-        self.assertEqual(windows[0]["rolling_delta"], 12)
+        self.assertEqual(len(windows), 3)
+        self.assertEqual(
+            [window["window_seconds"] for window in windows],
+            [15, 60, 300],
+        )
         self.assertNotIn("bid_levels", value["order_flow"]["observation"]["depth"])
 
     def test_cycle_compact_reduces_prompt_bytes(self):
@@ -164,7 +168,7 @@ class PacketModelTests(unittest.TestCase):
         self.assertEqual(packet["market"]["last"], 20000)
         timeframe = packet["market_observation"]["observation"]["timeframes"][0]
         self.assertEqual(timeframe["features"]["latest_close"], 20000)
-        self.assertEqual(packet["order_flow"]["observation"]["windows"][0]["rolling_delta"], 12)
+        self.assertEqual(packet["order_flow"]["observation"]["windows"][1]["rolling_delta"], 12)
 
     def test_frame_for_model_preserves_semantic_packet_keys(self):
         packet = sample_packet()

@@ -179,10 +179,10 @@ def adaptive_decision_frame_count(packet: dict[str, Any]) -> int:
     try:
         flat_frames = max(
             1,
-            int(os.environ.get("GLITCH_TOPSTEP_FLAT_FRAME_COUNT", "2")),
+            int(os.environ.get("GLITCH_TOPSTEP_FLAT_FRAME_COUNT", "4")),
         )
     except ValueError:
-        flat_frames = 2
+        flat_frames = 4
     return min(max_frames, flat_frames)
 
 
@@ -428,6 +428,33 @@ def recent_frames(root: Path, limit: int | None = None) -> list[dict[str, Any]]:
         if value:
             values.append(value)
     return values
+
+
+def exclude_current_cycle_frame(
+    packet: dict[str, Any],
+    frames: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    current_id = str(packet.get("packet_id") or "")
+    current_minute = parse_utc(packet["created_utc"]).strftime("%Y%m%dT%H%MZ")
+    filtered: list[dict[str, Any]] = []
+    for frame in frames:
+        frame_packet = frame.get("packet")
+        if isinstance(frame_packet, dict):
+            if str(frame_packet.get("packet_id") or "") == current_id:
+                continue
+        if str(frame.get("minute_id") or "") == current_minute:
+            continue
+        filtered.append(frame)
+    return filtered
+
+
+def cycle_recent_frames(
+    root: Path,
+    packet: dict[str, Any],
+) -> list[dict[str, Any]]:
+    limit = adaptive_decision_frame_count(packet)
+    # ponytail: fetch one extra because capture_frame writes the current minute first
+    return exclude_current_cycle_frame(packet, recent_frames(root, limit + 1))[:limit]
 
 
 def packet_for_model(packet: dict[str, Any]) -> dict[str, Any]:
@@ -1128,7 +1155,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         )
         return 0
 
-    frames = recent_frames(state, adaptive_decision_frame_count(packet))
+    frames = cycle_recent_frames(state, packet)
 
     packet_id = str(packet.get("packet_id") or "")
     if not packet_id:
