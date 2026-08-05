@@ -2,7 +2,7 @@
 
 **Issue:** #43  
 **Priority:** P1  
-**Profile version:** 0.1.18  
+**Profile version:** 0.1.19  
 **Prompt version:** `glitch-topstep-v5` (unchanged; slimming is transport-only)
 
 ## Goal
@@ -14,7 +14,7 @@ Reduce peak direct-cycle stdin by ~40–50% without introducing hidden cognition
 - `decision_packet` omits duplicate `required_output_template` (template stays once in the envelope root).
 - `packet_for_cycle()` compacts nested `market_observation` (features-only timeframes) and `order_flow` (15s/60s/300s windows + shallow depth).
 - `recent_frames` exclude the current-minute duplicate after `capture_frame()`; flat cycles default to four historical frames (`GLITCH_TOPSTEP_FLAT_FRAME_COUNT`).
-- `recent_glitch_ledger` tails shrink to four compact rows per stream; latest `change_condition` stays full; receipts omit empty rows and surface nested gateway `status`/`code`.
+- `recent_glitch_ledger` tails shrink to four compact rows per stream; the two latest `change_condition` values stay full; older rows truncate `change_condition` and `reason`.
 - `outcome_summary` aggregates trade count, net/fees, expectancy, side mix, and win/loss/inconclusive counts without full outcome blobs.
 - Operator instruction text consolidated to `CYCLE_OPERATOR_INSTRUCTION` without doctrine loss.
 
