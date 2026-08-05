@@ -9,7 +9,7 @@ import parity as parity_module  # noqa: E402
 
 
 class CompactLedgerTests(unittest.TestCase):
-    def test_latest_change_condition_is_preserved(self):
+    def test_latest_two_change_conditions_are_preserved(self):
         rows = [
             {
                 "recorded_utc": "t-1",
@@ -19,7 +19,7 @@ class CompactLedgerTests(unittest.TestCase):
                     "reason": "old",
                     "decision_audit": {
                         "final_choice": "NOTHING",
-                        "change_condition": "x" * 300,
+                        "change_condition": "a" * 300,
                     },
                 },
             },
@@ -28,10 +28,22 @@ class CompactLedgerTests(unittest.TestCase):
                 "packet_id": "p-2",
                 "intent": {
                     "action": "NOTHING",
+                    "reason": "mid",
+                    "decision_audit": {
+                        "final_choice": "NOTHING",
+                        "change_condition": "b" * 300,
+                    },
+                },
+            },
+            {
+                "recorded_utc": "t-3",
+                "packet_id": "p-3",
+                "intent": {
+                    "action": "NOTHING",
                     "reason": "new",
                     "decision_audit": {
                         "final_choice": "NOTHING",
-                        "change_condition": "y" * 300,
+                        "change_condition": "c" * 300,
                     },
                 },
             },
@@ -43,6 +55,7 @@ class CompactLedgerTests(unittest.TestCase):
         )
         self.assertTrue(context["decisions"][0]["change_condition"].endswith("..."))
         self.assertEqual(len(context["decisions"][1]["change_condition"]), 300)
+        self.assertEqual(len(context["decisions"][2]["change_condition"]), 300)
 
     def test_receipt_row_extracts_nested_gateway_status(self):
         row = {

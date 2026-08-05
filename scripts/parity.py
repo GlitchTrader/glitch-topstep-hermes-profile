@@ -293,6 +293,9 @@ def _truncate_text(value: str, limit: int) -> str:
     return text[: max(0, limit - 3)] + "..."
 
 
+FULL_CHANGE_CONDITION_TAIL = 2
+
+
 def compact_decision_row(
     row: dict[str, Any],
     *,
@@ -413,7 +416,7 @@ def compact_cycle_ledger_context(
     compact_decisions = [
         compact_decision_row(
             row,
-            preserve_change_condition=index == len(decisions) - 1,
+            preserve_change_condition=index >= len(decisions) - FULL_CHANGE_CONDITION_TAIL,
         )
         for index, row in enumerate(decisions)
     ]
