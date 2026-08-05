@@ -35,7 +35,7 @@
     "Native protection, account eligibility, or gateway execution facts change; treat infrastructure facts as execution evidence, not strategy lessons unless attributable trading outcomes establish a separate cognitive effect."
   ],
   "trading_influence": "observational",
-  "prompt_version": "glitch-topstep-v5",
+  "prompt_version": "glitch-topstep-v6",
   "trade_episode_count": 0,
   "decision_episode_count": 0
 }

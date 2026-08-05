@@ -114,7 +114,7 @@ class PacketModelTests(unittest.TestCase):
             sample_packet(),
             profile_name="glitch-topstep",
             core_model="gpt-5.6-luna",
-            prompt_version="glitch-topstep-v5",
+            prompt_version="glitch-topstep-v6",
         )
         self.assertNotIn("required_output_template", value)
         timeframes = value["market_observation"]["observation"]["timeframes"]
@@ -145,7 +145,7 @@ class PacketModelTests(unittest.TestCase):
                     bulky,
                     profile_name="glitch-topstep",
                     core_model="gpt-5.6-luna",
-                    prompt_version="glitch-topstep-v5",
+                    prompt_version="glitch-topstep-v6",
                 ),
                 separators=(",", ":"),
             )

@@ -1,9 +1,9 @@
 {
   "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-07-31",
+  "updated": "2026-08-05",
   "release_target": "paired gateway/profile beta",
-  "profile_version": "0.1.20",
+  "profile_version": "0.1.21",
   "gateway": {
     "repository": "GlitchTrader/glitch-topstep",
     "current_version": "0.1.4",
@@ -483,6 +483,39 @@
         "scripts/parity.py",
         "docs/specs/GTHP-021.md",
         "tests/test_learning.py"
+      ]
+    },
+    {
+      "id": "GTHP-022",
+      "title": "Participation breadth — partial timeframe alignment without universal gates",
+      "status": "done",
+      "priority": "P1",
+      "owner_role": "architect",
+      "depends_on": [
+        "GTHP-009",
+        "GTHP-011",
+        "GTHP-017"
+      ],
+      "acceptance": [
+        "SOUL and topstep-form-thesis treat 60m/5m/1m as complementary, not mandatory confirmation.",
+        "Flat audit answers path, move phase, participation condition, and invalidation.",
+        "Retest, closed candle, persistent flow, and full alignment are confidence boosters only.",
+        "prompt_version bump to glitch-topstep-v6; no trade quota or frequency pressure via size/stop.",
+        "docs/specs/GTHP-022.md and regenerated SHA256SUMS."
+      ],
+      "stop_line": "No gateway gates, trade quotas, or anti-abstention pressure; frequency discipline forbids artificial stop thinning or size increase.",
+      "evidence": [
+        "2026-08-05: SOUL ALTERADO sections for partial alignment, expanded hypotheses, frequency discipline.",
+        "skills/topstep-form-thesis Participation breadth section.",
+        "scripts/run-topstep-cycle.py ALTERED PARTICIPATION GUIDANCE in cycle prompt.",
+        "distribution 0.1.21 / prompt_version glitch-topstep-v6."
+      ],
+      "sources": [
+        "SOUL.md",
+        "skills/topstep-form-thesis/SKILL.md",
+        "scripts/run-topstep-cycle.py",
+        "scripts/distribution_manifest.py",
+        "docs/specs/GTHP-022.md"
       ]
     }
   ]
