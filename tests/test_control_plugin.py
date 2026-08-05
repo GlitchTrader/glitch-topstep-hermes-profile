@@ -86,6 +86,46 @@ class ControlPluginTests(unittest.TestCase):
             text = MODULE._status_text()
         self.assertIn("compatibility: compatible", text)
 
+    def test_long_accepts_v2_packet_new_exposure_gate(self):
+        packet = {
+            "instrument": "MNQ",
+            "account": {"name": "PRAC-V2", "instrument_open_contracts": 0},
+            "market": {"snapshot_hash": "hash"},
+            "execution": {
+                "new_exposure_technically_supported": True,
+                "maximum_additional_contracts": 2,
+                "supported_actions": ["ENTER_LONG", "ENTER_SHORT", "NOTHING"],
+            },
+        }
+        with tempfile.TemporaryDirectory() as root, mock.patch.dict(
+            os.environ,
+            {"HERMES_HOME": root},
+        ), mock.patch.object(MODULE, "_request", return_value=(200, packet)), mock.patch.object(
+            MODULE,
+            "_resume_jobs",
+            return_value="glitch-topstep-direct-operator=running",
+        ):
+            text = MODULE._long("teste")
+        self.assertIn("long experiment is queued", text)
+
+    def test_long_rejects_when_new_exposure_not_supported(self):
+        packet = {
+            "instrument": "MNQ",
+            "account": {"name": "PRAC-V2", "instrument_open_contracts": 0},
+            "market": {"snapshot_hash": "hash"},
+            "execution": {
+                "new_exposure_technically_supported": False,
+                "maximum_additional_contracts": 2,
+                "supported_actions": ["ENTER_LONG", "NOTHING"],
+            },
+        }
+        with tempfile.TemporaryDirectory() as root, mock.patch.dict(
+            os.environ,
+            {"HERMES_HOME": root},
+        ), mock.patch.object(MODULE, "_request", return_value=(200, packet)):
+            with self.assertRaisesRegex(RuntimeError, "not entry-eligible"):
+                MODULE._long("teste")
+
     def test_trade_blocks_incompatible_gateway(self):
         incompatible_health = {
             "schema_version": "glitch.direct.health.v2",

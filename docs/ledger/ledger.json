@@ -1,12 +1,12 @@
 {
   "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-08-03",
+  "updated": "2026-08-05",
   "release_target": "paired gateway/profile beta",
   "profile_version": "0.1.6",
   "gateway": {
     "repository": "GlitchTrader/glitch-topstep",
-    "current_version": "0.1.2",
+    "current_version": "0.1.3",
     "intent_schema": "glitch.intent.v2",
     "decision_packet_schemas": [
       "glitch.direct.decision_packet.v1",
@@ -19,7 +19,7 @@
     "cognition": "Hermes owns market judgment, direction, timing, quantity, geometry, management, abstention, review, and learning.",
     "worker": "The profile worker schedules explicit invocations and validates identity/schema/finite values/geometry/directives; it does not turn evidence into a hidden strategy.",
     "gateway": "The gateway owns authenticated ProjectX evidence, account and contract identity, factual execution boundaries, native mutation, protection, reconciliation, and receipts.",
-    "objective": "Optimize long-run after-fee expectancy, survival, and realized payout quality without daily PnL targets, fixed risk, quantity baselines, or trade quotas."
+    "objective": "Optimize long-run after-fee expectancy, survival, and realized payout quality. Daily profit and payout progress are Hermes objectives backed by packet evidence—not deterministic Glitch gates, quotas, or fixed risk baselines."
   },
   "history": {
     "previous_schema": "1.0",
@@ -168,6 +168,36 @@
       ]
     },
     {
+      "id": "GTHP-011",
+      "title": "Optimize direct-cycle LLM prompt payload",
+      "status": "planned",
+      "priority": "P1",
+      "owner_role": "architect",
+      "issue": 43,
+      "depends_on": [
+        "GTHP-009",
+        "GTHP-010",
+        "RAIL-009"
+      ],
+      "acceptance": [
+        "Baseline prompt byte breakdown per section recorded.",
+        "Phase 1 quick wins reduce peak stdin ~40-50% without repair_rate regression >10%.",
+        "Adaptive frames and compact ledger tails land with tests.",
+        "prompt_version bump to glitch-topstep-v5 when implemented."
+      ],
+      "stop_line": "No cognition veto or hidden strategy introduced via prompt slimming.",
+      "evidence": [
+        "2026-08-03: ~16-20k tokens/cycle baseline documented.",
+        "docs/specs/GTHP-011.md"
+      ],
+      "sources": [
+        "scripts/run-topstep-cycle.py",
+        "scripts/packet_model.py",
+        "scripts/parity.py",
+        "docs/specs/GTHP-011.md"
+      ]
+    },
+    {
       "id": "GTHP-012",
       "title": "Learning parity with Glitch NT supervisor (ingestion, rich outcomes, feedback loop)",
       "status": "planned",
@@ -201,6 +231,136 @@
         "skills/topstep-self-learning/SKILL.md",
         "docs/OUTCOME-CONTRACT.md",
         "docs/specs/GTHP-012.md"
+      ]
+    },
+    {
+      "id": "GTHP-013",
+      "title": "Idempotent intent delivery on duplicate and intent_body_conflict",
+      "status": "done",
+      "priority": "P0",
+      "owner_role": "coder",
+      "issue": 47,
+      "pull_request": 52,
+      "depends_on": [
+        "GTHP-010"
+      ],
+      "acceptance": [
+        "Registered intent + profile transport failure recovers terminal receipt without intent_body_conflict loop.",
+        "Fresh snapshot_hash retry only when intent was not registered.",
+        "Positioned MOVE_STOP, MOVE_TP, and EXIT are not silently dropped after ambiguous delivery.",
+        "tests/test_direct_cycle.py fixtures green."
+      ],
+      "stop_line": "Do not weaken gateway body-hash identity rules.",
+      "evidence": [
+        "2026-08-05: merged PR #52; frozen delivery-wire + reconcile on intent_body_conflict.",
+        "glitch-topstep PR #79 GET /intent/receipt.",
+        "docs/specs/GTHP-013.md"
+      ],
+      "sources": [
+        "scripts/parity.py",
+        "scripts/run-topstep-cycle.py",
+        "tests/test_direct_cycle.py"
+      ]
+    },
+    {
+      "id": "GTHP-014",
+      "title": "Skip flat direct-operator cycles outside RTH/session window",
+      "status": "open",
+      "priority": "P1",
+      "owner_role": "coder",
+      "issue": 48,
+      "depends_on": [
+        "GTHP-009"
+      ],
+      "acceptance": [
+        "Flat + outside configured session window skips Luna; events.jsonl records session_closed.",
+        "Positioned cycles and wake triggers still invoke.",
+        "Operator override documented for PRAC acceptance outside RTH.",
+        "Pairs with glitch-topstep:TS-R3-02 packet session fields when available."
+      ],
+      "sources": [
+        "scripts/parity.py",
+        "scripts/run-topstep-cycle.py",
+        "docs/OPERATIONS.md"
+      ]
+    },
+    {
+      "id": "GTHP-015",
+      "title": "facts_sha256 audit envelope in trade debrief evidence",
+      "status": "open",
+      "priority": "P1",
+      "owner_role": "coder",
+      "issue": 49,
+      "depends_on": [
+        "GTHP-012",
+        "glitch-topstep:TS-R3-03"
+      ],
+      "acceptance": [
+        "debrief_evidence rows include facts and stable facts_sha256.",
+        "Debrief prompt references hash without duplicating full outcome blobs.",
+        "trading_influence outcome_backed gate unchanged."
+      ],
+      "sources": [
+        "scripts/parity.py",
+        "scripts/run-topstep-learning.py",
+        "tests/test_learning.py"
+      ]
+    },
+    {
+      "id": "GTHP-016",
+      "title": "Keep compatibility manifest aligned with profile and prompt versions",
+      "status": "open",
+      "priority": "P2",
+      "owner_role": "release_architecture",
+      "issue": 50,
+      "depends_on": [
+        "GTHP-010"
+      ],
+      "acceptance": [
+        "tests/test_compatibility.py fails on manifest drift from parity.PROMPT_VERSION.",
+        "Single-source version bump checklist in docs/OPERATIONS.md.",
+        "Paired gateway /health compatibility accepts current profile after release."
+      ],
+      "sources": [
+        "scripts/compatibility.py",
+        "scripts/parity.py",
+        "setup.ps1",
+        "tests/test_compatibility.py"
+      ]
+    },
+    {
+      "id": "GTHP-017",
+      "title": "Daily economics as cognition evidence (eval vs approved playbooks)",
+      "status": "planned",
+      "priority": "P1",
+      "owner_role": "architect",
+      "issue": 51,
+      "depends_on": [
+        "GTHP-009",
+        "GTHP-010",
+        "RAIL-010",
+        "glitch-topstep:TS-R3-04"
+      ],
+      "acceptance": [
+        "SOUL and skills distinguish evaluation vs approved daily objectives; Hermes owns stop/continue.",
+        "0.4-2% calibration band documented as objective feedback, not a gateway gate or trade quota.",
+        "Profile consumes policy.daily_economics mirror after TS-R3-04 without inventing null fields.",
+        "Planning/hourly loops may reference band position; GTHP-009 flat evidence and cadence unchanged.",
+        "No engine profit lock or ENTER_* rejection on daily PnL."
+      ],
+      "stop_line": "Do not implement v2 guardian profit lock or gateway daily PnL execution gates.",
+      "evidence": [
+        "2026-08-05: operator direction — daily profit is strategic objective via cognition, not engine lock.",
+        "docs/specs/GTHP-017.md"
+      ],
+      "sources": [
+        "SOUL.md",
+        "skills/topstep-assess-risk/SKILL.md",
+        "skills/topstep-form-thesis/SKILL.md",
+        "scripts/run-topstep-cycle.py",
+        "scripts/run-topstep-learning.py",
+        "docs/specs/GTHP-017.md",
+        "glitch-topstep:docs/specs/TS-R3-04.md"
       ]
     }
   ]
