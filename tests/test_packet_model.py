@@ -1,5 +1,6 @@
 import copy
 import importlib
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -9,8 +10,10 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from packet_model import (  # noqa: E402
     FRAME_SNAPSHOT_SCHEMA,
+    compact_packet_evidence,
     frame_for_model,
     frame_packet_keys,
+    packet_for_cycle,
     packet_for_model,
 )
 
@@ -32,8 +35,36 @@ def sample_packet() -> dict:
             "tick_size": 0.25,
         },
         "market": {"last": 20000, "snapshot_hash": "hash-1"},
-        "market_observation": {"observation": {"timeframes": {"1m": {"close": 20000}}}},
-        "order_flow": {"rolling_windows": {"30s": {"delta": 12}}},
+        "market_observation": {
+            "observation": {
+                "schema_version": "glitch.projectx.market_observation.v1",
+                "timeframes": {
+                    "1m": {
+                        "timeframe_minutes": 1,
+                        "close": 20000,
+                        "bars_received": 500,
+                        "gaps": [{"missing_bars": 3}],
+                        "features": {"latest_close": 20000},
+                    }
+                },
+            }
+        },
+        "order_flow": {
+            "observation": {
+                "schema_version": "glitch.projectx.order_flow.v1",
+                "windows": [
+                    {"window_seconds": 15, "rolling_delta": 4},
+                    {"window_seconds": 60, "rolling_delta": 12},
+                ],
+                "depth": {
+                    "best_bid": 19999.75,
+                    "best_ask": 20000.25,
+                    "spread_ticks": 2,
+                    "bid_levels": [{"price": 1, "current_volume": 99}],
+                    "ask_levels": [{"price": 2, "current_volume": 88}],
+                },
+            }
+        },
         "data_quality": {"state_complete": True, "issues": []},
         "execution": {"gateway_mode": "shadow"},
         "policy": {"max_contracts": 5},
@@ -77,6 +108,51 @@ class PacketModelTests(unittest.TestCase):
         )
         self.assertNotIn("expires_utc", value)
 
+    def test_packet_for_cycle_omits_template_and_compacts_evidence(self):
+        value = packet_for_cycle(
+            sample_packet(),
+            profile_name="glitch-topstep",
+            core_model="gpt-5.6-luna",
+            prompt_version="glitch-topstep-v5",
+        )
+        self.assertNotIn("required_output_template", value)
+        timeframes = value["market_observation"]["observation"]["timeframes"]
+        self.assertEqual(timeframes[0]["features"]["latest_close"], 20000)
+        self.assertNotIn("gaps", timeframes[0])
+        windows = value["order_flow"]["observation"]["windows"]
+        self.assertEqual(len(windows), 1)
+        self.assertEqual(windows[0]["rolling_delta"], 12)
+        self.assertNotIn("bid_levels", value["order_flow"]["observation"]["depth"])
+
+    def test_cycle_compact_reduces_prompt_bytes(self):
+        packet = sample_packet()
+        bulky = copy.deepcopy(packet)
+        bulky["market_observation"]["observation"]["timeframes"]["1m"]["gaps"] = [
+            {"after_utc": "a", "before_utc": "b", "missing_bars": index}
+            for index in range(40)
+        ]
+        bulky["order_flow"]["observation"]["windows"].append(
+            {"window_seconds": 300, "rolling_delta": 99, "trade_count": 500}
+        )
+        full_bytes = len(json.dumps(bulky, separators=(",", ":")))
+        cycle_bytes = len(
+            json.dumps(
+                packet_for_cycle(
+                    bulky,
+                    profile_name="glitch-topstep",
+                    core_model="gpt-5.6-luna",
+                    prompt_version="glitch-topstep-v5",
+                ),
+                separators=(",", ":"),
+            )
+        )
+        self.assertLess(cycle_bytes, full_bytes * 0.55)
+
+    def test_compact_packet_evidence_keeps_features(self):
+        value = compact_packet_evidence(sample_packet())
+        timeframe = value["market_observation"]["observation"]["timeframes"][0]
+        self.assertEqual(timeframe["features"]["latest_close"], 20000)
+
     def test_frame_for_model_is_compact_snapshot(self):
         value = frame_for_model(sample_frame())
         self.assertEqual(value["schema_version"], FRAME_SNAPSHOT_SCHEMA)
@@ -86,11 +162,9 @@ class PacketModelTests(unittest.TestCase):
         self.assertNotIn("required_output_template", packet)
         self.assertNotIn("expires_utc", packet)
         self.assertEqual(packet["market"]["last"], 20000)
-        self.assertEqual(
-            packet["market_observation"]["observation"]["timeframes"]["1m"]["close"],
-            20000,
-        )
-        self.assertEqual(packet["order_flow"]["rolling_windows"]["30s"]["delta"], 12)
+        timeframe = packet["market_observation"]["observation"]["timeframes"][0]
+        self.assertEqual(timeframe["features"]["latest_close"], 20000)
+        self.assertEqual(packet["order_flow"]["observation"]["windows"][0]["rolling_delta"], 12)
 
     def test_frame_for_model_preserves_semantic_packet_keys(self):
         packet = sample_packet()
@@ -99,7 +173,9 @@ class PacketModelTests(unittest.TestCase):
         frame = copy.deepcopy(sample_frame())
         frame["packet"] = packet
         snapshot = frame_for_model(frame)["packet"]
-        self.assertEqual(frame_packet_keys(snapshot), frame_packet_keys(packet))
+        self.assertIn("market", snapshot)
+        self.assertIn("daily_economics", snapshot)
+        self.assertNotIn("protection", snapshot)
 
     def test_frame_for_model_preserves_daily_economics(self):
         packet = sample_packet()
@@ -113,6 +189,10 @@ class PacketModelTests(unittest.TestCase):
         value = frame_for_model({"minute_id": "x", "captured_utc": "y"})
         self.assertEqual(value["schema_version"], FRAME_SNAPSHOT_SCHEMA)
         self.assertEqual(value["packet"], {})
+
+    def test_frame_packet_keys_helper(self):
+        packet = sample_packet()
+        self.assertIn("market", frame_packet_keys(packet))
 
 
 if __name__ == "__main__":

@@ -286,6 +286,68 @@ def read_trading_learning_artifact(path: Path, schema_version: str) -> dict[str,
     return value
 
 
+def _truncate_text(value: str, limit: int) -> str:
+    text = value.strip()
+    if len(text) <= limit:
+        return text
+    return text[: max(0, limit - 3)] + "..."
+
+
+def compact_decision_row(row: dict[str, Any]) -> dict[str, Any]:
+    intent = row.get("intent") if isinstance(row.get("intent"), dict) else {}
+    audit = (
+        intent.get("decision_audit")
+        if isinstance(intent.get("decision_audit"), dict)
+        else {}
+    )
+    return {
+        "recorded_utc": row.get("recorded_utc"),
+        "packet_id": row.get("packet_id"),
+        "action": intent.get("action"),
+        "intent_id": intent.get("intent_id"),
+        "reason": _truncate_text(str(intent.get("reason") or ""), 240),
+        "final_choice": audit.get("final_choice"),
+        "change_condition": _truncate_text(
+            str(audit.get("change_condition") or ""),
+            240,
+        ),
+    }
+
+
+def compact_receipt_row(row: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "recorded_utc": row.get("recorded_utc"),
+        "intent_id": row.get("intent_id"),
+        "status": row.get("status"),
+        "gateway_status": row.get("gateway_status"),
+        "rejection_reason": row.get("rejection_reason"),
+    }
+
+
+def compact_outcome_row(row: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "outcome_id": row.get("outcome_id"),
+        "recorded_utc": row.get("recorded_utc"),
+        "classification": row.get("classification"),
+        "exit_reason": row.get("exit_reason"),
+        "r_multiple": row.get("r_multiple"),
+        "net_pnl_usd": row.get("net_pnl_usd"),
+    }
+
+
+def compact_cycle_ledger_context(
+    *,
+    decisions: list[dict[str, Any]],
+    receipts: list[dict[str, Any]],
+    outcomes: list[dict[str, Any]],
+) -> dict[str, list[dict[str, Any]]]:
+    return {
+        "decisions": [compact_decision_row(row) for row in decisions],
+        "receipts": [compact_receipt_row(row) for row in receipts],
+        "outcomes": [compact_outcome_row(row) for row in outcomes],
+    }
+
+
 def learning_context(supervisor: Path) -> dict[str, Any]:
     overlay = read_optional_json(supervisor / "active-cognitive-overlay.json")
     if (

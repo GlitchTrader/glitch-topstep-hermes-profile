@@ -27,7 +27,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from packet_model import frame_for_model, packet_for_model as build_model_packet
+from packet_model import frame_for_model, packet_for_cycle, packet_for_model as build_model_packet
 from regime import detect_regime
 from common import (
     PROFILE_NAME,
@@ -59,6 +59,7 @@ from parity import (
     apply_cognitive_overlay,
     classify_delivery_result,
     clear_delivery_wire,
+    compact_cycle_ledger_context,
     deliver_packet_intent,
     discard_stale_outbox_intent,
     invocation_reason,
@@ -169,6 +170,20 @@ def decision_frame_count() -> int:
         return max(1, int(os.environ.get("GLITCH_TOPSTEP_DECISION_FRAME_COUNT", "5")))
     except ValueError:
         return 5
+
+
+def adaptive_decision_frame_count(packet: dict[str, Any]) -> int:
+    max_frames = decision_frame_count()
+    if positioned(packet):
+        return max_frames
+    try:
+        flat_frames = max(
+            1,
+            int(os.environ.get("GLITCH_TOPSTEP_FLAT_FRAME_COUNT", "2")),
+        )
+    except ValueError:
+        flat_frames = 2
+    return min(max_frames, flat_frames)
 
 
 def flat_decision_interval_minutes() -> int:
@@ -424,6 +439,15 @@ def packet_for_model(packet: dict[str, Any]) -> dict[str, Any]:
     )
 
 
+def cycle_packet_for_model(packet: dict[str, Any]) -> dict[str, Any]:
+    return packet_for_cycle(
+        packet,
+        profile_name=PROFILE_NAME,
+        core_model=core_model(),
+        prompt_version=PROMPT_VERSION,
+    )
+
+
 def read_directive(root: Path) -> dict[str, Any] | None:
     path = root / "operator-directive.json"
     value = read_optional_json(path)
@@ -476,14 +500,45 @@ def consume_directive(
 def recent_context(root: Path) -> dict[str, Any]:
     supervisor = root / "supervisor"
     context = learning_context(supervisor)
+    tail_limit = 4
     context.update(
-        {
-            "decisions": tail_jsonl(root / "decisions.jsonl", 6),
-            "receipts": tail_jsonl(root / "receipts.jsonl", 6),
-            "outcomes": tail_jsonl(root / "outcomes.jsonl", 6),
-        }
+        compact_cycle_ledger_context(
+            decisions=tail_jsonl(root / "decisions.jsonl", tail_limit),
+            receipts=tail_jsonl(root / "receipts.jsonl", tail_limit),
+            outcomes=tail_jsonl(root / "outcomes.jsonl", tail_limit),
+        )
     )
     return context
+
+
+CYCLE_OPERATOR_INSTRUCTION = (
+    "Apply the Glitch Topstep SOUL and loaded skills to CURRENT_CYCLE. "
+    "You are the trading operator, not a suggestion engine. "
+    "While flat evaluate ENTER_LONG, ENTER_SHORT, and NOTHING symmetrically; "
+    "when positioned evaluate HOLD, MOVE_STOP, MOVE_TP, partial or full EXIT, and scale-in "
+    "only when execution.supported_actions includes the matching ENTER_* action. "
+    "Choose only from execution.supported_actions. "
+    "Multi-tranche protection requires target_intent_id on MOVE_STOP, MOVE_TP, and targeted EXIT. "
+    "decision_packet is the full current gateway snapshot; recent_frames are compact minute continuity "
+    "snapshots (semantic fields only, no templates or lease metadata). "
+    "data_quality, capacity, policy, and daily_economics mirrors are evidence to reason about, "
+    "not automatic cognitive vetoes. Do not invent missing facts. "
+    "The gateway independently verifies ProjectX truth, hard capacity, geometry, loss-floor survival, "
+    "packet issuance, and order transport; rejection is an attributable episode, not pre-emption. "
+    "Entries need positive integer quantity, MARKET, and absolute structural stop and target prices. "
+    "Return exactly one strict glitch.intent.v2 JSON object with no prose. "
+    "Preserve account, instrument, snapshot_hash, and operator_profile exactly. "
+    "decision_audit must include bull_case, bear_case, flat_case, aggressive_case, conservative_case, "
+    "decisive_evidence, disconfirming_evidence, change_condition, and final_choice (matching action). "
+    "Flat NOTHING is active observation: record path, participation condition, and invalidation; "
+    "honor prior change_condition when evidence satisfies it. "
+    "MOVE_STOP needs new_stop_price; MOVE_TP needs new_take_profit or take_profit_1; "
+    "EXIT may omit quantity/exit_fraction for full flat. "
+    "wake_triggers is mandatory: "
+    '[{type:"PRICE_CROSS", direction:"ABOVE"|"BELOW", price:number}]. '
+    "Retrieve durable lessons once via native memory, then return JSON without writing memory. "
+    "CURRENT_CYCLE="
+)
 
 
 def build_prompt(
@@ -493,8 +548,8 @@ def build_prompt(
     directive: dict[str, Any] | None,
     trade_state: dict[str, Any] | None = None,
 ) -> str:
-    model_packet = packet_for_model(packet)
-    template = copy.deepcopy(model_packet.get("required_output_template") or {})
+    model_packet = cycle_packet_for_model(packet)
+    template = copy.deepcopy(packet.get("required_output_template") or {})
     default_action = "HOLD" if positioned(packet) else "NOTHING"
     template.update(
         schema_version="glitch.intent.v2",
@@ -531,47 +586,7 @@ def build_prompt(
     }
 
     return apply_cognitive_overlay(
-        "Apply the Glitch Topstep SOUL and loaded skills to CURRENT_CYCLE. "
-        "You are the trading operator, not a suggestion engine. Evaluate "
-        "ENTER_LONG, ENTER_SHORT, and NOTHING symmetrically while flat; when "
-        "positioned evaluate HOLD, MOVE_STOP, MOVE_TP, partial or full EXIT, and scale-in "
-        "only when execution.supported_actions includes the matching ENTER_* action. "
-        "Choose actions only from execution.supported_actions. When protection.tranches "
-        "lists more than one open tranche, name target_intent_id on MOVE_STOP, MOVE_TP, "
-        "and targeted EXIT. Use decision_packet for the full "
-        "current gateway snapshot and recent_frames as compact minute continuity "
-        "snapshots (same semantic fields, without output templates or lease "
-        "metadata). A short frame history, imperfect evidence, data_quality warning, "
-        "capacity field, account buffer, policy field, or daily_economics mirror is information to "
-        "reason about, not an automatic cognitive veto. Do not invent missing "
-        "facts. The local gateway independently verifies current ProjectX "
-        "truth, hard account capacity, structural geometry, hard loss-floor "
-        "survival, packet issuance, and order transport. A gateway rejection "
-        "is an attributable episode, not permission to hide or pre-empt the "
-        "decision. Entries require positive integer quantity, MARKET, and "
-        "absolute structural stop and target prices. Numeric provider IDs and "
-        "credentials are absent and must never be requested or invented. "
-        "Return exactly one strict glitch.intent.v2 JSON object with no prose. "
-        "Preserve account, instrument, snapshot_hash, and operator_profile "
-        "exactly. decision_audit must contain exactly bull_case, bear_case, "
-        "flat_case, aggressive_case, conservative_case, decisive_evidence, "
-        "disconfirming_evidence, change_condition, and final_choice; "
-        "final_choice must equal action. Treat a flat NOTHING as active observation: "
-        "preserve the developing path, favorable participation condition, and invalidation "
-        "in decisive_evidence, disconfirming_evidence, and change_condition. A prior "
-        "change_condition is accountable: when current evidence satisfies it, act on the "
-        "newly supported choice or name genuinely new contrary evidence; do not merely move "
-        "the threshold because price followed the forecast. Later learning may classify a "
-        "matured flat NOTHING as justified_abstention, avoided_adverse_movement, "
-        "missed_directional_participation, or ambiguous from the declared forecast and "
-        "observed path, but must never invent counterfactual fills, geometry, or PnL. "
-        "For non-entry actions omit entry fields. MOVE_STOP requires new_stop_price. "
-        "MOVE_TP requires new_take_profit or take_profit_1. EXIT may omit quantity and "
-        "exit_fraction for a full flat, or specify one of them for partial reduction. "
-        "wake_triggers is mandatory and must be an array of "
-        "{type: \"PRICE_CROSS\", direction: \"ABOVE\"|\"BELOW\", price: number}. "
-        "Retrieve relevant durable lessons once through native memory, "
-        "then return JSON without writing memory. CURRENT_CYCLE="
+        CYCLE_OPERATOR_INSTRUCTION
         + json.dumps(envelope, separators=(",", ":"), ensure_ascii=False),
         context.get("active_cognitive_overlay"),
     )
@@ -1113,7 +1128,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         )
         return 0
 
-    frames = recent_frames(state, decision_frame_count())
+    frames = recent_frames(state, adaptive_decision_frame_count(packet))
 
     packet_id = str(packet.get("packet_id") or "")
     if not packet_id:

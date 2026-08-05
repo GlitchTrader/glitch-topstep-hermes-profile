@@ -5,7 +5,12 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from distribution_manifest import read_distribution_version, PROMPT_VERSION
+from distribution_manifest import (
+    MIN_GATEWAY_VERSION,
+    PROMPT_VERSION,
+    TESTED_GATEWAY_VERSION,
+    read_distribution_version,
+)
 
 _PROFILE_VERSION = read_distribution_version(Path(__file__).resolve().parent.parent)
 
@@ -22,8 +27,8 @@ PROFILE_COMPATIBILITY: dict[str, Any] = {
     "prompt_version": PROMPT_VERSION,
     "health_schema": "glitch.direct.health.v2",
     "gateway_name": "glitch-topstep",
-    "min_gateway_version": "0.1.1",
-    "tested_gateway_version": "0.1.4",
+    "min_gateway_version": MIN_GATEWAY_VERSION,
+    "tested_gateway_version": TESTED_GATEWAY_VERSION,
     "hermes_requires": ">=0.18.2",
     "required_capabilities": [
         "packet_supported_actions",

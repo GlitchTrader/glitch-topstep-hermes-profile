@@ -170,7 +170,7 @@
     {
       "id": "GTHP-011",
       "title": "Optimize direct-cycle LLM prompt payload",
-      "status": "planned",
+      "status": "done",
       "priority": "P1",
       "owner_role": "architect",
       "issue": 43,
@@ -188,7 +188,10 @@
       "stop_line": "No cognition veto or hidden strategy introduced via prompt slimming.",
       "evidence": [
         "2026-08-03: ~16-20k tokens/cycle baseline documented.",
-        "docs/specs/GTHP-011.md"
+        "2026-08-05: packet_for_cycle + continuity frames + compact ledger tails; adaptive flat frame count.",
+        "docs/specs/GTHP-011.md",
+        "tests/test_packet_model.py",
+        "tests/test_direct_cycle.py"
       ],
       "sources": [
         "scripts/run-topstep-cycle.py",
@@ -312,7 +315,7 @@
     {
       "id": "GTHP-016",
       "title": "Keep compatibility manifest aligned with profile and prompt versions",
-      "status": "open",
+      "status": "done",
       "priority": "P2",
       "owner_role": "release_architecture",
       "issue": 50,
@@ -323,6 +326,11 @@
         "tests/test_compatibility.py fails on manifest drift from parity.PROMPT_VERSION.",
         "Single-source version bump checklist in docs/OPERATIONS.md.",
         "Paired gateway /health compatibility accepts current profile after release."
+      ],
+      "evidence": [
+        "scripts/distribution_manifest.py TESTED_GATEWAY_VERSION single-source",
+        "tests/test_compatibility.py prompt + gateway drift guards",
+        "docs/OPERATIONS.md release version checklist"
       ],
       "sources": [
         "scripts/compatibility.py",

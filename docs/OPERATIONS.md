@@ -51,4 +51,17 @@ powershell -ExecutionPolicy Bypass -File "$env:LOCALAPPDATA\hermes\profiles\glit
 
 Contributors: after changing distribution-owned files, run `python scripts/regenerate_sha256sums.py` before merging. CI rejects drift.
 
+## Release version checklist
+
+When cutting a profile release paired with a gateway build:
+
+1. Bump `distribution.yaml` `version`.
+2. Update `scripts/distribution_manifest.py` `TESTED_GATEWAY_VERSION` (and `MIN_GATEWAY_VERSION` only when the floor moves).
+3. Confirm `PROMPT_VERSION` matches the direct-cycle contract (`glitch-topstep-v*`).
+4. Run the full unittest suite and `python scripts/regenerate_sha256sums.py`.
+5. Verify `GET /health` on the target gateway reports a compatible `compatibility.gateway_version`.
+6. Run `safe-profile-update.ps1` on a Windows operator host after merge.
+
+`tests/test_compatibility.py` fails on drift between `parity.PROMPT_VERSION`, `distribution_manifest`, and `PROFILE_COMPATIBILITY`.
+
 `setup.ps1` and `safe-profile-update.ps1` also run `ensure_hermes_distribution_patch.py`, which idempotently patches Hermes `profile_distribution.py` for Windows-safe profile updates (re-applied after Hermes agent upgrades).
