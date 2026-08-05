@@ -230,6 +230,23 @@ def _write_directive(bias: str, raw_args: str, directive_type: str) -> str:
     return f"A {bias} advisory is queued for the next cycle and expires in 15 minutes."
 
 
+def _entry_eligible_execution(execution: dict[str, Any]) -> bool:
+    # ponytail: v2 packets expose new_exposure_technically_supported; legacy alias entry_actions_enabled
+    if execution.get("entry_actions_enabled") is True:
+        return True
+    if execution.get("new_exposure_technically_supported") is not True:
+        return False
+    actions = execution.get("supported_actions")
+    if isinstance(actions, list) and not any(
+        action in actions for action in ("ENTER_LONG", "ENTER_SHORT")
+    ):
+        return False
+    quantities = execution.get("valid_entry_quantities")
+    if isinstance(quantities, list) and quantities:
+        return True
+    return int(execution.get("maximum_additional_contracts") or 0) > 0
+
+
 def _require_flat_eligible() -> dict[str, Any]:
     status, packet = _request("/packet")
     if status != 200:
@@ -238,11 +255,13 @@ def _require_flat_eligible() -> dict[str, Any]:
     execution = packet.get("execution") if isinstance(packet, dict) else None
     if not isinstance(account, dict) or int(account.get("instrument_open_contracts") or 0) != 0:
         raise RuntimeError("The configured account is not flat; no forced entry was queued.")
-    if not isinstance(execution, dict) or execution.get("entry_actions_enabled") is not True:
+    if not isinstance(execution, dict) or not _entry_eligible_execution(execution):
         raise RuntimeError("The current packet is not entry-eligible; no forced entry was queued.")
     quantities = execution.get("valid_entry_quantities")
     if not isinstance(quantities, list) or not quantities:
-        raise RuntimeError("The current packet has no valid entry quantity.")
+        max_additional = int(execution.get("maximum_additional_contracts") or 0)
+        if max_additional <= 0:
+            raise RuntimeError("The current packet has no valid entry quantity.")
     return packet
 
 
