@@ -81,6 +81,14 @@ def packet(
         "data_quality": {
             "state_complete": state_complete,
             "issues": [] if state_complete else ["market_stream_reconnecting"],
+            "quote_age_ms": 1000,
+        },
+        "order_flow": {
+            "observation": {
+                "windows": [
+                    {"window_seconds": 60, "trade_count": 42, "rolling_delta": 0},
+                ],
+            },
         },
         "policy": {
             "account_stage": "express_funded_standard",
@@ -235,12 +243,12 @@ class DirectCycleTests(unittest.TestCase):
                 state, current, MODULE.evidence_fingerprint(current)
             )
             with mock.patch.dict(os.environ, {}, clear=False):
-                os.environ.pop("GLITCH_TOPSTEP_SKIP_UNCHANGED_EVIDENCE", None)
+                os.environ.pop("GLITCH_TOPSTEP_SKIP_MARKET_QUIESCENT", None)
                 os.environ.pop("GLITCH_TOPSTEP_SKIP_STALE_GATEWAY_EVIDENCE", None)
                 self.assertFalse(
                     MODULE.should_skip_unchanged_evidence(current, None, state)
                 )
-                self.assertIsNone(MODULE.stale_gateway_skip_reason(current, None))
+                self.assertIsNone(PARITY.market_quiescent_skip_details(current, None))
 
     def test_flat_frame_count_is_context_window_not_model_gate(self):
         source = (SCRIPTS / "run-topstep-cycle.py").read_text(encoding="utf-8")
@@ -272,24 +280,84 @@ class DirectCycleTests(unittest.TestCase):
             MODULE.evidence_fingerprint(second),
         )
 
+    def test_market_quiescent_skip_not_when_tape_active(self):
+        current = packet(6)
+        current["data_quality"]["quote_age_ms"] = 12000
+        with mock.patch.dict(
+            os.environ,
+            {"GLITCH_TOPSTEP_SKIP_MARKET_QUIESCENT": "true"},
+        ):
+            self.assertIsNone(PARITY.market_quiescent_skip_details(current, None))
+
+    def test_market_quiescent_skip_not_when_positioned(self):
+        current = packet(6, positioned=True)
+        current["data_quality"]["quote_age_ms"] = 12000
+        current["order_flow"]["observation"]["windows"][0]["trade_count"] = 0
+        with mock.patch.dict(
+            os.environ,
+            {"GLITCH_TOPSTEP_SKIP_MARKET_QUIESCENT": "true"},
+        ):
+            self.assertIsNone(PARITY.market_quiescent_skip_details(current, None))
+
+    def test_market_quiescent_skip_on_stale_quote_and_zero_tape(self):
+        current = packet(6)
+        current["data_quality"]["quote_age_ms"] = 12000
+        current["order_flow"]["observation"]["windows"][0]["trade_count"] = 0
+        with mock.patch.dict(
+            os.environ,
+            {"GLITCH_TOPSTEP_SKIP_MARKET_QUIESCENT": "true"},
+        ):
+            details = PARITY.market_quiescent_skip_details(current, None)
+        self.assertIsNotNone(details)
+        assert details is not None
+        self.assertEqual(details["reason"], "market_quiescent")
+        self.assertEqual(details["order_flow_trade_count_60s"], 0)
+
+    def test_market_quiescent_legacy_stale_env_alias(self):
+        current = packet(6)
+        current["data_quality"]["quote_age_ms"] = 12000
+        current["order_flow"]["observation"]["windows"][0]["trade_count"] = 0
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("GLITCH_TOPSTEP_SKIP_MARKET_QUIESCENT", None)
+            with mock.patch.dict(
+                os.environ,
+                {"GLITCH_TOPSTEP_SKIP_STALE_GATEWAY_EVIDENCE": "true"},
+            ):
+                self.assertEqual(
+                    PARITY.market_quiescent_skip_reason(current, None),
+                    "market_quiescent",
+                )
+
     def test_stale_gateway_skip_not_when_state_incomplete(self):
         current = packet(6, state_complete=False)
-        self.assertIsNone(MODULE.stale_gateway_skip_reason(current, None))
+        current["data_quality"]["quote_age_ms"] = 12000
+        current["order_flow"]["observation"]["windows"][0]["trade_count"] = 0
+        with mock.patch.dict(
+            os.environ,
+            {"GLITCH_TOPSTEP_SKIP_MARKET_QUIESCENT": "true"},
+        ):
+            self.assertIsNone(PARITY.market_quiescent_skip_details(current, None))
 
     def test_stale_gateway_skip_not_when_positioned(self):
-        current = packet(6, state_complete=False, positioned=True)
-        self.assertIsNone(MODULE.stale_gateway_skip_reason(current, None))
+        current = packet(6, positioned=True)
+        current["data_quality"]["quote_age_ms"] = 12000
+        with mock.patch.dict(
+            os.environ,
+            {"GLITCH_TOPSTEP_SKIP_MARKET_QUIESCENT": "true"},
+        ):
+            self.assertIsNone(PARITY.market_quiescent_skip_details(current, None))
 
     def test_stale_gateway_skip_on_quote_age_when_explicitly_enabled(self):
         current = packet(6)
         current["data_quality"]["quote_age_ms"] = 12000
+        current["order_flow"]["observation"]["windows"][0]["trade_count"] = 0
         with mock.patch.dict(
             os.environ,
             {"GLITCH_TOPSTEP_SKIP_STALE_GATEWAY_EVIDENCE": "true"},
         ):
             self.assertEqual(
-                MODULE.stale_gateway_skip_reason(current, None),
-                "stale_gateway_quote",
+                PARITY.stale_gateway_skip_reason(current, None),
+                "market_quiescent",
             )
 
     def test_retry_after_failure_blocks_unchanged_skip(self):

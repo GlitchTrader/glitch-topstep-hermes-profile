@@ -35,7 +35,6 @@ from common import (
     append_jsonl,
     configure_environment,
     extract_single_json_object,
-    max_quote_age_ms,
     hermes_chat_model_cli_args,
     hermes_model_version_label,
     local_token,
@@ -64,6 +63,7 @@ from parity import (
     discard_stale_outbox_intent,
     invocation_reason,
     flat_outside_session_window,
+    market_quiescent_skip_details,
     latest_prior_attempt,
     learning_context,
     mark_attempt_from_receipt,
@@ -368,38 +368,11 @@ def should_skip_unchanged_evidence(
     return fingerprint == read_last_evidence_fingerprint(root)
 
 
-def skip_stale_gateway_evidence_enabled() -> bool:
-    return os.environ.get(
-        "GLITCH_TOPSTEP_SKIP_STALE_GATEWAY_EVIDENCE",
-        "false",
-    ).strip().lower() in {"1", "true", "yes"}
-
-
 def should_retry_after_failure(root: Path, packet_id: str) -> bool:
     attempt = latest_prior_attempt(root, packet_id)
     if attempt is None:
         return False
     return attempt.get("status") in RETRYABLE_ATTEMPT_STATUSES
-
-
-def stale_gateway_skip_reason(
-    packet: dict[str, Any],
-    directive: dict[str, Any] | None,
-) -> str | None:
-    if not skip_stale_gateway_evidence_enabled():
-        return None
-    if directive is not None or positioned(packet):
-        return None
-    data_quality = (
-        packet.get("data_quality")
-        if isinstance(packet.get("data_quality"), dict)
-        else {}
-    )
-    quote_age = data_quality.get("quote_age_ms")
-    if isinstance(quote_age, (int, float)) and not isinstance(quote_age, bool):
-        if float(quote_age) > max_quote_age_ms():
-            return "stale_gateway_quote"
-    return None
 
 
 def capture_frame(packet: dict[str, Any], root: Path) -> Path:
@@ -1120,8 +1093,8 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
                 )
         return 0
 
-    stale_reason = stale_gateway_skip_reason(packet, directive)
-    if stale_reason:
+    quiescent = market_quiescent_skip_details(packet, directive)
+    if quiescent:
         append_jsonl(
             state / "events.jsonl",
             {
@@ -1130,12 +1103,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
                 "recorded_utc": utc_now(),
                 "packet_id": packet.get("packet_id"),
                 "invocation_reason": reason,
-                "reason": stale_reason,
-                "quote_age_ms": (
-                    packet.get("data_quality", {}).get("quote_age_ms")
-                    if isinstance(packet.get("data_quality"), dict)
-                    else None
-                ),
+                **quiescent,
             },
         )
         return 0

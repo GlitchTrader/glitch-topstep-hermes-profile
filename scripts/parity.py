@@ -242,6 +242,112 @@ def flat_outside_session_window(
     return packet_session_closed(packet)
 
 
+def _env_truthy(name: str, *, default: str = "false") -> bool:
+    import os
+
+    return os.environ.get(name, default).strip().lower() in {"1", "true", "yes"}
+
+
+def market_quiescence_gate_enabled() -> bool:
+    """GTHP-018: skip flat Luna when quote is stale and tape is quiescent."""
+    if _env_truthy("GLITCH_TOPSTEP_SKIP_MARKET_QUIESCENT", default="true"):
+        return True
+    # ponytail: legacy alias until operators migrate .env
+    return _env_truthy("GLITCH_TOPSTEP_SKIP_STALE_GATEWAY_EVIDENCE")
+
+
+def max_quiescent_trade_count_60s() -> int:
+    import os
+
+    try:
+        return max(0, int(os.environ.get("GLITCH_TOPSTEP_QUIESCENT_MAX_TRADE_COUNT_60S", "0")))
+    except ValueError:
+        return 0
+
+
+def packet_trade_count_60s(packet: dict[str, Any]) -> int | None:
+    order_flow = packet.get("order_flow")
+    if not isinstance(order_flow, dict):
+        return None
+    observation = order_flow.get("observation")
+    if not isinstance(observation, dict):
+        return None
+    windows = observation.get("windows")
+    if not isinstance(windows, list):
+        return None
+    for window in windows:
+        if not isinstance(window, dict) or window.get("window_seconds") != 60:
+            continue
+        trade_count = window.get("trade_count")
+        if isinstance(trade_count, bool):
+            continue
+        if isinstance(trade_count, int):
+            return trade_count
+        if isinstance(trade_count, float) and math.isfinite(trade_count):
+            return int(trade_count)
+    return None
+
+
+def packet_quote_stale(packet: dict[str, Any]) -> bool:
+    from common import max_quote_age_ms
+
+    data_quality = (
+        packet.get("data_quality")
+        if isinstance(packet.get("data_quality"), dict)
+        else {}
+    )
+    issues = data_quality.get("issues")
+    if isinstance(issues, list) and "quote_stale" in issues:
+        return True
+    quote_age = data_quality.get("quote_age_ms")
+    if isinstance(quote_age, (int, float)) and not isinstance(quote_age, bool):
+        return float(quote_age) > max_quote_age_ms()
+    return False
+
+
+def market_quiescent_skip_details(
+    packet: dict[str, Any],
+    directive: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    if not market_quiescence_gate_enabled():
+        return None
+    if directive is not None or packet_positioned(packet):
+        return None
+    data_quality = (
+        packet.get("data_quality")
+        if isinstance(packet.get("data_quality"), dict)
+        else {}
+    )
+    if data_quality.get("state_complete") is not True:
+        return None
+    if not packet_quote_stale(packet):
+        return None
+    trade_count = packet_trade_count_60s(packet)
+    if trade_count is None or trade_count > max_quiescent_trade_count_60s():
+        return None
+    return {
+        "reason": "market_quiescent",
+        "quote_age_ms": data_quality.get("quote_age_ms"),
+        "order_flow_trade_count_60s": trade_count,
+    }
+
+
+def market_quiescent_skip_reason(
+    packet: dict[str, Any],
+    directive: dict[str, Any] | None,
+) -> str | None:
+    details = market_quiescent_skip_details(packet, directive)
+    return str(details["reason"]) if details else None
+
+
+def stale_gateway_skip_reason(
+    packet: dict[str, Any],
+    directive: dict[str, Any] | None,
+) -> str | None:
+    """Deprecated alias for market_quiescent_skip_reason (GTHP-018)."""
+    return market_quiescent_skip_reason(packet, directive)
+
+
 def invocation_reason(
     packet: dict[str, Any],
     state: Path,
