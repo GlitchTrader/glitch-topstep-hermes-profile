@@ -453,12 +453,28 @@ class DirectCycleTests(unittest.TestCase):
         self.assertIn("required_output_template", envelope)
 
     def test_adaptive_decision_frame_count_uses_fewer_frames_when_flat(self):
-        with mock.patch.dict(os.environ, {"GLITCH_TOPSTEP_FLAT_FRAME_COUNT": "2"}):
-            self.assertEqual(MODULE.adaptive_decision_frame_count(packet()), 2)
+        with mock.patch.dict(os.environ, {"GLITCH_TOPSTEP_FLAT_FRAME_COUNT": "4"}):
+            self.assertEqual(MODULE.adaptive_decision_frame_count(packet()), 4)
             self.assertEqual(
                 MODULE.adaptive_decision_frame_count(packet(positioned=True)),
                 MODULE.decision_frame_count(),
             )
+
+    def test_cycle_recent_frames_excludes_current_packet(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            current = packet(5)
+            prior = packet(4)
+            MODULE.capture_frame(prior, state)
+            MODULE.capture_frame(current, state)
+            frames = MODULE.cycle_recent_frames(state, current)
+            packet_ids = [
+                frame["packet"]["packet_id"]
+                for frame in frames
+                if isinstance(frame.get("packet"), dict)
+            ]
+            self.assertNotIn(current["packet_id"], packet_ids)
+            self.assertIn(prior["packet_id"], packet_ids)
 
     def test_decision_frame_count_defaults_to_five(self):
         self.assertEqual(MODULE.decision_frame_count(), 5)

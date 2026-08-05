@@ -293,35 +293,55 @@ def _truncate_text(value: str, limit: int) -> str:
     return text[: max(0, limit - 3)] + "..."
 
 
-def compact_decision_row(row: dict[str, Any]) -> dict[str, Any]:
+def compact_decision_row(
+    row: dict[str, Any],
+    *,
+    preserve_change_condition: bool = False,
+) -> dict[str, Any]:
     intent = row.get("intent") if isinstance(row.get("intent"), dict) else {}
     audit = (
         intent.get("decision_audit")
         if isinstance(intent.get("decision_audit"), dict)
         else {}
     )
+    change_condition = str(audit.get("change_condition") or "")
+    if preserve_change_condition:
+        change_condition_value = change_condition.strip() or None
+    else:
+        change_condition_value = (
+            _truncate_text(change_condition, 240) if change_condition else None
+        )
     return {
         "recorded_utc": row.get("recorded_utc"),
         "packet_id": row.get("packet_id"),
         "action": intent.get("action"),
         "intent_id": intent.get("intent_id"),
-        "reason": _truncate_text(str(intent.get("reason") or ""), 240),
+        "reason": _truncate_text(str(intent.get("reason") or ""), 240) or None,
         "final_choice": audit.get("final_choice"),
-        "change_condition": _truncate_text(
-            str(audit.get("change_condition") or ""),
-            240,
-        ),
+        "change_condition": change_condition_value,
     }
 
 
-def compact_receipt_row(row: dict[str, Any]) -> dict[str, Any]:
-    return {
+def compact_receipt_row(row: dict[str, Any]) -> dict[str, Any] | None:
+    result = row.get("result") if isinstance(row.get("result"), dict) else {}
+    body = result.get("body") if isinstance(result.get("body"), dict) else {}
+    status = body.get("status") or row.get("status")
+    code = body.get("code") or row.get("rejection_reason")
+    http_status = result.get("http_status")
+    compact = {
         "recorded_utc": row.get("recorded_utc"),
         "intent_id": row.get("intent_id"),
-        "status": row.get("status"),
-        "gateway_status": row.get("gateway_status"),
-        "rejection_reason": row.get("rejection_reason"),
+        "packet_id": row.get("packet_id"),
+        "http_status": http_status,
+        "status": status,
+        "code": code,
     }
+    if not any(
+        compact.get(key) is not None
+        for key in ("http_status", "status", "code")
+    ):
+        return None
+    return compact
 
 
 def compact_outcome_row(row: dict[str, Any]) -> dict[str, Any]:
@@ -335,16 +355,78 @@ def compact_outcome_row(row: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def summarize_outcomes_for_cycle(
+    outcomes: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    if not outcomes:
+        return None
+    net_pnl = 0.0
+    fees = 0.0
+    longs = shorts = wins = losses = inconclusive = 0
+    for row in outcomes:
+        pnl = row.get("realized_pnl_usd")
+        if pnl is None:
+            pnl = row.get("net_pnl_usd")
+        if isinstance(pnl, (int, float)) and not isinstance(pnl, bool):
+            pnl_value = float(pnl)
+            net_pnl += pnl_value
+            if row.get("learning_eligible") is False:
+                inconclusive += 1
+            elif pnl_value > 0:
+                wins += 1
+            elif pnl_value < 0:
+                losses += 1
+            else:
+                inconclusive += 1
+        else:
+            inconclusive += 1
+        fee = row.get("fees_usd")
+        if isinstance(fee, (int, float)) and not isinstance(fee, bool):
+            fees += float(fee)
+        side = str(row.get("side") or "").upper()
+        if side == "LONG":
+            longs += 1
+        elif side == "SHORT":
+            shorts += 1
+    trade_count = len(outcomes)
+    net_after_fees = net_pnl - fees
+    return {
+        "trade_count": trade_count,
+        "net_pnl_usd": round(net_pnl, 2),
+        "fees_usd": round(fees, 2),
+        "net_after_fees_usd": round(net_after_fees, 2),
+        "expectancy_after_fees_usd": round(net_after_fees / trade_count, 4),
+        "longs": longs,
+        "shorts": shorts,
+        "wins": wins,
+        "losses": losses,
+        "inconclusive": inconclusive,
+    }
+
+
 def compact_cycle_ledger_context(
     *,
     decisions: list[dict[str, Any]],
     receipts: list[dict[str, Any]],
     outcomes: list[dict[str, Any]],
-) -> dict[str, list[dict[str, Any]]]:
+) -> dict[str, Any]:
+    compact_decisions = [
+        compact_decision_row(
+            row,
+            preserve_change_condition=index == len(decisions) - 1,
+        )
+        for index, row in enumerate(decisions)
+    ]
+    compact_receipts = [
+        item
+        for item in (compact_receipt_row(row) for row in receipts)
+        if item is not None
+    ]
     return {
-        "decisions": [compact_decision_row(row) for row in decisions],
-        "receipts": [compact_receipt_row(row) for row in receipts],
+        "decisions": compact_decisions,
+        "receipts": compact_receipts,
         "outcomes": [compact_outcome_row(row) for row in outcomes],
+        "outcome_summary": summarize_outcomes_for_cycle(outcomes),
     }
 
 

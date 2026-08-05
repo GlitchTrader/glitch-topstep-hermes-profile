@@ -79,6 +79,20 @@ FRAME_SKIP_WHEN_FLAT = frozenset(
     {"protection", "reconciliation", "session_activity", "orders_working"}
 )
 
+CYCLE_ORDER_FLOW_WINDOWS = frozenset({15, 60, 300})
+
+
+def _order_flow_window_seconds(window: dict[str, Any]) -> int | None:
+    seconds = window.get("window_seconds")
+    if isinstance(seconds, str):
+        value = seconds.removesuffix("s")
+        if value.isdigit():
+            return int(value)
+        return None
+    if isinstance(seconds, (int, float)) and not isinstance(seconds, bool):
+        return int(seconds)
+    return None
+
 
 def _pick(mapping: dict[str, Any], keys: tuple[str, ...]) -> dict[str, Any]:
     return {key: mapping[key] for key in keys if key in mapping}
@@ -177,15 +191,17 @@ def compact_order_flow_state(state: Any) -> Any:
         for window in windows:
             if not isinstance(window, dict):
                 continue
-            seconds = window.get("window_seconds")
-            if seconds in {60, "60"} or (
-                isinstance(seconds, (int, float)) and int(seconds) == 60
-            ):
+            seconds = _order_flow_window_seconds(window)
+            if seconds in CYCLE_ORDER_FLOW_WINDOWS:
                 compact_windows.append(window)
+        compact_windows.sort(
+            key=lambda row: _order_flow_window_seconds(row) or 0,
+        )
     elif isinstance(windows, dict):
-        window = windows.get("60s") or windows.get("60")
-        if isinstance(window, dict):
-            compact_windows.append(window)
+        for key in ("15s", "15", "60s", "60", "300s", "300"):
+            window = windows.get(key)
+            if isinstance(window, dict):
+                compact_windows.append(window)
     depth = observation.get("depth")
     compact_depth = None
     if isinstance(depth, dict):
