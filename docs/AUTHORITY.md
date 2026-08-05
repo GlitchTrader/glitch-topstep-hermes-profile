@@ -58,6 +58,10 @@ Duplicate intent UUID retries are gateway-owned replay. The profile must not res
 
 Cadence controls when Hermes observes and decides. It does not define whether the market is tradable. The default flat and positioned cadence is every minute. Operators may explicitly reduce flat cadence for cost or attention reasons without changing trading eligibility. `GLITCH_TOPSTEP_DECISION_FRAME_COUNT` controls only how many recent frames are supplied as context; it never suppresses a model call. A first available frame, unchanged evidence, stale quotes, incomplete history, and data-quality warnings remain evidence for Hermes whenever cadence invokes the cycle.
 
+## Daily economics
+
+When the gateway publishes `daily_economics`, Hermes may use intraday PnL mirrors and calibration bands for cognition (eval target progress, approved-account preservation). Glitch must never reject `ENTER_*` solely because daily PnL crossed a band. See `docs/specs/GTHP-017.md` and gateway `docs/specs/TS-R3-04.md`.
+
 ## Builder responsibility
 
 Codex owns the reliability of the profile distribution, launcher, persistence, schema validation, and delivery. Failures must be visible, append-only, and recoverable. Codex must not choose the trade.

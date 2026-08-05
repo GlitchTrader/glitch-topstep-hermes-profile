@@ -334,7 +334,7 @@
     {
       "id": "GTHP-017",
       "title": "Daily economics as cognition evidence (eval vs approved playbooks)",
-      "status": "planned",
+      "status": "done",
       "priority": "P1",
       "owner_role": "architect",
       "issue": 51,

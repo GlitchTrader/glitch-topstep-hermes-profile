@@ -3,7 +3,7 @@
   "guidance_id": "topstep-seed-guidance-change-condition-v1",
   "recorded_utc": "2026-07-29T15:00:00.000000Z",
   "source_review_id": "nt-port-seed-2026-07-29",
-  "prompt_version": "glitch-topstep-v2",
+  "prompt_version": "glitch-topstep-v5",
   "trading_influence": "observational",
   "trade_episode_count": 0,
   "decision_episode_count": 0,
@@ -13,7 +13,7 @@
       "For each flat decision, state whether the declared change_condition was unmet, met and explicitly reassessed, or met without reassessment.",
       "Keep the developing movement, favorable participation condition, invalidation, and later observed path separate from any hypothetical fill or PnL.",
       "When a condition is met but immediate geometry remains poor, record the genuinely new contrary evidence rather than silently retaining the old thesis.",
-      "Continue evaluating ENTER_LONG, ENTER_SHORT, and NOTHING symmetrically with adaptive quantity reserved for bounded protected exposure only."
+      "When daily_economics mirrors are present, note band position as observational context only; preservation vs pressing eval target is Hermes-owned and outcome_backed: false in seeds.",
     ],
     "avoid": [
       "Do not infer counterfactual PnL, target/stop ordering, fills, or realized expectancy from OHLC excursions.",

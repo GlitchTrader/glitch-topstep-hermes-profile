@@ -23,7 +23,7 @@ PROFILE_COMPATIBILITY: dict[str, Any] = {
     "health_schema": "glitch.direct.health.v2",
     "gateway_name": "glitch-topstep",
     "min_gateway_version": "0.1.1",
-    "tested_gateway_version": "0.1.2",
+    "tested_gateway_version": "0.1.4",
     "hermes_requires": ">=0.18.2",
     "required_capabilities": [
         "packet_supported_actions",

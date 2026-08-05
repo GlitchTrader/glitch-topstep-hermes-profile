@@ -450,6 +450,8 @@ def prompt_for(loop_id: str, evidence: Any, template: dict[str, Any], continuity
             "missed_directional_participation, or ambiguous by comparing the declared forecast and "
             "change_condition with the observed path. Label the actual outcome no trade and every "
             "counterfactual informational only; never invent counterfactual fills, geometry, or PnL. "
+            "When supplied evidence includes daily_economics mirrors, note band position and stage-appropriate "
+            "preservation or eval-target context without creating entry pressure or automatic stop rules. "
             "For each prior change_condition, record met, reassessed, threshold_moved, or not_applicable. "
             "Separate repeated cognitive errors from venue, policy, transport, or execution defects. "
             "Propose at most one compact cognitive change only when multiple comparable episodes support it. "
@@ -459,13 +461,16 @@ def prompt_for(loop_id: str, evidence: Any, template: dict[str, Any], continuity
         "planning": (
             "Create a six-hour advisory plan. Preserve deterministic risk and gateway authority. Do not create entry "
             "gates, fixed quantities, daily profit quotas, or instructions that bypass current packets. "
+            "When daily_economics mirrors are available in current packets, you may name a daily intent band "
+            "(for example preserve upper-band gains on approved accounts) and stop-trading questions — not quotas. "
             "Use completed decision episodes to question habitual abstention and rejected geometry while preserving "
             "uncertainty; decision-only findings are observational and cannot pressure entries or size."
         ),
         "daily": (
             "Distill the supplied supervision summaries and plans into a compact maintenance learning journal. Do not "
             "reconstruct a whole trading session or consume raw market packets. Evaluate survival, rule compliance, "
-            "and evidence quality. Write durable native memory only for repeated attributable lessons; current account "
+            "evidence quality, and when mirrors were present whether band position supported good day-level sizing. "
+            "Write durable native memory only for repeated attributable lessons; current account "
             "state is never memory."
         ),
         "weekly": (

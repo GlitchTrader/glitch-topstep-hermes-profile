@@ -541,7 +541,7 @@ def build_prompt(
         "current gateway snapshot and recent_frames as compact minute continuity "
         "snapshots (same semantic fields, without output templates or lease "
         "metadata). A short frame history, imperfect evidence, data_quality warning, "
-        "capacity field, account buffer, or policy field is information to "
+        "capacity field, account buffer, policy field, or daily_economics mirror is information to "
         "reason about, not an automatic cognitive veto. Do not invent missing "
         "facts. The local gateway independently verifies current ProjectX "
         "truth, hard account capacity, structural geometry, hard loss-floor "

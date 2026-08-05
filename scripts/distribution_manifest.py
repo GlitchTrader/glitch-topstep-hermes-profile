@@ -14,7 +14,7 @@ SHA256SUMS_FILENAME = "SHA256SUMS"
 # into %LOCALAPPDATA%\\hermes\\profiles\\* or Windows updates fail on rmtree(.git).
 STAGING_ARTIFACTS = frozenset({".git", ".gitattributes"})
 
-PROMPT_VERSION = "glitch-topstep-v4"
+PROMPT_VERSION = "glitch-topstep-v5"
 
 
 def read_distribution_version(root: Path | None = None) -> str:
