@@ -62,6 +62,7 @@ from parity import (
     deliver_packet_intent,
     discard_stale_outbox_intent,
     invocation_reason,
+    flat_outside_session_window,
     latest_prior_attempt,
     learning_context,
     mark_attempt_from_receipt,
@@ -1061,6 +1062,20 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         flat_decision_interval_minutes=flat_decision_interval_minutes(),
     )
     if reason is None:
+        if flat_outside_session_window(packet, directive):
+            if packet_minute(packet) % flat_decision_interval_minutes() == 0:
+                append_jsonl(
+                    state / "events.jsonl",
+                    {
+                        "schema_version": "glitch.topstep.cycle_event.v2",
+                        "event": "llm_skipped",
+                        "recorded_utc": utc_now(),
+                        "packet_id": packet.get("packet_id"),
+                        "invocation_reason": None,
+                        "reason": "session_closed",
+                        "session": packet.get("session"),
+                    },
+                )
         return 0
 
     stale_reason = stale_gateway_skip_reason(packet, directive)

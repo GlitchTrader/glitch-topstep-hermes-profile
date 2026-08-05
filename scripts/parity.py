@@ -197,6 +197,51 @@ def latest_prior_attempt(state: Path, packet_id: str) -> dict[str, Any] | None:
     return value if isinstance(value, dict) else None
 
 
+def packet_positioned(packet: dict[str, Any]) -> bool:
+    account = packet.get("account")
+    if not isinstance(account, dict):
+        return False
+    return int(account.get("instrument_open_contracts") or 0) != 0
+
+
+def respect_session_gate_enabled() -> bool:
+    import os
+
+    return os.environ.get("GLITCH_TOPSTEP_RESPECT_SESSION_GATE", "true").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+    }
+
+
+def session_gate_override_enabled() -> bool:
+    import os
+
+    return os.environ.get("GLITCH_TOPSTEP_SESSION_GATE_OVERRIDE", "false").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+    }
+
+
+def packet_session_closed(packet: dict[str, Any]) -> bool:
+    session = packet.get("session")
+    if not isinstance(session, dict):
+        return False
+    return session.get("entry_window_open") is False
+
+
+def flat_outside_session_window(
+    packet: dict[str, Any],
+    directive: dict[str, Any] | None,
+) -> bool:
+    if not respect_session_gate_enabled() or session_gate_override_enabled():
+        return False
+    if directive is not None or packet_positioned(packet):
+        return False
+    return packet_session_closed(packet)
+
+
 def invocation_reason(
     packet: dict[str, Any],
     state: Path,
@@ -212,6 +257,10 @@ def invocation_reason(
         return "operator_directive"
     if is_positioned:
         return "positioned"
+    if flat_outside_session_window(packet, directive):
+        if wake_trigger_fired(state, packet):
+            return "condition_change"
+        return None
     if wake_trigger_fired(state, packet):
         return "condition_change"
     if not last_evidence_exists(state):
@@ -519,6 +568,52 @@ def outcome_execution_summary(outcome: dict[str, Any]) -> dict[str, Any]:
     if isinstance(attribution, dict) and attribution.get("protection_status"):
         summary["protection_status"] = attribution["protection_status"]
     return summary
+
+
+def debrief_facts(
+    outcome: dict[str, Any],
+    outcome_execution: dict[str, Any],
+    entry_intent: dict[str, Any] | None,
+) -> dict[str, Any]:
+    intent = entry_intent if isinstance(entry_intent, dict) else {}
+    return {
+        "outcome_id": outcome.get("outcome_id"),
+        "intent_id": outcome.get("intent_id"),
+        "account": outcome.get("account"),
+        "instrument": outcome.get("instrument"),
+        "entry_utc": outcome.get("entry_utc"),
+        "exit_utc": outcome.get("exit_utc"),
+        "realized_pnl_usd": outcome.get("realized_pnl_usd"),
+        "fees_usd": outcome.get("fees_usd"),
+        "learning_eligible": outcome.get("learning_eligible"),
+        "entry_action": intent.get("action"),
+        "exit_reason": outcome_execution.get("exit_reason"),
+        "mae_usd": outcome_execution.get("mae_usd"),
+        "mfe_usd": outcome_execution.get("mfe_usd"),
+        "initial_risk_usd": outcome_execution.get("initial_risk_usd"),
+        "r_multiple": outcome_execution.get("r_multiple"),
+        "protection_status": outcome_execution.get("protection_status"),
+    }
+
+
+def stable_facts_sha256(facts: dict[str, Any]) -> str:
+    body = json.dumps(facts, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return hashlib.sha256(body.encode("utf-8")).hexdigest()
+
+
+def debrief_prompt_evidence(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    prompt_rows: list[dict[str, Any]] = []
+    for row in rows:
+        prompt_rows.append(
+            {
+                "facts": row["facts"],
+                "facts_sha256": row["facts_sha256"],
+                "entry_decision": row.get("entry_decision"),
+                "market_path": row.get("market_path"),
+                "related_decision_count": len(row.get("related_decisions") or []),
+            }
+        )
+    return prompt_rows
 
 
 def is_registered_delivery_conflict(result: dict[str, Any]) -> bool:
@@ -891,4 +986,15 @@ def debrief_evidence(state: Path, outcomes: list[dict[str, Any]]) -> list[dict[s
                 "market_path": market_path,
             }
         )
+    for row in evidence:
+        execution = row.get("outcome_execution")
+        if not isinstance(execution, dict):
+            execution = {}
+        facts = debrief_facts(
+            row["outcome"],
+            execution,
+            row.get("entry_decision") if isinstance(row.get("entry_decision"), dict) else None,
+        )
+        row["facts"] = facts
+        row["facts_sha256"] = stable_facts_sha256(facts)
     return evidence

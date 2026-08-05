@@ -43,6 +43,7 @@ from parity import (
     classify_delivery_result,
     classify_gateway_rejection,
     debrief_evidence,
+    debrief_prompt_evidence,
     frame_for_packet_id,
     suggest_flat_abstention_classification,
 )
@@ -440,8 +441,9 @@ def prompt_for(loop_id: str, evidence: Any, template: dict[str, Any], continuity
     instructions = {
         "debrief": (
             "Produce one honest debrief per canonical completed outcome. Reconstruct decision quality, stop-aware risk, "
-            "execution, fees, account-buffer impact, payout-state impact when supplied, and plausible alternatives. A "
-            "provider or gateway defect is a system finding, not a trading lesson."
+            "execution, fees, account-buffer impact, payout-state impact when supplied, and plausible alternatives. Each "
+            "evidence row includes facts and facts_sha256; treat the hash as the audit anchor and do not invent facts "
+            "beyond the supplied facts block. A provider or gateway defect is a system finding, not a trading lesson."
         ),
         "hourly": (
             "Supervise recent trade and decision episodes. For each flat NOTHING, preserve the "
@@ -811,7 +813,13 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
         ids = [stable_id("episode", str(row["outcome_id"])) for row in pending]
         if not args.dry_run:
             factual_evidence = debrief_evidence(state_root, pending)
-            records = invoke_loop(args, "debrief", factual_evidence, ids, supervisor)
+            records = invoke_loop(
+                args,
+                "debrief",
+                debrief_prompt_evidence(factual_evidence),
+                ids,
+                supervisor,
+            )
             for record, outcome in zip(records, pending):
                 record["outcome_id"] = outcome["outcome_id"]
                 record["intent_id"] = outcome["intent_id"]

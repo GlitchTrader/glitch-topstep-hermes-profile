@@ -270,6 +270,25 @@ class LearningTests(unittest.TestCase):
         self.assertEqual(evidence[0]["outcome_execution"]["mae_usd"], 5.0)
         self.assertEqual(evidence[0]["outcome_execution"]["r_multiple"], 0.25)
         self.assertEqual(evidence[0]["outcome_execution"]["protection_status"], "proven")
+        self.assertIn("facts", evidence[0])
+        self.assertEqual(evidence[0]["facts_sha256"], PARITY.stable_facts_sha256(evidence[0]["facts"]))
+
+    def test_debrief_prompt_evidence_omits_full_outcome_blob(self):
+        facts = {"outcome_id": "o1", "intent_id": "intent-1", "realized_pnl_usd": 10}
+        rows = [
+            {
+                "facts": facts,
+                "facts_sha256": PARITY.stable_facts_sha256(facts),
+                "outcome": {"outcome_id": "o1", "realized_pnl_usd": 10, "fills": [{"price": 1}]},
+                "entry_decision": {"intent_id": "intent-1"},
+                "related_decisions": [{"packet_id": "p1"}],
+                "market_path": [{"close": 100.0}],
+            }
+        ]
+        prompt_rows = PARITY.debrief_prompt_evidence(rows)
+        self.assertNotIn("outcome", prompt_rows[0])
+        self.assertEqual(prompt_rows[0]["facts_sha256"], rows[0]["facts_sha256"])
+        self.assertEqual(prompt_rows[0]["related_decision_count"], 1)
 
     def test_classify_gateway_rejection_buckets(self):
         self.assertEqual(
