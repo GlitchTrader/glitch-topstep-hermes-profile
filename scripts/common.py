@@ -218,17 +218,17 @@ def request_json(
         return int(error.code), value
 
 
-def sync_gateway_outcomes(state: Path) -> int:
-    """Append new canonical trade outcomes exposed by the gateway."""
+def sync_gateway_outcomes_meta(state: Path) -> dict[str, Any]:
+    """Append new canonical trade outcomes; return sync metadata for learning status."""
     token = os.environ.get("GLITCH_TOPSTEP_LOCAL_TOKEN", "").strip()
     if not token:
-        return 0
+        return {"added": 0, "http_status": None}
     status, body = request_json("/outcomes?limit=100", token=token)
     if status != 200 or not isinstance(body, dict):
-        return 0
+        return {"added": 0, "http_status": status}
     outcomes = body.get("outcomes")
     if not isinstance(outcomes, list):
-        return 0
+        return {"added": 0, "http_status": status}
     path = state / "outcomes.jsonl"
     known = {
         str(row.get("intent_id"))
@@ -247,7 +247,12 @@ def sync_gateway_outcomes(state: Path) -> int:
         append_jsonl(path, row)
         known.add(intent_id)
         added += 1
-    return added
+    return {"added": added, "http_status": status}
+
+
+def sync_gateway_outcomes(state: Path) -> int:
+    """Append new canonical trade outcomes exposed by the gateway."""
+    return int(sync_gateway_outcomes_meta(state).get("added") or 0)
 
 
 def read_json(path: Path) -> dict[str, Any]:

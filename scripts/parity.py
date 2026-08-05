@@ -255,7 +255,34 @@ def learning_context(supervisor: Path) -> dict[str, Any]:
             CURRENT_GUIDANCE_SCHEMA,
         ),
         "active_cognitive_overlay": overlay,
+        "outcome_backed_lessons": summarized_outcome_backed_lessons(supervisor),
     }
+
+
+def summarized_outcome_backed_lessons(
+    supervisor: Path,
+    max_rows: int = 5,
+    max_chars: int = 4_000,
+) -> list[dict[str, Any]]:
+    rows = [
+        {
+            "lesson_id": row.get("lesson_id"),
+            "summary": row.get("summary") or row.get("lesson"),
+            "source_review_id": row.get("source_review_id"),
+            "recorded_utc": row.get("recorded_utc"),
+        }
+        for row in read_jsonl(supervisor / "lessons.jsonl")
+        if row.get("trading_influence") == "outcome_backed"
+    ]
+    selected: list[dict[str, Any]] = []
+    used_chars = 0
+    for row in reversed(rows):
+        row_chars = len(json.dumps(row, separators=(",", ":"), ensure_ascii=False))
+        if len(selected) >= max_rows or used_chars + row_chars > max_chars:
+            break
+        selected.append(row)
+        used_chars += row_chars
+    return list(reversed(selected))
 
 
 def apply_cognitive_overlay(prompt: str, overlay: dict[str, Any] | None) -> str:
@@ -413,6 +440,85 @@ def classify_delivery_result(result: dict[str, Any]) -> str:
         if executor == "pending":
             return "transport_uncertain"
     return "successful"
+
+
+GATEWAY_COGNITIVE_REJECTION_CODES = frozenset({
+    "stop_would_widen",
+    "target_would_widen",
+    "stop_wrong_side_of_market",
+    "target_wrong_side_of_entry",
+    "move_stop_unavailable",
+    "protection_not_proven",
+    "action_not_supported_in_current_packet",
+    "position_already_flat",
+    "position_not_found",
+    "target_tranche_not_found",
+    "target_tranche_already_flat",
+    "exit_quantity_exceeds_tranche_remaining",
+    "exit_quantity_exceeds_attributable_remaining",
+    "exit_quantity_invalid",
+    "target_intent_id_required",
+    "protective_leg_unresolved",
+    "position_side_unknown",
+    "amendment_current_price_missing",
+    "amendment_market_reference_missing",
+    "amendment_entry_reference_missing",
+    "no_execution_action",
+})
+
+GATEWAY_SYSTEM_DEFECT_CODES = frozenset({
+    "intent_schema_invalid",
+    "intent_delivery_unreconciled",
+    "intent_already_processing_or_recovery_required",
+    "intent_body_conflict",
+    "projectx_mutation_rejected",
+    "projectx_mutation_outcome_ambiguous",
+    "protection_cancel_failed",
+    "decision_packet_unknown_or_expired",
+    "action_not_implemented",
+    "trading_disabled_by_operator",
+    "account_name_mismatch",
+    "snapshot_hash_mismatch",
+})
+
+
+def classify_gateway_rejection(result: dict[str, Any]) -> str | None:
+    if classify_delivery_result(result) != "terminal_rejection":
+        return None
+    body = result.get("body") if isinstance(result.get("body"), dict) else {}
+    code = str(body.get("code") or body.get("executor_code") or "")
+    if code in GATEWAY_COGNITIVE_REJECTION_CODES:
+        return "cognitive_rejection"
+    if code in GATEWAY_SYSTEM_DEFECT_CODES:
+        return "system_defect"
+    http_status = result.get("http_status")
+    if isinstance(http_status, int) and 400 <= http_status < 500:
+        return "cognitive_rejection"
+    return "system_defect"
+
+
+def outcome_execution_summary(outcome: dict[str, Any]) -> dict[str, Any]:
+    keys = (
+        "exit_reason",
+        "entry_price",
+        "exit_price",
+        "stop_price",
+        "target_price",
+        "mae_usd",
+        "mfe_usd",
+        "mae_ticks",
+        "mfe_ticks",
+        "initial_risk_usd",
+        "r_multiple",
+        "protection_confirmed",
+        "side",
+        "quantity",
+    )
+    summary = {key: outcome.get(key) for key in keys if key in outcome}
+    attribution = outcome.get("attribution")
+    if isinstance(attribution, dict) and attribution.get("protection_status"):
+        summary["protection_status"] = attribution["protection_status"]
+    return summary
 
 
 def is_registered_delivery_conflict(result: dict[str, Any]) -> bool:
@@ -778,6 +884,7 @@ def debrief_evidence(state: Path, outcomes: list[dict[str, Any]]) -> list[dict[s
         evidence.append(
             {
                 "outcome": outcome,
+                "outcome_execution": outcome_execution_summary(outcome),
                 "entry_decision": entry_intent,
                 "related_decisions": related_decisions,
                 "delivery_receipt": receipts_by_packet.get(packet_id),

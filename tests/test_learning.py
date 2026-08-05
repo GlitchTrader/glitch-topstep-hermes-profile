@@ -1,3 +1,5 @@
+import argparse
+import argparse
 import importlib
 import importlib.util
 import json
@@ -212,6 +214,12 @@ class LearningTests(unittest.TestCase):
                 "realized_pnl_usd": 10,
                 "fees_usd": 0,
                 "learning_eligible": True,
+                "exit_reason": "manual_exit",
+                "mae_usd": 5.0,
+                "mfe_usd": 12.0,
+                "initial_risk_usd": 40.0,
+                "r_multiple": 0.25,
+                "attribution": {"protection_status": "proven"},
             }
             (state_root / "decisions.jsonl").write_text(
                 json.dumps(
@@ -245,6 +253,79 @@ class LearningTests(unittest.TestCase):
         self.assertEqual(len(evidence), 1)
         self.assertEqual(evidence[0]["outcome"]["outcome_id"], "o1")
         self.assertEqual(evidence[0]["entry_decision"]["intent_id"], "intent-1")
+        self.assertEqual(evidence[0]["outcome_execution"]["exit_reason"], "manual_exit")
+        self.assertEqual(evidence[0]["outcome_execution"]["mae_usd"], 5.0)
+        self.assertEqual(evidence[0]["outcome_execution"]["r_multiple"], 0.25)
+        self.assertEqual(evidence[0]["outcome_execution"]["protection_status"], "proven")
+
+    def test_classify_gateway_rejection_buckets(self):
+        self.assertEqual(
+            PARITY.classify_gateway_rejection(
+                {"http_status": 422, "body": {"code": "stop_would_widen"}}
+            ),
+            "cognitive_rejection",
+        )
+        self.assertEqual(
+            PARITY.classify_gateway_rejection(
+                {"http_status": 409, "body": {"code": "projectx_mutation_rejected"}}
+            ),
+            "system_defect",
+        )
+
+    def test_learning_context_includes_outcome_backed_lessons(self):
+        with tempfile.TemporaryDirectory() as root:
+            supervisor = Path(root) / "supervisor"
+            supervisor.mkdir(parents=True)
+            (supervisor / "lessons.jsonl").write_text(
+                "\n".join(
+                    json.dumps(row)
+                    for row in (
+                        {
+                            "lesson_id": "l1",
+                            "summary": "Keep stops tight after proven protection.",
+                            "trading_influence": "outcome_backed",
+                        },
+                        {
+                            "lesson_id": "l2",
+                            "summary": "Ignore this observational note.",
+                            "trading_influence": "observational",
+                        },
+                    )
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            context = PARITY.learning_context(supervisor)
+        self.assertEqual(len(context["outcome_backed_lessons"]), 1)
+        self.assertEqual(context["outcome_backed_lessons"][0]["lesson_id"], "l1")
+
+    def test_run_once_syncs_gateway_outcomes(self):
+        with tempfile.TemporaryDirectory() as root:
+            root_path = Path(root)
+            state_root = root_path / "state"
+            supervisor = state_root / "supervisor"
+            supervisor.mkdir(parents=True)
+            args = argparse.Namespace(profile="glitch-topstep", dry_run=True, force_loop=None, timeout_seconds=30)
+            outcome = {
+                "schema_version": "glitch.topstep.trade_outcome.v1",
+                "outcome_id": "o-sync",
+                "intent_id": "intent-sync",
+                "account": "PRAC",
+                "instrument": "MNQ",
+                "entry_utc": "2026-01-01T00:00:00Z",
+                "exit_utc": "2026-01-01T00:01:00Z",
+                "realized_pnl_usd": 1,
+                "fees_usd": 0,
+                "learning_eligible": True,
+            }
+            with mock.patch.object(
+                MODULE,
+                "sync_gateway_outcomes_meta",
+                return_value={"added": 1, "http_status": 200},
+            ), mock.patch.object(MODULE, "gateway_feed_is_fresh", return_value=False):
+                result = MODULE.run_once(args, root_path)
+            self.assertEqual(result["outcomes_synced"], 1)
+            self.assertEqual(result["outcomes_sync_http_status"], 200)
 
     def test_weekly_output_template_schema(self):
         template = MODULE.output_template("weekly", ["proposal-1"])

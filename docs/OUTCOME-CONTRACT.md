@@ -17,6 +17,15 @@ The learning worker accepts only JSONL records with:
 }
 ```
 
+When `learning_eligible=true`, the gateway may also publish v1.1 enrichment fields:
+
+- `exit_reason`, `entry_price`, `exit_price`, `stop_price`, `target_price`
+- `fills[]`, `quantity`, `side`
+- `mae_usd`, `mfe_usd`, `mae_ticks`, `mfe_ticks`
+- `initial_risk_usd`, `r_multiple`, `protection_confirmed`
+
+Gateway source: `glitch-topstep:TS-R3-03`. Profile consumer: `GTHP-012`.
+
 Recommended additional fields:
 
 - packet and snapshot IDs;
