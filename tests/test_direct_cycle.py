@@ -30,6 +30,7 @@ def packet(
     *,
     positioned: bool = False,
     state_complete: bool = True,
+    session_open: bool = True,
 ) -> dict:
     stamp = (
         datetime(2099, 1, 1, 14, minute, tzinfo=timezone.utc)
@@ -92,6 +93,12 @@ def packet(
             "hard_loss_floor_usd": -2000,
             "current_buffer_usd": 3000,
             "max_contracts": 5,
+        },
+        "session": {
+            "authority": "operator_configured",
+            "must_flat_utc": "2099-01-01T20:00:00Z",
+            "entry_window_open": session_open,
+            "notes": [],
         },
         "execution": {
             "gateway_mode": "shadow",
@@ -557,6 +564,57 @@ class DirectCycleTests(unittest.TestCase):
                 {"schema_version": "glitch.topstep.last_evidence.v1", "fingerprint": "x"},
             )
             reason = PARITY.invocation_reason(packet(5), state, None, flat_decision_interval_minutes=5)
+        self.assertEqual(reason, "scheduled")
+
+    def test_invocation_reason_skips_flat_outside_session_window(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            MODULE.write_json_atomic(
+                state / "last-evidence.json",
+                {"schema_version": "glitch.topstep.last_evidence.v1", "fingerprint": "x"},
+            )
+            with mock.patch.dict(os.environ, {"GLITCH_TOPSTEP_RESPECT_SESSION_GATE": "true"}, clear=False):
+                reason = PARITY.invocation_reason(
+                    packet(5, session_open=False),
+                    state,
+                    None,
+                    flat_decision_interval_minutes=5,
+                )
+        self.assertIsNone(reason)
+
+    def test_invocation_reason_positioned_outside_session_still_invokes(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            with mock.patch.dict(os.environ, {"GLITCH_TOPSTEP_RESPECT_SESSION_GATE": "true"}, clear=False):
+                reason = PARITY.invocation_reason(
+                    packet(5, positioned=True, session_open=False),
+                    state,
+                    None,
+                    flat_decision_interval_minutes=5,
+                )
+        self.assertEqual(reason, "positioned")
+
+    def test_invocation_reason_session_override_allows_scheduled_flat(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            MODULE.write_json_atomic(
+                state / "last-evidence.json",
+                {"schema_version": "glitch.topstep.last_evidence.v1", "fingerprint": "x"},
+            )
+            with mock.patch.dict(
+                os.environ,
+                {
+                    "GLITCH_TOPSTEP_RESPECT_SESSION_GATE": "true",
+                    "GLITCH_TOPSTEP_SESSION_GATE_OVERRIDE": "true",
+                },
+                clear=False,
+            ):
+                reason = PARITY.invocation_reason(
+                    packet(5, session_open=False),
+                    state,
+                    None,
+                    flat_decision_interval_minutes=5,
+                )
         self.assertEqual(reason, "scheduled")
 
     def test_wake_trigger_fires_on_price_cross(self):

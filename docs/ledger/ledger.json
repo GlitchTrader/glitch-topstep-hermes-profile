@@ -268,7 +268,7 @@
     {
       "id": "GTHP-014",
       "title": "Skip flat direct-operator cycles outside RTH/session window",
-      "status": "open",
+      "status": "done",
       "priority": "P1",
       "owner_role": "coder",
       "issue": 48,
@@ -290,7 +290,7 @@
     {
       "id": "GTHP-015",
       "title": "facts_sha256 audit envelope in trade debrief evidence",
-      "status": "open",
+      "status": "done",
       "priority": "P1",
       "owner_role": "coder",
       "issue": 49,

@@ -16,6 +16,7 @@
 - Cognitive overlays: proposed, not activated.
 - Scheduled model toolsets: memory only.
 - Flat cognition: one call per minute by default; operators may reduce flat cadence explicitly.
+- Flat cognition outside the gateway `session.entry_window_open` window is skipped by default (`GLITCH_TOPSTEP_RESPECT_SESSION_GATE=true`); positioned cycles, operator directives, and wake triggers still invoke. Set `GLITCH_TOPSTEP_SESSION_GATE_OVERRIDE=true` for PRAC acceptance outside RTH.
 - Positioned cognition: one call per minute; manage with `HOLD`, `MOVE_STOP`, `MOVE_TP`, partial or full `EXIT`, and scale-in only when advertised in `execution.supported_actions`.
 
 ## Incident controls
