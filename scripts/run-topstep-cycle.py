@@ -21,6 +21,7 @@ import subprocess
 import sys
 import time
 import urllib.error
+import urllib.parse
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -57,6 +58,8 @@ from parity import (
     active_trade_state,
     apply_cognitive_overlay,
     classify_delivery_result,
+    clear_delivery_wire,
+    deliver_packet_intent,
     discard_stale_outbox_intent,
     invocation_reason,
     latest_prior_attempt,
@@ -948,6 +951,38 @@ def post_intent(intent: dict[str, Any]) -> dict[str, Any]:
         return {"transport_error": str(error)}
 
 
+def fetch_gateway_intent_receipt(intent_id: str) -> dict[str, Any] | None:
+    if not intent_id:
+        return None
+    try:
+        status, body = request_json(
+            f"/intent/receipt?intent_id={urllib.parse.quote(intent_id, safe='')}",
+            token=local_token(),
+        )
+    except (urllib.error.URLError, TimeoutError, OSError):
+        return None
+    if status == 200 and isinstance(body, dict):
+        return body
+    return None
+
+
+def deliver_intent(
+    state: Path,
+    packet_id: str,
+    intent: dict[str, Any],
+    directive: dict[str, Any] | None,
+) -> dict[str, Any]:
+    return deliver_packet_intent(
+        state,
+        packet_id,
+        intent,
+        directive,
+        post_intent,
+        prepare_intent_for_delivery,
+        fetch_gateway_intent_receipt,
+    )
+
+
 def run_once(args: argparse.Namespace, root: Path) -> int:
     token = local_token()
     health_status, health = request_json("/health")
@@ -1001,7 +1036,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
                 )
             )
             return 0
-        result = post_intent(prepare_intent_for_delivery(pending_intent, None))
+        result = deliver_intent(state, pending_id, pending_intent, None)
         classification = classify_delivery_result(result)
         if classification != "transport_uncertain":
             receipt = {
@@ -1014,6 +1049,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
             write_json_atomic(state / "receipts" / f"{pending_id}.json", receipt)
             append_jsonl(state / "receipts.jsonl", receipt)
             pending_path.unlink(missing_ok=True)
+            clear_delivery_wire(state, pending_id)
         mark_attempt_from_receipt(state, pending_id, result)
         print(json.dumps({"packet_id": pending_id, "result": result}, separators=(",", ":")))
         return 0 if classification == "successful" else 1
@@ -1186,7 +1222,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         )
         return 0
 
-    result = post_intent(prepare_intent_for_delivery(intent, directive))
+    result = deliver_intent(state, packet_id, intent, directive)
     classification = classify_delivery_result(result)
     if classification != "transport_uncertain":
         receipt = {
@@ -1199,6 +1235,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         write_json_atomic(receipt_path, receipt)
         append_jsonl(state / "receipts.jsonl", receipt)
         outbox_path.unlink(missing_ok=True)
+        clear_delivery_wire(state, packet_id)
         print(json.dumps(receipt, separators=(",", ":")))
     else:
         print(json.dumps({"packet_id": packet_id, "result": result}, separators=(",", ":")))

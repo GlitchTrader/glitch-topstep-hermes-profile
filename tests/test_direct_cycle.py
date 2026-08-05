@@ -9,6 +9,7 @@ import tempfile
 import unittest
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -591,6 +592,118 @@ class DirectCycleTests(unittest.TestCase):
             PARITY.classify_delivery_result({"http_status": 500, "body": {}}),
             "transport_uncertain",
         )
+        self.assertEqual(
+            PARITY.classify_delivery_result(
+                {
+                    "http_status": 503,
+                    "body": {"code": "intent_delivery_unreconciled"},
+                }
+            ),
+            "transport_uncertain",
+        )
+
+    def test_deliver_packet_intent_freezes_wire_on_transport_retry(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            intent_body = intent("MOVE_STOP")
+            intent_body["intent_id"] = "00000000-0000-4000-8000-00000000c013"
+            intent_body["snapshot_hash"] = "hash-outbox"
+            intent_body["new_stop_price"] = 20000.0
+            posts: list[dict[str, Any]] = []
+            prepare_calls = 0
+
+            def fake_prepare(value, _directive):
+                nonlocal prepare_calls
+                prepare_calls += 1
+                aligned = copy.deepcopy(value)
+                aligned["snapshot_hash"] = f"hash-prepared-{prepare_calls}"
+                return aligned
+
+            def fake_post(wire):
+                posts.append(copy.deepcopy(wire))
+                if len(posts) == 1:
+                    return {"transport_error": "timeout"}
+                return {
+                    "http_status": 202,
+                    "body": {
+                        "schema_version": "glitch.direct.execution_receipt.v1",
+                        "intent_id": intent_body["intent_id"],
+                        "status": "pending",
+                        "code": "move_stop_submitted_pending_reconciliation",
+                    },
+                }
+
+            first = PARITY.deliver_packet_intent(
+                state,
+                "packet-13",
+                intent_body,
+                None,
+                fake_post,
+                fake_prepare,
+            )
+            second = PARITY.deliver_packet_intent(
+                state,
+                "packet-13",
+                intent_body,
+                None,
+                fake_post,
+                fake_prepare,
+            )
+
+        self.assertEqual(first.get("transport_error"), "timeout")
+        self.assertEqual(second.get("http_status"), 202)
+        self.assertEqual(prepare_calls, 1)
+        self.assertEqual(len(posts), 2)
+        self.assertEqual(posts[0]["snapshot_hash"], "hash-prepared-1")
+        self.assertEqual(posts[1]["snapshot_hash"], "hash-prepared-1")
+
+    def test_deliver_packet_intent_reconciles_body_conflict(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            intent_body = intent("MOVE_STOP")
+            intent_body["intent_id"] = "00000000-0000-4000-8000-00000000c014"
+            intent_body["snapshot_hash"] = "hash-outbox"
+            intent_body["new_stop_price"] = 20000.0
+            posts: list[dict[str, Any]] = []
+
+            def fake_prepare(value, _directive):
+                aligned = copy.deepcopy(value)
+                aligned["snapshot_hash"] = "hash-frozen"
+                return aligned
+
+            def fake_post(wire):
+                posts.append(copy.deepcopy(wire))
+                if len(posts) == 1:
+                    return {
+                        "http_status": 422,
+                        "body": {
+                            "code": "intent_body_conflict",
+                            "intent_id": intent_body["intent_id"],
+                        },
+                    }
+                return {
+                    "http_status": 202,
+                    "body": {
+                        "schema_version": "glitch.direct.execution_receipt.v1",
+                        "intent_id": intent_body["intent_id"],
+                        "status": "pending",
+                        "code": "move_stop_submitted_pending_reconciliation",
+                    },
+                }
+
+            result = PARITY.deliver_packet_intent(
+                state,
+                "packet-14",
+                intent_body,
+                None,
+                fake_post,
+                fake_prepare,
+            )
+
+        self.assertEqual(result.get("http_status"), 202)
+        self.assertEqual(len(posts), 2)
+        self.assertEqual(posts[0]["snapshot_hash"], "hash-frozen")
+        self.assertEqual(posts[1]["snapshot_hash"], "hash-frozen")
 
     def test_classify_delivery_result_terminal_rejection(self):
         self.assertEqual(
