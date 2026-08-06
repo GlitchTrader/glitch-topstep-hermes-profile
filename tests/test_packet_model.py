@@ -198,6 +198,22 @@ class PacketModelTests(unittest.TestCase):
         packet = sample_packet()
         self.assertIn("market", frame_packet_keys(packet))
 
+    def test_frame_for_model_preserves_session_phase(self):
+        packet = sample_packet()
+        packet["session"] = {
+            "entry_window_open": True,
+            "must_flat_utc": "2099-01-01T20:00:00Z",
+            "phase": "regular",
+            "phase_authority": "exchange_calendar",
+            "notes": ["ignored"],
+        }
+        frame = copy.deepcopy(sample_frame())
+        frame["packet"] = packet
+        session = frame_for_model(frame)["packet"]["session"]
+        self.assertEqual(session["phase"], "regular")
+        self.assertEqual(session["phase_authority"], "exchange_calendar")
+        self.assertNotIn("notes", session)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -136,11 +136,20 @@ def packet_one_minute_range(packet: dict[str, Any]) -> tuple[float, float] | Non
     market = packet.get("market") if isinstance(packet.get("market"), dict) else {}
     try:
         close = float(market["last"])
-        high = float(market.get("high", close))
-        low = float(market.get("low", close))
     except (KeyError, TypeError, ValueError):
         return None
-    return low, high
+    window = order_flow_window(packet, 60)
+    if window is not None:
+        try:
+            return float(window["low_price"]), float(window["high_price"])
+        except (KeyError, TypeError, ValueError):
+            pass
+    for high_key, low_key in (("session_high", "session_low"), ("high", "low")):
+        try:
+            return float(market[low_key]), float(market[high_key])
+        except (KeyError, TypeError, ValueError):
+            continue
+    return close, close
 
 
 def prior_frame_price(state: Path, packet: dict[str, Any]) -> float | None:
@@ -543,7 +552,14 @@ def max_quiescent_trade_count_60s() -> int:
         return 0
 
 
-def packet_trade_count_60s(packet: dict[str, Any]) -> int | None:
+def packet_stream_health(packet: dict[str, Any]) -> dict[str, Any] | None:
+    stream_health = packet.get("stream_health")
+    if isinstance(stream_health, dict) and stream_health:
+        return stream_health
+    return None
+
+
+def order_flow_window(packet: dict[str, Any], window_seconds: int) -> dict[str, Any] | None:
     order_flow = packet.get("order_flow")
     if not isinstance(order_flow, dict):
         return None
@@ -554,21 +570,74 @@ def packet_trade_count_60s(packet: dict[str, Any]) -> int | None:
     if not isinstance(windows, list):
         return None
     for window in windows:
-        if not isinstance(window, dict) or window.get("window_seconds") != 60:
-            continue
-        trade_count = window.get("trade_count")
-        if isinstance(trade_count, bool):
-            continue
-        if isinstance(trade_count, int):
-            return trade_count
-        if isinstance(trade_count, float) and math.isfinite(trade_count):
-            return int(trade_count)
+        if isinstance(window, dict) and window.get("window_seconds") == window_seconds:
+            return window
     return None
+
+
+def packet_trade_count_60s(packet: dict[str, Any]) -> int | None:
+    stream_health = packet_stream_health(packet)
+    if stream_health is not None:
+        trade_count = stream_health.get("trade_count_60s")
+        if isinstance(trade_count, bool):
+            pass
+        elif isinstance(trade_count, int):
+            return trade_count
+        elif isinstance(trade_count, float) and math.isfinite(trade_count):
+            return int(trade_count)
+    window = order_flow_window(packet, 60)
+    if window is None:
+        return None
+    trade_count = window.get("trade_count")
+    if isinstance(trade_count, bool):
+        return None
+    if isinstance(trade_count, int):
+        return trade_count
+    if isinstance(trade_count, float) and math.isfinite(trade_count):
+        return int(trade_count)
+    return None
+
+
+def packet_quote_age_ms(packet: dict[str, Any]) -> float | None:
+    stream_health = packet_stream_health(packet)
+    if stream_health is not None:
+        quote_age = stream_health.get("quote_age_ms")
+        if isinstance(quote_age, (int, float)) and not isinstance(quote_age, bool):
+            return float(quote_age)
+    data_quality = (
+        packet.get("data_quality")
+        if isinstance(packet.get("data_quality"), dict)
+        else {}
+    )
+    quote_age = data_quality.get("quote_age_ms")
+    if isinstance(quote_age, (int, float)) and not isinstance(quote_age, bool):
+        return float(quote_age)
+    return None
+
+
+def packet_reconnect_pending(packet: dict[str, Any]) -> bool:
+    stream_health = packet_stream_health(packet)
+    if stream_health is not None and stream_health.get("reconnect_pending") is True:
+        return True
+    data_quality = (
+        packet.get("data_quality")
+        if isinstance(packet.get("data_quality"), dict)
+        else {}
+    )
+    issues = data_quality.get("issues")
+    if isinstance(issues, list):
+        return any(
+            issue in issues
+            for issue in ("market_stream_reconnecting", "user_stream_reconnecting")
+        )
+    return False
 
 
 def packet_quote_stale(packet: dict[str, Any]) -> bool:
     from common import max_quote_age_ms
 
+    if packet_reconnect_pending(packet):
+        return False
     data_quality = (
         packet.get("data_quality")
         if isinstance(packet.get("data_quality"), dict)
@@ -577,9 +646,9 @@ def packet_quote_stale(packet: dict[str, Any]) -> bool:
     issues = data_quality.get("issues")
     if isinstance(issues, list) and "quote_stale" in issues:
         return True
-    quote_age = data_quality.get("quote_age_ms")
-    if isinstance(quote_age, (int, float)) and not isinstance(quote_age, bool):
-        return float(quote_age) > max_quote_age_ms()
+    quote_age = packet_quote_age_ms(packet)
+    if quote_age is not None:
+        return quote_age > max_quote_age_ms()
     return False
 
 
@@ -590,6 +659,8 @@ def market_quiescent_skip_details(
     if not market_quiescence_gate_enabled():
         return None
     if directive is not None or packet_positioned(packet):
+        return None
+    if packet_reconnect_pending(packet):
         return None
     data_quality = (
         packet.get("data_quality")
@@ -603,11 +674,15 @@ def market_quiescent_skip_details(
     trade_count = packet_trade_count_60s(packet)
     if trade_count is None or trade_count > max_quiescent_trade_count_60s():
         return None
-    return {
+    details: dict[str, Any] = {
         "reason": "market_quiescent",
-        "quote_age_ms": data_quality.get("quote_age_ms"),
+        "quote_age_ms": packet_quote_age_ms(packet),
+        "trade_count_60s": trade_count,
         "order_flow_trade_count_60s": trade_count,
     }
+    if packet_stream_health(packet) is not None:
+        details["evidence_source"] = "stream_health"
+    return details
 
 
 def market_quiescent_skip_reason(
