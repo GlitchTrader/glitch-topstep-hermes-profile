@@ -64,6 +64,9 @@ from parity import (
     invocation_reason,
     flat_outside_session_window,
     market_quiescent_skip_details,
+    packet_protection_status,
+    protection_status_allows_amendment,
+    protection_status_management_guidance,
     latest_prior_attempt,
     learning_context,
     mark_attempt_from_receipt,
@@ -542,6 +545,10 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "wake_triggers is mandatory: "
     '[{type:"PRICE_CROSS", direction:"ABOVE"|"BELOW", price:number}]. '
     "Retrieve durable lessons once via native memory, then return JSON without writing memory. "
+    "When positioned, read protection.protection_status from the packet: confirmed allows full "
+    "management; pending favors HOLD while venue brackets land (EXIT if protection fails to confirm); "
+    "failed or unknown require explicit failed-protection reasoning and forbid MOVE_STOP/MOVE_TP until "
+    "protection is confirmed again. "
     "CURRENT_CYCLE="
 )
 
@@ -572,6 +579,9 @@ def build_prompt(
     for field in AUDIT_FIELDS:
         audit.setdefault(field, default_action if field == "final_choice" else "Replace")
 
+    protection_guidance = protection_status_management_guidance(
+        packet_protection_status(packet),
+    )
     envelope = {
         "decision_packet": model_packet,
         "recent_frames": [frame_for_model(frame) for frame in frames],
@@ -579,6 +589,7 @@ def build_prompt(
         "active_trade_state": trade_state,
         "operator_directive": directive,
         "required_output_template": template,
+        "protection_management": protection_guidance,
         "operator_authority": {
             "principle": (
                 "Hermes chooses the trade; Glitch verifies factual execution safety."
@@ -850,6 +861,8 @@ def validate_intent(
         if action == "ENTER_SHORT" and not target < reference < stop:
             raise ValueError("short_geometry_invalid")
     elif action == "MOVE_STOP":
+        if not protection_status_allows_amendment(packet_protection_status(packet)):
+            raise ValueError("protection_status_not_confirmed")
         _number(intent.get("new_stop_price"), "new_stop_price")
         validate_target_intent_id(
             intent,
@@ -857,6 +870,8 @@ def validate_intent(
             required=len(active_tranches(packet)) > 1,
         )
     elif action == "MOVE_TP":
+        if not protection_status_allows_amendment(packet_protection_status(packet)):
+            raise ValueError("protection_status_not_confirmed")
         target_price = intent.get("new_take_profit", intent.get("take_profit_1"))
         _number(target_price, "move_tp_target_price")
         validate_target_intent_id(
