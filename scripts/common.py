@@ -40,6 +40,11 @@ def profile_root(profile: str = PROFILE_NAME) -> Path:
     return (Path.home() / ".hermes" / "profiles" / profile).resolve()
 
 
+def state_root(profile: Path) -> Path:
+    """Durable runtime state under the installed Hermes profile."""
+    return profile / "state"
+
+
 # ponytail: profile .env wins for cron routing keys — Hermes daemon may carry stale values
 _DOTENV_FORCE_OVERRIDE_PREFIXES = ("GLITCH_TOPSTEP_",)
 
