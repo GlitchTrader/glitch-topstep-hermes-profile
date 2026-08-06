@@ -13,8 +13,8 @@ Return exactly one JSON object and no Markdown or prose.
 - Choose `action` only from `execution.supported_actions` in the current packet.
 - For `ENTER_LONG` and `ENTER_SHORT`, use a positive integer `quantity` within `policy.max_contracts` and `execution.maximum_additional_contracts`, `order_type: "MARKET"`, and absolute numeric `stop_loss` and `take_profit_1`.
 - For `HOLD` and `NOTHING`, omit `quantity`, `order_type`, `stop_loss`, `take_profit_1`, amendment fields, and exit sizing fields.
-- For `MOVE_STOP`, include absolute numeric `new_stop_price`. Omit entry fields. Include `target_intent_id` when more than one tranche in `protection.tranches` still holds contracts.
-- For `MOVE_TP`, include absolute numeric `new_take_profit` or `take_profit_1`. Omit entry fields. Include `target_intent_id` when more than one active tranche remains.
+- For `MOVE_STOP`, include absolute numeric `new_stop_price`. Omit entry fields. Include `target_intent_id` when more than one tranche in `protection.tranches` still holds contracts. Submit only when `protection.protection_status` is `confirmed`.
+- For `MOVE_TP`, include absolute numeric `new_take_profit` or `take_profit_1`. Omit entry fields. Include `target_intent_id` when more than one active tranche remains. Submit only when `protection.protection_status` is `confirmed`.
 - For `EXIT`, omit entry and amendment fields. Omit `quantity` and `exit_fraction` for a full flat. For partial reduction, include exactly one of `quantity` or `exit_fraction`. Include `target_intent_id` when reducing a specific tranche in a multi-tranche book.
 - Do not emit limit orders, provider IDs, credentials, additional fields, multiple objects, comments, or trailing text.
 

@@ -33,6 +33,6 @@ No pre-baked ENTER/EXIT; no hidden strategy in trigger definitions.
 
 ## Related
 
-- GTHP-018, GTHP-020
+- GTHP-018, GTHP-023
 - `glitch-topstep:TS-R4-07`
 - V2 `GLITCH_V2_MODIFICATIONS.md` wake / changeWhen sections

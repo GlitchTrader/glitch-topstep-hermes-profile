@@ -348,6 +348,63 @@ def stale_gateway_skip_reason(
     return market_quiescent_skip_reason(packet, directive)
 
 
+PACKET_PROTECTION_STATUSES = frozenset({
+    "pending",
+    "confirmed",
+    "failed",
+    "unknown",
+})
+
+
+def packet_protection_status(packet: dict[str, Any]) -> str | None:
+    """GTHP-020: Hermes-facing bracket verification state when positioned."""
+    if not packet_positioned(packet):
+        return None
+    protection = packet.get("protection")
+    if not isinstance(protection, dict):
+        return "unknown"
+    status = protection.get("protection_status")
+    if isinstance(status, str) and status in PACKET_PROTECTION_STATUSES:
+        return status
+    # ponytail: pre-0.1.6 gateways expose protection.status only
+    legacy = protection.get("status")
+    if legacy == "proven":
+        return "confirmed"
+    if legacy == "pending":
+        return "pending"
+    if legacy == "incomplete":
+        return "failed"
+    return "unknown"
+
+
+def protection_status_allows_amendment(status: str | None) -> bool:
+    return status == "confirmed"
+
+
+def protection_status_management_guidance(status: str | None) -> str | None:
+    if status is None:
+        return None
+    if status == "confirmed":
+        return (
+            "protection.protection_status is confirmed — SL/TP verified on venue; "
+            "full management including MOVE_STOP and MOVE_TP is available."
+        )
+    if status == "pending":
+        return (
+            "protection.protection_status is pending — venue brackets may still be landing; "
+            "prefer HOLD, name the wait in the audit, and use EXIT if protection fails to confirm."
+        )
+    if status == "failed":
+        return (
+            "protection.protection_status is failed — venue SL/TP not verified within the gateway "
+            "timeout; prioritize risk-reducing EXIT; do not submit MOVE_STOP or MOVE_TP."
+        )
+    return (
+        "protection.protection_status is unknown — reconciliation incomplete; "
+        "prefer HOLD or risk-reducing EXIT; do not submit MOVE_STOP or MOVE_TP."
+    )
+
+
 def invocation_reason(
     packet: dict[str, Any],
     state: Path,

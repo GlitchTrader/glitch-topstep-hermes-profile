@@ -439,6 +439,7 @@ class DirectCycleTests(unittest.TestCase):
         ]
         current_packet["protection"] = {
             "status": "proven",
+            "protection_status": "confirmed",
             "reason": "all_tranches_protected",
             "intent_id": "00000000-0000-4000-8000-000000000101",
             "stop": {
@@ -488,6 +489,102 @@ class DirectCycleTests(unittest.TestCase):
             current_packet,
         )
         MODULE.validate_intent(value, current_packet)
+
+    def _positioned_protection_packet(self, *, protection_status: str) -> dict[str, Any]:
+        current_packet = packet(positioned=True)
+        current_packet["execution"]["supported_actions"] = [
+            "HOLD",
+            "EXIT",
+            "MOVE_STOP",
+            "MOVE_TP",
+            "NOTHING",
+        ]
+        current_packet["protection"] = {
+            "status": "proven" if protection_status == "confirmed" else "pending",
+            "protection_status": protection_status,
+            "reason": "test",
+            "intent_id": "00000000-0000-4000-8000-000000000101",
+            "stop": {"provider_order_id": 1, "custom_tag": "glt-sl", "price": 19990},
+            "target": {"provider_order_id": 2, "custom_tag": "glt-tp", "price": 20020},
+            "tranches": [
+                {
+                    "intent_id": "00000000-0000-4000-8000-000000000101",
+                    "entry_order_id": 100,
+                    "filled_qty": 1,
+                    "remaining_qty": 1,
+                    "created_utc": "2099-01-01T14:05:00Z",
+                    "protection": {
+                        "status": "proven" if protection_status == "confirmed" else "pending",
+                        "reason": "matched",
+                        "stop": {
+                            "provider_order_id": 1,
+                            "custom_tag": "glt-sl",
+                            "price": 19990,
+                        },
+                        "target": {
+                            "provider_order_id": 2,
+                            "custom_tag": "glt-tp",
+                            "price": 20020,
+                        },
+                    },
+                }
+            ],
+        }
+        return current_packet
+
+    def test_move_stop_rejected_when_protection_status_pending(self):
+        current_packet = self._positioned_protection_packet(protection_status="pending")
+        value = MODULE.normalize_intent(
+            {
+                **intent("HOLD"),
+                "action": "MOVE_STOP",
+                "decision_audit": {
+                    field: "MOVE_STOP" if field == "final_choice" else "Evidence"
+                    for field in MODULE.AUDIT_FIELDS
+                },
+                "new_stop_price": 19995,
+            },
+            current_packet,
+        )
+        with self.assertRaisesRegex(ValueError, "protection_status_not_confirmed"):
+            MODULE.validate_intent(value, current_packet)
+
+    def test_move_stop_rejected_when_protection_status_failed(self):
+        current_packet = self._positioned_protection_packet(protection_status="failed")
+        value = MODULE.normalize_intent(
+            {
+                **intent("HOLD"),
+                "action": "MOVE_STOP",
+                "decision_audit": {
+                    field: "MOVE_STOP" if field == "final_choice" else "Evidence"
+                    for field in MODULE.AUDIT_FIELDS
+                },
+                "new_stop_price": 19995,
+            },
+            current_packet,
+        )
+        with self.assertRaisesRegex(ValueError, "protection_status_not_confirmed"):
+            MODULE.validate_intent(value, current_packet)
+
+    def test_packet_protection_status_legacy_proven_maps_to_confirmed(self):
+        current_packet = packet(positioned=True)
+        current_packet["protection"] = {"status": "proven"}
+        self.assertEqual(PARITY.packet_protection_status(current_packet), "confirmed")
+
+    def test_packet_protection_status_none_when_flat(self):
+        self.assertIsNone(PARITY.packet_protection_status(packet()))
+
+    def test_protection_status_management_guidance_for_failed(self):
+        guidance = PARITY.protection_status_management_guidance("failed")
+        self.assertIn("failed", guidance or "")
+        self.assertIn("EXIT", guidance or "")
+
+    def test_prompt_includes_protection_management_when_positioned(self):
+        current_packet = self._positioned_protection_packet(protection_status="pending")
+        prompt = MODULE.build_prompt(current_packet, [], {}, None)
+        envelope = json.loads(prompt.split("CURRENT_CYCLE=", 1)[1])
+        self.assertIn("pending", envelope["protection_management"])
+        self.assertIn("protection.protection_status", prompt)
 
     def test_prompt_states_position_management(self):
         value = MODULE.build_prompt(packet(positioned=True), [], {}, None)

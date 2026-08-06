@@ -436,6 +436,40 @@
     },
     {
       "id": "GTHP-020",
+      "title": "Bracket verification consumption (protection.protection_status)",
+      "status": "done",
+      "priority": "P1",
+      "owner_role": "architect",
+      "depends_on": [
+        "GTHP-009",
+        "GTHP-012",
+        "glitch-topstep:TS-R4-08"
+      ],
+      "acceptance": [
+        "parity.packet_protection_status with legacy protection.status fallback.",
+        "validate_intent rejects MOVE_STOP/MOVE_TP unless protection_status is confirmed.",
+        "Cycle prompt and skills guide pending/failed/unknown positioned management.",
+        "docs/specs/GTHP-020.md, docs/OPERATIONS.md, tests/test_direct_cycle.py.",
+        "tested_gateway_version 0.1.6; profile 0.1.22."
+      ],
+      "stop_line": "No auto-flatten, flat-cycle skip, or ENTER veto from protection_status.",
+      "evidence": [
+        "2026-08-06: parity protection_status helpers; amendment guard in run-topstep-cycle.",
+        "SOUL.md, topstep-assess-risk, topstep-build-intent updated.",
+        "distribution 0.1.22 / tested_gateway_version 0.1.6."
+      ],
+      "sources": [
+        "scripts/parity.py",
+        "scripts/run-topstep-cycle.py",
+        "SOUL.md",
+        "skills/topstep-assess-risk/SKILL.md",
+        "skills/topstep-build-intent/SKILL.md",
+        "docs/specs/GTHP-020.md",
+        "glitch-topstep:docs/specs/TS-R4-08.md"
+      ]
+    },
+    {
+      "id": "GTHP-023",
       "title": "Selective V2 skills (orderflow, session, post-trade)",
       "status": "open",
       "priority": "P2",
@@ -451,13 +485,13 @@
         "skills/orderflow-liquidity, session-playbook, post-trade-review each have SKILL.md.",
         "SOUL.md references skills without contradicting GTHP-009 or AUTHORITY.",
         "No guardian auto-flatten or hidden execution gates via skills.",
-        "docs/specs/GTHP-020.md."
+        "docs/specs/GTHP-023.md."
       ],
       "stop_line": "Do not port v2 guardian, multi-account, or glitch-decision-v2 schema.",
       "sources": [
         "SOUL.md",
         "skills/",
-        "docs/specs/GTHP-020.md"
+        "docs/specs/GTHP-023.md"
       ]
     },
     {
