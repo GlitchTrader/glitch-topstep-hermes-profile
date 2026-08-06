@@ -574,6 +574,8 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "EXIT may omit quantity/exit_fraction for full flat. "
     "Compare current evidence to prior change_condition observations; current-cycle setup may justify entry "
     "even when a prior advisory trigger was not satisfied, but choose the action the evidence supports now. "
+    "Use ledger and guidance in recent_glitch_ledger for continuity; do not call memory write tools in trading cycles. "
+    "If memory search is available, use read/search at most once; never invoke memory with add/replace/remove. "
     "Retrieve durable lessons once via native memory, then return JSON without writing memory. "
     "When positioned, read protection.protection_status from the packet: confirmed allows full "
     "management; pending favors HOLD while venue brackets land (EXIT if protection fails to confirm); "
@@ -690,7 +692,7 @@ def invoke_hermes(
         "--skills",
         (
             "topstep-observe-market,topstep-assess-risk,topstep-form-thesis,"
-            "topstep-build-intent,topstep-self-learning"
+            "topstep-build-intent"
         ),
         "--toolsets",
         "memory",
@@ -843,6 +845,18 @@ def normalize_intent(
         intent.pop("quantity", None)
     if action != "EXIT":
         intent.pop("exit_fraction", None)
+    intent["reason"] = truncate_gateway_string(
+        str(intent.get("reason") or ""),
+        GATEWAY_REASON_MAX_LENGTH,
+    )
+    audit = intent.get("decision_audit")
+    if isinstance(audit, dict):
+        for field in AUDIT_FIELDS:
+            if isinstance(audit.get(field), str):
+                audit[field] = truncate_gateway_string(
+                    audit[field],
+                    GATEWAY_AUDIT_FIELD_MAX_LENGTH,
+                )
     return intent
 
 
