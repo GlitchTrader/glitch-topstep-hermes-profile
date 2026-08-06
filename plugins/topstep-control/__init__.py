@@ -12,7 +12,11 @@ from typing import Any, Optional
 import sys
 
 PROFILE_NAME = "glitch-topstep"
-JOB_NAMES = ("glitch-topstep-direct-operator", "glitch-topstep-learning-supervisor")
+JOB_NAMES = (
+    "glitch-topstep-direct-operator",
+    "glitch-topstep-learning-supervisor",
+    "glitch-topstep-wake-monitor",
+)
 
 
 def _ensure_scripts_path() -> None:

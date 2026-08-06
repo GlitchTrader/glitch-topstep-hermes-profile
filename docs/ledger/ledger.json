@@ -1,9 +1,9 @@
 {
   "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-08-05",
+  "updated": "2026-08-06",
   "release_target": "paired gateway/profile beta",
-  "profile_version": "0.1.21",
+  "profile_version": "0.1.23",
   "gateway": {
     "repository": "GlitchTrader/glitch-topstep",
     "current_version": "0.1.4",
@@ -411,7 +411,7 @@
     {
       "id": "GTHP-019",
       "title": "Persistent wake triggers and durable changeWhen monitor",
-      "status": "open",
+      "status": "done",
       "priority": "P1",
       "owner_role": "architect",
       "issue": 62,
@@ -427,8 +427,16 @@
         "docs/specs/GTHP-019.md and regression tests."
       ],
       "stop_line": "Triggers schedule invocation only — no pre-baked trade decisions or hidden ENTER veto.",
+      "evidence": [
+        "2026-08-06: PRICE_CROSS + SESSION_PHASE schema; run-wake-trigger-monitor loop; launch-wake-trigger-monitor cron job.",
+        "parity evaluate_wake_triggers + cooldown fire_history; condition_change bypasses market_quiescent.",
+        "wake_reason on events.jsonl; tests/test_wake_triggers.py",
+        "distribution 0.1.23"
+      ],
       "sources": [
         "scripts/parity.py",
+        "scripts/run-wake-trigger-monitor.py",
+        "scripts/launch-wake-trigger-monitor.py",
         "supervisor/active-wake-triggers.json",
         "docs/specs/GTHP-019.md",
         "glitch-topstep:docs/specs/TS-R4-07.md"
