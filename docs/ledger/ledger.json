@@ -3,7 +3,7 @@
   "project": "glitch-topstep-hermes-profile",
   "updated": "2026-08-06",
   "release_target": "paired gateway/profile beta",
-  "profile_version": "0.1.26",
+  "profile_version": "0.1.27",
   "gateway": {
     "repository": "GlitchTrader/glitch-topstep",
     "current_version": "0.1.6",
@@ -616,6 +616,22 @@
         "tests/test_direct_cycle.py",
         "distribution 0.1.26",
         "regenerated SHA256SUMS"
+      ]
+    },
+    {
+      "id": "GTHP-027",
+      "title": "SHA256SUMS coverage for cycle scripts and worker status timestamp",
+      "status": "done",
+      "priority": "P0",
+      "owner_role": "release_architecture",
+      "depends_on": [
+        "GTHP-026"
+      ],
+      "evidence": [
+        "SHA256SUMS includes run-topstep-cycle.py and parity.py",
+        "scripts/run-topstep-cycle.py lazy import for clear_pending_wake_invocation",
+        "plugins/topstep-control/__init__.py worker status recorded_utc",
+        "distribution 0.1.27"
       ]
     }
   ]
