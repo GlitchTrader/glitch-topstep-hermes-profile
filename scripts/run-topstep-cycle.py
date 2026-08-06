@@ -59,8 +59,10 @@ from parity import (
     classify_delivery_result,
     clear_delivery_wire,
     compact_cycle_ledger_context,
+    cycle_wake_fields,
     deliver_packet_intent,
     discard_stale_outbox_intent,
+    evaluate_wake_triggers,
     invocation_reason,
     flat_outside_session_window,
     market_quiescent_skip_details,
@@ -74,6 +76,8 @@ from parity import (
     pending_outbox,
     persist_wake_triggers,
     prune_delivered_outboxes,
+    read_pending_wake_invocation,
+    record_wake_trigger_fire,
     require_explicit_wake_triggers,
     RETRYABLE_ATTEMPT_STATUSES,
     validate_wake_triggers,
@@ -1019,6 +1023,26 @@ def deliver_intent(
     )
 
 
+def resolve_wake_invocation_context(
+    state: Path,
+    packet: dict[str, Any],
+    reason: str | None,
+    pending_wake: dict[str, Any] | None,
+) -> tuple[dict[str, Any] | None, str | None]:
+    if pending_wake:
+        clear_pending_wake_invocation(state)
+        return {
+            "wake_reason": pending_wake.get("wake_reason"),
+            "wake_trigger": pending_wake.get("wake_trigger"),
+            "trigger_key": pending_wake.get("trigger_key"),
+        }, "monitor"
+    if reason == "condition_change":
+        detail = evaluate_wake_triggers(state, packet)
+        if detail:
+            return detail, "cycle"
+    return None, None
+
+
 def run_once(args: argparse.Namespace, root: Path) -> int:
     token = local_token()
     health_status, health = request_json("/health")
@@ -1096,6 +1120,15 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         directive,
         flat_decision_interval_minutes=flat_decision_interval_minutes(),
     )
+    pending_wake = read_pending_wake_invocation(state)
+    if reason is None and pending_wake:
+        reason = "condition_change"
+    wake_detail, wake_source = resolve_wake_invocation_context(
+        state,
+        packet,
+        reason,
+        pending_wake,
+    )
     if reason is None:
         if flat_outside_session_window(packet, directive):
             if packet_minute(packet) % flat_decision_interval_minutes() == 0:
@@ -1114,7 +1147,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         return 0
 
     quiescent = market_quiescent_skip_details(packet, directive)
-    if quiescent:
+    if quiescent and reason != "condition_change":
         append_jsonl(
             state / "events.jsonl",
             {
@@ -1122,11 +1155,16 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
                 "event": "llm_skipped",
                 "recorded_utc": utc_now(),
                 "packet_id": packet.get("packet_id"),
-                "invocation_reason": reason,
+                **cycle_wake_fields(reason, wake_detail),
                 **quiescent,
             },
         )
         return 0
+
+    if wake_detail and wake_source == "cycle":
+        trigger = wake_detail.get("wake_trigger")
+        if isinstance(trigger, dict):
+            record_wake_trigger_fire(state, trigger, packet, source="cycle")
 
     if should_skip_unchanged_evidence(packet, directive, state):
         append_jsonl(
@@ -1136,7 +1174,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
                 "event": "cognition_skipped",
                 "recorded_utc": utc_now(),
                 "packet_id": packet.get("packet_id"),
-                "invocation_reason": reason,
+                **cycle_wake_fields(reason, wake_detail),
                 "reason": "unchanged_evidence",
                 "fingerprint": evidence_fingerprint(packet),
             },
@@ -1204,7 +1242,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
                     "event": "decision_failed",
                     "recorded_utc": utc_now(),
                     "packet_id": packet_id,
-                    "invocation_reason": reason,
+                    **cycle_wake_fields(reason, wake_detail),
                     "error": attempt["error"],
                 },
             )
@@ -1252,7 +1290,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
                 "event": "decision_ready",
                 "recorded_utc": utc_now(),
                 "packet_id": packet_id,
-                "invocation_reason": reason,
+                **cycle_wake_fields(reason, wake_detail),
             },
         )
         if directive:

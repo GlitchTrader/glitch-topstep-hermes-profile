@@ -156,6 +156,8 @@ $requiredFiles = @(
     'scripts\run-topstep-cycle.py',
     'scripts\launch-topstep-learning.py',
     'scripts\run-topstep-learning.py',
+    'scripts\launch-wake-trigger-monitor.py',
+    'scripts\run-wake-trigger-monitor.py',
     'plugins\topstep-control\plugin.yaml',
     'plugins\topstep-control\__init__.py'
 )
@@ -207,6 +209,11 @@ try {
         -Name 'glitch-topstep-learning-supervisor' `
         -Schedule '*/30 * * * *' `
         -Script 'launch-topstep-learning.py' `
+        -Workdir (Join-Path $profileRoot 'scripts')
+    $wakeMonitorJob = Ensure-CronJob `
+        -Name 'glitch-topstep-wake-monitor' `
+        -Schedule '* * * * *' `
+        -Script 'launch-wake-trigger-monitor.py' `
         -Workdir (Join-Path $profileRoot 'scripts')
 }
 finally {
@@ -260,7 +267,7 @@ finally {
     gateway_supervised = $true
     gateway_compatibility = $gatewayCompatibility
     plugin_enabled = $true
-    jobs = @($directJob, $learningJob)
-    fresh_install_jobs_paused = (-not $directJob.enabled -and -not $learningJob.enabled)
+    jobs = @($directJob, $learningJob, $wakeMonitorJob)
+    fresh_install_jobs_paused = (-not $directJob.enabled -and -not $learningJob.enabled -and -not $wakeMonitorJob.enabled)
     next = 'Set GLITCH_TOPSTEP_LOCAL_TOKEN in .env, start the local glitch-topstep gateway, then use /topstep_status and /trade.'
 } | ConvertTo-Json -Depth 5
