@@ -1,47 +1,49 @@
 # GTHP-028 — Neutral template placeholders and cycle delta audit
 
 **Priority:** P1 (cognition)  
-**Status:** planned  
-**Depends on:** GTHP-025
+**Status:** done  
+**Depends on:** GTHP-025  
+**Prompt version:** glitch-topstep-v9
 
 ## Problem
 
-External review of `glitch-topstep-v8` confirms prompt doctrine improved (~8/10) but three gaps remain:
+External review of `glitch-topstep-v8` confirmed prompt doctrine improved (~8/10) but three gaps remained:
 
-1. **Template shape:** removing `action`/`confidence` avoids NOTHING anchoring but may increase `intent_schema_invalid` when the model omits required core fields. Need neutral placeholders, not defaults.
-2. **Behavioral inertia:** rebuild instructions alone do not force an explicit delta-vs-prior-frame audit or hypothesis lifecycle classification; `change_condition` text can still repeat across cycles.
-3. **Residual confirmation language:** “honor prior change_condition” still reads like a prerequisite gate despite advisory doctrine.
+1. **Template shape:** removing `action`/`confidence` avoided NOTHING anchoring but increased omission risk. Neutral placeholders are required, not defaults.
+2. **Behavioral inertia:** rebuild instructions alone did not force an explicit delta-vs-prior-frame audit or hypothesis lifecycle classification; `change_condition` text repeated across cycles.
+3. **Residual confirmation language:** “honor prior change_condition” read like a prerequisite gate despite advisory doctrine.
 
 ## Scope
 
 ### Profile prompt / SOUL / skills
 
-- [ ] `required_output_template`: include `action` and `confidence` as neutral placeholders (`<CHOOSE_FROM_supported_actions>`, `<0.0-1.0>`), never pre-filled `NOTHING`.
-- [ ] `decision_audit.decisive_evidence`: require material changes since the immediately prior frame when `recent_frames` is non-empty.
-- [ ] Classify prior hypothesis in audit text: `CONFIRMED | INVALIDATED | PARTIALLY_CONFIRMED | UNCHANGED`.
-- [ ] Discourage repeating the same `change_condition` for more than two consecutive cycles inside the same structure.
-- [ ] Replace “honor prior change_condition” with observational-only language; current-cycle setup may justify entry even when prior trigger was not satisfied.
-- [ ] Clarify flat vs positioned actions: never `HOLD` while flat; never `NOTHING` while positioned.
-- [ ] Reinforce `EXIT` / `target_intent_id` rules for multi-tranche books.
+- [x] `required_output_template`: `action` = `<CHOOSE_FROM_supported_actions>`, `confidence` = `<0.0-1.0>`; never pre-filled `NOTHING`.
+- [x] `cycle_evidence_delta` in prompt envelope when `recent_frames` is non-empty.
+- [x] `decisive_evidence` must open with `prior_hypothesis=<CONFIRMED|INVALIDATED|PARTIALLY_CONFIRMED|UNCHANGED>` plus material deltas.
+- [x] `ledger_repetition_guidance` when the same `change_condition` repeats across recent cycles.
+- [x] Replace “honor prior change_condition” with observational-only language.
+- [x] Clarify flat vs positioned actions: never `HOLD` while flat; never `NOTHING` while positioned.
+- [x] Reinforce multi-tranche `target_intent_id` rules in operator instruction.
+- [x] `normalize_intent` / `validate_intent` reject unreplaced placeholders.
 
 ### Operations
 
-- [ ] `safe-profile-update.ps1`: remove stale `direct-cycle.lock` when owner PID is dead (Windows update reliability). **Shipped in 0.1.28**; cognition items remain open.
+- [x] `safe-profile-update.ps1`: stale `direct-cycle.lock` recovery (shipped 0.1.28).
 
 ## Non-goals
 
 - Trade quotas or anti-abstention pressure.
 - Worker gates on `decision_scores` or hypothesis labels.
-- Gateway packet fixes (remain in issue #73).
+- Gateway packet source fixes (GTHP-029 profile sanitization + issue #73 gateway).
 
 ## Acceptance
 
 - Schema validity on flat NOTHING/HOLD/ENTER samples in unittest prompt fixtures.
-- Manual replay shows fewer verbatim repeated `change_condition` strings across 5+ flat cycles in similar structure.
-- Windows `safe-profile-update.ps1` succeeds when cron was running and owner PID was killed.
+- Prompt envelope includes placeholders, `cycle_evidence_delta`, and repetition guidance.
+- Manual replay should show fewer verbatim repeated `change_condition` strings across similar-structure flat cycles.
 
 ## Related
 
-- #73 P1 packet data quality
+- GTHP-029 packet sanitization (#73 profile side)
 - #74 P2 structural evidence
 - #75 P3 calibration metrics

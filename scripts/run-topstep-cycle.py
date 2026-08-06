@@ -60,8 +60,10 @@ from parity import (
     classify_delivery_result,
     clear_delivery_wire,
     compact_cycle_ledger_context,
+    compute_cycle_evidence_delta,
     cycle_wake_fields,
     deliver_packet_intent,
+    delivery_diagnostic_detail,
     discard_stale_outbox_intent,
     evaluate_wake_triggers,
     invocation_reason,
@@ -79,6 +81,7 @@ from parity import (
     prune_delivered_outboxes,
     read_pending_wake_invocation,
     record_wake_trigger_fire,
+    repeated_change_condition_warning,
     RETRYABLE_ATTEMPT_STATUSES,
     validate_wake_triggers,
     wait_for_packet_rollover,
@@ -111,6 +114,14 @@ AUDIT_FIELDS = {
 }
 GATEWAY_REASON_MAX_LENGTH = 1000
 GATEWAY_AUDIT_FIELD_MAX_LENGTH = 500
+ACTION_PLACEHOLDER = "<CHOOSE_FROM_supported_actions>"
+CONFIDENCE_PLACEHOLDER = "<0.0-1.0>"
+PRIOR_HYPOTHESIS_LABELS = (
+    "CONFIRMED",
+    "INVALIDATED",
+    "PARTIALLY_CONFIRMED",
+    "UNCHANGED",
+)
 
 
 def truncate_gateway_string(value: str, max_length: int) -> str:
@@ -520,15 +531,19 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "You are the trading operator, not a suggestion engine. "
     "Rebuild LONG, SHORT, and flat hypotheses from the current packet and frame path each cycle; "
     "do not repeat prior ledger narrative or default to the previous action. "
-    "While flat evaluate ENTER_LONG, ENTER_SHORT, and NOTHING symmetrically; "
-    "when positioned evaluate HOLD, MOVE_STOP, MOVE_TP, partial or full EXIT, and scale-in "
-    "only when execution.supported_actions includes the matching ENTER_* action. "
+    "While flat evaluate ENTER_LONG, ENTER_SHORT, and NOTHING symmetrically; never choose HOLD while flat. "
+    "When positioned evaluate HOLD, MOVE_STOP, MOVE_TP, partial or full EXIT, and scale-in "
+    "only when execution.supported_actions includes the matching ENTER_* action; never choose NOTHING while positioned. "
     "Choose only from execution.supported_actions. "
-    "Multi-tranche protection requires target_intent_id on MOVE_STOP, MOVE_TP, and targeted EXIT. "
+    "Multi-tranche protection requires target_intent_id on MOVE_STOP, MOVE_TP, and targeted partial EXIT. "
     "decision_packet is the full current gateway snapshot; recent_frames are compact minute continuity "
     "snapshots (semantic fields only, no templates or lease metadata). "
+    "cycle_evidence_delta summarizes material changes since the immediately prior frame when present. "
     "data_quality, capacity, policy, and daily_economics mirrors are evidence to reason about, "
     "not automatic cognitive vetoes. Do not invent missing facts. "
+    "When market.session_levels_reliable is false, do not treat session_high/low as structural edges; "
+    "use order_flow windows and observation range features instead. "
+    "When order_flow depth.available is false, do not infer book imbalance. "
     "ALTERED PARTICIPATION GUIDANCE: do not require all timeframes, a closed candle, "
     "a retest, or sustained multi-window flow as universal entry gates. Use 60m for context, "
     "5m for structure, and 1m for timing; mixed evidence lowers confidence but does not by itself "
@@ -541,9 +556,13 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "packet issuance, and order transport; rejection is an attributable episode, not pre-emption. "
     "Return exactly one strict glitch.intent.v2 JSON object with no prose. "
     "Preserve account, instrument, snapshot_hash, and operator_profile exactly. "
+    "Replace template placeholders action and confidence with real values; never emit placeholder strings. "
     "decision_audit must include bull_case, bear_case, flat_case, aggressive_case, conservative_case, "
     "decisive_evidence, disconfirming_evidence, change_condition, and final_choice (matching action). "
-    "change_condition is an advisory re-evaluation hypothesis, not a rigid execution gate. "
+    "decisive_evidence must begin with prior_hypothesis=<CONFIRMED|INVALIDATED|PARTIALLY_CONFIRMED|UNCHANGED> "
+    "versus the immediately prior frame when recent_frames is non-empty, then state material deltas since that frame. "
+    "change_condition is an advisory re-evaluation hypothesis, not a rigid execution gate; "
+    "rewrite it when cycle_evidence_delta or prior ledger repetition guidance indicates stale wording. "
     "Action contract: ENTER_LONG and ENTER_SHORT require positive integer quantity, order_type MARKET, "
     "and absolute stop_loss and take_profit_1; omit wake_triggers and management fields. "
     "NOTHING and HOLD omit quantity, order_type, stop_loss, take_profit_1, amendment fields, and exit sizing. "
@@ -553,7 +572,8 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "never treat wake_triggers as a gateway field. "
     "MOVE_STOP needs new_stop_price; MOVE_TP needs new_take_profit or take_profit_1; "
     "EXIT may omit quantity/exit_fraction for full flat. "
-    "Honor prior change_condition when current evidence satisfies it, but choose the action the evidence supports now. "
+    "Compare current evidence to prior change_condition observations; current-cycle setup may justify entry "
+    "even when a prior advisory trigger was not satisfied, but choose the action the evidence supports now. "
     "Retrieve durable lessons once via native memory, then return JSON without writing memory. "
     "When positioned, read protection.protection_status from the packet: confirmed allows full "
     "management; pending favors HOLD while venue brackets land (EXIT if protection fails to confirm); "
@@ -572,8 +592,6 @@ def build_prompt(
 ) -> str:
     model_packet = cycle_packet_for_model(packet)
     template = copy.deepcopy(packet.get("required_output_template") or {})
-    template.pop("action", None)
-    template.pop("confidence", None)
     template.pop("wake_triggers", None)
     template.pop("wake_trigger", None)
     template.update(
@@ -585,6 +603,8 @@ def build_prompt(
         instrument=packet["instrument"],
         account=packet["account"]["name"],
         operator_profile=PROFILE_NAME,
+        action=ACTION_PLACEHOLDER,
+        confidence=CONFIDENCE_PLACEHOLDER,
         snapshot_hash=packet["market"]["snapshot_hash"],
         model_version=core_model(),
         prompt_version=PROMPT_VERSION,
@@ -593,10 +613,23 @@ def build_prompt(
 
     audit = template.setdefault("decision_audit", {})
     for field in AUDIT_FIELDS:
-        audit[field] = "Replace"
+        if field == "decisive_evidence":
+            audit[field] = (
+                "Replace. Begin with prior_hypothesis=<CONFIRMED|INVALIDATED|"
+                "PARTIALLY_CONFIRMED|UNCHANGED> then material deltas since prior frame."
+            )
+        elif field == "final_choice":
+            audit[field] = ACTION_PLACEHOLDER
+        else:
+            audit[field] = "Replace"
 
     protection_guidance = protection_status_management_guidance(
         packet_protection_status(packet),
+    )
+    prior_frame = frames[-1] if frames else None
+    evidence_delta = compute_cycle_evidence_delta(packet, prior_frame)
+    repetition_warning = repeated_change_condition_warning(
+        context.get("decisions") if isinstance(context.get("decisions"), list) else [],
     )
     envelope = {
         "decision_packet": model_packet,
@@ -605,6 +638,8 @@ def build_prompt(
         "active_trade_state": trade_state,
         "operator_directive": directive,
         "required_output_template": template,
+        "cycle_evidence_delta": evidence_delta,
+        "ledger_repetition_guidance": repetition_warning,
         "protection_management": protection_guidance,
         "operator_authority": {
             "principle": (
@@ -744,6 +779,27 @@ def validate_target_intent_id(
         raise ValueError("target_intent_id_not_active")
 
 
+def _resolve_action_placeholder(action: Any) -> Any:
+    if not isinstance(action, str):
+        return action
+    normalized = action.strip()
+    if normalized in {ACTION_PLACEHOLDER, "Replace"}:
+        raise ValueError("action_placeholder_not_replaced")
+    if "<" in normalized or ">" in normalized:
+        raise ValueError("action_placeholder_not_replaced")
+    return normalized
+
+
+def _resolve_confidence_placeholder(confidence: Any) -> Any:
+    if isinstance(confidence, str):
+        normalized = confidence.strip()
+        if normalized in {CONFIDENCE_PLACEHOLDER, "Replace"}:
+            raise ValueError("confidence_placeholder_not_replaced")
+        if "<" in normalized or ">" in normalized:
+            raise ValueError("confidence_placeholder_not_replaced")
+    return confidence
+
+
 def normalize_intent(
     value: dict[str, Any],
     packet: dict[str, Any],
@@ -755,6 +811,8 @@ def normalize_intent(
     if "wake_triggers" not in intent:
         intent["wake_triggers"] = []
     action = "NOTHING" if intent.get("action") == "NO_ACTION" else intent.get("action")
+    action = _resolve_action_placeholder(action)
+    confidence = _resolve_confidence_placeholder(intent.get("confidence"))
     intent.update(
         schema_version="glitch.intent.v2",
         intent_id=str(
@@ -768,6 +826,7 @@ def normalize_intent(
         model_version=core_model(),
         prompt_version=PROMPT_VERSION,
         action=action,
+        confidence=confidence,
     )
     if action not in {"ENTER_LONG", "ENTER_SHORT"}:
         for field in ENTRY_FIELDS:
@@ -849,6 +908,13 @@ def validate_intent(
         raise ValueError("decision_audit_value_invalid")
     if audit.get("final_choice") != action:
         raise ValueError("decision_audit_choice_mismatch")
+    for field in ("final_choice",):
+        value = audit.get(field)
+        if isinstance(value, str) and value.strip() in {ACTION_PLACEHOLDER, "Replace"}:
+            raise ValueError("decision_audit_placeholder_not_replaced")
+    decisive = audit.get("decisive_evidence")
+    if isinstance(decisive, str) and decisive.strip().startswith("Replace"):
+        raise ValueError("decision_audit_placeholder_not_replaced")
 
     wake_triggers = intent.get("wake_triggers")
     if wake_triggers is not None:
@@ -1341,6 +1407,20 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         outbox_path.unlink(missing_ok=True)
         clear_delivery_wire(state, packet_id)
         print(json.dumps(receipt, separators=(",", ":")))
+        if classification == "terminal_rejection":
+            detail = delivery_diagnostic_detail(result)
+            if detail:
+                append_jsonl(
+                    state / "events.jsonl",
+                    {
+                        "schema_version": "glitch.topstep.cycle_event.v2",
+                        "event": "intent_delivery_rejected",
+                        "recorded_utc": utc_now(),
+                        "packet_id": packet_id,
+                        "intent_id": intent["intent_id"],
+                        **detail,
+                    },
+                )
     else:
         print(json.dumps({"packet_id": packet_id, "result": result}, separators=(",", ":")))
     mark_attempt_from_receipt(state, packet_id, result)

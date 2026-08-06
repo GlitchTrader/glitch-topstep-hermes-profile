@@ -82,6 +82,115 @@ FRAME_SKIP_WHEN_FLAT = frozenset(
 CYCLE_ORDER_FLOW_WINDOWS = frozenset({15, 60, 300})
 
 
+def _finite_number(value: Any) -> float | None:
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        number = float(value)
+        if number == number:  # NaN guard without importing math
+            return number
+    return None
+
+
+def sanitize_quote_age_ms(value: Any) -> int | None:
+    number = _finite_number(value)
+    if number is None:
+        return None
+    return max(0, int(round(number)))
+
+
+def sanitize_market_for_model(market: dict[str, Any]) -> dict[str, Any]:
+    out = _pick(market, FRAME_MARKET_KEYS)
+    last = _finite_number(market.get("last"))
+    high = _finite_number(market.get("session_high"))
+    low = _finite_number(market.get("session_low"))
+    session_open = _finite_number(market.get("session_open"))
+    reliable = True
+    if last is not None and high is not None and low is not None:
+        if high == low == last:
+            reliable = False
+        elif (
+            session_open is not None
+            and high == low == session_open == last
+        ):
+            reliable = False
+    out["session_levels_reliable"] = reliable
+    if not reliable:
+        out["session_levels_note"] = (
+            "session_high/low mirror last or session_open; "
+            "prefer order_flow 60s high/low or observation range features"
+        )
+    return out
+
+
+def sanitize_data_quality_for_model(data_quality: Any) -> Any:
+    if not isinstance(data_quality, dict):
+        return data_quality
+    out = copy.deepcopy(data_quality)
+    for key in ("quote_age_ms",):
+        if key in out:
+            sanitized = sanitize_quote_age_ms(out.get(key))
+            if sanitized is not None:
+                out[key] = sanitized
+            else:
+                out.pop(key, None)
+    return out
+
+
+def sanitize_stream_health_for_model(stream_health: Any) -> Any:
+    if not isinstance(stream_health, dict):
+        return stream_health
+    out = copy.deepcopy(stream_health)
+    sanitized = sanitize_quote_age_ms(out.get("quote_age_ms"))
+    if sanitized is not None:
+        out["quote_age_ms"] = sanitized
+    else:
+        out.pop("quote_age_ms", None)
+    return out
+
+
+def sanitize_depth_for_model(depth: Any) -> Any:
+    if not isinstance(depth, dict):
+        return {"available": False}
+    compact = _pick(
+        depth,
+        (
+            "best_bid",
+            "best_ask",
+            "spread_ticks",
+            "imbalance_ratio",
+            "bid_volume",
+            "ask_volume",
+        ),
+    )
+    has_levels = any(
+        _finite_number(compact.get(key)) not in (None, 0)
+        for key in ("best_bid", "best_ask", "bid_volume", "ask_volume")
+    )
+    compact["available"] = bool(has_levels)
+    if not compact["available"]:
+        compact.setdefault(
+            "note",
+            "depth reconstruction unavailable; do not infer book imbalance",
+        )
+    return compact
+
+
+def annotate_partial_timeframes(timeframes: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    annotated: list[dict[str, Any]] = []
+    for row in timeframes:
+        item = copy.deepcopy(row)
+        if item.get("latest_bar_partial") is True:
+            features = item.get("features")
+            if isinstance(features, dict):
+                volume_z = _finite_number(features.get("volume_z_score_20"))
+                if volume_z is not None and volume_z <= -2:
+                    item["partial_bar_note"] = (
+                        "partial bar with depressed volume_z_score_20; "
+                        "treat volume context as incomplete"
+                    )
+        annotated.append(item)
+    return annotated
+
+
 def _order_flow_window_seconds(window: dict[str, Any]) -> int | None:
     seconds = window.get("window_seconds")
     if isinstance(seconds, str):
@@ -159,6 +268,7 @@ def compact_market_observation_state(state: Any) -> Any:
         for row in timeframes:
             if isinstance(row, dict):
                 compact_timeframes.append(compact_timeframe_observation(row))
+        compact_timeframes = annotate_partial_timeframes(compact_timeframes)
     elif isinstance(timeframes, dict):
         for key, row in timeframes.items():
             if isinstance(row, dict):
@@ -203,19 +313,7 @@ def compact_order_flow_state(state: Any) -> Any:
             if isinstance(window, dict):
                 compact_windows.append(window)
     depth = observation.get("depth")
-    compact_depth = None
-    if isinstance(depth, dict):
-        compact_depth = _pick(
-            depth,
-            (
-                "best_bid",
-                "best_ask",
-                "spread_ticks",
-                "imbalance_ratio",
-                "bid_volume",
-                "ask_volume",
-            ),
-        )
+    compact_depth = sanitize_depth_for_model(depth)
     return {
         "last_succeeded_utc": state.get("last_succeeded_utc"),
         "last_error": state.get("last_error"),
@@ -230,6 +328,17 @@ def compact_order_flow_state(state: Any) -> Any:
 
 def compact_packet_evidence(packet: dict[str, Any]) -> dict[str, Any]:
     value = copy.deepcopy(packet)
+    market = value.get("market")
+    if isinstance(market, dict):
+        value["market"] = sanitize_market_for_model(market)
+    if "data_quality" in value:
+        value["data_quality"] = sanitize_data_quality_for_model(
+            value.get("data_quality")
+        )
+    if "stream_health" in value:
+        value["stream_health"] = sanitize_stream_health_for_model(
+            value.get("stream_health")
+        )
     if "market_observation" in value:
         value["market_observation"] = compact_market_observation_state(
             value.get("market_observation")
@@ -257,7 +366,11 @@ def continuity_packet_for_cycle(
         if key == "account" and isinstance(value, dict):
             out[key] = _pick(value, FRAME_ACCOUNT_KEYS)
         elif key == "market" and isinstance(value, dict):
-            out[key] = _pick(value, FRAME_MARKET_KEYS)
+            out[key] = sanitize_market_for_model(value)
+        elif key == "data_quality":
+            out[key] = sanitize_data_quality_for_model(value)
+        elif key == "stream_health":
+            out[key] = sanitize_stream_health_for_model(value)
         elif key == "execution" and isinstance(value, dict):
             out[key] = _pick(value, FRAME_EXECUTION_KEYS)
         elif key == "policy" and isinstance(value, dict):

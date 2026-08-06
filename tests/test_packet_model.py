@@ -10,11 +10,16 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from packet_model import (  # noqa: E402
     FRAME_SNAPSHOT_SCHEMA,
+    annotate_partial_timeframes,
     compact_packet_evidence,
     frame_for_model,
     frame_packet_keys,
     packet_for_cycle,
     packet_for_model,
+    sanitize_data_quality_for_model,
+    sanitize_depth_for_model,
+    sanitize_market_for_model,
+    sanitize_quote_age_ms,
 )
 
 
@@ -213,6 +218,50 @@ class PacketModelTests(unittest.TestCase):
         self.assertEqual(session["phase"], "regular")
         self.assertEqual(session["phase_authority"], "exchange_calendar")
         self.assertNotIn("notes", session)
+
+    def test_sanitize_market_flags_unreliable_session_levels(self):
+        market = sanitize_market_for_model(
+            {
+                "last": 20000,
+                "session_high": 20000,
+                "session_low": 20000,
+                "bid": 19999.75,
+                "ask": 20000.25,
+            }
+        )
+        self.assertFalse(market["session_levels_reliable"])
+        self.assertIn("session_levels_note", market)
+
+    def test_sanitize_quote_age_clamps_negative_values(self):
+        self.assertEqual(sanitize_quote_age_ms(-205), 0)
+        self.assertEqual(sanitize_quote_age_ms(1200), 1200)
+
+    def test_sanitize_depth_marks_unavailable_book(self):
+        depth = sanitize_depth_for_model(
+            {
+                "best_bid": None,
+                "best_ask": None,
+                "bid_volume": 0,
+                "ask_volume": 0,
+            }
+        )
+        self.assertFalse(depth["available"])
+        self.assertIn("note", depth)
+
+    def test_sanitize_data_quality_clamps_quote_age(self):
+        value = sanitize_data_quality_for_model({"quote_age_ms": -12, "state_complete": True})
+        self.assertEqual(value["quote_age_ms"], 0)
+
+    def test_annotate_partial_timeframes_adds_volume_note(self):
+        rows = annotate_partial_timeframes(
+            [
+                {
+                    "latest_bar_partial": True,
+                    "features": {"volume_z_score_20": -2.5},
+                }
+            ]
+        )
+        self.assertIn("partial_bar_note", rows[0])
 
 
 if __name__ == "__main__":

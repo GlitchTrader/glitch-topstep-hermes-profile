@@ -598,7 +598,7 @@ def packet_quote_age_ms(packet: dict[str, Any]) -> float | None:
     if stream_health is not None:
         quote_age = stream_health.get("quote_age_ms")
         if isinstance(quote_age, (int, float)) and not isinstance(quote_age, bool):
-            return float(quote_age)
+            return float(max(0, int(round(quote_age))))
     data_quality = (
         packet.get("data_quality")
         if isinstance(packet.get("data_quality"), dict)
@@ -606,7 +606,7 @@ def packet_quote_age_ms(packet: dict[str, Any]) -> float | None:
     )
     quote_age = data_quality.get("quote_age_ms")
     if isinstance(quote_age, (int, float)) and not isinstance(quote_age, bool):
-        return float(quote_age)
+        return float(max(0, int(round(quote_age))))
     return None
 
 
@@ -804,6 +804,99 @@ def _truncate_text(value: str, limit: int) -> str:
     return text[: max(0, limit - 3)] + "..."
 
 
+def _order_flow_delta(packet: dict[str, Any], seconds: int) -> float | None:
+    window = order_flow_window(packet, seconds)
+    if not isinstance(window, dict):
+        return None
+    delta = window.get("rolling_delta")
+    if isinstance(delta, (int, float)) and not isinstance(delta, bool):
+        return float(delta)
+    return None
+
+
+def compute_cycle_evidence_delta(
+    current_packet: dict[str, Any],
+    prior_frame: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    if not isinstance(prior_frame, dict):
+        return None
+    prior_packet = prior_frame.get("packet")
+    if not isinstance(prior_packet, dict):
+        return None
+
+    current_price = packet_current_price(current_packet)
+    prior_price = packet_current_price(prior_packet)
+    delta: dict[str, Any] = {
+        "prior_minute_id": prior_frame.get("minute_id"),
+        "prior_captured_utc": prior_frame.get("captured_utc"),
+    }
+    if current_price is not None and prior_price is not None:
+        price_change = current_price - prior_price
+        delta["price_change"] = round(price_change, 4)
+        if prior_price:
+            delta["price_change_bps"] = round(
+                (price_change / prior_price) * 10_000,
+                4,
+            )
+    for seconds in (15, 60, 300):
+        current_value = _order_flow_delta(current_packet, seconds)
+        prior_value = _order_flow_delta(prior_packet, seconds)
+        if current_value is not None or prior_value is not None:
+            delta[f"delta_{seconds}s"] = {
+                "current": current_value,
+                "prior": prior_value,
+                "change": (
+                    None
+                    if current_value is None or prior_value is None
+                    else round(current_value - prior_value, 4)
+                ),
+            }
+    if len(delta) <= 2 and current_price is None:
+        return None
+    return delta
+
+
+def repeated_change_condition_warning(
+    decisions: list[dict[str, Any]],
+    *,
+    min_repeat: int = 2,
+) -> str | None:
+    if len(decisions) < min_repeat:
+        return None
+    recent = decisions[-min_repeat:]
+    values: list[str] = []
+    for row in recent:
+        intent = row.get("intent") if isinstance(row.get("intent"), dict) else {}
+        audit = (
+            intent.get("decision_audit")
+            if isinstance(intent.get("decision_audit"), dict)
+            else {}
+        )
+        text = str(audit.get("change_condition") or "").strip().lower()
+        if not text:
+            return None
+        values.append(text)
+    if len(set(values)) == 1:
+        return (
+            "Prior change_condition text repeated across recent cycles; "
+            "rewrite with current-cycle price, flow, and structure deltas."
+        )
+    return None
+
+
+def delivery_diagnostic_detail(result: dict[str, Any]) -> dict[str, Any]:
+    body = result.get("body") if isinstance(result.get("body"), dict) else {}
+    detail: dict[str, Any] = {}
+    for key in ("code", "field", "error", "message", "status"):
+        value = body.get(key)
+        if isinstance(value, str) and value.strip():
+            detail[key] = value.strip()[:240]
+    http_status = result.get("http_status")
+    if isinstance(http_status, int):
+        detail["http_status"] = http_status
+    return detail
+
+
 FULL_CHANGE_CONDITION_TAIL = 2
 
 
@@ -850,9 +943,13 @@ def compact_receipt_row(row: dict[str, Any]) -> dict[str, Any] | None:
         "status": status,
         "code": code,
     }
+    for detail_key in ("field", "error", "message"):
+        detail_value = body.get(detail_key)
+        if isinstance(detail_value, str) and detail_value.strip():
+            compact[detail_key] = detail_value.strip()[:240]
     if not any(
         compact.get(key) is not None
-        for key in ("http_status", "status", "code")
+        for key in ("http_status", "status", "code", "field", "error", "message")
     ):
         return None
     return compact
