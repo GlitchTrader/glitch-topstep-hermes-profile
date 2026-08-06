@@ -613,6 +613,28 @@ class DirectCycleTests(unittest.TestCase):
         self.assertIn("failed", guidance or "")
         self.assertIn("EXIT", guidance or "")
 
+    def test_resolve_wake_invocation_context_clears_pending_wake(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            PARITY.write_pending_wake_invocation(
+                state,
+                {
+                    "wake_reason": "PRICE_CROSS:ABOVE:20000.0",
+                    "wake_trigger": {"type": "PRICE_CROSS", "direction": "ABOVE", "price": 20000.0},
+                    "trigger_key": "PRICE_CROSS:ABOVE:20000.0",
+                },
+                packet(),
+            )
+            detail, source = MODULE.resolve_wake_invocation_context(
+                state,
+                packet(),
+                None,
+                PARITY.read_pending_wake_invocation(state),
+            )
+        self.assertEqual(source, "monitor")
+        self.assertEqual(detail["wake_reason"], "PRICE_CROSS:ABOVE:20000.0")
+        self.assertIsNone(PARITY.read_pending_wake_invocation(state))
+
     def test_prompt_includes_protection_management_when_positioned(self):
         current_packet = self._positioned_protection_packet(protection_status="pending")
         prompt = MODULE.build_prompt(current_packet, [], {}, None)
