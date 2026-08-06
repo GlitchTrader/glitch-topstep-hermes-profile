@@ -41,6 +41,7 @@ class ControlPluginTests(unittest.TestCase):
                     {
                         "status": "failed",
                         "error": "ValueError:wake_triggers_missing",
+                        "recorded_utc": "2099-01-01T12:00:00Z",
                     }
                 ),
                 encoding="utf-8",
@@ -48,7 +49,7 @@ class ControlPluginTests(unittest.TestCase):
             status = MODULE._direct_worker_status()
         self.assertEqual(
             status,
-            "failed (ValueError:wake_triggers_missing)",
+            "failed (ValueError:wake_triggers_missing) @ 2099-01-01T12:00:00Z",
         )
 
     def test_status_reports_gateway_compatibility(self):

@@ -113,10 +113,14 @@ def _direct_worker_status() -> str:
     except (OSError, ValueError, TypeError):
         return "unknown"
     status = str(value.get("status") or "unknown")
+    recorded = str(value.get("recorded_utc") or "").strip()
+    suffix = f" @ {recorded}" if recorded else ""
     if status != "failed":
-        return status
+        return f"{status}{suffix}"
     error = str(value.get("error") or "").strip()
-    return f"failed ({error[:160]})" if error else "failed"
+    if error:
+        return f"failed ({error[:160]}){suffix}"
+    return f"failed{suffix}"
 
 
 def _pause_jobs(reason: str) -> str:

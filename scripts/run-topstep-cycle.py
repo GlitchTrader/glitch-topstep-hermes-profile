@@ -58,7 +58,6 @@ from parity import (
     apply_cognitive_overlay,
     classify_delivery_result,
     clear_delivery_wire,
-    clear_pending_wake_invocation,
     compact_cycle_ledger_context,
     cycle_wake_fields,
     deliver_packet_intent,
@@ -1052,7 +1051,9 @@ def resolve_wake_invocation_context(
     pending_wake: dict[str, Any] | None,
 ) -> tuple[dict[str, Any] | None, str | None]:
     if pending_wake:
-        clear_pending_wake_invocation(state)
+        from parity import clear_pending_wake_invocation as _clear_pending_wake_invocation
+
+        _clear_pending_wake_invocation(state)
         return {
             "wake_reason": pending_wake.get("wake_reason"),
             "wake_trigger": pending_wake.get("wake_trigger"),
