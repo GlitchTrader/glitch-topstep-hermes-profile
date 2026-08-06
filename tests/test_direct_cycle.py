@@ -394,6 +394,25 @@ class DirectCycleTests(unittest.TestCase):
         ):
             self.assertIsNone(PARITY.market_quiescent_skip_details(current, None))
 
+    def test_session_maintenance_skip_when_flat(self):
+        current = packet(6)
+        current["session"]["phase"] = "maintenance"
+        details = PARITY.session_maintenance_skip_details(current, None)
+        self.assertIsNotNone(details)
+        assert details is not None
+        self.assertEqual(details["reason"], "session_maintenance")
+        self.assertEqual(details["session_phase"], "maintenance")
+
+    def test_session_maintenance_skip_not_when_positioned(self):
+        current = packet(6, positioned=True)
+        current["session"]["phase"] = "maintenance"
+        self.assertIsNone(PARITY.session_maintenance_skip_details(current, None))
+
+    def test_session_maintenance_skip_not_when_regular(self):
+        current = packet(6)
+        current["session"]["phase"] = "regular"
+        self.assertIsNone(PARITY.session_maintenance_skip_details(current, None))
+
     def test_retry_after_failure_blocks_unchanged_skip(self):
         with tempfile.TemporaryDirectory() as root:
             state = Path(root)

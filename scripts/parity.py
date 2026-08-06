@@ -513,6 +513,32 @@ def packet_session_closed(packet: dict[str, Any]) -> bool:
     return session.get("entry_window_open") is False
 
 
+def packet_session_phase(packet: dict[str, Any]) -> str | None:
+    session = packet.get("session")
+    if not isinstance(session, dict):
+        return None
+    phase = session.get("phase")
+    if isinstance(phase, str) and phase.strip():
+        return phase.strip()
+    return None
+
+
+def session_maintenance_skip_details(
+    packet: dict[str, Any],
+    directive: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    """GTHP-018 follow-on: skip flat Luna during gateway session.phase=maintenance."""
+    if directive is not None or packet_positioned(packet):
+        return None
+    phase = packet_session_phase(packet)
+    if phase != "maintenance":
+        return None
+    return {
+        "reason": "session_maintenance",
+        "session_phase": phase,
+    }
+
+
 def flat_outside_session_window(
     packet: dict[str, Any],
     directive: dict[str, Any] | None,

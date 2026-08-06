@@ -69,6 +69,7 @@ from parity import (
     invocation_reason,
     flat_outside_session_window,
     market_quiescent_skip_details,
+    session_maintenance_skip_details,
     packet_protection_status,
     protection_status_allows_amendment,
     protection_status_management_guidance,
@@ -1245,6 +1246,21 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
                         "session": packet.get("session"),
                     },
                 )
+        return 0
+
+    maintenance = session_maintenance_skip_details(packet, directive)
+    if maintenance:
+        append_jsonl(
+            state / "events.jsonl",
+            {
+                "schema_version": "glitch.topstep.cycle_event.v2",
+                "event": "llm_skipped",
+                "recorded_utc": utc_now(),
+                "packet_id": packet.get("packet_id"),
+                **cycle_wake_fields(reason, wake_detail),
+                **maintenance,
+            },
+        )
         return 0
 
     quiescent = market_quiescent_skip_details(packet, directive)
