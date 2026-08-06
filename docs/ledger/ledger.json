@@ -3,7 +3,7 @@
   "project": "glitch-topstep-hermes-profile",
   "updated": "2026-08-06",
   "release_target": "paired gateway/profile beta",
-  "profile_version": "0.1.25",
+  "profile_version": "0.1.26",
   "gateway": {
     "repository": "GlitchTrader/glitch-topstep",
     "current_version": "0.1.6",
@@ -600,6 +600,22 @@
         "distribution 0.1.25",
         "regenerated SHA256SUMS",
         "tests/test_direct_cycle.py"
+      ]
+    },
+    {
+      "id": "GTHP-026",
+      "title": "Import clear_pending_wake_invocation in direct cycle worker",
+      "status": "done",
+      "priority": "P0",
+      "owner_role": "coder",
+      "depends_on": [
+        "GTHP-025"
+      ],
+      "evidence": [
+        "scripts/run-topstep-cycle.py",
+        "tests/test_direct_cycle.py",
+        "distribution 0.1.26",
+        "regenerated SHA256SUMS"
       ]
     }
   ]

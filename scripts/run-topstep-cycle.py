@@ -58,6 +58,7 @@ from parity import (
     apply_cognitive_overlay,
     classify_delivery_result,
     clear_delivery_wire,
+    clear_pending_wake_invocation,
     compact_cycle_ledger_context,
     cycle_wake_fields,
     deliver_packet_intent,
