@@ -737,7 +737,7 @@ class DirectCycleTests(unittest.TestCase):
             delivered = MODULE.prepare_intent_for_delivery(value, None)
         self.assertNotIn("wake_triggers", delivered)
 
-    def test_prepare_intent_for_delivery_rejects_missing_explicit_wake_trigger(self):
+    def test_prepare_intent_for_delivery_allows_missing_wake_trigger_for_change_condition(self):
         value = intent()
         value["decision_audit"]["change_condition"] = "Enter long above 20010."
         value["wake_triggers"] = []
@@ -754,11 +754,38 @@ class DirectCycleTests(unittest.TestCase):
             "packet_is_current",
             return_value=True,
         ):
-            with self.assertRaisesRegex(
-                ValueError,
-                "wake_triggers_missing_for_change_condition",
-            ):
-                MODULE.prepare_intent_for_delivery(value, None)
+            delivered = MODULE.prepare_intent_for_delivery(value, None)
+        self.assertNotIn("wake_triggers", delivered)
+
+    def test_build_prompt_template_is_not_anchored_to_nothing(self):
+        prompt = MODULE.build_prompt(packet(), [], {}, None)
+        envelope = json.loads(prompt.split("CURRENT_CYCLE=", 1)[1])
+        template = envelope["required_output_template"]
+        self.assertNotIn("action", template)
+        self.assertNotIn("confidence", template)
+        self.assertEqual(template["decision_audit"]["final_choice"], "Replace")
+        self.assertIn("Rebuild LONG, SHORT, and flat hypotheses", prompt)
+        self.assertIn("wake_triggers is optional", prompt)
+
+    def test_validate_intent_rejects_wake_triggers_on_entry(self):
+        value = intent("ENTER_LONG")
+        value["wake_triggers"] = [
+            {"type": "PRICE_CROSS", "direction": "ABOVE", "price": 20010},
+        ]
+        with self.assertRaisesRegex(ValueError, "wake_triggers_not_allowed_for_action"):
+            MODULE.validate_intent(value, packet())
+
+    def test_post_intent_strips_wake_triggers(self):
+        value = intent()
+        value["wake_triggers"] = [
+            {"type": "PRICE_CROSS", "direction": "ABOVE", "price": 20010},
+        ]
+        with mock.patch.object(MODULE, "request_json") as request_json:
+            request_json.return_value = (200, {"status": "accepted"})
+            with mock.patch.object(MODULE, "local_token", return_value="token"):
+                MODULE.post_intent(value)
+        posted = request_json.call_args.kwargs["body"]
+        self.assertNotIn("wake_triggers", posted)
 
     def test_prepare_intent_for_delivery_truncates_gateway_string_fields(self):
         value = MODULE.normalize_intent(intent(), packet())

@@ -3,7 +3,7 @@
   "project": "glitch-topstep-hermes-profile",
   "updated": "2026-08-06",
   "release_target": "paired gateway/profile beta",
-  "profile_version": "0.1.24",
+  "profile_version": "0.1.25",
   "gateway": {
     "repository": "GlitchTrader/glitch-topstep",
     "current_version": "0.1.6",
@@ -579,6 +579,27 @@
         "prompt_version glitch-topstep-v7",
         "distribution 0.1.24",
         "regenerated SHA256SUMS"
+      ]
+    },
+    {
+      "id": "GTHP-025",
+      "title": "Neutral intent template, advisory change_condition, optional wake_triggers",
+      "status": "done",
+      "priority": "P0",
+      "owner_role": "architect",
+      "depends_on": [
+        "GTHP-024"
+      ],
+      "evidence": [
+        "scripts/run-topstep-cycle.py",
+        "scripts/parity.py",
+        "SOUL.md",
+        "skills/topstep-build-intent/SKILL.md",
+        "docs/specs/GTHP-025.md",
+        "prompt_version glitch-topstep-v8",
+        "distribution 0.1.25",
+        "regenerated SHA256SUMS",
+        "tests/test_direct_cycle.py"
       ]
     }
   ]
