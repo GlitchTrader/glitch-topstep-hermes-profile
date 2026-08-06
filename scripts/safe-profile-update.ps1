@@ -17,6 +17,21 @@ if (-not (Test-Path -LiteralPath $profileRoot -PathType Container)) {
     throw "Profile not found: $profileRoot"
 }
 
+function Enter-SafeUpdateWorkingDirectory {
+    $currentRoot = [IO.Path]::GetFullPath((Get-Location).Path)
+    if ($currentRoot.StartsWith($profileRoot.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase) `
+        -or $currentRoot.Equals($profileRoot, [StringComparison]::OrdinalIgnoreCase)) {
+        Write-Warning @"
+Current directory is inside the profile ($currentRoot).
+Hermes cannot replace locked folders on Windows. Switching to TEMP.
+Run future updates from outside the profile tree, e.g.:
+  cd $env:TEMP
+  powershell -ExecutionPolicy Bypass -File "$profileRoot\scripts\safe-profile-update.ps1"
+"@
+        Set-Location $env:TEMP
+    }
+}
+
 function Get-ProfilePythonProcesses {
     $escapedRoot = [regex]::Escape($profileRoot)
     return @(
@@ -206,6 +221,7 @@ Reinstall once from GitHub, then use this script again:
 }
 
 Write-Host "Updating profile '$Profile' from $source"
+Enter-SafeUpdateWorkingDirectory
 $cronEnabledBefore = Save-ProfileCronEnabledState
 Set-ProfileCronJobsPaused -Paused $true
 Start-Sleep -Seconds 5
@@ -214,6 +230,7 @@ Wait-ProfileQuiescent
 Remove-StagingArtifacts -Root $profileRoot
 Ensure-HermesDistributionPatch
 
+Set-Location $env:TEMP
 $updateArgs = @('profile', 'update', $Profile, '-y')
 if ($ForceConfig) { $updateArgs += '--force-config' }
 & hermes @updateArgs
