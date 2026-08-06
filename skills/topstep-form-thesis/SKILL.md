@@ -19,11 +19,11 @@ State one explicit regime label from packet evidence:
 
 ## HTF hierarchy
 
-**ALTERADO — hierarquia sem confirmação obrigatória:** prefer the 60m timeframe for regime and location: `range_position_20` extremes plus `ema_20_slope_bps` and `ema_50_slope_bps`. Use 5m for local structure and 1m for immediate timing/invalidation. The timeframes are complementary descriptions, not a mandatory confirmation stack. A valid short-horizon thesis may exist when they conflict; conflict lowers confidence and may require smaller quantity or a different stop, but does not automatically force `NOTHING`.
+Prefer the 60m timeframe for regime and location: `range_position_20` extremes plus `ema_20_slope_bps` and `ema_50_slope_bps`. Use 5m for local structure and 1m for immediate timing and invalidation. Timeframes are complementary descriptions, not a mandatory confirmation stack. A valid short-horizon thesis may exist when they conflict; conflict lowers confidence and may require smaller quantity or a different stop, but does not automatically force `NOTHING`.
 
 ## Participation breadth
 
-**ALTERADO — ampliar oportunidades sem quota:** evaluate the local hypotheses that fit the current evidence: continuation, pullback, breakout, failed breakout, short mean reversion, and transition. Do not require a named pattern or every hypothesis to be checked. Select `ENTER_LONG` or `ENTER_SHORT` when one hypothesis has a locally timely path, a favorable participation condition, a structural invalidation beyond normal one-minute noise, a reachable target within the next five minutes, and bounded positive expectancy after fees/slippage reserve.
+Evaluate the local hypotheses that fit the current evidence: continuation, pullback, breakout, failed breakout, short mean reversion, and transition. Do not require a named pattern or every hypothesis to be checked. Select `ENTER_LONG` or `ENTER_SHORT` when one hypothesis has a locally timely path, a favorable participation condition, a structural invalidation beyond normal one-minute noise, a reachable target within the next five minutes, and bounded positive expectancy after fees and slippage reserve.
 
 For a flat decision, answer four questions in the audit:
 
@@ -33,6 +33,20 @@ For a flat decision, answer four questions in the audit:
 4. What exact structure would invalidate the thesis before reward is considered?
 
 A retest, closed candle, sustained multi-window flow, or complete timeframe alignment may strengthen a thesis, but none is a universal entry gate. Do not replace missing evidence with assumptions; weigh the evidence that is actually present.
+
+## Flat participation checklist (before NOTHING)
+
+When flat and considering deliberate inaction, complete this checklist in `decision_audit` fields:
+
+1. **Long trigger** — what price, structure, reclaim, or tape behavior would justify `ENTER_LONG`?
+2. **Long invalidation** — what nearby structure falsifies the long case?
+3. **Short trigger** — what price, structure, sweep, or tape behavior would justify `ENTER_SHORT`?
+4. **Short invalidation** — what nearby structure falsifies the short case?
+5. **Location** — is price at a range edge (`range_position_20` near 0 or 1, session extreme, prior pivot) or mid-range? If mid-range in `CHOP`, do not manufacture a trade.
+6. **Failed continuation** — if a continuation attempt just failed, compare reversal vs renewed continuation on the same evidence; neither side is automatic.
+7. **Asymmetry** — if one side has materially better bounded asymmetry, prefer the smallest supported quantity in `execution.valid_entry_quantities` rather than waiting for perfect confirmation.
+
+`NOTHING` confidence must reflect evidence quality, not comfort. Symmetric, usable data with no edge belongs in **0.70–0.85**, not **0.95+**.
 
 ## Confidence for NOTHING
 
