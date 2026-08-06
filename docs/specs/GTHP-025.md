@@ -39,5 +39,7 @@ Flat-cycle prompts anchored `required_output_template.action` and `decision_audi
 
 ## Follow-up (separate repos / issues)
 
-- Gateway: return `field` + `error` detail on HTTP 422 (`intent_schema_invalid`).
-- P1 packet data quality fixes (session high/low, quote age, depth flags).
+- Gateway: return `field` + `error` detail on HTTP 422 (`intent_schema_invalid`) — profile issue #73.
+- P1 packet data quality fixes — issue #73.
+- P2 structural evidence — issue #74.
+- P3 statistical calibration — issue #75.
