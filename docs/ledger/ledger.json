@@ -3,7 +3,7 @@
   "project": "glitch-topstep-hermes-profile",
   "updated": "2026-08-06",
   "release_target": "paired gateway/profile beta",
-  "profile_version": "0.1.27",
+  "profile_version": "0.1.28",
   "gateway": {
     "repository": "GlitchTrader/glitch-topstep",
     "current_version": "0.1.6",
@@ -632,6 +632,22 @@
         "scripts/run-topstep-cycle.py lazy import for clear_pending_wake_invocation",
         "plugins/topstep-control/__init__.py worker status recorded_utc",
         "distribution 0.1.27"
+      ]
+    },
+    {
+      "id": "GTHP-028",
+      "title": "Neutral template placeholders, cycle delta audit, safe update lock recovery",
+      "status": "planned",
+      "priority": "P1",
+      "owner_role": "architect",
+      "issue": 79,
+      "depends_on": [
+        "GTHP-025",
+        "GTHP-027"
+      ],
+      "evidence": [
+        "docs/specs/GTHP-028.md",
+        "scripts/safe-profile-update.ps1"
       ]
     }
   ]
