@@ -17,22 +17,59 @@ if (-not (Test-Path -LiteralPath $profileRoot -PathType Container)) {
     throw "Profile not found: $profileRoot"
 }
 
+function Get-ProfilePythonProcesses {
+    $escapedRoot = [regex]::Escape($profileRoot)
+    return @(
+        Get-CimInstance Win32_Process -Filter "name='python.exe'" -ErrorAction SilentlyContinue |
+            Where-Object {
+                $_.CommandLine -match [regex]::Escape($Profile) -or
+                $_.CommandLine -match $escapedRoot
+            }
+    )
+}
+
 function Stop-ProfileProcesses {
     try {
         & hermes --profile $Profile gateway stop 2>$null | Out-Null
     }
     catch { }
-    $escapedRoot = [regex]::Escape($profileRoot)
-    Get-CimInstance Win32_Process -Filter "name='python.exe'" -ErrorAction SilentlyContinue |
-        Where-Object {
-            $_.CommandLine -match [regex]::Escape($Profile) -or
-            $_.CommandLine -match $escapedRoot
-        } |
-        ForEach-Object {
-            Write-Host "Stopping PID $($_.ProcessId)"
-            Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue
-        }
+    foreach ($process in Get-ProfilePythonProcesses) {
+        Write-Host "Stopping PID $($process.ProcessId)"
+        Stop-Process -Id $process.ProcessId -Force -ErrorAction SilentlyContinue
+    }
     Start-Sleep -Seconds 3
+}
+
+function Remove-StaleProfileLock {
+    param(
+        [string]$LockPath,
+        [switch]$Force
+    )
+    if (-not (Test-Path -LiteralPath $LockPath -PathType Leaf)) {
+        return $false
+    }
+    if (-not $Force -and (Get-ProfilePythonProcesses).Count -gt 0) {
+        return $false
+    }
+    try {
+        $raw = Get-Content -LiteralPath $LockPath -Raw -ErrorAction Stop
+        $owner = $raw | ConvertFrom-Json
+        $ownerPid = [int]$owner.pid
+        if ($ownerPid -gt 0 -and -not $Force) {
+            $ownerProcess = Get-Process -Id $ownerPid -ErrorAction SilentlyContinue
+            if ($null -ne $ownerProcess) {
+                return $false
+            }
+        }
+    }
+    catch {
+        if (-not $Force) {
+            return $false
+        }
+    }
+    Remove-Item -LiteralPath $LockPath -Force
+    Write-Host "Removed stale state\direct-cycle.lock"
+    return $true
 }
 
 function Remove-StagingArtifacts {
@@ -57,26 +94,32 @@ function Remove-StagingArtifacts {
 }
 
 function Wait-ProfileQuiescent {
+    param(
+        [int]$TimeoutSeconds = 90
+    )
     $lock = Join-Path $profileRoot 'state\direct-cycle.lock'
-    $deadline = (Get-Date).AddSeconds(45)
+    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
     while ((Get-Date) -lt $deadline) {
-        $escapedRoot = [regex]::Escape($profileRoot)
-        Get-CimInstance Win32_Process -Filter "name='python.exe'" -ErrorAction SilentlyContinue |
-            Where-Object {
-                $_.CommandLine -match [regex]::Escape($Profile) -or
-                $_.CommandLine -match $escapedRoot
-            } |
-            ForEach-Object {
-                Write-Host "Stopping lingering PID $($_.ProcessId)"
-                Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue
-            }
+        foreach ($process in Get-ProfilePythonProcesses) {
+            Write-Host "Stopping lingering PID $($process.ProcessId)"
+            Stop-Process -Id $process.ProcessId -Force -ErrorAction SilentlyContinue
+        }
+        if (Remove-StaleProfileLock -LockPath $lock) {
+            return
+        }
         if (-not (Test-Path -LiteralPath $lock -PathType Leaf)) {
             return
         }
         Write-Host 'Waiting for direct-cycle.lock to clear...'
         Start-Sleep -Seconds 2
     }
-    throw "Profile still busy after 45s ($lock). Retry when cron workers are idle."
+    if ((Get-ProfilePythonProcesses).Count -eq 0) {
+        if (Remove-StaleProfileLock -LockPath $lock -Force) {
+            Write-Warning 'Removed orphaned direct-cycle.lock after quiescence timeout.'
+            return
+        }
+    }
+    throw "Profile still busy after ${TimeoutSeconds}s ($lock). Pause jobs with /pause_trading, wait one minute, then retry."
 }
 
 function Get-ProfileCronJobs {
@@ -165,6 +208,7 @@ Reinstall once from GitHub, then use this script again:
 Write-Host "Updating profile '$Profile' from $source"
 $cronEnabledBefore = Save-ProfileCronEnabledState
 Set-ProfileCronJobsPaused -Paused $true
+Start-Sleep -Seconds 5
 Stop-ProfileProcesses
 Wait-ProfileQuiescent
 Remove-StagingArtifacts -Root $profileRoot
