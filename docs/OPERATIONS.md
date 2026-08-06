@@ -64,7 +64,20 @@ When cutting a profile release paired with a gateway build:
 3. Confirm `PROMPT_VERSION` matches the direct-cycle contract (`glitch-topstep-v*`).
 4. Run the full unittest suite and `python scripts/regenerate_sha256sums.py`.
 5. Verify `GET /health` on the target gateway reports a compatible `compatibility.gateway_version`.
-6. Run `safe-profile-update.ps1` on a Windows operator host after merge.
+6. Bump `GLITCH_TOPSTEP_PROMPT_VERSION` in the gateway repo (`src/domain/operator.ts`) to the same `glitch-topstep-v*` string as `PROMPT_VERSION` in this profile. Mismatch causes `intent_schema_invalid` / `prompt_version_mismatch` on every intent.
+7. Run `safe-profile-update.ps1` on a Windows operator host after merge.
+
+### Gateway prompt pairing (operator shortcut)
+
+When the profile bumps `prompt_version` (e.g. v0.1.31 → `glitch-topstep-v9`) but the local gateway clone is stale:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "$env:LOCALAPPDATA\hermes\profiles\glitch-topstep\scripts\sync-glitch-topstep-prompt-v9.ps1" `
+  -GatewayPath C:\Users\arifr\Projects\glitch-topstep `
+  -CreatePr -MergePr
+```
+
+Then restart the gateway (`Stop-Process` on port 8790 PID, `.\start.ps1`). Patch: `patches/glitch-topstep-v9-prompt-version.patch`.
 
 `tests/test_compatibility.py` fails on drift between `parity.PROMPT_VERSION`, `distribution_manifest`, and `PROFILE_COMPATIBILITY`.
 
