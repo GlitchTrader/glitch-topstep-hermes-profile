@@ -70,6 +70,9 @@ function Assert-DistributionIntegrity {
             throw "Invalid SHA256SUMS line: $line"
         }
         $relative = $parts[1].Replace('/', '\')
+        if ($relative -ieq 'distribution.yaml') {
+            continue
+        }
         $path = [IO.Path]::GetFullPath((Join-Path $profileRoot $relative))
         if (-not $path.StartsWith($profileRoot.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) {
             throw "Manifest path escapes the profile: $relative"
@@ -87,6 +90,25 @@ function Assert-DistributionIntegrity {
         if ($actual -ne $parts[0].ToUpperInvariant()) {
             throw "Distributed file checksum mismatch: $relative"
         }
+    }
+}
+
+function Assert-DistributionManifest {
+    $yaml = Join-Path $profileRoot 'distribution.yaml'
+    if (-not (Test-Path -LiteralPath $yaml -PathType Leaf)) {
+        throw 'distribution.yaml is missing; reinstall the profile before setup.'
+    }
+    $hasVersion = $false
+    $hasSource = $false
+    foreach ($line in Get-Content -LiteralPath $yaml) {
+        if ($line -match '^version:\s*') { $hasVersion = $true }
+        if ($line -match '^source:\s*\S') { $hasSource = $true }
+    }
+    if (-not $hasVersion) {
+        throw 'distribution.yaml missing version'
+    }
+    if (-not $hasSource) {
+        throw 'distribution.yaml missing source — reinstall from GitHub, not a local clone path.'
     }
 }
 
@@ -150,6 +172,7 @@ function Ensure-CronJob {
 }
 
 Assert-DistributionIntegrity
+Assert-DistributionManifest
 $requiredFiles = @(
     'scripts\common.py',
     'scripts\launch-topstep-cycle.py',

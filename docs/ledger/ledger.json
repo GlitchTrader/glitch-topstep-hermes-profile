@@ -3,7 +3,7 @@
   "project": "glitch-topstep-hermes-profile",
   "updated": "2026-08-06",
   "release_target": "paired gateway/profile beta",
-  "profile_version": "0.1.29",
+  "profile_version": "0.1.30",
   "gateway": {
     "repository": "GlitchTrader/glitch-topstep",
     "current_version": "0.1.6",
