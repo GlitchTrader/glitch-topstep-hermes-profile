@@ -779,15 +779,37 @@ class DirectCycleTests(unittest.TestCase):
             delivered = MODULE.prepare_intent_for_delivery(value, None)
         self.assertNotIn("wake_triggers", delivered)
 
-    def test_build_prompt_template_is_not_anchored_to_nothing(self):
+    def test_build_prompt_template_uses_neutral_placeholders(self):
         prompt = MODULE.build_prompt(packet(), [], {}, None)
         envelope = json.loads(prompt.split("CURRENT_CYCLE=", 1)[1])
         template = envelope["required_output_template"]
-        self.assertNotIn("action", template)
-        self.assertNotIn("confidence", template)
-        self.assertEqual(template["decision_audit"]["final_choice"], "Replace")
+        self.assertEqual(template["action"], MODULE.ACTION_PLACEHOLDER)
+        self.assertEqual(template["confidence"], MODULE.CONFIDENCE_PLACEHOLDER)
+        self.assertEqual(template["decision_audit"]["final_choice"], MODULE.ACTION_PLACEHOLDER)
+        self.assertIn("prior_hypothesis=", template["decision_audit"]["decisive_evidence"])
         self.assertIn("Rebuild LONG, SHORT, and flat hypotheses", prompt)
         self.assertIn("wake_triggers is optional", prompt)
+        self.assertIn("never choose HOLD while flat", prompt)
+        self.assertIsNone(envelope["cycle_evidence_delta"])
+
+    def test_build_prompt_includes_cycle_evidence_delta(self):
+        frame = {
+            "schema_version": "glitch.topstep.minute_frame.v2",
+            "minute_id": "20990101T1404Z",
+            "captured_utc": "2099-01-01T14:04:01Z",
+            "packet": packet(4),
+        }
+        prompt = MODULE.build_prompt(packet(5), [frame], {}, None)
+        envelope = json.loads(prompt.split("CURRENT_CYCLE=", 1)[1])
+        delta = envelope["cycle_evidence_delta"]
+        self.assertIsInstance(delta, dict)
+        self.assertEqual(delta["prior_minute_id"], "20990101T1404Z")
+
+    def test_normalize_intent_rejects_action_placeholder(self):
+        value = intent()
+        value["action"] = MODULE.ACTION_PLACEHOLDER
+        with self.assertRaisesRegex(ValueError, "action_placeholder_not_replaced"):
+            MODULE.normalize_intent(value, packet())
 
     def test_validate_intent_rejects_wake_triggers_on_entry(self):
         value = intent("ENTER_LONG")

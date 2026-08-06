@@ -46,6 +46,8 @@ When flat and considering deliberate inaction, complete this checklist in `decis
 6. **Failed continuation** — if a continuation attempt just failed, compare reversal vs renewed continuation on the same evidence; neither side is automatic.
 7. **Asymmetry** — if one side has materially better bounded asymmetry, prefer the smallest supported quantity in `execution.valid_entry_quantities` rather than waiting for perfect confirmation.
 
+When `recent_frames` is non-empty, open `decisive_evidence` with `prior_hypothesis=<CONFIRMED|INVALIDATED|PARTIALLY_CONFIRMED|UNCHANGED>` and cite material deltas from `cycle_evidence_delta` when present. Rewrite `change_condition` when `ledger_repetition_guidance` warns of stale wording.
+
 `NOTHING` confidence must reflect evidence quality, not comfort. Symmetric, usable data with no edge belongs in **0.70–0.85**, not **0.95+**.
 
 ## Confidence for NOTHING

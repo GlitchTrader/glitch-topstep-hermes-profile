@@ -78,6 +78,76 @@ class CompactLedgerTests(unittest.TestCase):
     def test_empty_receipt_row_is_omitted(self):
         self.assertIsNone(parity_module.compact_receipt_row({}))
 
+    def test_receipt_row_preserves_schema_validation_detail(self):
+        row = {
+            "recorded_utc": "t",
+            "intent_id": "i",
+            "packet_id": "p",
+            "result": {
+                "http_status": 422,
+                "body": {
+                    "status": "rejected",
+                    "code": "intent_schema_invalid",
+                    "field": "wake_triggers",
+                    "error": "unknown field",
+                },
+            },
+        }
+        compact = parity_module.compact_receipt_row(row)
+        assert compact is not None
+        self.assertEqual(compact["field"], "wake_triggers")
+        self.assertEqual(compact["error"], "unknown field")
+
+    def test_compute_cycle_evidence_delta_tracks_price_and_flow(self):
+        current = {
+            "market": {"last": 20010},
+            "order_flow": {
+                "observation": {
+                    "windows": [
+                        {"window_seconds": 60, "rolling_delta": 12},
+                    ]
+                }
+            },
+        }
+        prior_frame = {
+            "minute_id": "20990101T1404Z",
+            "captured_utc": "2099-01-01T14:04:01Z",
+            "packet": {
+                "market": {"last": 20000},
+                "order_flow": {
+                    "observation": {
+                        "windows": [
+                            {"window_seconds": 60, "rolling_delta": 4},
+                        ]
+                    }
+                },
+            },
+        }
+        delta = parity_module.compute_cycle_evidence_delta(current, prior_frame)
+        assert delta is not None
+        self.assertEqual(delta["price_change"], 10)
+        self.assertEqual(delta["delta_60s"]["change"], 8)
+
+    def test_repeated_change_condition_warning_detects_stale_wording(self):
+        decisions = [
+            {
+                "intent": {
+                    "decision_audit": {
+                        "change_condition": "Same trigger text for long and short.",
+                    }
+                }
+            },
+            {
+                "intent": {
+                    "decision_audit": {
+                        "change_condition": "Same trigger text for long and short.",
+                    }
+                }
+            },
+        ]
+        warning = parity_module.repeated_change_condition_warning(decisions)
+        self.assertIn("rewrite", warning.lower())
+
     def test_outcome_summary_aggregates_trades(self):
         outcomes = [
             {

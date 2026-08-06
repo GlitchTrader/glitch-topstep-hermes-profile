@@ -9,8 +9,10 @@ Return exactly one JSON object and no Markdown or prose.
 
 - Preserve the supplied account alias, instrument, operator profile `glitch-topstep`, and snapshot hash exactly.
 - Required core fields: `schema_version`, UUID `intent_id`, `created_utc`, `instrument`, `account`, `operator_profile`, `action`, `confidence`, `snapshot_hash`, `model_version`, `prompt_version`, `reason`, and `decision_audit`.
+- Replace template placeholders (`<CHOOSE_FROM_supported_actions>`, `<0.0-1.0>`, `Replace`) with real values; never emit placeholder strings.
 - `decision_audit` contains exactly: `bull_case`, `bear_case`, `flat_case`, `aggressive_case`, `conservative_case`, `decisive_evidence`, `disconfirming_evidence`, `change_condition`, and `final_choice`. `final_choice` equals `action`.
-- Choose `action` only from `execution.supported_actions` in the current packet. Rebuild the action from current evidence; do not copy a prior cycle default.
+- `decisive_evidence` must begin with `prior_hypothesis=<CONFIRMED|INVALIDATED|PARTIALLY_CONFIRMED|UNCHANGED>` when `recent_frames` is non-empty, then state material deltas since the immediately prior frame.
+- Choose `action` only from `execution.supported_actions` in the current packet. Rebuild the action from current evidence; do not copy a prior cycle default. Never `HOLD` while flat; never `NOTHING` while positioned.
 - For `ENTER_LONG` and `ENTER_SHORT`, use a positive integer `quantity` within `policy.max_contracts` and `execution.maximum_additional_contracts`, `order_type: "MARKET"`, and absolute numeric `stop_loss` and `take_profit_1`. Omit `wake_triggers`.
 - For `HOLD` and `NOTHING`, omit `quantity`, `order_type`, `stop_loss`, `take_profit_1`, amendment fields, and exit sizing fields. `wake_triggers` is optional local-only scheduling metadata; omit it unless you want an early wake before the next flat cadence.
 - For `MOVE_STOP`, include absolute numeric `new_stop_price`. Omit entry fields and `wake_triggers`. Include `target_intent_id` when more than one tranche in `protection.tranches` still holds contracts. Submit only when `protection.protection_status` is `confirmed`.

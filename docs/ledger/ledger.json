@@ -637,7 +637,7 @@
     {
       "id": "GTHP-028",
       "title": "Neutral template placeholders, cycle delta audit, safe update lock recovery",
-      "status": "planned",
+      "status": "done",
       "priority": "P1",
       "owner_role": "architect",
       "issue": 79,
@@ -647,7 +647,27 @@
       ],
       "evidence": [
         "docs/specs/GTHP-028.md",
-        "scripts/safe-profile-update.ps1"
+        "scripts/run-topstep-cycle.py prompt v9",
+        "scripts/parity.py cycle_evidence_delta",
+        "distribution 0.1.31",
+        "prompt_version glitch-topstep-v9"
+      ]
+    },
+    {
+      "id": "GTHP-029",
+      "title": "Packet evidence sanitization for model prompts (#73 profile side)",
+      "status": "done",
+      "priority": "P1",
+      "owner_role": "architect",
+      "issue": 73,
+      "depends_on": [
+        "GTHP-027"
+      ],
+      "evidence": [
+        "docs/specs/GTHP-029.md",
+        "scripts/packet_model.py sanitize_market_for_model",
+        "scripts/parity.py compact_receipt_row field/error",
+        "distribution 0.1.31"
       ]
     }
   ]
