@@ -3,7 +3,7 @@
   "guidance_id": "topstep-seed-guidance-change-condition-v1",
   "recorded_utc": "2026-07-29T15:00:00.000000Z",
   "source_review_id": "nt-port-seed-2026-07-29",
-  "prompt_version": "glitch-topstep-v5",
+  "prompt_version": "glitch-topstep-v6",
   "trading_influence": "observational",
   "trade_episode_count": 0,
   "decision_episode_count": 0,

@@ -19,7 +19,20 @@ State one explicit regime label from packet evidence:
 
 ## HTF hierarchy
 
-Prefer the 60m timeframe for regime: `range_position_20` extremes (high or low in the 20-bar range) plus aligned `ema_20_slope_bps` and `ema_50_slope_bps`. Use 5m and 1m for timing and invalidation, not to override a clear 60m conflict without new evidence.
+**ALTERADO — hierarquia sem confirmação obrigatória:** prefer the 60m timeframe for regime and location: `range_position_20` extremes plus `ema_20_slope_bps` and `ema_50_slope_bps`. Use 5m for local structure and 1m for immediate timing/invalidation. The timeframes are complementary descriptions, not a mandatory confirmation stack. A valid short-horizon thesis may exist when they conflict; conflict lowers confidence and may require smaller quantity or a different stop, but does not automatically force `NOTHING`.
+
+## Participation breadth
+
+**ALTERADO — ampliar oportunidades sem quota:** evaluate the local hypotheses that fit the current evidence: continuation, pullback, breakout, failed breakout, short mean reversion, and transition. Do not require a named pattern or every hypothesis to be checked. Select `ENTER_LONG` or `ENTER_SHORT` when one hypothesis has a locally timely path, a favorable participation condition, a structural invalidation beyond normal one-minute noise, a reachable target within the next five minutes, and bounded positive expectancy after fees/slippage reserve.
+
+For a flat decision, answer four questions in the audit:
+
+1. What is the most likely path over the next five minutes?
+2. Is the move initiating, progressing, or exhausting?
+3. What observable condition would make participation favorable now, even if higher timeframes are mixed?
+4. What exact structure would invalidate the thesis before reward is considered?
+
+A retest, closed candle, sustained multi-window flow, or complete timeframe alignment may strengthen a thesis, but none is a universal entry gate. Do not replace missing evidence with assumptions; weigh the evidence that is actually present.
 
 ## Confidence for NOTHING
 
