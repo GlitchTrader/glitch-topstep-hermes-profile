@@ -66,6 +66,7 @@ def launch_direct_cycle(root: Path) -> int:
         capture_output=True,
         text=True,
         timeout=30,
+        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0) if sys.platform == "win32" else 0,
     )
     return result.returncode
 
@@ -147,20 +148,26 @@ def poll_once(root: Path) -> dict[str, object]:
     }
 
 
+def refresh_lock(lock_path: Path) -> None:
+    lock_path.write_text(utc_now(), encoding="utf-8")
+
+
 def run_loop(root: Path) -> int:
     state = state_root(root)
     lock_path = state / "wake-monitor.lock"
+    poll_seconds = wake_poll_seconds()
     if lock_path.is_file():
         try:
             age = time.time() - lock_path.stat().st_mtime
         except OSError:
             age = 0.0
-        if age < wake_poll_seconds() * 4:
+        # Match launcher heartbeat window so a live loop is not treated as stale.
+        if age < max(poll_seconds * 20, 300):
             print(json.dumps({"running": False, "reason": "monitor_already_running"}))
             return 0
         lock_path.unlink(missing_ok=True)
 
-    lock_path.write_text(utc_now(), encoding="utf-8")
+    refresh_lock(lock_path)
     try:
         while True:
             try:
@@ -176,7 +183,8 @@ def run_loop(root: Path) -> int:
                         separators=(",", ":"),
                     )
                 )
-            time.sleep(wake_poll_seconds())
+            refresh_lock(lock_path)
+            time.sleep(poll_seconds)
     finally:
         lock_path.unlink(missing_ok=True)
 

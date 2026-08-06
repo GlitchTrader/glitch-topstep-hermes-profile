@@ -40,6 +40,7 @@ from common import (
     local_token,
     parse_utc,
     profile_root,
+    state_root,
     prune_files,
     read_json,
     read_model_config,
@@ -152,9 +153,6 @@ def core_provider(root: Path | None = None) -> str:
         return read_model_config(root or profile_root())[1]
     return os.environ.get("GLITCH_TOPSTEP_CORE_PROVIDER", "openai-codex").strip() or "openai-codex"
 
-
-def state_root(profile_root: Path) -> Path:
-    return profile_root / "state"
 
 
 def packet_max_age_seconds() -> int:
