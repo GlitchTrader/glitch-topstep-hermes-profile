@@ -235,6 +235,26 @@ class WakeTriggerTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             PARITY.validate_wake_triggers([{"type": "SESSION_PHASE", "phase": "invalid"}])
 
+    def test_packet_one_minute_range_uses_session_high_low(self):
+        current = packet(last=20005.0)
+        current["market"] = {
+            "last": 20005.0,
+            "session_high": 20020.0,
+            "session_low": 19990.0,
+        }
+        self.assertEqual(PARITY.packet_one_minute_range(current), (19990.0, 20020.0))
+
+    def test_packet_one_minute_range_prefers_order_flow_window(self):
+        current = packet(last=20005.0)
+        current["market"] = {
+            "last": 20005.0,
+            "session_high": 20020.0,
+            "session_low": 19990.0,
+        }
+        current["order_flow"]["observation"]["windows"][0]["high_price"] = 20008.0
+        current["order_flow"]["observation"]["windows"][0]["low_price"] = 20002.0
+        self.assertEqual(PARITY.packet_one_minute_range(current), (20002.0, 20008.0))
+
 
 if __name__ == "__main__":
     unittest.main()

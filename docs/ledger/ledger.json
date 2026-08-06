@@ -3,10 +3,10 @@
   "project": "glitch-topstep-hermes-profile",
   "updated": "2026-08-06",
   "release_target": "paired gateway/profile beta",
-  "profile_version": "0.1.23",
+  "profile_version": "0.1.24",
   "gateway": {
     "repository": "GlitchTrader/glitch-topstep",
-    "current_version": "0.1.4",
+    "current_version": "0.1.6",
     "intent_schema": "glitch.intent.v2",
     "decision_packet_schemas": [
       "glitch.direct.decision_packet.v1",
@@ -397,6 +397,7 @@
       "evidence": [
         "2026-08-05 PRAC: 16:00-17:00 CDT maintenance — 12x llm_skipped stale_gateway_quote, trade_count_60s=0.",
         "2026-07-31: parity.market_quiescent_skip_details; events market_quiescent; GLITCH_TOPSTEP_SKIP_MARKET_QUIESCENT default true.",
+        "2026-08-06: gate prefers packet.stream_health when present; reconnect_pending bypass; session.phase in recent_frames; PRICE_CROSS range uses session_high/low and order_flow window.",
         "docs/specs/GTHP-018.md",
         "tests/test_direct_cycle.py"
       ],

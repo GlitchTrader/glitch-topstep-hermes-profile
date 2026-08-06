@@ -360,6 +360,40 @@ class DirectCycleTests(unittest.TestCase):
                 "market_quiescent",
             )
 
+    def test_market_quiescent_prefers_stream_health(self):
+        current = packet(6)
+        current["data_quality"]["quote_age_ms"] = 1000
+        current["order_flow"]["observation"]["windows"][0]["trade_count"] = 42
+        current["stream_health"] = {
+            "quote_age_ms": 12000,
+            "trade_count_60s": 0,
+            "reconnect_pending": False,
+        }
+        with mock.patch.dict(
+            os.environ,
+            {"GLITCH_TOPSTEP_SKIP_MARKET_QUIESCENT": "true"},
+        ):
+            details = PARITY.market_quiescent_skip_details(current, None)
+        self.assertIsNotNone(details)
+        assert details is not None
+        self.assertEqual(details["evidence_source"], "stream_health")
+        self.assertEqual(details["trade_count_60s"], 0)
+
+    def test_market_quiescent_not_when_reconnect_pending(self):
+        current = packet(6)
+        current["data_quality"]["quote_age_ms"] = 12000
+        current["order_flow"]["observation"]["windows"][0]["trade_count"] = 0
+        current["stream_health"] = {
+            "quote_age_ms": 12000,
+            "trade_count_60s": 0,
+            "reconnect_pending": True,
+        }
+        with mock.patch.dict(
+            os.environ,
+            {"GLITCH_TOPSTEP_SKIP_MARKET_QUIESCENT": "true"},
+        ):
+            self.assertIsNone(PARITY.market_quiescent_skip_details(current, None))
+
     def test_retry_after_failure_blocks_unchanged_skip(self):
         with tempfile.TemporaryDirectory() as root:
             state = Path(root)

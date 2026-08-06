@@ -73,7 +73,7 @@ FRAME_POLICY_KEYS = (
     "loss_model",
 )
 
-FRAME_SESSION_KEYS = ("entry_window_open", "must_flat_utc")
+FRAME_SESSION_KEYS = ("entry_window_open", "must_flat_utc", "phase", "phase_authority")
 
 FRAME_SKIP_WHEN_FLAT = frozenset(
     {"protection", "reconciliation", "session_activity", "orders_working"}
