@@ -78,7 +78,6 @@ from parity import (
     prune_delivered_outboxes,
     read_pending_wake_invocation,
     record_wake_trigger_fire,
-    require_explicit_wake_triggers,
     RETRYABLE_ATTEMPT_STATUSES,
     validate_wake_triggers,
     wait_for_packet_rollover,
@@ -521,6 +520,8 @@ def recent_context(root: Path) -> dict[str, Any]:
 CYCLE_OPERATOR_INSTRUCTION = (
     "Apply the Glitch Topstep SOUL and loaded skills to CURRENT_CYCLE. "
     "You are the trading operator, not a suggestion engine. "
+    "Rebuild LONG, SHORT, and flat hypotheses from the current packet and frame path each cycle; "
+    "do not repeat prior ledger narrative or default to the previous action. "
     "While flat evaluate ENTER_LONG, ENTER_SHORT, and NOTHING symmetrically; "
     "when positioned evaluate HOLD, MOVE_STOP, MOVE_TP, partial or full EXIT, and scale-in "
     "only when execution.supported_actions includes the matching ENTER_* action. "
@@ -540,17 +541,21 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "Do not manufacture mid-range trades in CHOP; prefer smallest supported quantity when asymmetry is bounded. "
     "The gateway independently verifies ProjectX truth, hard capacity, geometry, loss-floor survival, "
     "packet issuance, and order transport; rejection is an attributable episode, not pre-emption. "
-    "Entries need positive integer quantity, MARKET, and absolute structural stop and target prices. "
     "Return exactly one strict glitch.intent.v2 JSON object with no prose. "
     "Preserve account, instrument, snapshot_hash, and operator_profile exactly. "
     "decision_audit must include bull_case, bear_case, flat_case, aggressive_case, conservative_case, "
     "decisive_evidence, disconfirming_evidence, change_condition, and final_choice (matching action). "
-    "Flat NOTHING is active observation: record path, participation condition, and invalidation; "
-    "honor prior change_condition when evidence satisfies it. "
+    "change_condition is an advisory re-evaluation hypothesis, not a rigid execution gate. "
+    "Action contract: ENTER_LONG and ENTER_SHORT require positive integer quantity, order_type MARKET, "
+    "and absolute stop_loss and take_profit_1; omit wake_triggers and management fields. "
+    "NOTHING and HOLD omit quantity, order_type, stop_loss, take_profit_1, amendment fields, and exit sizing. "
+    "For flat NOTHING or HOLD, wake_triggers is optional local scheduling metadata only "
+    '(omit entirely unless you want an early wake: [{type:"PRICE_CROSS", direction:"ABOVE"|"BELOW", price:number}] '
+    "or {type:\"SESSION_PHASE\", phase:\"asia\"|\"europe\"|\"regular\"|\"maintenance\"}); "
+    "never treat wake_triggers as a gateway field. "
     "MOVE_STOP needs new_stop_price; MOVE_TP needs new_take_profit or take_profit_1; "
     "EXIT may omit quantity/exit_fraction for full flat. "
-    "wake_triggers is mandatory: "
-    '[{type:"PRICE_CROSS", direction:"ABOVE"|"BELOW", price:number}]. '
+    "Honor prior change_condition when current evidence satisfies it, but choose the action the evidence supports now. "
     "Retrieve durable lessons once via native memory, then return JSON without writing memory. "
     "When positioned, read protection.protection_status from the packet: confirmed allows full "
     "management; pending favors HOLD while venue brackets land (EXIT if protection fails to confirm); "
@@ -569,22 +574,28 @@ def build_prompt(
 ) -> str:
     model_packet = cycle_packet_for_model(packet)
     template = copy.deepcopy(packet.get("required_output_template") or {})
-    default_action = "HOLD" if positioned(packet) else "NOTHING"
+    template.pop("action", None)
+    template.pop("confidence", None)
+    template.pop("wake_triggers", None)
+    template.pop("wake_trigger", None)
     template.update(
         schema_version="glitch.intent.v2",
         intent_id=str(
             uuid.uuid5(uuid.NAMESPACE_URL, f"glitch-topstep:{packet['packet_id']}")
         ),
         created_utc=utc_now(),
+        instrument=packet["instrument"],
+        account=packet["account"]["name"],
         operator_profile=PROFILE_NAME,
-        action=default_action,
+        snapshot_hash=packet["market"]["snapshot_hash"],
         model_version=core_model(),
         prompt_version=PROMPT_VERSION,
+        reason="Replace with a compact evidence-based reason.",
     )
 
     audit = template.setdefault("decision_audit", {})
     for field in AUDIT_FIELDS:
-        audit.setdefault(field, default_action if field == "final_choice" else "Replace")
+        audit[field] = "Replace"
 
     protection_guidance = protection_status_management_guidance(
         packet_protection_status(packet),
@@ -841,8 +852,12 @@ def validate_intent(
     if audit.get("final_choice") != action:
         raise ValueError("decision_audit_choice_mismatch")
 
-    validate_wake_triggers(intent.get("wake_triggers", []))
-    require_explicit_wake_triggers(audit, intent.get("wake_triggers", []))
+    wake_triggers = intent.get("wake_triggers")
+    if wake_triggers is not None:
+        validate_wake_triggers(wake_triggers)
+    if action in {"ENTER_LONG", "ENTER_SHORT", "EXIT", "MOVE_STOP", "MOVE_TP"}:
+        if wake_triggers:
+            raise ValueError("wake_triggers_not_allowed_for_action")
 
     if action in {"ENTER_LONG", "ENTER_SHORT"}:
         quantity = intent.get("quantity")
@@ -982,11 +997,14 @@ def prepare_intent_for_delivery(
 
 
 def post_intent(intent: dict[str, Any]) -> dict[str, Any]:
+    wire = copy.deepcopy(intent)
+    wire.pop("wake_triggers", None)
+    wire.pop("wake_trigger", None)
     try:
         status, body = request_json(
             "/intent",
             method="POST",
-            body=intent,
+            body=wire,
             token=local_token(),
         )
         return {"http_status": status, "body": body}

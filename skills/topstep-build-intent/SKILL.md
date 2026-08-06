@@ -10,12 +10,13 @@ Return exactly one JSON object and no Markdown or prose.
 - Preserve the supplied account alias, instrument, operator profile `glitch-topstep`, and snapshot hash exactly.
 - Required core fields: `schema_version`, UUID `intent_id`, `created_utc`, `instrument`, `account`, `operator_profile`, `action`, `confidence`, `snapshot_hash`, `model_version`, `prompt_version`, `reason`, and `decision_audit`.
 - `decision_audit` contains exactly: `bull_case`, `bear_case`, `flat_case`, `aggressive_case`, `conservative_case`, `decisive_evidence`, `disconfirming_evidence`, `change_condition`, and `final_choice`. `final_choice` equals `action`.
-- Choose `action` only from `execution.supported_actions` in the current packet.
-- For `ENTER_LONG` and `ENTER_SHORT`, use a positive integer `quantity` within `policy.max_contracts` and `execution.maximum_additional_contracts`, `order_type: "MARKET"`, and absolute numeric `stop_loss` and `take_profit_1`.
-- For `HOLD` and `NOTHING`, omit `quantity`, `order_type`, `stop_loss`, `take_profit_1`, amendment fields, and exit sizing fields.
-- For `MOVE_STOP`, include absolute numeric `new_stop_price`. Omit entry fields. Include `target_intent_id` when more than one tranche in `protection.tranches` still holds contracts. Submit only when `protection.protection_status` is `confirmed`.
-- For `MOVE_TP`, include absolute numeric `new_take_profit` or `take_profit_1`. Omit entry fields. Include `target_intent_id` when more than one active tranche remains. Submit only when `protection.protection_status` is `confirmed`.
-- For `EXIT`, omit entry and amendment fields. Omit `quantity` and `exit_fraction` for a full flat. For partial reduction, include exactly one of `quantity` or `exit_fraction`. Include `target_intent_id` when reducing a specific tranche in a multi-tranche book.
+- Choose `action` only from `execution.supported_actions` in the current packet. Rebuild the action from current evidence; do not copy a prior cycle default.
+- For `ENTER_LONG` and `ENTER_SHORT`, use a positive integer `quantity` within `policy.max_contracts` and `execution.maximum_additional_contracts`, `order_type: "MARKET"`, and absolute numeric `stop_loss` and `take_profit_1`. Omit `wake_triggers`.
+- For `HOLD` and `NOTHING`, omit `quantity`, `order_type`, `stop_loss`, `take_profit_1`, amendment fields, and exit sizing fields. `wake_triggers` is optional local-only scheduling metadata; omit it unless you want an early wake before the next flat cadence.
+- For `MOVE_STOP`, include absolute numeric `new_stop_price`. Omit entry fields and `wake_triggers`. Include `target_intent_id` when more than one tranche in `protection.tranches` still holds contracts. Submit only when `protection.protection_status` is `confirmed`.
+- For `MOVE_TP`, include absolute numeric `new_take_profit` or `take_profit_1`. Omit entry fields and `wake_triggers`. Include `target_intent_id` when more than one active tranche remains. Submit only when `protection.protection_status` is `confirmed`.
+- For `EXIT`, omit entry, amendment, and `wake_triggers` fields. Omit `quantity` and `exit_fraction` for a full flat. For partial reduction, include exactly one of `quantity` or `exit_fraction`. Include `target_intent_id` when reducing a specific tranche in a multi-tranche book.
+- `change_condition` is advisory text for later accountability; price levels in it do not require mirrored `wake_triggers`.
 - Do not emit limit orders, provider IDs, credentials, additional fields, multiple objects, comments, or trailing text.
 
 Glitch performs final identity, freshness, geometry, risk, and execution validation.
