@@ -249,6 +249,53 @@ class PacketModelTests(unittest.TestCase):
         self.assertFalse(depth["available"])
         self.assertIn("note", depth)
 
+    def test_sanitize_depth_respects_gateway_unavailable_and_crossed_geometry(self):
+        revived = sanitize_depth_for_model(
+            {
+                "available": False,
+                "unavailable_reason": "invalid_depth_geometry",
+                "best_bid": 29716.5,
+                "best_ask": 29668.0,
+                "spread_ticks": -194,
+                "bid_volume": 10,
+                "ask_volume": 8,
+                "imbalance_ratio": 0.1,
+            }
+        )
+        self.assertFalse(revived["available"])
+        self.assertIsNone(revived["imbalance_ratio"])
+        self.assertEqual(revived["unavailable_reason"], "invalid_depth_geometry")
+
+        crossed = sanitize_depth_for_model(
+            {
+                "available": True,
+                "best_bid": 100.5,
+                "best_ask": 100.0,
+                "spread_ticks": -2,
+                "bid_volume": 10,
+                "ask_volume": 8,
+                "imbalance_ratio": 0.1,
+            }
+        )
+        self.assertFalse(crossed["available"])
+        self.assertIsNone(crossed["imbalance_ratio"])
+
+        diverged = sanitize_depth_for_model(
+            {
+                "available": True,
+                "best_bid": 20050,
+                "best_ask": 20050.25,
+                "spread_ticks": 1,
+                "bid_volume": 10,
+                "ask_volume": 8,
+                "imbalance_ratio": 0.1,
+            },
+            market={"bid": 19999.75, "ask": 20000.25},
+            tick_size=0.25,
+        )
+        self.assertFalse(diverged["available"])
+        self.assertEqual(diverged["unavailable_reason"], "depth_bbo_diverges_from_quote")
+
     def test_sanitize_data_quality_clamps_quote_age(self):
         value = sanitize_data_quality_for_model({"quote_age_ms": -12, "state_complete": True})
         self.assertEqual(value["quote_age_ms"], 0)

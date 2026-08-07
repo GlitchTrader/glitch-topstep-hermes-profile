@@ -17,7 +17,7 @@ Return exactly one JSON object and no Markdown or prose.
 - For `HOLD` and `NOTHING`, omit `quantity`, `order_type`, `stop_loss`, `take_profit_1`, amendment fields, and exit sizing fields. `wake_triggers` is optional local-only scheduling metadata; omit it unless you want an early wake before the next flat cadence.
 - For `MOVE_STOP`, include absolute numeric `new_stop_price`. Omit entry fields and `wake_triggers`. Include `target_intent_id` when more than one tranche in `protection.tranches` still holds contracts. Submit only when `protection.protection_status` is `confirmed`.
 - For `MOVE_TP`, include absolute numeric `new_take_profit` or `take_profit_1`. Omit entry fields and `wake_triggers`. Include `target_intent_id` when more than one active tranche remains. Submit only when `protection.protection_status` is `confirmed`.
-- For `EXIT`, omit entry, amendment, and `wake_triggers` fields. Omit `quantity` and `exit_fraction` for a full flat. For partial reduction, include exactly one of `quantity` or `exit_fraction`. Include `target_intent_id` when reducing a specific tranche in a multi-tranche book.
+- For `EXIT`, omit entry, amendment, and `wake_triggers` fields. For a full EXIT that closes the entire active position, omit both `quantity` and `exit_fraction`. For a partial EXIT, provide exactly one of `quantity` or `exit_fraction`. Include `target_intent_id` when reducing a specific tranche in a multi-tranche book.
 - `change_condition` is advisory text for later accountability; price levels in it do not require mirrored `wake_triggers`.
 - Do not emit limit orders, provider IDs, credentials, additional fields, multiple objects, comments, or trailing text.
 
