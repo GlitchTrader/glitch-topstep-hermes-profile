@@ -93,6 +93,21 @@ Sync a stale local gateway clone to `glitch-topstep-v9`:
 bash scripts/sync-glitch-topstep-prompt-v9.sh --gateway-path ~/Projects/glitch-topstep
 ```
 
+Apply gateway issue #73 packet/422 changes when the bot cannot push `glitch-topstep` directly:
+
+```bash
+cd ~/Projects/glitch-topstep
+git checkout main && git pull origin main
+git checkout -b fix/issue-73-packet-quality
+git apply --index "$(dirname "$0")/../patches/glitch-topstep-issue-73-gateway.patch"  # from profile repo root:
+# git apply --index patches/glitch-topstep-issue-73-gateway.patch
+npm run check
+git commit -m "feat: packet data quality and structured 422 diagnostics (#73)"
+git push -u origin fix/issue-73-packet-quality
+```
+
+Patch file: `patches/glitch-topstep-issue-73-gateway.patch` (pairs with profile **0.1.32**).
+
 ### ProjectX Auto OCO Brackets (operator configuration)
 
 When entries fail with ProjectX errors mentioning **Position Brackets** vs **Auto OCO Brackets**:
