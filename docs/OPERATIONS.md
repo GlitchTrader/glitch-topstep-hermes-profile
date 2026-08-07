@@ -53,6 +53,8 @@ Canonical update command:
 powershell -ExecutionPolicy Bypass -File "$env:LOCALAPPDATA\hermes\profiles\glitch-topstep\scripts\safe-profile-update.ps1"
 ```
 
+`config.yaml` holds operator model routing (`model.default`, `provider`, etc.). Hermes profile update preserves it by default, so `setup.ps1` does not checksum-verify `config.yaml` (same as `distribution.yaml`). To replace it with the distribution default, rerun with `-ForceConfig`.
+
 Contributors: after changing distribution-owned files, run `python scripts/regenerate_sha256sums.py` before merging. CI rejects drift.
 
 ## Release version checklist

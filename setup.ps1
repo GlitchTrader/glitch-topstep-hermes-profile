@@ -70,7 +70,7 @@ function Assert-DistributionIntegrity {
             throw "Invalid SHA256SUMS line: $line"
         }
         $relative = $parts[1].Replace('/', '\')
-        if ($relative -ieq 'distribution.yaml') {
+        if ($relative -ieq 'distribution.yaml' -or $relative -ieq 'config.yaml') {
             continue
         }
         $path = [IO.Path]::GetFullPath((Join-Path $profileRoot $relative))
