@@ -1333,6 +1333,112 @@ class DirectCycleTests(unittest.TestCase):
             self.assertFalse(discarded)
             self.assertTrue(outbox_path.exists())
 
+    def test_discard_unexecutable_entry_outbox_on_geometry_error(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            outbox = state / "outbox"
+            wire_dir = state / "delivery-wire"
+            outbox.mkdir(parents=True)
+            wire_dir.mkdir(parents=True)
+            pending = intent("ENTER_SHORT")
+            outbox_path = outbox / "packet-5.json"
+            MODULE.write_json_atomic(outbox_path, pending)
+            MODULE.write_json_atomic(
+                wire_dir / "packet-5.json",
+                {"schema_version": "glitch.topstep.delivery_wire.v1", "wire": pending},
+            )
+            discarded = PARITY.discard_unexecutable_entry_outbox(
+                state,
+                outbox_path,
+                "packet-5",
+                pending,
+                ValueError("short_geometry_invalid"),
+            )
+            self.assertTrue(discarded)
+            self.assertFalse(outbox_path.exists())
+            self.assertFalse((wire_dir / "packet-5.json").exists())
+            events = (state / "events.jsonl").read_text(encoding="utf-8")
+            self.assertIn("intent_discarded_geometry_invalid", events)
+
+    def test_pending_outbox_discards_when_fresh_geometry_invalid(self):
+        stored = packet(5)
+        current = packet(6)
+        current["market"]["snapshot_hash"] = "hash-moved"
+        current["market"]["last"] = 20050
+        current["market"]["bid"] = 20049.75
+        current["market"]["ask"] = 20050.25
+        pending_intent = intent("ENTER_SHORT")
+
+        with tempfile.TemporaryDirectory() as root:
+            profile_root = Path(root)
+            state = MODULE.state_root(profile_root)
+            state.mkdir(parents=True)
+            frames = state / "minute-frames"
+            outbox = state / "outbox"
+            frames.mkdir(parents=True)
+            outbox.mkdir(parents=True)
+            MODULE.write_json_atomic(
+                frames / "20990101T1405Z.json",
+                {"minute_id": "20990101T1405Z", "packet": stored},
+            )
+            MODULE.write_json_atomic(outbox / "packet-5.json", pending_intent)
+
+            args = argparse.Namespace(
+                profile="glitch-topstep",
+                timeout_seconds=30,
+                packet_rollover_wait_seconds=0,
+                dry_run=False,
+            )
+
+            def fake_request_json(path, token=None):
+                if path == "/health":
+                    return (
+                        200,
+                        {
+                            "schema_version": "glitch.direct.health.v2",
+                            "status": "ok",
+                            "compatibility": {
+                                "gateway_name": "glitch-topstep",
+                                "gateway_version": "0.1.2",
+                                "intent_schemas": ["glitch.intent.v2"],
+                                "decision_packet_schemas": [
+                                    "glitch.direct.decision_packet.v1",
+                                    "glitch.direct.decision_packet.v2",
+                                ],
+                                "capabilities": [
+                                    "packet_supported_actions",
+                                    "durable_mutation_receipts",
+                                    "restart_reconciliation",
+                                ],
+                            },
+                        },
+                    )
+                return (200, current)
+
+            with mock.patch.object(MODULE, "local_token", return_value="token"), mock.patch.object(
+                MODULE,
+                "request_json",
+                side_effect=fake_request_json,
+            ), mock.patch.object(MODULE, "wait_for_packet_rollover", return_value=current), mock.patch.object(
+                MODULE,
+                "packet_is_current",
+                return_value=True,
+            ), mock.patch.object(
+                MODULE,
+                "invocation_reason",
+                return_value=None,
+            ), mock.patch.object(
+                MODULE,
+                "post_intent",
+            ) as post_intent:
+                exit_code = MODULE.run_once(args, profile_root)
+
+            self.assertEqual(exit_code, 0)
+            post_intent.assert_not_called()
+            self.assertFalse((outbox / "packet-5.json").exists())
+            events = (state / "events.jsonl").read_text(encoding="utf-8")
+            self.assertIn("intent_discarded_geometry_invalid", events)
+
 
 class IntentContractMatrixTests(unittest.TestCase):
     def test_flat_nothing_valid(self):

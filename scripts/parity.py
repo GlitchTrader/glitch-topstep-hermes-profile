@@ -1678,6 +1678,49 @@ def discard_stale_outbox_intent(
     return True
 
 
+ENTRY_GEOMETRY_ERRORS = frozenset({"long_geometry_invalid", "short_geometry_invalid"})
+
+
+def discard_unexecutable_entry_outbox(
+    state: Path,
+    outbox_path: Path,
+    packet_id: str,
+    intent: dict[str, Any],
+    error: BaseException,
+) -> bool:
+    """Discard entry outbox when live quote no longer sits between stop and target.
+
+    Pending outbox retries validate against the stored decision packet, then
+    prepare_intent_for_delivery re-checks geometry on the fresh quote. If price
+    has moved through the planned stop/target, keep failing every minute would
+    block new decisions — drop the entry instead.
+    """
+    if not intent_is_entry(intent):
+        return False
+    if str(error) not in ENTRY_GEOMETRY_ERRORS:
+        return False
+    try:
+        outbox_path.unlink(missing_ok=True)
+    except OSError:
+        return False
+    clear_delivery_wire(state, packet_id)
+    append_jsonl(
+        state / "events.jsonl",
+        {
+            "schema_version": "glitch.topstep.cycle_event.v2",
+            "event": "intent_discarded_geometry_invalid",
+            "reason": str(error),
+            "recorded_utc": utc_now(),
+            "packet_id": packet_id,
+            "intent_id": str(intent.get("intent_id") or ""),
+            "action": str(intent.get("action") or ""),
+            "stop_loss": intent.get("stop_loss"),
+            "take_profit_1": intent.get("take_profit_1"),
+        },
+    )
+    return True
+
+
 FLAT_ABSTENTION_CLASSIFICATIONS = frozenset({
     "justified_abstention",
     "avoided_adverse_movement",
