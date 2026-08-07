@@ -12,6 +12,7 @@ from packet_model import (  # noqa: E402
     FRAME_SNAPSHOT_SCHEMA,
     annotate_partial_timeframes,
     compact_packet_evidence,
+    detect_continuity_gap,
     frame_for_model,
     frame_packet_keys,
     packet_for_cycle,
@@ -251,6 +252,33 @@ class PacketModelTests(unittest.TestCase):
     def test_sanitize_data_quality_clamps_quote_age(self):
         value = sanitize_data_quality_for_model({"quote_age_ms": -12, "state_complete": True})
         self.assertEqual(value["quote_age_ms"], 0)
+        self.assertIn("quote_clock_skew", value["issues"])
+
+    def test_detect_continuity_gap_reports_missing_minutes(self):
+        gap = detect_continuity_gap(
+            [
+                {"minute_id": "20260806T1230Z"},
+                {"minute_id": "20260806T1233Z"},
+            ]
+        )
+        self.assertIsNotNone(gap)
+        self.assertTrue(gap["present"])
+        self.assertEqual(gap["gaps"][0]["missing_minutes"], 2)
+
+    def test_annotate_partial_timeframes_prefers_progress_adjusted_note(self):
+        rows = annotate_partial_timeframes(
+            [
+                {
+                    "latest_bar_partial": True,
+                    "features": {
+                        "volume_z_score_20": -2.5,
+                        "progress_adjusted_volume_z_score_20": -0.4,
+                    },
+                }
+            ]
+        )
+        self.assertIn("partial_bar_note", rows[0])
+        self.assertIn("progress_adjusted_volume_z_score_20", rows[0]["partial_bar_note"])
 
     def test_annotate_partial_timeframes_adds_volume_note(self):
         rows = annotate_partial_timeframes(

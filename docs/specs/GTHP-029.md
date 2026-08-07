@@ -23,6 +23,14 @@ These are evidence-quality issues, not automatic cognition vetoes, but the model
 - [x] `sanitize_quote_age_ms` — clamp to `max(0, value)` in `data_quality` and `stream_health`
 - [x] `sanitize_depth_for_model` — `available: false` + note when book data absent
 - [x] `annotate_partial_timeframes` — `partial_bar_note` on depressed partial-bar volume z-score
+- [x] `detect_continuity_gap` — minute-frame hole summary in `CURRENT_CYCLE`
+- [x] `sanitize_data_quality_for_model` — `quote_clock_skew` issue when raw `quote_age_ms` was negative
+
+### Operational
+
+- [x] `scripts/preflight-pairing.py` — profile vs gateway prompt pairing check
+- [x] `scripts/sync-glitch-topstep-prompt-v9.sh` — Linux gateway v9 sync
+- [x] `docs/OPERATIONS.md` — ProjectX Auto OCO Brackets checklist
 
 ### `scripts/parity.py`
 
