@@ -15,7 +15,7 @@ State one explicit regime label from packet evidence:
 - `TREND_DOWN` — aligned higher-timeframe location and slope support continuation lower.
 - `CHOP` — overlapping structure, conflicting slopes, or mid-range location without directional edge.
 - `LOW_LIQUIDITY` — thin tape or sparse order-flow windows; reduce conviction and prefer smaller size or NOTHING.
-- `DATA_DEGRADED` — incomplete state, `data_quality.issues`, observation or order-flow `last_error`, or stale quotes.
+- `DATA_DEGRADED` — incomplete state, `data_quality.issues` (including `quote_clock_skew` or `order_flow_depth_unavailable`), observation or order-flow `last_error`, stale quotes, or `CURRENT_CYCLE.continuity_gap.present`.
 
 ## HTF hierarchy
 

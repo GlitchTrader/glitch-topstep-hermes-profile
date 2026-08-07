@@ -81,4 +81,28 @@ Then restart the gateway (`Stop-Process` on port 8790 PID, `.\start.ps1`). Patch
 
 `tests/test_compatibility.py` fails on drift between `parity.PROMPT_VERSION`, `distribution_manifest`, and `PROFILE_COMPATIBILITY`.
 
+### Linux / operator preflight
+
+```bash
+python scripts/preflight-pairing.py --gateway-root ~/Projects/glitch-topstep
+```
+
+Sync a stale local gateway clone to `glitch-topstep-v9`:
+
+```bash
+bash scripts/sync-glitch-topstep-prompt-v9.sh --gateway-path ~/Projects/glitch-topstep
+```
+
+### ProjectX Auto OCO Brackets (operator configuration)
+
+When entries fail with ProjectX errors mentioning **Position Brackets** vs **Auto OCO Brackets**:
+
+1. Open the TopstepX / ProjectX account settings for the trading account.
+2. Disable **Auto OCO Brackets** (or align bracket mode with Glitch's explicit stop/target submission path).
+3. Confirm working protective orders are not duplicated after a rejected entry.
+4. Restart the gateway after any account-level bracket setting change.
+5. Re-run `python scripts/preflight-pairing.py` and submit a flat `NOTHING` intent to verify `202` / `no_execution_action` (not `422` / `prompt_version_mismatch`).
+
+This is an operator configuration fix; the gateway cannot override ProjectX account bracket mode.
+
 `setup.ps1` and `safe-profile-update.ps1` also run `ensure_hermes_distribution_patch.py`, which idempotently patches Hermes `profile_distribution.py` for Windows-safe profile updates (re-applied after Hermes agent upgrades).

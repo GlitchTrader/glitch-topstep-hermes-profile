@@ -125,13 +125,21 @@ def sanitize_data_quality_for_model(data_quality: Any) -> Any:
     if not isinstance(data_quality, dict):
         return data_quality
     out = copy.deepcopy(data_quality)
-    for key in ("quote_age_ms",):
-        if key in out:
-            sanitized = sanitize_quote_age_ms(out.get(key))
-            if sanitized is not None:
-                out[key] = sanitized
-            else:
-                out.pop(key, None)
+    raw_quote_age = out.get("quote_age_ms")
+    if "quote_age_ms" in out:
+        sanitized = sanitize_quote_age_ms(raw_quote_age)
+        if sanitized is not None:
+            out["quote_age_ms"] = sanitized
+        else:
+            out.pop("quote_age_ms", None)
+    raw_number = _finite_number(raw_quote_age)
+    if raw_number is not None and raw_number < 0:
+        issues = out.get("issues")
+        if not isinstance(issues, list):
+            issues = []
+            out["issues"] = issues
+        if "quote_clock_skew" not in issues:
+            issues.append("quote_clock_skew")
     return out
 
 
@@ -182,13 +190,64 @@ def annotate_partial_timeframes(timeframes: list[dict[str, Any]]) -> list[dict[s
             features = item.get("features")
             if isinstance(features, dict):
                 volume_z = _finite_number(features.get("volume_z_score_20"))
-                if volume_z is not None and volume_z <= -2:
+                adjusted = _finite_number(
+                    features.get("progress_adjusted_volume_z_score_20")
+                )
+                if adjusted is not None:
+                    item.setdefault(
+                        "partial_bar_note",
+                        "partial bar; prefer progress_adjusted_volume_z_score_20 over raw volume_z_score_20",
+                    )
+                elif volume_z is not None and volume_z <= -2:
                     item["partial_bar_note"] = (
                         "partial bar with depressed volume_z_score_20; "
                         "treat volume context as incomplete"
                     )
         annotated.append(item)
     return annotated
+
+
+def detect_continuity_gap(frames: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """Return a gap summary when minute frame minute_ids are not contiguous."""
+    minute_ids: list[str] = []
+    for frame in frames:
+        minute_id = frame.get("minute_id")
+        if isinstance(minute_id, str) and len(minute_id) >= 13:
+            minute_ids.append(minute_id)
+    if len(minute_ids) < 2:
+        return None
+    minute_ids.sort()
+    gaps: list[dict[str, Any]] = []
+    for left, right in zip(minute_ids, minute_ids[1:]):
+        left_dt = _minute_id_to_dt(left)
+        right_dt = _minute_id_to_dt(right)
+        if left_dt is None or right_dt is None:
+            continue
+        delta_minutes = int((right_dt - left_dt).total_seconds() // 60)
+        if delta_minutes > 1:
+            gaps.append(
+                {
+                    "after_minute_id": left,
+                    "before_minute_id": right,
+                    "missing_minutes": delta_minutes - 1,
+                }
+            )
+    if not gaps:
+        return None
+    return {
+        "present": True,
+        "gaps": gaps,
+        "note": "minute-frame continuity holes; treat recent_frames path as partially sampled",
+    }
+
+
+def _minute_id_to_dt(minute_id: str):
+    from datetime import datetime, timezone
+
+    try:
+        return datetime.strptime(minute_id, "%Y%m%dT%H%MZ").replace(tzinfo=timezone.utc)
+    except ValueError:
+        return None
 
 
 def _order_flow_window_seconds(window: dict[str, Any]) -> int | None:

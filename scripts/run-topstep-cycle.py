@@ -27,7 +27,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from packet_model import frame_for_model, packet_for_cycle, packet_for_model as build_model_packet
+from packet_model import (
+    detect_continuity_gap,
+    frame_for_model,
+    packet_for_cycle,
+    packet_for_model as build_model_packet,
+)
 from regime import detect_regime
 from common import (
     PROFILE_NAME,
@@ -637,6 +642,7 @@ def build_prompt(
     envelope = {
         "decision_packet": model_packet,
         "recent_frames": [frame_for_model(frame) for frame in frames],
+        "continuity_gap": detect_continuity_gap(frames),
         "recent_glitch_ledger": context,
         "active_trade_state": trade_state,
         "operator_directive": directive,
