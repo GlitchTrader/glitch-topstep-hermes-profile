@@ -162,7 +162,12 @@ def sanitize_stream_health_for_model(stream_health: Any) -> Any:
     return out
 
 
-def sanitize_depth_for_model(depth: Any) -> Any:
+def sanitize_depth_for_model(
+    depth: Any,
+    *,
+    market: dict[str, Any] | None = None,
+    tick_size: float | None = None,
+) -> Any:
     if not isinstance(depth, dict):
         return {"available": False}
     compact = _pick(
@@ -174,14 +179,55 @@ def sanitize_depth_for_model(depth: Any) -> Any:
             "imbalance_ratio",
             "bid_volume",
             "ask_volume",
+            "unavailable_reason",
         ),
     )
+    best_bid = _finite_number(compact.get("best_bid"))
+    best_ask = _finite_number(compact.get("best_ask"))
+    spread = _finite_number(compact.get("spread_ticks"))
     has_levels = any(
         _finite_number(compact.get(key)) not in (None, 0)
         for key in ("best_bid", "best_ask", "bid_volume", "ask_volume")
     )
-    compact["available"] = bool(has_levels)
-    if not compact["available"]:
+    # Respect gateway availability; never revive a flagged book just because levels exist.
+    gateway_available = depth.get("available")
+    inconsistent = (
+        best_bid is not None and best_ask is not None and best_bid >= best_ask
+    ) or (spread is not None and spread <= 0)
+    diverged = False
+    if (
+        isinstance(market, dict)
+        and tick_size is not None
+        and tick_size > 0
+        and best_bid is not None
+        and best_ask is not None
+    ):
+        market_bid = _finite_number(market.get("bid"))
+        market_ask = _finite_number(market.get("ask"))
+        if market_bid is not None and market_ask is not None:
+            # ponytail: 8 ticks matches gateway DEPTH_QUOTE_MAX_DIVERGENCE_TICKS
+            max_ticks = 8
+            if (
+                abs(best_bid - market_bid) / tick_size > max_ticks
+                or abs(best_ask - market_ask) / tick_size > max_ticks
+            ):
+                diverged = True
+    available = (
+        gateway_available is not False
+        and has_levels
+        and not inconsistent
+        and not diverged
+    )
+    compact["available"] = available
+    if not available:
+        compact["imbalance_ratio"] = None
+        reason = compact.get("unavailable_reason") or depth.get("unavailable_reason")
+        if inconsistent:
+            reason = reason or "invalid_depth_geometry"
+        elif diverged:
+            reason = reason or "depth_bbo_diverges_from_quote"
+        if reason:
+            compact["unavailable_reason"] = reason
         compact.setdefault(
             "note",
             "depth reconstruction unavailable; do not infer book imbalance",
@@ -352,7 +398,12 @@ def compact_market_observation_state(state: Any) -> Any:
     }
 
 
-def compact_order_flow_state(state: Any) -> Any:
+def compact_order_flow_state(
+    state: Any,
+    *,
+    market: dict[str, Any] | None = None,
+    tick_size: float | None = None,
+) -> Any:
     if not isinstance(state, dict):
         return state
     observation = state.get("observation")
@@ -379,7 +430,11 @@ def compact_order_flow_state(state: Any) -> Any:
             if isinstance(window, dict):
                 compact_windows.append(window)
     depth = observation.get("depth")
-    compact_depth = sanitize_depth_for_model(depth)
+    compact_depth = sanitize_depth_for_model(
+        depth,
+        market=market if isinstance(market, dict) else None,
+        tick_size=tick_size,
+    )
     return {
         "last_succeeded_utc": state.get("last_succeeded_utc"),
         "last_error": state.get("last_error"),
@@ -395,6 +450,10 @@ def compact_order_flow_state(state: Any) -> Any:
 def compact_packet_evidence(packet: dict[str, Any]) -> dict[str, Any]:
     value = copy.deepcopy(packet)
     market = value.get("market")
+    contract = value.get("contract")
+    tick_size = None
+    if isinstance(contract, dict):
+        tick_size = _finite_number(contract.get("tick_size"))
     if isinstance(market, dict):
         value["market"] = sanitize_market_for_model(market)
     if "data_quality" in value:
@@ -410,7 +469,11 @@ def compact_packet_evidence(packet: dict[str, Any]) -> dict[str, Any]:
             value.get("market_observation")
         )
     if "order_flow" in value:
-        value["order_flow"] = compact_order_flow_state(value.get("order_flow"))
+        value["order_flow"] = compact_order_flow_state(
+            value.get("order_flow"),
+            market=value.get("market") if isinstance(value.get("market"), dict) else None,
+            tick_size=tick_size,
+        )
     return value
 
 
@@ -446,7 +509,20 @@ def continuity_packet_for_cycle(
         elif key == "market_observation":
             out[key] = compact_market_observation_state(value)
         elif key == "order_flow":
-            out[key] = compact_order_flow_state(value)
+            contract = slim.get("contract")
+            tick_size = (
+                _finite_number(contract.get("tick_size"))
+                if isinstance(contract, dict)
+                else None
+            )
+            market_for_depth = out.get("market")
+            if not isinstance(market_for_depth, dict):
+                market_for_depth = slim.get("market") if isinstance(slim.get("market"), dict) else None
+            out[key] = compact_order_flow_state(
+                value,
+                market=market_for_depth if isinstance(market_for_depth, dict) else None,
+                tick_size=tick_size,
+            )
         else:
             out[key] = value
     return out
