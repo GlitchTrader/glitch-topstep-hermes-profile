@@ -70,6 +70,7 @@ from parity import (
     deliver_packet_intent,
     delivery_diagnostic_detail,
     discard_stale_outbox_intent,
+    discard_unexecutable_entry_outbox,
     evaluate_wake_triggers,
     invocation_reason,
     flat_outside_session_window,
@@ -1205,7 +1206,14 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
                 )
             )
             return 0
-        result = deliver_intent(state, pending_id, pending_intent, None)
+        try:
+            result = deliver_intent(state, pending_id, pending_intent, None)
+        except ValueError as error:
+            if discard_unexecutable_entry_outbox(
+                state, pending_path, pending_id, pending_intent, error
+            ):
+                return run_once(args, root)
+            raise
         classification = classify_delivery_result(result)
         if classification != "transport_uncertain":
             receipt = {
@@ -1429,7 +1437,14 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         )
         return 0
 
-    result = deliver_intent(state, packet_id, intent, directive)
+    try:
+        result = deliver_intent(state, packet_id, intent, directive)
+    except ValueError as error:
+        if discard_unexecutable_entry_outbox(
+            state, outbox_path, packet_id, intent, error
+        ):
+            return 0
+        raise
     classification = classify_delivery_result(result)
     if classification != "transport_uncertain":
         receipt = {
