@@ -134,6 +134,8 @@ def sanitize_data_quality_for_model(data_quality: Any) -> Any:
             out.pop("quote_age_ms", None)
     raw_number = _finite_number(raw_quote_age)
     if raw_number is not None and raw_number < 0:
+        out["raw_quote_age_ms"] = int(round(raw_number))
+        out["clock_skew_detected"] = True
         issues = out.get("issues")
         if not isinstance(issues, list):
             issues = []
@@ -147,11 +149,16 @@ def sanitize_stream_health_for_model(stream_health: Any) -> Any:
     if not isinstance(stream_health, dict):
         return stream_health
     out = copy.deepcopy(stream_health)
-    sanitized = sanitize_quote_age_ms(out.get("quote_age_ms"))
+    raw_quote_age = out.get("quote_age_ms")
+    sanitized = sanitize_quote_age_ms(raw_quote_age)
     if sanitized is not None:
         out["quote_age_ms"] = sanitized
     else:
         out.pop("quote_age_ms", None)
+    raw_number = _finite_number(raw_quote_age)
+    if raw_number is not None and raw_number < 0:
+        out["raw_quote_age_ms"] = int(round(raw_number))
+        out["clock_skew_detected"] = True
     return out
 
 

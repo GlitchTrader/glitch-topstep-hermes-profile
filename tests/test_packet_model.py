@@ -252,6 +252,8 @@ class PacketModelTests(unittest.TestCase):
     def test_sanitize_data_quality_clamps_quote_age(self):
         value = sanitize_data_quality_for_model({"quote_age_ms": -12, "state_complete": True})
         self.assertEqual(value["quote_age_ms"], 0)
+        self.assertEqual(value["raw_quote_age_ms"], -12)
+        self.assertTrue(value["clock_skew_detected"])
         self.assertIn("quote_clock_skew", value["issues"])
 
     def test_detect_continuity_gap_reports_missing_minutes(self):

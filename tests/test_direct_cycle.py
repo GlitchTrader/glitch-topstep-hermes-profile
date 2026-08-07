@@ -177,7 +177,48 @@ def intent(action: str = "NOTHING", quantity: int = 1) -> dict:
             stop_loss=20010,
             take_profit_1=19980,
         )
+    if action == "MOVE_STOP":
+        value.update(new_stop_price=19995)
+    if action == "MOVE_TP":
+        value.update(new_take_profit=20025)
+    if action == "EXIT" and quantity > 0:
+        value.update(quantity=quantity)
     return value
+
+
+def proven_protection_packet(**kwargs):
+    current = packet(positioned=True, **kwargs)
+    current["execution"]["supported_actions"] = [
+        "HOLD",
+        "EXIT",
+        "MOVE_STOP",
+        "MOVE_TP",
+        "NOTHING",
+    ]
+    current["protection"] = {
+        "status": "proven",
+        "protection_status": "confirmed",
+        "reason": "all_tranches_protected",
+        "intent_id": "00000000-0000-4000-8000-000000000101",
+        "stop": {"provider_order_id": 1, "custom_tag": "glt-sl", "price": 19990},
+        "target": {"provider_order_id": 2, "custom_tag": "glt-tp", "price": 20020},
+        "tranches": [
+            {
+                "intent_id": "00000000-0000-4000-8000-000000000101",
+                "entry_order_id": 100,
+                "filled_qty": 1,
+                "remaining_qty": 1,
+                "created_utc": "2099-01-01T14:05:00Z",
+                "protection": {
+                    "status": "proven",
+                    "reason": "matched",
+                    "stop": {"provider_order_id": 1, "custom_tag": "glt-sl", "price": 19990},
+                    "target": {"provider_order_id": 2, "custom_tag": "glt-tp", "price": 20020},
+                },
+            }
+        ],
+    }
+    return current
 
 
 class DirectCycleTests(unittest.TestCase):
@@ -808,6 +849,10 @@ class DirectCycleTests(unittest.TestCase):
         self.assertIn("prior_hypothesis=", template["decision_audit"]["decisive_evidence"])
         self.assertIn("Rebuild LONG, SHORT, and flat hypotheses", prompt)
         self.assertIn("wake_triggers is optional", prompt)
+        self.assertIn("NOTHING while flat", prompt)
+        self.assertIn("HOLD while positioned", prompt)
+        self.assertNotIn("flat NOTHING or HOLD", prompt)
+        self.assertIn("recent_glitch_ledger as the primary continuity source", prompt)
         self.assertIn("never choose HOLD while flat", prompt)
         self.assertIsNone(envelope["cycle_evidence_delta"])
 
@@ -1287,6 +1332,95 @@ class DirectCycleTests(unittest.TestCase):
             )
             self.assertFalse(discarded)
             self.assertTrue(outbox_path.exists())
+
+
+class IntentContractMatrixTests(unittest.TestCase):
+    def test_flat_nothing_valid(self):
+        current = packet()
+        value = MODULE.normalize_intent(intent("NOTHING"), current)
+        MODULE.validate_intent(value, current)
+
+    def test_flat_nothing_rejects_entry_fields(self):
+        current = packet()
+        value = intent("NOTHING")
+        value["quantity"] = 1
+        with self.assertRaisesRegex(ValueError, "unknown_fields"):
+            MODULE.validate_intent(value, current)
+
+    def test_enter_long_and_short_valid(self):
+        for action in ("ENTER_LONG", "ENTER_SHORT"):
+            current = packet()
+            value = MODULE.normalize_intent(intent(action), current)
+            MODULE.validate_intent(value, current)
+
+    def test_enter_long_rejects_missing_stop(self):
+        current = packet()
+        value = intent("ENTER_LONG")
+        value.pop("stop_loss")
+        with self.assertRaisesRegex(ValueError, "(missing_fields|invalid_number)"):
+            MODULE.validate_intent(value, current)
+
+    def test_positioned_hold_valid(self):
+        current = packet(positioned=True)
+        value = MODULE.normalize_intent(intent("HOLD"), current)
+        MODULE.validate_intent(value, current)
+
+    def test_move_stop_and_move_tp_valid_with_confirmed_protection(self):
+        current = proven_protection_packet()
+        for action, field, price in (
+            ("MOVE_STOP", "new_stop_price", 19995),
+            ("MOVE_TP", "new_take_profit", 20030),
+        ):
+            body = intent("HOLD")
+            body["action"] = action
+            body["decision_audit"]["final_choice"] = action
+            body[field] = price
+            value = MODULE.normalize_intent(body, current)
+            MODULE.validate_intent(value, current)
+
+    def test_exit_full_and_partial_variants(self):
+        current = proven_protection_packet()
+        full = MODULE.normalize_intent(intent("EXIT"), current)
+        MODULE.validate_intent(full, current)
+        partial_qty = MODULE.normalize_intent(intent("EXIT", quantity=1), current)
+        MODULE.validate_intent(partial_qty, current)
+        partial_fraction = MODULE.normalize_intent(
+            {**intent("EXIT"), "exit_fraction": 0.5},
+            current,
+        )
+        MODULE.validate_intent(partial_fraction, current)
+
+    def test_exit_rejects_quantity_and_fraction_together(self):
+        current = proven_protection_packet()
+        value = intent("EXIT", quantity=1)
+        value["exit_fraction"] = 0.5
+        with self.assertRaisesRegex(ValueError, "exit_quantity_and_fraction_conflict"):
+            MODULE.validate_intent(value, current)
+
+    def test_final_choice_must_match_action(self):
+        current = packet()
+        value = intent("NOTHING")
+        value["decision_audit"]["final_choice"] = "HOLD"
+        with self.assertRaisesRegex(ValueError, "decision_audit_choice_mismatch"):
+            MODULE.validate_intent(value, current)
+
+    def test_wake_triggers_rejected_on_entry(self):
+        current = packet()
+        value = intent("ENTER_LONG")
+        value["wake_triggers"] = [
+            {"type": "PRICE_CROSS", "direction": "ABOVE", "price": 20000},
+        ]
+        with self.assertRaisesRegex(ValueError, "wake_triggers_not_allowed_for_action"):
+            MODULE.validate_intent(value, current)
+
+    def test_quote_age_observation_normalizes_negative_skip_values(self):
+        current = packet()
+        current["data_quality"]["quote_age_ms"] = -47
+        current["data_quality"]["issues"] = ["quote_clock_skew"]
+        observation = PARITY.quote_age_observation(current)
+        self.assertEqual(observation["normalized_quote_age_ms"], 0.0)
+        self.assertEqual(observation["raw_quote_age_ms"], -47)
+        self.assertTrue(observation["clock_skew_detected"])
 
 
 if __name__ == "__main__":
