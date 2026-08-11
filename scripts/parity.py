@@ -1394,11 +1394,19 @@ def outcome_execution_summary(outcome: dict[str, Any]) -> dict[str, Any]:
         "protection_confirmed",
         "side",
         "quantity",
+        "fills",
     )
     summary = {key: outcome.get(key) for key in keys if key in outcome}
     attribution = outcome.get("attribution")
-    if isinstance(attribution, dict) and attribution.get("protection_status"):
-        summary["protection_status"] = attribution["protection_status"]
+    if isinstance(attribution, dict):
+        if attribution.get("protection_status"):
+            summary["protection_status"] = attribution["protection_status"]
+        for key in ("closing_order_id", "stop_order_id", "target_order_id", "entry_order_id"):
+            if key in attribution:
+                summary[key] = attribution.get(key)
+    evidence = outcome.get("evidence")
+    if isinstance(evidence, dict) and evidence.get("order_ids") is not None:
+        summary["order_ids"] = evidence.get("order_ids")
     return summary
 
 
@@ -1425,7 +1433,64 @@ def debrief_facts(
         "initial_risk_usd": outcome_execution.get("initial_risk_usd"),
         "r_multiple": outcome_execution.get("r_multiple"),
         "protection_status": outcome_execution.get("protection_status"),
+        "entry_price": outcome_execution.get("entry_price", outcome.get("entry_price")),
+        "exit_price": outcome_execution.get("exit_price", outcome.get("exit_price")),
+        "stop_price": outcome_execution.get("stop_price", outcome.get("stop_price")),
+        "target_price": outcome_execution.get("target_price", outcome.get("target_price")),
+        "side": outcome_execution.get("side", outcome.get("side")),
+        "quantity": outcome_execution.get("quantity", outcome.get("quantity")),
+        "fills": outcome_execution.get("fills", outcome.get("fills")),
+        "order_ids": outcome_execution.get("order_ids"),
+        "closing_order_id": outcome_execution.get("closing_order_id"),
+        "stop_order_id": outcome_execution.get("stop_order_id"),
+        "target_order_id": outcome_execution.get("target_order_id"),
+        "entry_order_id": outcome_execution.get("entry_order_id"),
     }
+
+
+def collect_market_path(
+    frames_root: Path,
+    entry: datetime,
+    exit_time: datetime,
+) -> list[dict[str, Any]]:
+    """Collect minute-frame last/high/low between entry and exit (inclusive).
+
+    Frames are named by minute_id (e.g. 20260811T2059Z.json), not packet_id UUID.
+    Matching on packet_id therefore never finds a path — iterate by packet created_utc.
+    """
+    market_path: list[dict[str, Any]] = []
+    if not frames_root.is_dir():
+        return market_path
+    for path in sorted(frames_root.glob("*.json")):
+        frame = read_optional_json(path)
+        if not isinstance(frame, dict):
+            continue
+        packet = frame.get("packet")
+        if not isinstance(packet, dict):
+            continue
+        market = packet.get("market") if isinstance(packet.get("market"), dict) else {}
+        stamp_raw = packet.get("created_utc") or frame.get("captured_utc")
+        try:
+            stamp = parse_utc(stamp_raw)
+        except (TypeError, ValueError):
+            continue
+        if stamp < entry:
+            continue
+        if stamp > exit_time:
+            break
+        try:
+            close = float(market["last"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        market_path.append(
+            {
+                "minute_id": frame.get("minute_id"),
+                "close": close,
+                "high": float(market.get("high", close)),
+                "low": float(market.get("low", close)),
+            }
+        )
+    return market_path
 
 
 def stable_facts_sha256(facts: dict[str, Any]) -> str:
@@ -1805,51 +1870,28 @@ def debrief_evidence(state: Path, outcomes: list[dict[str, Any]]) -> list[dict[s
             if entry - timedelta(seconds=90) <= stamp <= exit_time + timedelta(seconds=90):
                 related_decisions.append(row)
 
-        entry_intent = next(
+        entry_row = next(
             (
-                row.get("intent")
+                row
                 for row in decisions
                 if isinstance(row.get("intent"), dict)
                 and str(row["intent"].get("intent_id") or "") == intent_id
             ),
             None,
         )
-        packet_id = str((entry_intent or {}).get("packet_id") or "")
+        entry_intent = entry_row.get("intent") if isinstance(entry_row, dict) else None
+        packet_id = str(
+            (entry_row or {}).get("packet_id")
+            or (entry_intent or {}).get("packet_id")
+            or ""
+        )
         if not packet_id:
             for row in related_decisions:
                 packet_id = str(row.get("packet_id") or "")
                 if packet_id:
                     break
 
-        market_path: list[dict[str, Any]] = []
-        if packet_id:
-            start_collecting = False
-            for path in sorted(frames_root.glob("*.json")):
-                frame = read_optional_json(path)
-                if not frame:
-                    continue
-                if path.stem == packet_id:
-                    start_collecting = True
-                if not start_collecting:
-                    continue
-                packet = frame.get("packet")
-                market = packet.get("market") if isinstance(packet, dict) else {}
-                try:
-                    close = float(market["last"])
-                except (KeyError, TypeError, ValueError):
-                    continue
-                market_path.append(
-                    {
-                        "minute_id": frame.get("minute_id"),
-                        "close": close,
-                        "high": float(market.get("high", close)),
-                        "low": float(market.get("low", close)),
-                    }
-                )
-                if parse_utc(outcome["exit_utc"]) <= parse_utc(
-                    (packet or {}).get("created_utc", outcome["exit_utc"])
-                ):
-                    break
+        market_path = collect_market_path(frames_root, entry, exit_time)
 
         evidence.append(
             {
