@@ -232,13 +232,46 @@ class LearningTests(unittest.TestCase):
                 "mfe_usd": 12.0,
                 "initial_risk_usd": 40.0,
                 "r_multiple": 0.25,
-                "attribution": {"protection_status": "proven"},
+                "entry_price": 100.0,
+                "exit_price": 101.0,
+                "stop_price": 99.0,
+                "target_price": 102.0,
+                "side": "long",
+                "quantity": 1,
+                "fills": [
+                    {
+                        "price": 100.0,
+                        "size": 1,
+                        "side": 0,
+                        "order_id": 10,
+                        "timestamp": "2026-07-28T21:30:01Z",
+                        "profit_and_loss": None,
+                        "fees": 0.36,
+                    },
+                    {
+                        "price": 101.0,
+                        "size": 1,
+                        "side": 1,
+                        "order_id": 20,
+                        "timestamp": "2026-07-28T21:34:50Z",
+                        "profit_and_loss": 10,
+                        "fees": 0.36,
+                    },
+                ],
+                "attribution": {
+                    "protection_status": "proven",
+                    "entry_order_id": 10,
+                    "closing_order_id": 20,
+                    "stop_order_id": 11,
+                    "target_order_id": 12,
+                },
+                "evidence": {"publisher_version": "test", "trade_ids": [1, 2], "order_ids": [10, 20]},
             }
             (state_root / "decisions.jsonl").write_text(
                 json.dumps(
                     {
                         "recorded_utc": "2026-07-28T21:30:01Z",
-                        "packet_id": "20260728T2130Z",
+                        "packet_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
                         "intent": {
                             "intent_id": "intent-1",
                             "account": "PRAC",
@@ -262,6 +295,30 @@ class LearningTests(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
+            (frames / "20260728T2132Z.json").write_text(
+                json.dumps(
+                    {
+                        "minute_id": "20260728T2132Z",
+                        "packet": {
+                            "created_utc": "2026-07-28T21:32:00Z",
+                            "market": {"last": 100.5, "high": 101.0, "low": 100.0},
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (frames / "20260728T2135Z.json").write_text(
+                json.dumps(
+                    {
+                        "minute_id": "20260728T2135Z",
+                        "packet": {
+                            "created_utc": "2026-07-28T21:35:00Z",
+                            "market": {"last": 101.0, "high": 101.5, "low": 100.5},
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
             evidence = PARITY.debrief_evidence(state_root, [outcome])
         self.assertEqual(len(evidence), 1)
         self.assertEqual(evidence[0]["outcome"]["outcome_id"], "o1")
@@ -270,7 +327,16 @@ class LearningTests(unittest.TestCase):
         self.assertEqual(evidence[0]["outcome_execution"]["mae_usd"], 5.0)
         self.assertEqual(evidence[0]["outcome_execution"]["r_multiple"], 0.25)
         self.assertEqual(evidence[0]["outcome_execution"]["protection_status"], "proven")
+        self.assertEqual(evidence[0]["outcome_execution"]["closing_order_id"], 20)
+        self.assertEqual(evidence[0]["outcome_execution"]["order_ids"], [10, 20])
+        self.assertEqual(len(evidence[0]["market_path"]), 3)
+        self.assertEqual(evidence[0]["market_path"][0]["close"], 100.0)
+        self.assertEqual(evidence[0]["market_path"][-1]["close"], 101.0)
         self.assertIn("facts", evidence[0])
+        self.assertEqual(evidence[0]["facts"]["entry_price"], 100.0)
+        self.assertEqual(evidence[0]["facts"]["exit_price"], 101.0)
+        self.assertEqual(evidence[0]["facts"]["closing_order_id"], 20)
+        self.assertEqual(len(evidence[0]["facts"]["fills"]), 2)
         self.assertEqual(evidence[0]["facts_sha256"], PARITY.stable_facts_sha256(evidence[0]["facts"]))
 
     def test_debrief_prompt_evidence_omits_full_outcome_blob(self):
