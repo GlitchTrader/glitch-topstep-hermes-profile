@@ -1,0 +1,47 @@
+name: apply-verified-implementation
+
+on:
+  push:
+    branches:
+      - agent/topstep-capital-preservation
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/topstep-capital-preservation
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply verified implementation to current main
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 --decode .github/implementation/profile.patch.gz.b64 | gzip --decompress > /tmp/implementation.patch
+          echo '6b2503b96b09d86b2da4fe7e2686e40f3da01eb85cd0981d122166de96f6eb91  /tmp/implementation.patch' | sha256sum --check --strict
+          git fetch origin main
+          git reset --hard origin/main
+          git apply --index --whitespace=nowarn /tmp/implementation.patch
+          python -m py_compile scripts/*.py plugins/topstep-control/__init__.py
+          python -m unittest discover -s tests -p 'test_*.py'
+          python - <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, 'scripts')
+          from distribution_manifest import verify_sha256sums
+          json.loads(Path('operator.json').read_text(encoding='utf-8'))
+          json.loads(Path('docs/ledger/ledger.json').read_text(encoding='utf-8'))
+          errors = verify_sha256sums(Path('.'))
+          assert not errors, errors
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat: add Topstep daily capital preservation'
+          git push --force-with-lease origin HEAD:agent/topstep-capital-preservation
