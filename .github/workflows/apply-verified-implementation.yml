@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Apply verified implementation to current main
+      - name: Apply and verify implementation
         shell: bash
         run: |
           set -euo pipefail
@@ -28,6 +28,35 @@ jobs:
           git fetch origin main
           git reset --hard origin/main
           git apply --index --whitespace=nowarn /tmp/implementation.patch
+          cat > docs/specs/GTHP-031.md <<'EOF'
+          # GTHP-031 — Deterministic Topstep daily capital governor
+
+          **Status:** Implemented on the paired capital-preservation branch.
+
+          ## Purpose
+
+          Publish a transparent Topstep-only session governor to Hermes and make its risk-reducing state binding at the gateway boundary. The configured 0.5% value is a daily objective and profit-lock threshold, never a profit promise, trade quota, or reason to increase risk.
+
+          ## Contract
+
+          - The gateway publishes `daily_governor` in every decision packet and binds it into the snapshot hash.
+          - Hermes may choose only actions advertised by `execution.supported_actions`.
+          - A flat locked account produces no model call and no new exposure.
+          - A positioned account with `flatten_required=true` emits one deterministic full `EXIT`, with duplicate retries throttled locally.
+          - Human forced-entry directives cannot bypass a session lock or block required risk reduction.
+          - Optional `favorable_reassessment_requested` metadata is boolean, Hermes-local, and stripped before gateway delivery, matching the relevant NT profile 0.0.2.58 contract without importing NT execution semantics.
+          - Profit locks, loss locks, cooldowns, trade counts, and realized session PnL reset only when the configured Topstep trading-day identifier changes.
+
+          ## Safety
+
+          The governor can only reduce or stop exposure. It cannot widen stops, increase size because the account is behind the objective, average down, create recovery trades, or override ProjectX and Topstep hard boundaries. `NOTHING` remains a valid and preferred decision when no acceptable positive-asymmetry trade exists.
+
+          ## Verification
+
+          The profile test suite covers locked flat cycles, forced-directive rejection under lock, deterministic positioned exits, retry throttling, supported-action enforcement, metadata validation and stripping, packet sanitization, compatibility negotiation, and distribution integrity.
+          EOF
+          python scripts/regenerate_sha256sums.py
+          git add docs/specs/GTHP-031.md SHA256SUMS
           python -m py_compile scripts/*.py plugins/topstep-control/__init__.py
           python -m unittest discover -s tests -p 'test_*.py'
           python - <<'PY'
@@ -43,5 +72,7 @@ jobs:
           PY
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git reset --soft origin/main
+          git add -A
           git commit -m 'feat: add Topstep daily capital preservation'
-          git push --force-with-lease origin HEAD:agent/topstep-capital-preservation
+          git push --force origin HEAD:agent/topstep-capital-preservation
