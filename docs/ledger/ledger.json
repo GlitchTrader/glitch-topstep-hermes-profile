@@ -3,6 +3,12 @@
   "project": "glitch-topstep-hermes-profile",
   "updated": "2026-08-19",
   "release_target": "paired gateway/profile beta",
+  "reconciliation": {
+    "date": "2026-08-19",
+    "merged_prs": [109, 110, 111],
+    "implementation_note": "Paired roadmap implementation and workflow dependency updates are merged. Open issues remain open when they still require live acceptance, operational evidence, or future learning/multi-instrument enablement.",
+    "validation": "172 Profile tests passed after checksum regeneration and workflow conflict resolution."
+  },
   "profile_version": "0.2.0",
   "gateway": {
     "repository": "GlitchTrader/glitch-topstep",
