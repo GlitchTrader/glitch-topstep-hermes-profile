@@ -186,6 +186,46 @@ def intent(action: str = "NOTHING", quantity: int = 1) -> dict:
     return value
 
 
+def multi_instrument_packet() -> dict:
+    current = packet()
+    current["market_universe"] = {
+        "schema_version": "glitch.topstep.market_universe.v1",
+        "generation": 7,
+        "scope_hash": "scope-mnq-mes-mcl",
+        "simultaneous_exposure_enabled": False,
+        "candidates": [
+            {
+                "instrument": "MNQ",
+                "contract_id": "CON.F.US.MNQ.U26",
+                "symbol_id": "F.US.MNQ",
+                "tick_size": 0.25,
+                "tick_value": 0.5,
+                "execution_mode": "selected",
+                "observation_quality": {"status": "ready", "observation_ready": True},
+            },
+            {
+                "instrument": "MES",
+                "contract_id": "CON.F.US.MES.U26",
+                "symbol_id": "F.US.MES",
+                "tick_size": 0.25,
+                "tick_value": 1.25,
+                "execution_mode": "observation_only",
+                "observation_quality": {"status": "ready", "observation_ready": True},
+            },
+            {
+                "instrument": "MCL",
+                "contract_id": "CON.F.US.MCLE.V26",
+                "symbol_id": "F.US.MCLE",
+                "tick_size": 0.01,
+                "tick_value": 1.0,
+                "execution_mode": "observation_only",
+                "observation_quality": {"status": "ready", "observation_ready": True},
+            },
+        ],
+    }
+    return current
+
+
 def proven_protection_packet(**kwargs):
     current = packet(positioned=True, **kwargs)
     current["execution"]["supported_actions"] = [
@@ -732,6 +772,25 @@ class DirectCycleTests(unittest.TestCase):
         )
         self.assertNotIn("required_output_template", envelope["decision_packet"])
         self.assertIn("required_output_template", envelope)
+
+    def test_multi_instrument_candidates_cross_model_boundary_unchanged(self):
+        current = multi_instrument_packet()
+        prompt = MODULE.build_prompt(current, [], {}, None)
+        envelope = json.loads(prompt.split("CURRENT_CYCLE=", 1)[1])
+        model_universe = envelope["decision_packet"]["market_universe"]
+        self.assertEqual(
+            [row["instrument"] for row in model_universe["candidates"]],
+            ["MNQ", "MES", "MCL"],
+        )
+        self.assertEqual(
+            [row["contract_id"] for row in model_universe["candidates"]],
+            ["CON.F.US.MNQ.U26", "CON.F.US.MES.U26", "CON.F.US.MCLE.V26"],
+        )
+        self.assertEqual(
+            [row["execution_mode"] for row in model_universe["candidates"]],
+            ["selected", "observation_only", "observation_only"],
+        )
+        self.assertIn("INSTRUMENT_COMPARISON_V1:", envelope["required_output_template"]["decision_audit"]["decisive_evidence"])
 
     def test_adaptive_decision_frame_count_uses_fewer_frames_when_flat(self):
         with mock.patch.dict(os.environ, {"GLITCH_TOPSTEP_FLAT_FRAME_COUNT": "4"}):
