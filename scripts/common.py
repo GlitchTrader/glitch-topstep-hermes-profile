@@ -19,6 +19,7 @@ from compatibility import (
     compatibility_summary,
     verify_gateway_compatibility,
 )
+from outcome_store import OutcomeStore
 
 PROFILE_NAME = "glitch-topstep"
 DEFAULT_GATEWAY_URL = "http://127.0.0.1:8790"
@@ -250,87 +251,61 @@ def sync_gateway_outcomes_meta(state: Path) -> dict[str, Any]:
     token = os.environ.get("GLITCH_TOPSTEP_LOCAL_TOKEN", "").strip()
     if not token:
         return {"added": 0, "http_status": None}
-    cursor_path = state / "outcome-feed-cursor.json"
-    cursor = read_optional_json(cursor_path) or {}
-    after_sequence = int(cursor.get("sequence") or 0)
-    status, body = request_json(
-        f"/outcomes/feed?after_sequence={after_sequence}&limit=1000",
-        token=token,
-    )
-    if status == 503:
-        # Read-only compatibility with pre-v3 gateways; paired armed mode rejects
-        # these gateways through the compatibility contract before cognition.
-        status, body = request_json("/outcomes?limit=100", token=token)
-        legacy_rows = body.get("outcomes", []) if isinstance(body, dict) else []
-        revisions = [
-            {
-                "sequence": after_sequence + index,
-                "revision": 1,
-                "status": "legacy",
-                "content_hash": hashlib.sha256(
-                    json.dumps(row, sort_keys=True, separators=(",", ":")).encode("utf-8")
-                ).hexdigest(),
-                "outcome": row,
-            }
-            for index, row in enumerate(legacy_rows, start=1)
-            if isinstance(row, dict)
-        ]
-    else:
-        revisions = body.get("revisions", []) if isinstance(body, dict) else []
-    if status != 200 or not isinstance(body, dict):
-        return {"added": 0, "revised": 0, "http_status": status, "sequence": after_sequence}
-    if not isinstance(revisions, list):
-        return {"added": 0, "revised": 0, "http_status": status, "sequence": after_sequence}
     path = state / "outcomes.jsonl"
-    projection = {
-        str(row.get("outcome_id")): row
-        for row in read_jsonl(path)
-        if isinstance(row, dict) and row.get("outcome_id")
-    }
-    added = 0
-    revised = 0
-    high_sequence = after_sequence
-    for revision in revisions:
-        if not isinstance(revision, dict):
-            continue
-        row = revision.get("outcome")
-        if not isinstance(row, dict):
-            continue
-        if row.get("schema_version") != "glitch.topstep.trade_outcome.v1":
-            continue
-        outcome_id = str(row.get("outcome_id") or "")
-        if not outcome_id:
-            continue
-        if outcome_id in projection:
-            revised += 1
+    store = OutcomeStore(state)
+    try:
+        store.bootstrap_jsonl(path)
+        cursor_path = state / "outcome-feed-cursor.json"
+        cursor = read_optional_json(cursor_path) or {}
+        after_sequence = max(int(cursor.get("sequence") or 0), store.cursor())
+        status, body = request_json(
+            f"/outcomes/feed?after_sequence={after_sequence}&limit=1000",
+            token=token,
+        )
+        if status == 503:
+            status, body = request_json("/outcomes?limit=100", token=token)
+            legacy_rows = body.get("outcomes", []) if isinstance(body, dict) else []
+            revisions = [
+                {
+                    "sequence": after_sequence + index,
+                    "revision": 1,
+                    "status": "legacy",
+                    "content_hash": hashlib.sha256(
+                        json.dumps(row, sort_keys=True, separators=(",", ":")).encode("utf-8")
+                    ).hexdigest(),
+                    "outcome": row,
+                }
+                for index, row in enumerate(legacy_rows, start=1)
+                if isinstance(row, dict)
+            ]
         else:
-            added += 1
-        projected_row = dict(row)
-        projected_row["_feed_revision"] = int(revision.get("revision") or 1)
-        projected_row["_feed_sequence"] = int(revision.get("sequence") or high_sequence)
-        projected_row["_feed_status"] = str(revision.get("status") or "enriched")
-        projected_row["_feed_content_hash"] = str(revision.get("content_hash") or "")
-        projection[outcome_id] = projected_row
-        sequence = revision.get("sequence")
-        if isinstance(sequence, int):
-            high_sequence = max(high_sequence, sequence)
-    if added or revised:
-        write_jsonl_atomic(path, projection.values())
-    high = body.get("high_water_sequence")
-    if isinstance(high, int) and not revisions:
-        high_sequence = max(high_sequence, high)
-    write_json_atomic(cursor_path, {
-        "schema_version": "glitch.topstep.outcome_cursor.v1",
-        "sequence": high_sequence,
-        "updated_utc": utc_now(),
-    })
-    return {
-        "added": added,
-        "revised": revised,
-        "http_status": status,
-        "sequence": high_sequence,
-        "retention_floor_sequence": body.get("retention_floor_sequence"),
-    }
+            revisions = body.get("revisions", []) if isinstance(body, dict) else []
+        if status != 200 or not isinstance(body, dict) or not isinstance(revisions, list):
+            return {"added": 0, "revised": 0, "http_status": status, "sequence": after_sequence}
+        revisions = [
+            item for item in revisions
+            if isinstance(item, dict)
+            and isinstance(item.get("outcome"), dict)
+            and item["outcome"].get("schema_version") == "glitch.topstep.trade_outcome.v1"
+        ]
+        high = body.get("high_water_sequence")
+        result = store.apply(revisions, high if isinstance(high, int) else None, utc_now())
+        store.export_jsonl(path)
+        write_json_atomic(cursor_path, {
+            "schema_version": "glitch.topstep.outcome_cursor.v1",
+            "sequence": result["sequence"],
+            "updated_utc": utc_now(),
+        })
+        return {
+            "added": result["added"],
+            "revised": result["revised"],
+            "http_status": status,
+            "sequence": result["sequence"],
+            "retention_floor_sequence": body.get("retention_floor_sequence"),
+            "storage": store.status(),
+        }
+    finally:
+        store.close()
 
 
 def sync_gateway_outcomes(state: Path) -> int:
