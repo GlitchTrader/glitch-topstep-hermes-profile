@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-08-06",
+  "updated": "2026-08-18",
   "release_target": "paired gateway/profile beta",
   "profile_version": "0.1.30",
   "gateway": {
@@ -668,6 +668,118 @@
         "scripts/packet_model.py sanitize_market_for_model",
         "scripts/parity.py compact_receipt_row field/error",
         "distribution 0.1.31"
+      ]
+    },
+    {
+      "id": "GTHP-PROD-01",
+      "title": "Consume revisioned outcomes with a durable cursor and idempotent UPSERT",
+      "status": "open",
+      "priority": "P0",
+      "owner_role": "learning_architecture",
+      "issue": 97,
+      "depends_on": [
+        "GTHP-012",
+        "glitch-topstep:TS-PROD-02"
+      ],
+      "acceptance": [
+        "OutcomeSync consumes every page by monotonic after_sequence and persists revision plus cursor in one SQLite transaction.",
+        "Backlogs above 10000 rows, duplicate delivery, restart, gaps, retention-floor rebuild, and late corrections are covered.",
+        "A corrected outcome versions or invalidates derived debrief and episode state instead of leaving stale learning silently active.",
+        "Gateway and profile no longer write the same outcomes.jsonl; JSONL is a regenerable export only.",
+        "Shared outcome-feed contract fixtures pass against glitch-topstep:TS-PROD-02."
+      ],
+      "stop_line": "Do not advance the cursor before commit or deduplicate a later revision solely because intent_id already exists.",
+      "sources": [
+        "docs/ledger/audits/2026-08-18-production-hardening-profile.md",
+        "scripts/common.py",
+        "scripts/run-topstep-learning.py",
+        "scripts/parity.py",
+        "glitch-topstep:TS-PROD-02",
+        "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/97"
+      ]
+    },
+    {
+      "id": "GTHP-PROD-02",
+      "title": "Replace unbounded JSONL scans with indexed bounded state",
+      "status": "open",
+      "priority": "P1",
+      "owner_role": "storage",
+      "issue": 98,
+      "depends_on": [
+        "GTHP-PROD-01"
+      ],
+      "acceptance": [
+        "Decisions, frames, outcomes, episodes, worker runs, and cursors use indexed SQLite tables with bounded queries.",
+        "A resumable idempotent migration classifies accepted, duplicate, conflicting, and quarantined JSONL rows.",
+        "Corruption, disk-full, concurrent-read, restart, backup, and restore tests are green.",
+        "One-year-volume benchmarks meet documented memory and latency SLOs.",
+        "JSONL compatibility exports are rotatable and fully reconstructible from authoritative state."
+      ],
+      "stop_line": "Do not silently skip malformed lines or retain full-file scans on the recurring cycle/learning path.",
+      "sources": [
+        "docs/ledger/audits/2026-08-18-production-hardening-profile.md",
+        "scripts/common.py",
+        "scripts/parity.py",
+        "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/98"
+      ]
+    },
+    {
+      "id": "GTHP-PROD-03",
+      "title": "Make profile tests hermetic and release CI reproducible",
+      "status": "open",
+      "priority": "P1",
+      "owner_role": "release_architecture",
+      "issue": 99,
+      "depends_on": [
+        "GTHP-010",
+        "glitch-topstep:TS-PROD-07",
+        "glitch-topstep:TS-PROD-08"
+      ],
+      "acceptance": [
+        "Unit tests use injected Hermes/config/state roots and cannot touch the operator LOCALAPPDATA profile.",
+        "Linux and Windows CI pass in an environment without a Hermes installation; live tests are explicit opt-in and non-mutating by default.",
+        "Actions are pinned by commit SHA with least privilege, deterministic inputs, checksum/schema/security checks, and immutable artifacts.",
+        "Pair-contract CI proves supported and intentionally incompatible gateway/profile combinations.",
+        "Main ruleset requires the release checks and release publishes hashes/provenance."
+      ],
+      "stop_line": "Do not fix environmental tests by granting access to the real operator profile.",
+      "sources": [
+        "docs/ledger/audits/2026-08-18-production-hardening-profile.md",
+        "scripts/common.py",
+        "scripts/compatibility.py",
+        "scripts/distribution_manifest.py",
+        ".github/workflows/ci.yml",
+        "glitch-topstep:TS-PROD-07",
+        "glitch-topstep:TS-PROD-08",
+        "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/99"
+      ]
+    },
+    {
+      "id": "GTHP-PROD-04",
+      "title": "Decompose cycle, parity, and learning workers into explicit services",
+      "status": "open",
+      "priority": "P1",
+      "owner_role": "architect",
+      "issue": 100,
+      "depends_on": [
+        "GTHP-PROD-01",
+        "GTHP-PROD-02",
+        "GTHP-PROD-03"
+      ],
+      "acceptance": [
+        "Gateway client, state store, packet projection, cognition cycle, intent delivery, outcome sync, learning pipeline, and scheduler have explicit boundaries.",
+        "Domain logic does not read environment, filesystem, clock, network, or installed Hermes state directly.",
+        "Entrypoint scripts are thin composition roots and architecture checks reject cycles/forbidden imports.",
+        "Characterization and contract fixtures preserve wire, prompt, receipt, and learning semantics across incremental extraction.",
+        "Per-stage latency/error metrics distinguish fetch, model, validate, delivery, reconcile, and persistence."
+      ],
+      "stop_line": "No big-bang rewrite and no worker rule that turns evidence into a hidden strategy or unauthorized mutation.",
+      "sources": [
+        "docs/ledger/audits/2026-08-18-production-hardening-profile.md",
+        "scripts/run-topstep-cycle.py",
+        "scripts/run-topstep-learning.py",
+        "scripts/parity.py",
+        "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/100"
       ]
     }
   ]
