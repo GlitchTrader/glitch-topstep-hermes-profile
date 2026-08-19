@@ -20,6 +20,8 @@ FRAME_PACKET_KEYS = (
     "venue",
     "firm",
     "instrument",
+    "decision_scope",
+    "market_universe",
     "account",
     "contract",
     "market",
@@ -355,6 +357,10 @@ def compact_timeframe_observation(timeframe: dict[str, Any]) -> dict[str, Any]:
         "timeframe_minutes": timeframe.get("timeframe_minutes"),
         "latest_bar_utc": timeframe.get("latest_bar_utc"),
         "latest_bar_partial": timeframe.get("latest_bar_partial"),
+        "current_partial_bar": timeframe.get("current_partial_bar"),
+        "prior_completed_bar": timeframe.get("prior_completed_bar"),
+        "partial_progress": timeframe.get("partial_progress"),
+        "bar_identity_issues": timeframe.get("bar_identity_issues"),
     }
     features = timeframe.get("features")
     if isinstance(features, dict):

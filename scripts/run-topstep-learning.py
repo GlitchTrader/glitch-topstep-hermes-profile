@@ -35,8 +35,10 @@ from common import (
     read_jsonl,
     read_optional_json,
     sync_gateway_outcomes_meta,
+    sync_gateway_execution_facts,
     utc_now,
     write_json_atomic,
+    write_jsonl_atomic,
 )
 from parity import (
     PROMPT_VERSION,
@@ -285,6 +287,18 @@ def valid_outcomes(path: Path) -> list[dict[str, Any]]:
             continue
         values.append(row)
     return values
+
+
+def canonical_outcomes(path: Path) -> list[dict[str, Any]]:
+    required = {
+        "schema_version", "outcome_id", "intent_id", "account", "instrument",
+        "entry_utc", "exit_utc", "realized_pnl_usd", "fees_usd", "learning_eligible",
+    }
+    return [
+        row for row in read_jsonl(path)
+        if row.get("schema_version") == "glitch.topstep.trade_outcome.v1"
+        and required.issubset(row)
+    ]
 
 
 def invoke_hermes(profile: str, prompt: str, skills: str, timeout_seconds: int) -> dict[str, Any]:
@@ -556,6 +570,51 @@ def append_unique(path: Path, records: list[dict[str, Any]], id_field: str) -> N
             existing.add(identifier)
 
 
+def upsert_unique(path: Path, records: list[dict[str, Any]], id_field: str) -> None:
+    """Replace corrected episodes in place while preserving one stable episode identity."""
+    rows = read_jsonl(path)
+    positions = {
+        str(row.get(id_field)): index
+        for index, row in enumerate(rows)
+        if row.get(id_field)
+    }
+    for record in records:
+        identifier = str(record.get(id_field) or "")
+        if not identifier:
+            continue
+        position = positions.get(identifier)
+        if position is None:
+            positions[identifier] = len(rows)
+            rows.append(record)
+        else:
+            rows[position] = record
+    write_jsonl_atomic(path, rows)
+
+
+def reconcile_corrected_episodes(
+    path: Path,
+    outcomes: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Retract an existing episode when its canonical outcome becomes ineligible."""
+    current = {str(row.get("outcome_id")): row for row in outcomes if row.get("outcome_id")}
+    rows = read_jsonl(path)
+    changed = False
+    for episode in rows:
+        outcome_id = str(episode.get("outcome_id") or "")
+        outcome = current.get(outcome_id)
+        if not outcome or outcome.get("learning_eligible") is True:
+            continue
+        if episode.get("status") != "retracted":
+            episode["status"] = "retracted"
+            episode["learning_eligible"] = False
+            episode["retracted_revision"] = int(outcome.get("_feed_revision") or 1)
+            episode["retraction_reason"] = "canonical_outcome_not_learning_eligible"
+            changed = True
+    if changed:
+        write_jsonl_atomic(path, rows)
+    return rows
+
+
 def auto_overlay_enabled() -> bool:
     return os.environ.get("GLITCH_TOPSTEP_AUTO_ACTIVATE_OVERLAY", "false").strip().lower() == "true"
 
@@ -785,12 +844,34 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
     state_path = supervisor / "learning-state.json"
     state = read_optional_json(state_path) or {"schema_version": "glitch.topstep.learning_state.v1"}
     sync_meta = sync_gateway_outcomes_meta(state_root)
-    outcomes = valid_outcomes(outcomes_path(root))
+    execution_facts_meta = sync_gateway_execution_facts(state_root)
+    outcome_file = outcomes_path(root)
+    all_outcomes = canonical_outcomes(outcome_file)
+    outcomes = [row for row in all_outcomes if row.get("learning_eligible") is True]
     episodes = read_jsonl(supervisor / "trade-episodes.jsonl")
-    processed = set(state.get("debriefed_outcome_ids", [])) | {
-        str(row.get("outcome_id")) for row in episodes if row.get("outcome_id")
+    if not args.dry_run:
+        episodes = reconcile_corrected_episodes(supervisor / "trade-episodes.jsonl", all_outcomes)
+    processed_revisions = {
+        str(key): int(value)
+        for key, value in (state.get("debriefed_outcome_revisions") or {}).items()
     }
-    pending = [row for row in outcomes if str(row.get("outcome_id")) not in processed]
+    for row in episodes:
+        outcome_id = str(row.get("outcome_id") or "")
+        if outcome_id:
+            processed_revisions[outcome_id] = max(
+                processed_revisions.get(outcome_id, 0),
+                int(row.get("outcome_revision") or 1),
+            )
+    for row in all_outcomes:
+        if row.get("learning_eligible") is not True:
+            processed_revisions[str(row["outcome_id"])] = max(
+                processed_revisions.get(str(row["outcome_id"]), 0),
+                int(row.get("_feed_revision") or 1),
+            )
+    pending = [
+        row for row in outcomes
+        if int(row.get("_feed_revision") or 1) > processed_revisions.get(str(row.get("outcome_id")), 0)
+    ]
     pending = sorted(pending, key=lambda row: str(row.get("exit_utc") or ""), reverse=True)[:8]
     now = datetime.now(timezone.utc)
     feed_fresh = gateway_feed_is_fresh()
@@ -802,6 +883,10 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
         "feed_fresh": feed_fresh,
         "outcomes_synced": int(sync_meta.get("added") or 0),
         "outcomes_sync_http_status": sync_meta.get("http_status"),
+        "outcome_feed_sequence": sync_meta.get("sequence"),
+        "outcome_revisions_synced": int(sync_meta.get("revised") or 0),
+        "execution_facts_synced": int(execution_facts_meta.get("added") or 0),
+        "execution_facts_sequence": execution_facts_meta.get("sequence"),
         "debriefed": 0,
         "hourly": False,
         "planning": False,
@@ -825,8 +910,14 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
                 record["intent_id"] = outcome["intent_id"]
                 record["account"] = outcome["account"]
                 record["instrument"] = outcome["instrument"]
-            append_unique(supervisor / "trade-episodes.jsonl", records, "episode_id")
-            state["debriefed_outcome_ids"] = sorted(processed | {str(row["outcome_id"]) for row in pending})
+                record["outcome_revision"] = int(outcome.get("_feed_revision") or 1)
+                record["outcome_content_hash"] = str(outcome.get("_feed_content_hash") or "")
+                record["prompt_version"] = PROMPT_VERSION
+            upsert_unique(supervisor / "trade-episodes.jsonl", records, "episode_id")
+            for row in pending:
+                processed_revisions[str(row["outcome_id"])] = int(row.get("_feed_revision") or 1)
+            state["debriefed_outcome_revisions"] = dict(sorted(processed_revisions.items()))
+            state["debriefed_outcome_ids"] = sorted(processed_revisions)
         result["debriefed"] = len(pending)
 
     episodes = read_jsonl(supervisor / "trade-episodes.jsonl")
@@ -836,7 +927,7 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
         state.get("supervision_decision_count", max(0, len(decision_episodes) - 24))
     )
     hourly_due = (
-        (len(episodes) > supervision_trade_cursor or len(decision_episodes) > supervision_decision_cursor)
+        (len(episodes) > supervision_trade_cursor or len(decision_episodes) > supervision_decision_cursor or int(sync_meta.get("revised") or 0) > 0)
         and minutes_since(state.get("last_hourly_utc"), now) >= 60
     )
     if feed_fresh and (hourly_due or args.force_loop == "hourly") and args.force_loop in {None, "hourly"}:
@@ -966,25 +1057,44 @@ def main() -> int:
     supervisor = state / "supervisor"
     supervisor.mkdir(parents=True, exist_ok=True)
     lock_path = state / "learning-cycle.lock"
+    run_id = stable_id("learning-run", utc_now())
+    started_utc = utc_now()
     if not acquire_cycle_lock(lock_path):
+        write_json_atomic(supervisor / "learning-worker-status.json", {
+            "schema_version": "glitch.topstep.learning_worker_status.v2",
+            "run_id": run_id,
+            "recorded_utc": utc_now(),
+            "status": "preempted",
+            "phase": "lock_admission",
+            "retryable": True,
+        })
         return 0
     try:
         try:
             result = run_once(args, root)
         except Exception as error:
             failure = {
-                "schema_version": "glitch.topstep.learning_worker_status.v1",
+                "schema_version": "glitch.topstep.learning_worker_status.v2",
+                "run_id": run_id,
+                "started_utc": started_utc,
                 "recorded_utc": utc_now(),
                 "status": "failed",
+                "phase": "learning",
+                "retryable": isinstance(error, (OSError, TimeoutError)),
                 "error": f"{type(error).__name__}:{error}"[:500],
             }
             write_json_atomic(supervisor / "learning-worker-status.json", failure)
             print(json.dumps(failure, separators=(",", ":")), file=sys.stderr)
             return 1
         write_json_atomic(supervisor / "learning-worker-status.json", {
-            "schema_version": "glitch.topstep.learning_worker_status.v1",
+            "schema_version": "glitch.topstep.learning_worker_status.v2",
+            "run_id": run_id,
+            "started_utc": started_utc,
+            "completed_utc": utc_now(),
             "recorded_utc": utc_now(),
             "status": "ok",
+            "phase": "completed",
+            "retryable": False,
             "result": result,
         })
         print(json.dumps(result, separators=(",", ":")))

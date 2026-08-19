@@ -14,9 +14,9 @@ SHA256SUMS_FILENAME = "SHA256SUMS"
 # into %LOCALAPPDATA%\\hermes\\profiles\\* or Windows updates fail on rmtree(.git).
 STAGING_ARTIFACTS = frozenset({".git", ".gitattributes"})
 
-PROMPT_VERSION = "glitch-topstep-v9"
-MIN_GATEWAY_VERSION = "0.1.1"
-TESTED_GATEWAY_VERSION = "0.1.6"
+PROMPT_VERSION = "glitch-topstep-v10"
+MIN_GATEWAY_VERSION = "0.2.0"
+TESTED_GATEWAY_VERSION = "0.2.0"
 
 
 def read_distribution_version(root: Path | None = None) -> str:
@@ -66,10 +66,22 @@ def verify_sha256sums(root: Path | None = None) -> list[str]:
 def regenerate_sha256sums(root: Path | None = None) -> list[str]:
     root = root or DISTRIBUTION_ROOT
     lines: list[str] = []
-    for _expected, relative in iter_sha256sums_entries(root):
-        path = root / Path(relative)
-        if not path.is_file():
-            raise FileNotFoundError(f"distribution file missing for SHA256SUMS: {relative}")
+    included_roots = {
+        ".env.EXAMPLE", ".github", ".gitignore", "README.md", "SOUL.md",
+        "config.yaml", "distribution.yaml", "docs", "operator.json", "plugins",
+        "scripts", "setup.ps1", "skills", "tests",
+    }
+    paths = sorted(
+        path for path in root.rglob("*")
+        if path.is_file()
+        and path.name != SHA256SUMS_FILENAME
+        and path.parts[len(root.parts)] in included_roots
+        and ".git" not in path.parts
+        and "__pycache__" not in path.parts
+        and path.suffix not in {".pyc", ".pyo"}
+    )
+    for path in paths:
+        relative = path.relative_to(root).as_posix()
         lines.append(f"{file_sha256(path)}  {relative}")
     (root / SHA256SUMS_FILENAME).write_text(
         "\n".join(lines) + "\n",

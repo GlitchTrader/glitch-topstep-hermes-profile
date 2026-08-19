@@ -1716,8 +1716,8 @@ def discard_stale_outbox_intent(
 ) -> bool:
     """Discard only when the decision packet was never captured locally.
 
-    A newer gateway packet id must not invalidate a completed decision: delivery
-    realigns snapshot_hash against the current packet before POST /intent.
+    A newer gateway packet never mutates a completed decision. Entry delivery is
+    permitted only while its frozen v3 scope and price range remain valid.
     """
     del token  # retained for call-site compatibility
     reason: str | None = None
@@ -1743,7 +1743,13 @@ def discard_stale_outbox_intent(
     return True
 
 
-ENTRY_GEOMETRY_ERRORS = frozenset({"long_geometry_invalid", "short_geometry_invalid"})
+ENTRY_GEOMETRY_ERRORS = frozenset({
+    "long_geometry_invalid",
+    "short_geometry_invalid",
+    "entry_range_superseded",
+    "entry_scope_superseded",
+    "entry_intent_expired",
+})
 
 
 def discard_unexecutable_entry_outbox(
@@ -1756,9 +1762,9 @@ def discard_unexecutable_entry_outbox(
     """Discard entry outbox when live quote no longer sits between stop and target.
 
     Pending outbox retries validate against the stored decision packet, then
-    prepare_intent_for_delivery re-checks geometry on the fresh quote. If price
-    has moved through the planned stop/target, keep failing every minute would
-    block new decisions — drop the entry instead.
+    prepare_intent_for_delivery re-checks geometry and the frozen range on the
+    fresh quote. Superseded entries are dropped once so the next cycle performs
+    one fresh comparison; the old range is never widened.
     """
     if not intent_is_entry(intent):
         return False

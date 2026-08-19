@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 import sys
 import tempfile
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -85,10 +87,20 @@ def read_model_config(root: Path) -> tuple[str, str]:
     model = "gpt-5.6-luna"
     provider = "openai-codex"
     path = root / "config.yaml"
-    if not path.is_file():
+    try:
+        exists = path.is_file()
+    except OSError:
+        exists = False
+    if not exists:
         return model, provider
     in_model = False
-    for raw in path.read_text(encoding="utf-8-sig", errors="replace").splitlines():
+    try:
+        lines = path.read_text(encoding="utf-8-sig", errors="replace").splitlines()
+    except OSError:
+        # Installed Hermes state can be unreadable in hermetic CI. Model routing
+        # must fall back safely instead of reaching outside the checked-out profile.
+        return model, provider
+    for raw in lines:
         line = raw.rstrip()
         stripped = line.strip()
         if stripped.startswith("model:"):
@@ -130,7 +142,17 @@ def hermes_chat_model_cli_args(
 
 
 def gateway_url() -> str:
-    return os.environ.get("GLITCH_TOPSTEP_GATEWAY_URL", DEFAULT_GATEWAY_URL).rstrip("/")
+    value = os.environ.get("GLITCH_TOPSTEP_GATEWAY_URL", DEFAULT_GATEWAY_URL).strip().rstrip("/")
+    parsed = urllib.parse.urlsplit(value)
+    host = (parsed.hostname or "").lower()
+    loopback = host in {"localhost", "127.0.0.1", "::1"}
+    if parsed.username or parsed.password or parsed.path not in {"", "/"}:
+        raise RuntimeError("GLITCH_TOPSTEP_GATEWAY_URL must be a bare HTTP(S) origin")
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        raise RuntimeError("GLITCH_TOPSTEP_GATEWAY_URL must use HTTP(S)")
+    if parsed.scheme != "https" and not loopback:
+        raise RuntimeError("non-loopback gateway URLs must use HTTPS")
+    return value
 
 
 def local_token() -> str:
@@ -224,40 +246,137 @@ def request_json(
 
 
 def sync_gateway_outcomes_meta(state: Path) -> dict[str, Any]:
-    """Append new canonical trade outcomes; return sync metadata for learning status."""
+    """Project the revisioned gateway feed locally using a durable sequence cursor."""
     token = os.environ.get("GLITCH_TOPSTEP_LOCAL_TOKEN", "").strip()
     if not token:
         return {"added": 0, "http_status": None}
-    status, body = request_json("/outcomes?limit=100", token=token)
+    cursor_path = state / "outcome-feed-cursor.json"
+    cursor = read_optional_json(cursor_path) or {}
+    after_sequence = int(cursor.get("sequence") or 0)
+    status, body = request_json(
+        f"/outcomes/feed?after_sequence={after_sequence}&limit=1000",
+        token=token,
+    )
+    if status == 503:
+        # Read-only compatibility with pre-v3 gateways; paired armed mode rejects
+        # these gateways through the compatibility contract before cognition.
+        status, body = request_json("/outcomes?limit=100", token=token)
+        legacy_rows = body.get("outcomes", []) if isinstance(body, dict) else []
+        revisions = [
+            {
+                "sequence": after_sequence + index,
+                "revision": 1,
+                "status": "legacy",
+                "content_hash": hashlib.sha256(
+                    json.dumps(row, sort_keys=True, separators=(",", ":")).encode("utf-8")
+                ).hexdigest(),
+                "outcome": row,
+            }
+            for index, row in enumerate(legacy_rows, start=1)
+            if isinstance(row, dict)
+        ]
+    else:
+        revisions = body.get("revisions", []) if isinstance(body, dict) else []
     if status != 200 or not isinstance(body, dict):
-        return {"added": 0, "http_status": status}
-    outcomes = body.get("outcomes")
-    if not isinstance(outcomes, list):
-        return {"added": 0, "http_status": status}
+        return {"added": 0, "revised": 0, "http_status": status, "sequence": after_sequence}
+    if not isinstance(revisions, list):
+        return {"added": 0, "revised": 0, "http_status": status, "sequence": after_sequence}
     path = state / "outcomes.jsonl"
-    known = {
-        str(row.get("intent_id"))
+    projection = {
+        str(row.get("outcome_id")): row
         for row in read_jsonl(path)
-        if isinstance(row, dict) and row.get("intent_id")
+        if isinstance(row, dict) and row.get("outcome_id")
     }
     added = 0
-    for row in outcomes:
+    revised = 0
+    high_sequence = after_sequence
+    for revision in revisions:
+        if not isinstance(revision, dict):
+            continue
+        row = revision.get("outcome")
         if not isinstance(row, dict):
             continue
         if row.get("schema_version") != "glitch.topstep.trade_outcome.v1":
             continue
-        intent_id = str(row.get("intent_id") or "")
-        if not intent_id or intent_id in known:
+        outcome_id = str(row.get("outcome_id") or "")
+        if not outcome_id:
             continue
-        append_jsonl(path, row)
-        known.add(intent_id)
-        added += 1
-    return {"added": added, "http_status": status}
+        if outcome_id in projection:
+            revised += 1
+        else:
+            added += 1
+        projected_row = dict(row)
+        projected_row["_feed_revision"] = int(revision.get("revision") or 1)
+        projected_row["_feed_sequence"] = int(revision.get("sequence") or high_sequence)
+        projected_row["_feed_status"] = str(revision.get("status") or "enriched")
+        projected_row["_feed_content_hash"] = str(revision.get("content_hash") or "")
+        projection[outcome_id] = projected_row
+        sequence = revision.get("sequence")
+        if isinstance(sequence, int):
+            high_sequence = max(high_sequence, sequence)
+    if added or revised:
+        write_jsonl_atomic(path, projection.values())
+    high = body.get("high_water_sequence")
+    if isinstance(high, int) and not revisions:
+        high_sequence = max(high_sequence, high)
+    write_json_atomic(cursor_path, {
+        "schema_version": "glitch.topstep.outcome_cursor.v1",
+        "sequence": high_sequence,
+        "updated_utc": utc_now(),
+    })
+    return {
+        "added": added,
+        "revised": revised,
+        "http_status": status,
+        "sequence": high_sequence,
+        "retention_floor_sequence": body.get("retention_floor_sequence"),
+    }
 
 
 def sync_gateway_outcomes(state: Path) -> int:
     """Append new canonical trade outcomes exposed by the gateway."""
     return int(sync_gateway_outcomes_meta(state).get("added") or 0)
+
+
+def sync_gateway_execution_facts(state: Path) -> dict[str, Any]:
+    """Append immediate execution facts separately from directional learning."""
+    token = os.environ.get("GLITCH_TOPSTEP_LOCAL_TOKEN", "").strip()
+    if not token:
+        return {"added": 0, "http_status": None, "sequence": 0}
+    cursor_path = state / "execution-facts-cursor.json"
+    cursor = read_optional_json(cursor_path) or {}
+    after_sequence = int(cursor.get("sequence") or 0)
+    status, body = request_json(
+        f"/execution/facts?after_sequence={after_sequence}&limit=1000",
+        token=token,
+    )
+    if status != 200:
+        return {"added": 0, "http_status": status, "sequence": after_sequence}
+    facts = body.get("facts")
+    if not isinstance(facts, list):
+        return {"added": 0, "http_status": status, "sequence": after_sequence}
+    added = 0
+    high_sequence = after_sequence
+    existing_sequences = {
+        int(row.get("sequence"))
+        for row in read_jsonl(state / "execution-facts.jsonl")
+        if isinstance(row.get("sequence"), int)
+    }
+    for fact in facts:
+        if not isinstance(fact, dict) or not isinstance(fact.get("sequence"), int):
+            continue
+        high_sequence = max(high_sequence, int(fact["sequence"]))
+        if int(fact["sequence"]) in existing_sequences:
+            continue
+        append_jsonl(state / "execution-facts.jsonl", fact)
+        existing_sequences.add(int(fact["sequence"]))
+        added += 1
+    write_json_atomic(cursor_path, {
+        "schema_version": "glitch.topstep.execution_facts_cursor.v1",
+        "sequence": high_sequence,
+        "updated_utc": utc_now(),
+    })
+    return {"added": added, "http_status": status, "sequence": high_sequence}
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -306,6 +425,23 @@ def append_jsonl(path: Path, value: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a", encoding="utf-8", newline="\n") as stream:
         stream.write(json.dumps(value, separators=(",", ":"), ensure_ascii=False) + "\n")
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
+def write_jsonl_atomic(path: Path, values: Iterable[dict[str, Any]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, temporary_name = tempfile.mkstemp(prefix=path.name + ".", suffix=".tmp", dir=path.parent)
+    temporary = Path(temporary_name)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as stream:
+            for value in values:
+                stream.write(json.dumps(value, separators=(",", ":"), ensure_ascii=False) + "\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 def tail_jsonl(path: Path, count: int) -> list[dict[str, Any]]:

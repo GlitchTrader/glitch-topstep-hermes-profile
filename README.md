@@ -11,7 +11,7 @@ Glitch Topstep gateway (separate repo, must be running)
         ▼
 Hermes profile: glitch-topstep  (this repo)
   observation · judgment · decision · review · learning
-        │ strict glitch.intent.v2
+        │ strict glitch.intent.v3
         ▼
 Glitch Topstep gateway
   factual verification · execution · receipts
@@ -54,6 +54,7 @@ Minimum profile `.env`:
 
 ```text
 GLITCH_TOPSTEP_LOCAL_TOKEN=<same as gateway GLITCH_LOCAL_TOKEN>
+GLITCH_TOPSTEP_OPERATOR_TOKEN=<same as gateway GLITCH_OPERATOR_TOKEN>
 ```
 
 ```powershell
@@ -106,7 +107,7 @@ python -m unittest discover -s tests -p 'test_*.py'
 
 CI runs `py_compile` on scripts/plugins plus the same unittest suite on every push/PR.
 
-To test against a live gateway, point `.env` at your local instance and ensure `GLITCH_TOPSTEP_LOCAL_TOKEN` matches.
+To test against a live gateway, point `.env` at your local instance and ensure `GLITCH_TOPSTEP_LOCAL_TOKEN` matches. The `flatten-all` command additionally requires the separate `GLITCH_TOPSTEP_OPERATOR_TOKEN`; the local read/intent token is intentionally insufficient for operator controls.
 
 ### Edit → verify → commit → push
 
