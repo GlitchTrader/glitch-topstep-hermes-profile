@@ -5,6 +5,7 @@ import json
 import os
 import tempfile
 import uuid
+import urllib.parse
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Optional
@@ -65,7 +66,17 @@ def _load_dotenv() -> None:
 
 def _gateway_url() -> str:
     _load_dotenv()
-    return os.environ.get("GLITCH_TOPSTEP_GATEWAY_URL", "http://127.0.0.1:8790").rstrip("/")
+    value = os.environ.get("GLITCH_TOPSTEP_GATEWAY_URL", "http://127.0.0.1:8790").strip().rstrip("/")
+    parsed = urllib.parse.urlsplit(value)
+    host = (parsed.hostname or "").lower()
+    loopback = host in {"localhost", "127.0.0.1", "::1"}
+    if parsed.username or parsed.password or parsed.path not in {"", "/"}:
+        raise RuntimeError("GLITCH_TOPSTEP_GATEWAY_URL must be a bare HTTP(S) origin")
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        raise RuntimeError("GLITCH_TOPSTEP_GATEWAY_URL must use HTTP(S)")
+    if parsed.scheme != "https" and not loopback:
+        raise RuntimeError("non-loopback gateway URLs must use HTTPS")
+    return value
 
 
 def _token() -> str:
@@ -76,13 +87,21 @@ def _token() -> str:
     return value
 
 
-def _request(path: str, *, method: str = "GET", body: dict[str, Any] | None = None, authenticated: bool = True) -> tuple[int, dict[str, Any]]:
+def _operator_token() -> str:
+    _load_dotenv()
+    value = os.environ.get("GLITCH_TOPSTEP_OPERATOR_TOKEN", "").strip()
+    if not value:
+        raise RuntimeError("GLITCH_TOPSTEP_OPERATOR_TOKEN is not configured in the profile .env file.")
+    return value
+
+
+def _request(path: str, *, method: str = "GET", body: dict[str, Any] | None = None, authenticated: bool = True, token: str | None = None) -> tuple[int, dict[str, Any]]:
     import urllib.error
     import urllib.request
 
     headers = {"Accept": "application/json"}
     if authenticated:
-        headers["Authorization"] = f"Bearer {_token()}"
+        headers["Authorization"] = f"Bearer {token or _token()}"
     data = None
     if body is not None:
         headers["Content-Type"] = "application/json"
@@ -335,8 +354,20 @@ def _flatten(_raw_args: str) -> str:
     account = packet.get("account") if isinstance(packet, dict) else None
     if not isinstance(account, dict) or int(account.get("instrument_open_contracts") or 0) == 0:
         return f"Account is already flat; cognition remains paused; jobs: {jobs}."
-    intent = build_exit_intent(packet)
-    result_status, result = _request("/intent", method="POST", body=intent)
+    contract = packet.get("contract") if isinstance(packet, dict) else None
+    if not isinstance(contract, dict) or not str(contract.get("id") or ""):
+        raise RuntimeError("Current packet has no exact contract identity for flatten.")
+    command = {
+        "schema_version": "glitch.topstep.control.v1",
+        "control_id": str(uuid.uuid4()),
+        "action": "flatten",
+        "account_id": int(account.get("id") or 0),
+        "contract_id": str(contract["id"]),
+        "issuer": "hermes-topstep-control",
+        "created_utc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "reason": "Authenticated operator requested immediate flatten.",
+    }
+    result_status, result = _request("/control", method="POST", body=command, token=_operator_token())
     if result_status not in {200, 202}:
         raise RuntimeError(f"Flatten was rejected ({result_status}): {json.dumps(result, separators=(',', ':'))}")
     return f"Flatten intent submitted; cognition remains paused; jobs: {jobs}."

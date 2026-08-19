@@ -19,7 +19,8 @@ PROFILE_COMPATIBILITY: dict[str, Any] = {
     "profile_version": _PROFILE_VERSION,
     "setup_schema": "glitch.topstep.hermes.setup.v1",
     "operator_schema": "glitch.topstep.hermes.operator.v2",
-    "intent_schema": "glitch.intent.v2",
+    "protocol_revision": "glitch.topstep.paired.v3",
+    "intent_schema": "glitch.intent.v3",
     "decision_packet_schemas": [
         "glitch.direct.decision_packet.v1",
         "glitch.direct.decision_packet.v2",
@@ -34,7 +35,25 @@ PROFILE_COMPATIBILITY: dict[str, Any] = {
         "packet_supported_actions",
         "durable_mutation_receipts",
         "restart_reconciliation",
+        "bounded_entry_range_v1",
+        "daily_capture_context_v1",
+        "explicit_partial_completed_bars_v1",
+        "revisioned_outcome_feed_v1",
+        "multi_instrument_observation_v1",
+        "partial_exit_fail_closed_v1",
     ],
+    "required_semantic_revisions": {
+        "bounded_entry_range": "glitch.topstep.entry_range.v1",
+        "daily_capture": "glitch.topstep.daily_capture.v1",
+        "outcome_feed": "glitch.topstep.outcome_feed.v1",
+        "market_universe": "glitch.topstep.market_universe.v1",
+        "execution_facts": "glitch.topstep.execution_fact.v1",
+    },
+    "required_provider_acceptance_evidence": {
+        "partial_exit_protection_transition": "not_proven_fail_closed",
+        "exact_contract_resolution": "catalog_fixture_plus_runtime_resolution",
+    },
+    "paired_manifest_schema": "glitch.topstep.paired_release.v1",
 }
 
 
@@ -70,6 +89,11 @@ def compatibility_issues(health: dict[str, Any]) -> list[str]:
         issues.append(
             "gateway_name_mismatch:"
             f"{contract.get('gateway_name')!r}!={PROFILE_COMPATIBILITY['gateway_name']!r}"
+        )
+    if contract.get("protocol_revision") != PROFILE_COMPATIBILITY["protocol_revision"]:
+        issues.append(
+            "protocol_revision_mismatch:"
+            f"{contract.get('protocol_revision')!r}!={PROFILE_COMPATIBILITY['protocol_revision']!r}"
         )
 
     gateway_version = str(contract.get("gateway_version") or "").strip()
@@ -118,6 +142,25 @@ def compatibility_issues(health: dict[str, Any]) -> list[str]:
             issues.append(
                 "capabilities_missing:" + ",".join(missing_capabilities)
             )
+
+    semantic_revisions = contract.get("semantic_revisions")
+    if not isinstance(semantic_revisions, dict):
+        issues.append("semantic_revisions_missing")
+    else:
+        for name, expected in PROFILE_COMPATIBILITY["required_semantic_revisions"].items():
+            if semantic_revisions.get(name) != expected:
+                issues.append(f"semantic_revision_mismatch:{name}")
+
+    acceptance = contract.get("provider_acceptance_evidence")
+    if not isinstance(acceptance, dict):
+        issues.append("provider_acceptance_evidence_missing")
+    else:
+        for name, expected in PROFILE_COMPATIBILITY["required_provider_acceptance_evidence"].items():
+            if acceptance.get(name) != expected:
+                issues.append(f"provider_acceptance_evidence_mismatch:{name}")
+
+    if contract.get("paired_manifest_schema") != PROFILE_COMPATIBILITY["paired_manifest_schema"]:
+        issues.append("paired_manifest_schema_mismatch")
 
     return issues
 

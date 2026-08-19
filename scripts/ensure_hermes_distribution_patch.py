@@ -87,8 +87,11 @@ def find_profile_distribution_py() -> Path:
             / "profile_distribution.py"
         )
     for candidate in candidates:
-        if candidate.is_file():
-            return candidate
+        try:
+            if candidate.is_file():
+                return candidate
+        except OSError:
+            continue
     raise FileNotFoundError(
         "Could not locate Hermes profile_distribution.py; is Hermes installed?"
     )

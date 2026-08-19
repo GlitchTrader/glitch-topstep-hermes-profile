@@ -34,6 +34,7 @@ from packet_model import (
     packet_for_model as build_model_packet,
 )
 from regime import detect_regime
+from scanner_contract import comparison_template, validate_comparison_ledger
 from common import (
     PROFILE_NAME,
     acquire_cycle_lock,
@@ -120,7 +121,7 @@ AUDIT_FIELDS = {
     "final_choice",
 }
 GATEWAY_REASON_MAX_LENGTH = 1000
-GATEWAY_AUDIT_FIELD_MAX_LENGTH = 500
+GATEWAY_AUDIT_FIELD_MAX_LENGTH = 5000
 ACTION_PLACEHOLDER = "<CHOOSE_FROM_supported_actions>"
 CONFIDENCE_PLACEHOLDER = "<0.0-1.0>"
 PRIOR_HYPOTHESIS_LABELS = (
@@ -149,7 +150,14 @@ CORE_FIELDS = {
     "reason",
     "decision_audit",
 }
-ENTRY_FIELDS = {"quantity", "order_type", "stop_loss", "take_profit_1"}
+DECISION_IDENTITY_FIELDS = {
+    "packet_id", "contract_id", "scope_hash", "scope_generation", "expires_utc",
+}
+CORE_FIELDS |= DECISION_IDENTITY_FIELDS
+ENTRY_FIELDS = {
+    "quantity", "order_type", "stop_loss", "take_profit_1",
+    "entry_price_min", "entry_price_max", "supersedes_intent_id",
+}
 AMENDMENT_FIELDS = {"new_stop_price", "new_take_profit", "target_intent_id"}
 EXIT_FIELDS = {"quantity", "exit_fraction", "target_intent_id"}
 SUPPORTED_PACKET_SCHEMAS = {
@@ -548,6 +556,10 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "cycle_evidence_delta summarizes material changes since the immediately prior frame when present. "
     "data_quality, capacity, policy, and daily_economics mirrors are evidence to reason about, "
     "not automatic cognitive vetoes. Do not invent missing facts. "
+    "When market_universe has multiple candidates, complete CURRENT_AUCTION, BULLISH_PATH, "
+    "BEARISH_PATH, NEXT_TRANSITION, and frozen trigger status for every candidate before ranking. "
+    "Encode that exact complete ledger in decision_audit.decisive_evidence using the supplied "
+    "INSTRUMENT_COMPARISON_V1 template. MCL is Micro Crude Oil; MCLE is only ProjectX identity. "
     "When market.session_levels_reliable is false, do not treat session_high/low as structural edges; "
     "use order_flow windows and observation range features instead. "
     "When order_flow depth.available is false, do not infer book imbalance. "
@@ -564,7 +576,7 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "Do not manufacture mid-range trades in CHOP; prefer smallest supported quantity when asymmetry is bounded. "
     "The gateway independently verifies ProjectX truth, hard capacity, geometry, loss-floor survival, "
     "packet issuance, and order transport; rejection is an attributable episode, not pre-emption. "
-    "Return exactly one strict glitch.intent.v2 JSON object with no prose. "
+    "Return exactly one strict glitch.intent.v3 JSON object with no prose. "
     "Preserve account, instrument, snapshot_hash, and operator_profile exactly. "
     "Replace template placeholders action and confidence with real values; never emit placeholder strings. "
     "decision_audit must include bull_case, bear_case, flat_case, aggressive_case, conservative_case, "
@@ -574,7 +586,7 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "change_condition is an advisory re-evaluation hypothesis, not a rigid execution gate; "
     "rewrite it when cycle_evidence_delta or prior ledger repetition guidance indicates stale wording. "
     "Action contract: ENTER_LONG and ENTER_SHORT require positive integer quantity, order_type MARKET, "
-    "and absolute stop_loss and take_profit_1; omit wake_triggers and management fields. "
+    "absolute stop_loss and take_profit_1, plus a bounded entry_price_min/entry_price_max that remains valid only for this packet, contract, scope generation, and expiry; omit wake_triggers and management fields. "
     "NOTHING and HOLD omit quantity, order_type, stop_loss, take_profit_1, amendment fields, and exit sizing. "
     "wake_triggers is optional local scheduling metadata only: NOTHING while flat; HOLD while positioned. "
     "Omit wake_triggers unless you want an early wake "
@@ -583,7 +595,7 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "never treat wake_triggers as a gateway field. "
     "MOVE_STOP needs new_stop_price; MOVE_TP needs new_take_profit or take_profit_1; "
     "for a full EXIT that closes the entire active position, omit both quantity and exit_fraction; "
-    "for a partial EXIT, provide exactly one of quantity or exit_fraction. "
+    "request partial EXIT only when the packet explicitly advertises proven partial-reduction continuity; otherwise use full EXIT or HOLD. "
     "Compare current evidence to prior change_condition observations; current-cycle setup may justify entry "
     "even when a prior advisory trigger was not satisfied, but choose the action the evidence supports now. "
     "Use recent_glitch_ledger as the primary continuity source. "
@@ -609,7 +621,7 @@ def build_prompt(
     template.pop("wake_triggers", None)
     template.pop("wake_trigger", None)
     template.update(
-        schema_version="glitch.intent.v2",
+        schema_version="glitch.intent.v3",
         intent_id=str(
             uuid.uuid5(uuid.NAMESPACE_URL, f"glitch-topstep:{packet['packet_id']}")
         ),
@@ -620,6 +632,13 @@ def build_prompt(
         action=ACTION_PLACEHOLDER,
         confidence=CONFIDENCE_PLACEHOLDER,
         snapshot_hash=packet["market"]["snapshot_hash"],
+        packet_id=packet["packet_id"],
+        contract_id=packet["contract"]["id"],
+        scope_hash=packet.get("decision_scope", {}).get("scope_hash"),
+        scope_generation=packet.get("decision_scope", {}).get("generation"),
+        expires_utc=packet.get("expires_utc"),
+        entry_price_min="<BOUNDED_ENTRY_MIN>",
+        entry_price_max="<BOUNDED_ENTRY_MAX>",
         model_version=core_model(),
         prompt_version=PROMPT_VERSION,
         reason="Replace with a compact evidence-based reason.",
@@ -636,6 +655,8 @@ def build_prompt(
             audit[field] = ACTION_PLACEHOLDER
         else:
             audit[field] = "Replace"
+    if len(packet.get("market_universe", {}).get("candidates", [])) > 1:
+        audit["decisive_evidence"] = comparison_template(packet)
 
     protection_guidance = protection_status_management_guidance(
         packet_protection_status(packet),
@@ -741,7 +762,7 @@ def invoke_hermes(
         )
     return extract_single_json_object(
         completed.stdout,
-        schema="glitch.intent.v2",
+        schema="glitch.intent.v3",
     )
 
 
@@ -829,7 +850,7 @@ def normalize_intent(
     action = _resolve_action_placeholder(action)
     confidence = _resolve_confidence_placeholder(intent.get("confidence"))
     intent.update(
-        schema_version="glitch.intent.v2",
+        schema_version="glitch.intent.v3",
         intent_id=str(
             uuid.uuid5(uuid.NAMESPACE_URL, f"glitch-topstep:{packet['packet_id']}")
         ),
@@ -842,10 +863,21 @@ def normalize_intent(
         prompt_version=PROMPT_VERSION,
         action=action,
         confidence=confidence,
+        packet_id=packet.get("packet_id"),
+        contract_id=packet.get("contract", {}).get("id"),
+        scope_hash=packet.get("decision_scope", {}).get("scope_hash"),
+        scope_generation=packet.get("decision_scope", {}).get("generation"),
+        expires_utc=packet.get("expires_utc"),
     )
     if action not in {"ENTER_LONG", "ENTER_SHORT"}:
         for field in ENTRY_FIELDS:
             intent.pop(field, None)
+    else:
+        market = packet.get("market") if isinstance(packet.get("market"), dict) else {}
+        bid = _number(market.get("bid", market.get("last")), "entry_price_min")
+        ask = _number(market.get("ask", market.get("last")), "entry_price_max")
+        intent.setdefault("entry_price_min", min(bid, ask))
+        intent.setdefault("entry_price_max", max(bid, ask))
     if action != "MOVE_STOP":
         intent.pop("new_stop_price", None)
     if action != "MOVE_TP":
@@ -894,7 +926,8 @@ def validate_intent(
 
     allowed_fields = allowed_intent_fields(action)
     unknown = set(intent).difference(allowed_fields | {"wake_triggers"})
-    missing = CORE_FIELDS.difference(intent)
+    required_fields = CORE_FIELDS if intent.get("schema_version") == "glitch.intent.v3" else (CORE_FIELDS - DECISION_IDENTITY_FIELDS)
+    missing = required_fields.difference(intent)
     if unknown:
         raise ValueError("unknown_fields:" + ",".join(sorted(unknown)))
     if missing:
@@ -908,7 +941,7 @@ def validate_intent(
     ):
         raise ValueError("action_not_supported_by_gateway")
 
-    if intent.get("schema_version") != "glitch.intent.v2":
+    if intent.get("schema_version") not in {"glitch.intent.v2", "glitch.intent.v3"}:
         raise ValueError("schema_version_invalid")
     if intent.get("instrument") != packet.get("instrument"):
         raise ValueError("instrument_mismatch")
@@ -942,6 +975,14 @@ def validate_intent(
     decisive = audit.get("decisive_evidence")
     if isinstance(decisive, str) and decisive.strip().startswith("Replace"):
         raise ValueError("decision_audit_placeholder_not_replaced")
+    comparison = validate_comparison_ledger(decisive, packet)
+    if (
+        comparison is not None
+        and action in {"ENTER_LONG", "ENTER_SHORT"}
+        and str(comparison.get("selected_instrument") or "").upper()
+        != str(packet.get("instrument") or "").upper()
+    ):
+        raise ValueError("selected_instrument_not_executable_in_current_scope")
 
     wake_triggers = intent.get("wake_triggers")
     if wake_triggers is not None:
@@ -960,6 +1001,23 @@ def validate_intent(
             raise ValueError("entry_quantity_invalid")
         if intent.get("order_type") != "MARKET":
             raise ValueError("entry_order_type_invalid")
+
+        if intent.get("schema_version") == "glitch.intent.v3":
+            decision_scope = packet.get("decision_scope") if isinstance(packet.get("decision_scope"), dict) else {}
+            if intent.get("packet_id") != packet.get("packet_id"):
+                raise ValueError("packet_id_mismatch")
+            if intent.get("contract_id") != packet.get("contract", {}).get("id"):
+                raise ValueError("contract_id_mismatch")
+            if intent.get("scope_hash") != decision_scope.get("scope_hash"):
+                raise ValueError("scope_hash_mismatch")
+            if intent.get("scope_generation") != decision_scope.get("generation"):
+                raise ValueError("scope_generation_mismatch")
+            if intent.get("expires_utc") != packet.get("expires_utc"):
+                raise ValueError("expires_utc_mismatch")
+            range_min = _number(intent.get("entry_price_min"), "entry_price_min")
+            range_max = _number(intent.get("entry_price_max"), "entry_price_max")
+            if range_min <= 0 or range_min > range_max:
+                raise ValueError("entry_price_range_invalid")
 
         stop = _number(intent.get("stop_loss"), "stop_loss")
         target = _number(intent.get("take_profit_1"), "take_profit_1")
@@ -1048,7 +1106,7 @@ def invoke_valid_intent(
                     "validation_error": str(error)[:240],
                     "instruction": (
                         "Regenerate the same current decision as one complete "
-                        "strict glitch.intent.v2 object. Preserve current "
+                        "strict glitch.intent.v3 object. Preserve current "
                         "identities and requested forced direction."
                     ),
                 },
@@ -1069,19 +1127,56 @@ def prepare_intent_for_delivery(
         or not packet_is_current(fresh_packet)
     ):
         raise RuntimeError("gateway_packet_stale_before_delivery")
+    if intent.get("schema_version") == "glitch.intent.v3":
+        scanner_status, scanner = request_json("/scanner", token=local_token())
+        if (
+            scanner_status == 200
+            and isinstance(scanner, dict)
+            and scanner.get("schema_version") == "glitch.topstep.market_universe.v1"
+        ):
+            fresh_packet["market_universe"] = scanner
 
     aligned = copy.deepcopy(intent)
+    action = str(aligned.get("action") or "")
     fresh_hash = fresh_packet.get("market", {}).get("snapshot_hash")
-    if aligned.get("snapshot_hash") != fresh_hash:
+    same_packet = aligned.get("packet_id") == fresh_packet.get("packet_id")
+    if aligned.get("schema_version") == "glitch.intent.v2":
         aligned["snapshot_hash"] = fresh_hash
+        same_packet = True
+    elif action in {"ENTER_LONG", "ENTER_SHORT"}:
+        current_scope = (
+            fresh_packet.get("decision_scope")
+            if isinstance(fresh_packet.get("decision_scope"), dict)
+            else {}
+        )
+        if (
+            aligned.get("contract_id") != fresh_packet.get("contract", {}).get("id")
+            or aligned.get("scope_hash") != current_scope.get("scope_hash")
+            or aligned.get("scope_generation") != current_scope.get("generation")
+        ):
+            raise ValueError("entry_scope_superseded")
+        market = fresh_packet.get("market") if isinstance(fresh_packet.get("market"), dict) else {}
+        reference = market.get("ask") if action == "ENTER_LONG" else market.get("bid")
+        if not isinstance(reference, (int, float)) or isinstance(reference, bool):
+            reference = market.get("last")
+        current = _number(reference, "delivery_reference_price")
+        low = _number(aligned.get("entry_price_min"), "entry_price_min")
+        high = _number(aligned.get("entry_price_max"), "entry_price_max")
+        if current < low or current > high:
+            raise ValueError("entry_range_superseded")
+        if parse_utc(aligned.get("expires_utc")) < datetime.now(timezone.utc):
+            raise ValueError("entry_intent_expired")
+    elif not same_packet or aligned.get("snapshot_hash") != fresh_hash:
+        raise ValueError("packet_superseded_before_delivery")
     aligned["reason"] = truncate_gateway_string(aligned["reason"], GATEWAY_REASON_MAX_LENGTH)
     audit = aligned.get("decision_audit")
     if isinstance(audit, dict):
         for field in AUDIT_FIELDS:
             if isinstance(audit.get(field), str):
                 audit[field] = truncate_gateway_string(audit[field], GATEWAY_AUDIT_FIELD_MAX_LENGTH)
-    validate_intent(aligned, fresh_packet, directive)
-    # wake_triggers drives the local scheduler and is not part of glitch.intent.v2 on the gateway.
+    if same_packet:
+        validate_intent(aligned, fresh_packet, directive)
+    # wake_triggers drives the local scheduler and is not part of glitch.intent.v3 on the gateway.
     # Validate the complete decision first, then project the already-valid wire payload.
     aligned.pop("wake_triggers", None)
     return aligned
@@ -1170,6 +1265,13 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     packet_status, packet = request_json("/packet", token=token)
     if packet_status != 200:
         raise RuntimeError(f"gateway_packet_failed:{packet_status}")
+    capabilities = health.get("compatibility", {}).get("capabilities", [])
+    if isinstance(capabilities, list) and "multi_instrument_observation_v1" in capabilities:
+        scanner_status, scanner = request_json("/scanner", token=token)
+        if scanner_status != 200 or not isinstance(scanner, dict):
+            raise RuntimeError(f"gateway_scanner_failed:{scanner_status}")
+        if scanner.get("schema_version") == "glitch.topstep.market_universe.v1":
+            packet["market_universe"] = scanner
     packet = wait_for_packet_rollover(
         packet,
         float(getattr(args, "packet_rollover_wait_seconds", 0) or 0),
@@ -1503,18 +1605,32 @@ def main() -> int:
     state = state_root(root)
     state.mkdir(parents=True, exist_ok=True)
     lock_path = state / "direct-cycle.lock"
-
-    if not acquire_cycle_lock(lock_path):
-        return 0
     supervisor = state / "supervisor"
     supervisor.mkdir(parents=True, exist_ok=True)
     status_path = supervisor / "direct-worker-status.json"
+    run_id = str(uuid.uuid4())
+    started_utc = utc_now()
+    if not acquire_cycle_lock(lock_path):
+        write_json_atomic(status_path, {
+            "schema_version": "glitch.topstep.direct_worker_status.v2",
+            "run_id": run_id,
+            "recorded_utc": utc_now(),
+            "status": "preempted",
+            "phase": "lock_admission",
+            "retryable": True,
+        })
+        return 0
     write_json_atomic(
         status_path,
         {
-            "schema_version": "glitch.topstep.direct_worker_status.v1",
+            "schema_version": "glitch.topstep.direct_worker_status.v2",
+            "run_id": run_id,
+            "pid": os.getpid(),
+            "started_utc": started_utc,
             "recorded_utc": utc_now(),
             "status": "running",
+            "phase": "cognition_and_delivery",
+            "retryable": False,
         },
     )
     try:
@@ -1524,9 +1640,13 @@ def main() -> int:
             write_json_atomic(
                 status_path,
                 {
-                    "schema_version": "glitch.topstep.direct_worker_status.v1",
+                    "schema_version": "glitch.topstep.direct_worker_status.v2",
+                    "run_id": run_id,
+                    "started_utc": started_utc,
                     "recorded_utc": utc_now(),
                     "status": "failed",
+                    "phase": "cognition_and_delivery",
+                    "retryable": isinstance(error, (OSError, TimeoutError, urllib.error.URLError)),
                     "error": f"{type(error).__name__}:{error}"[:500],
                 },
             )
@@ -1534,9 +1654,14 @@ def main() -> int:
         write_json_atomic(
             status_path,
             {
-                "schema_version": "glitch.topstep.direct_worker_status.v1",
+                "schema_version": "glitch.topstep.direct_worker_status.v2",
+                "run_id": run_id,
+                "started_utc": started_utc,
+                "completed_utc": utc_now(),
                 "recorded_utc": utc_now(),
                 "status": "ok" if exit_code == 0 else "failed",
+                "phase": "completed",
+                "retryable": exit_code != 0,
                 "exit_code": exit_code,
             },
         )

@@ -1,13 +1,13 @@
 {
   "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-08-06",
+  "updated": "2026-08-19",
   "release_target": "paired gateway/profile beta",
-  "profile_version": "0.1.30",
+  "profile_version": "0.2.0",
   "gateway": {
     "repository": "GlitchTrader/glitch-topstep",
-    "current_version": "0.1.6",
-    "intent_schema": "glitch.intent.v2",
+    "current_version": "0.2.0",
+    "intent_schema": "glitch.intent.v3",
     "decision_packet_schemas": [
       "glitch.direct.decision_packet.v1",
       "glitch.direct.decision_packet.v2"
@@ -670,5 +670,27 @@
         "distribution 0.1.31"
       ]
     }
-  ]
+  ],
+  "implementation_run_2026_08_19": {
+    "paired_protocol": "glitch.topstep.paired.v3",
+    "prompt_version": "glitch-topstep-v10",
+    "operator_universe": ["MNQ", "MES", "MCL"],
+    "provider_alias_note": "MCL is Micro Crude Oil; MCLE is the ProjectX catalog family used only for exact runtime resolution.",
+    "implemented_orders": [16, 17, 18, 19, 20, 21, 22, 25],
+    "features": [
+      "0.5 percent daily context without quota",
+      "explicit partial and completed bar roles",
+      "frozen comparison trigger contract",
+      "v3 entry range and one reassessment",
+      "truthful worker lifecycle status",
+      "revision-aware outcome replacement and execution-fact separation",
+      "frozen-corpus prompt comparison harness",
+      "complete MNQ/MES/MCL candidate ledger and global ranking"
+    ],
+    "external_validation_pending": [
+      "real two-prompt frozen corpus run",
+      "simulated armed sessions against exact MNQ, MES, and MCL contracts",
+      "attested immutable paired release"
+    ]
+  }
 }
