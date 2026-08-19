@@ -71,6 +71,7 @@ from parity import (
     deliver_packet_intent,
     delivery_diagnostic_detail,
     discard_stale_outbox_intent,
+    defer_instrument_scope_mismatch,
     discard_unexecutable_entry_outbox,
     evaluate_wake_triggers,
     invocation_reason,
@@ -1292,6 +1293,8 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     if pending is not None:
         pending_id, pending_path = pending
         pending_intent = read_json(pending_path)
+        if defer_instrument_scope_mismatch(state, pending_id, pending_intent, packet):
+            return 0
         if discard_stale_outbox_intent(
             state,
             pending_path,

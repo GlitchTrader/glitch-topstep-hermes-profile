@@ -1743,6 +1743,47 @@ def discard_stale_outbox_intent(
     return True
 
 
+def defer_instrument_scope_mismatch(
+    state: Path,
+    packet_id: str,
+    intent: dict[str, Any],
+    current_packet: dict[str, Any],
+) -> bool:
+    """Keep management intents for another exact instrument until its scope is active."""
+    intent_instrument = str(intent.get("instrument") or "").strip().upper()
+    packet_instrument = str(current_packet.get("instrument") or "").strip().upper()
+    if not intent_instrument or not packet_instrument or intent_instrument == packet_instrument:
+        return False
+    marker = state / "deferred-scope" / f"{packet_id}.json"
+    if not marker.is_file():
+        write_json_atomic(
+            marker,
+            {
+                "schema_version": "glitch.topstep.deferred_scope.v1",
+                "recorded_utc": utc_now(),
+                "packet_id": packet_id,
+                "intent_id": str(intent.get("intent_id") or ""),
+                "intent_instrument": intent_instrument,
+                "active_instrument": packet_instrument,
+                "action": str(intent.get("action") or ""),
+            },
+        )
+        append_jsonl(
+            state / "events.jsonl",
+            {
+                "schema_version": "glitch.topstep.cycle_event.v2",
+                "event": "intent_deferred_instrument_scope",
+                "recorded_utc": utc_now(),
+                "packet_id": packet_id,
+                "intent_id": str(intent.get("intent_id") or ""),
+                "intent_instrument": intent_instrument,
+                "active_instrument": packet_instrument,
+                "action": str(intent.get("action") or ""),
+            },
+        )
+    return True
+
+
 ENTRY_GEOMETRY_ERRORS = frozenset({
     "long_geometry_invalid",
     "short_geometry_invalid",
