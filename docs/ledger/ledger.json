@@ -722,5 +722,29 @@
         "https://github.com/GlitchTrader/glitch-topstep/issues/112#issuecomment-5344359835"
       ]
     }
+  },
+  "scanner_ledger_validation_2026_08_19": {
+    "status": "validated_foundation",
+    "gateway_evidence": {
+      "candidate_instruments": ["MNQ", "MES", "MCL"],
+      "exact_contracts": [
+        "CON.F.US.MNQ.U26",
+        "CON.F.US.MES.U26",
+        "CON.F.US.MCLE.V26"
+      ],
+      "all_candidates_observation_ready": true,
+      "simultaneous_exposure_enabled": false,
+      "scope_hash": "22db22092e78bae1fa8d3a789f38c66136eda130de78993f14c7075398f229bd"
+    },
+    "profile_evidence": [
+      "176 profile tests passed with one expected skip",
+      "multi-candidate model-boundary test preserves all candidate identities and execution modes",
+      "scanner_contract rejects incomplete candidate ledgers before ranking"
+    ],
+    "remaining_acceptance": [
+      "selected non-MNQ executable contract requires gateway TS-MULTI-03/#125",
+      "real two-prompt frozen-corpus comparison remains evaluation-only and pending",
+      "paired immutable release attestation remains pending"
+    ]
   }
 }
