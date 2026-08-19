@@ -1411,6 +1411,20 @@ class DirectCycleTests(unittest.TestCase):
             self.assertFalse(discarded)
             self.assertTrue(outbox_path.exists())
 
+    def test_pending_management_intent_is_deferred_when_gateway_scope_changes(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            current = {"instrument": "MNQ"}
+            pending = intent("EXIT")
+            pending["instrument"] = "MCL"
+            deferred = PARITY.defer_instrument_scope_mismatch(
+                state, "packet-mcl", pending, current
+            )
+            self.assertTrue(deferred)
+            self.assertTrue((state / "deferred-scope" / "packet-mcl.json").exists())
+            events = (state / "events.jsonl").read_text(encoding="utf-8")
+            self.assertIn("intent_deferred_instrument_scope", events)
+
     def test_discard_unexecutable_entry_outbox_on_geometry_error(self):
         with tempfile.TemporaryDirectory() as root:
             state = Path(root)
