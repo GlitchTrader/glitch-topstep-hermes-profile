@@ -698,5 +698,29 @@
       "simulated armed sessions against exact MNQ, MES, and MCL contracts",
       "attested immutable paired release"
     ]
+  },
+  "foundation_update_2026_08_19": {
+    "scope": "revisioned outcome projection",
+    "implementation": [
+      "scripts/outcome_store.py owns the local SQLite projection and cursor transaction",
+      "scripts/common.py exports JSONL only after the SQLite commit, preserving compatibility",
+      "duplicate sequence replay is idempotent and conflicting content fails closed",
+      "restart, bootstrap, atomic export, and integrity checks are covered by tests/test_outcome_store.py"
+    ],
+    "validation": "175 tests passed, 1 expected skip",
+    "live_acceptance_pending": [
+      "paired gateway feed replay with more than 10000 revisions",
+      "restart soak with a real PRAC outcome correction",
+      "confirm learning consumes the SQLite-backed projection without duplicate episodes"
+    ],
+    "live_validation_2026_08_19": {
+      "gateway_reconnect_proof": "passed after stabilization retry; generation 2 to 3; final state complete and reconciled",
+      "gateway_fixture_capture": "15 sanitized fixtures captured",
+      "outcome_live_acceptance": "pending; no real correction/replay soak claimed",
+      "related_gateway_issue_comments": [
+        "https://github.com/GlitchTrader/glitch-topstep/issues/110#issuecomment-5344359580",
+        "https://github.com/GlitchTrader/glitch-topstep/issues/112#issuecomment-5344359835"
+      ]
+    }
   }
 }
