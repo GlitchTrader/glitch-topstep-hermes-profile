@@ -21,10 +21,33 @@ def packet():
                 {"instrument": "MCL", "symbol_id": "F.US.MCLE"},
             ]
         },
+        "account_selection": {
+            "schema_version": "glitch.topstep.account_selection.v1",
+            "mode": "single_contract",
+            "selected_instrument": "MNQ",
+            "selected_contract_id": "CON.F.US.MNQ.U26",
+            "scope_generation": 1,
+            "scope_hash": "scope-hash",
+            "simultaneous_exposure_enabled": False,
+        },
     }
 
 
 class ScannerContractTests(unittest.TestCase):
+    def test_preserves_exact_account_selection_envelope(self):
+        value = json.loads(comparison_template(packet())[len(MARKER):])
+        for row in value["candidates"]:
+            for field in ("current_auction", "bullish_path", "bearish_path", "next_transition"):
+                row[field] = f"{row['instrument']} {field} evidence"
+            row["triggers"][0].update(
+                trigger_id=f"trigger-{row['instrument']}",
+                path="NEXT",
+                condition="price crosses frozen level",
+                status="HELD",
+            )
+        validated = validate_comparison_ledger(MARKER + json.dumps(value), packet())
+        self.assertEqual(validated["selected_instrument"], "MNQ")
+
     def test_requires_complete_candidate_ledger_before_ranking(self):
         value = json.loads(comparison_template(packet())[len(MARKER):])
         for row in value["candidates"]:
@@ -48,4 +71,3 @@ class ScannerContractTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
