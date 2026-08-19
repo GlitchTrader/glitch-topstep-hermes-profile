@@ -737,12 +737,20 @@
       "scope_hash": "22db22092e78bae1fa8d3a789f38c66136eda130de78993f14c7075398f229bd"
     },
     "profile_evidence": [
-      "176 profile tests passed with one expected skip",
+      "177 profile tests passed with one expected skip",
       "multi-candidate model-boundary test preserves all candidate identities and execution modes",
-      "scanner_contract rejects incomplete candidate ledgers before ranking"
+      "scanner_contract rejects incomplete candidate ledgers before ranking",
+      "account_selection.v1 envelope is validated when supplied by the gateway"
     ],
+    "paired_contract": {
+      "schema_version": "glitch.topstep.account_selection.v1",
+      "mode": "single_contract",
+      "selected_contract_identity_required": true,
+      "scope_generation_and_hash_required": true,
+      "simultaneous_exposure_default": false
+    },
     "remaining_acceptance": [
-      "selected non-MNQ executable contract requires gateway TS-MULTI-03/#125",
+      "selected non-MNQ armed execution still requires live gateway/profile sessions for MES and MCL/MCLE",
       "real two-prompt frozen-corpus comparison remains evaluation-only and pending",
       "paired immutable release attestation remains pending"
     ]

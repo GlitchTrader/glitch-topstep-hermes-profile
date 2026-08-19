@@ -51,6 +51,22 @@ def validate_comparison_ledger(text: Any, packet: dict[str, Any]) -> dict[str, A
     expected = candidate_instruments(packet)
     if len(expected) <= 1:
         return None
+    selection = packet.get("account_selection")
+    if selection is not None:
+        if not isinstance(selection, dict):
+            raise ValueError("account_selection_invalid")
+        if selection.get("schema_version") != "glitch.topstep.account_selection.v1":
+            raise ValueError("account_selection_schema_invalid")
+        if selection.get("mode") != "single_contract":
+            raise ValueError("account_selection_mode_invalid")
+        selected_instrument = str(selection.get("selected_instrument") or "").upper()
+        selected_contract_id = str(selection.get("selected_contract_id") or "")
+        if selected_instrument not in expected or not selected_contract_id:
+            raise ValueError("account_selection_identity_invalid")
+        if not isinstance(selection.get("scope_generation"), int) or selection["scope_generation"] < 1:
+            raise ValueError("account_selection_generation_invalid")
+        if not isinstance(selection.get("scope_hash"), str) or not selection["scope_hash"].strip():
+            raise ValueError("account_selection_scope_invalid")
     if not isinstance(text, str) or not text.startswith(MARKER):
         raise ValueError("instrument_comparison_missing")
     try:
