@@ -15,6 +15,7 @@ from distribution_manifest import (
     TESTED_GATEWAY_VERSION,
     read_distribution_version,
 )
+from paired_contract import CONTRACT as PAIRED_CONTRACT, RUNTIME_INTENT_SCHEMA
 
 
 COMPATIBLE_HEALTH = {
@@ -26,7 +27,7 @@ COMPATIBLE_HEALTH = {
         "gateway_version": TESTED_GATEWAY_VERSION,
         "health_schema": "glitch.direct.health.v2",
         "protocol_revision": "glitch.topstep.paired.v3",
-        "intent_schemas": ["glitch.intent.v2", "glitch.intent.v3"],
+        "intent_schemas": list(PAIRED_CONTRACT["gateway_accepted_intent_schemas"]),
         "decision_packet_schemas": [
             "glitch.direct.decision_packet.v1",
             "glitch.direct.decision_packet.v2",

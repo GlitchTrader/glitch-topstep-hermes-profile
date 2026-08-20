@@ -22,7 +22,7 @@ class ControlPluginTests(unittest.TestCase):
             "market": {"snapshot_hash": "hash"},
         }
         value = MODULE.build_exit_intent(packet)
-        self.assertEqual(value["schema_version"], "glitch.intent.v2")
+        self.assertEqual(value["schema_version"], "glitch.intent.v3")
         self.assertEqual(value["operator_profile"], "glitch-topstep")
         self.assertEqual(value["action"], "EXIT")
         self.assertEqual(value["decision_audit"]["final_choice"], "EXIT")
