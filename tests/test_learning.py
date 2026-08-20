@@ -637,6 +637,62 @@ class LearningTests(unittest.TestCase):
             "avoided_adverse_movement",
         )
 
+    def test_compute_nothing_counterfactual_returns_ticks(self):
+        counterfactual = PARITY.compute_nothing_counterfactual(
+            {
+                "pre_decision_state": {"initial_price": 20000.0},
+                "contract": {"tick_size": 0.25},
+            },
+            [
+                {"close": 20010.0, "high": 20020.0, "low": 19999.0},
+                {"close": 20015.0, "high": 20020.0, "low": 20000.0},
+            ],
+        )
+        self.assertEqual(
+            counterfactual["classification"],
+            "missed_directional_participation",
+        )
+        self.assertGreater(counterfactual["mfe_ticks"], 0)
+        self.assertGreaterEqual(counterfactual["mae_ticks"], 0)
+
+    def test_review_change_condition_detects_unmet(self):
+        review = PARITY.review_change_condition(
+            {
+                "action": "NOTHING",
+                "decision_audit": {"change_condition": "reclaim above 20100"},
+                "packet": {"market": {"last": 20000.0}},
+            },
+            {
+                "packet": {"market": {"last": 20005.0}},
+            },
+        )
+        self.assertEqual(review, "unmet")
+
+    def test_review_change_condition_detects_reassessment(self):
+        review = PARITY.review_change_condition(
+            {
+                "action": "NOTHING",
+                "decision_audit": {
+                    "change_condition": "break below 19990",
+                    "decisive_evidence": "waiting",
+                    "final_choice": "NOTHING",
+                },
+                "packet": {"market": {"last": 20000.0}},
+            },
+            {
+                "packet": {"market": {"last": 19980.0}},
+                "subsequent_intent": {
+                    "action": "ENTER_SHORT",
+                    "decision_audit": {
+                        "change_condition": "entered on break",
+                        "decisive_evidence": "break confirmed",
+                        "final_choice": "ENTER_SHORT",
+                    },
+                },
+            },
+        )
+        self.assertEqual(review, "met_with_reassessment")
+
 
 if __name__ == "__main__":
     unittest.main()

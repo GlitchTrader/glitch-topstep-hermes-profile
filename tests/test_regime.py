@@ -109,6 +109,15 @@ class RegimeTests(unittest.TestCase):
         )
         self.assertEqual(regime.detect_regime(packet), "CHOP")
 
+    def test_transition_when_5m_and_60m_disagree(self):
+        packet = _packet(
+            timeframes=[
+                _timeframe(60, _features(0.85, 5.0, 4.0)),
+                _timeframe(5, _features(0.10, -5.0, -4.0)),
+            ],
+        )
+        self.assertEqual(regime.detect_regime(packet), "TRANSITION")
+
 
 if __name__ == "__main__":
     unittest.main()

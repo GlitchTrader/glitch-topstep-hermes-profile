@@ -9,6 +9,7 @@ REGIMES = frozenset(
         "TREND_UP",
         "TREND_DOWN",
         "CHOP",
+        "TRANSITION",
         "LOW_LIQUIDITY",
         "DATA_DEGRADED",
     }
@@ -144,10 +145,12 @@ def detect_regime(packet: dict[str, Any]) -> str:
         return "LOW_LIQUIDITY"
 
     htf = _trend_from_htf(_timeframe_features(packet, 60))
+    ltf = _trend_from_htf(_timeframe_features(packet, 5))
+    if htf and ltf and htf != ltf:
+        return "TRANSITION"
+
     if htf:
         return htf
-
-    ltf = _trend_from_htf(_timeframe_features(packet, 5))
     if ltf:
         return ltf
 

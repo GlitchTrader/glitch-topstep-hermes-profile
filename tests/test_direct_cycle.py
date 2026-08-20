@@ -954,6 +954,37 @@ class DirectCycleTests(unittest.TestCase):
         posted = request_json.call_args.kwargs["body"]
         self.assertNotIn("wake_triggers", posted)
 
+    def test_validate_intent_allows_optional_decision_scores(self):
+        value = intent()
+        value["decision_scores"] = {"continuation_long": 0.7, "flat_case": 0.2}
+        MODULE.validate_intent(value, packet())
+
+    def test_validate_intent_rejects_invalid_decision_scores(self):
+        value = intent()
+        value["decision_scores"] = {"continuation_long": "high"}
+        with self.assertRaisesRegex(ValueError, "decision_scores_invalid"):
+            MODULE.validate_intent(value, packet())
+
+    def test_prepare_intent_for_delivery_strips_decision_scores(self):
+        value = intent()
+        value["decision_scores"] = {"continuation_long": 0.7}
+        with mock.patch.object(MODULE, "request_json") as request_json:
+            request_json.return_value = (200, packet())
+            with mock.patch.object(MODULE, "local_token", return_value="test-token"):
+                with mock.patch.object(MODULE, "packet_is_current", return_value=True):
+                    delivered = MODULE.prepare_intent_for_delivery(value, None)
+        self.assertNotIn("decision_scores", delivered)
+
+    def test_post_intent_strips_decision_scores(self):
+        value = intent()
+        value["decision_scores"] = {"continuation_long": 0.7}
+        with mock.patch.object(MODULE, "request_json") as request_json:
+            request_json.return_value = (200, {"status": "accepted"})
+            with mock.patch.object(MODULE, "local_token", return_value="token"):
+                MODULE.post_intent(value)
+        posted = request_json.call_args.kwargs["body"]
+        self.assertNotIn("decision_scores", posted)
+
     def test_prepare_intent_for_delivery_truncates_gateway_string_fields(self):
         value = MODULE.normalize_intent(intent(), packet())
         value["reason"] = "r" * 1100

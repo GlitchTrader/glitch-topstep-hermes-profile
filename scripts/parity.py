@@ -1869,6 +1869,117 @@ def suggest_flat_abstention_classification(
     return "ambiguous"
 
 
+def compute_nothing_counterfactual(
+    decision: dict[str, Any],
+    forward_observations: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Return MFE/MAE ticks and abstention classification for flat NOTHING."""
+    pre = decision.get("pre_decision_state")
+    pre = pre if isinstance(pre, dict) else {}
+    try:
+        initial = float(pre.get("initial_price"))
+    except (TypeError, ValueError):
+        initial = float(forward_observations[0]["close"])
+    highs = [float(row["high"]) for row in forward_observations]
+    lows = [float(row["low"]) for row in forward_observations]
+    closes = [float(row["close"]) for row in forward_observations]
+    forward_high = max(highs)
+    forward_low = min(lows)
+    forward_close = closes[-1]
+    tick_size = 0.25
+    contract = decision.get("contract") if isinstance(decision.get("contract"), dict) else {}
+    raw_tick = contract.get("tick_size")
+    if isinstance(raw_tick, (int, float)) and not isinstance(raw_tick, bool) and raw_tick > 0:
+        tick_size = float(raw_tick)
+    up_ticks = (forward_high - initial) / tick_size
+    down_ticks = (initial - forward_low) / tick_size
+    classification = suggest_flat_abstention_classification(
+        initial_price=initial,
+        forward_high=forward_high,
+        forward_low=forward_low,
+        forward_close=forward_close,
+        tick_size=tick_size,
+    )
+    if classification == "missed_directional_participation":
+        mfe_ticks = up_ticks
+        mae_ticks = down_ticks
+    elif classification == "avoided_adverse_movement":
+        mfe_ticks = up_ticks
+        mae_ticks = down_ticks
+    else:
+        mfe_ticks = max(up_ticks, down_ticks)
+        mae_ticks = min(up_ticks, down_ticks)
+    return {
+        "classification": classification,
+        "mfe_ticks": round(mfe_ticks, 2),
+        "mae_ticks": round(mae_ticks, 2),
+    }
+
+
+def _change_condition_price_met(
+    change_condition: str,
+    prior_price: float,
+    next_price: float,
+) -> bool:
+    import re
+
+    text = change_condition.lower()
+    numbers = [
+        float(match)
+        for match in re.findall(r"\b\d+(?:\.\d+)?\b", change_condition)
+    ]
+    if not numbers:
+        return False
+    for level in numbers:
+        if any(token in text for token in ("above", "over", "reclaim", "cross above")):
+            if prior_price <= level < next_price:
+                return True
+        if any(token in text for token in ("below", "under", "break", "cross below")):
+            if prior_price >= level > next_price:
+                return True
+        if abs(next_price - level) <= abs(prior_price - level) * 0.5:
+            return True
+    return False
+
+
+def review_change_condition(
+    prior_decision: dict[str, Any],
+    next_frame: dict[str, Any],
+) -> str:
+    audit = prior_decision.get("decision_audit")
+    if not isinstance(audit, dict):
+        return "unknown"
+    change = str(audit.get("change_condition") or "").strip()
+    if not change:
+        return "unknown"
+    prior_packet = prior_decision.get("packet")
+    if not isinstance(prior_packet, dict):
+        prior_packet = {}
+    next_packet = next_frame.get("packet") if isinstance(next_frame.get("packet"), dict) else {}
+    prior_market = prior_packet.get("market") if isinstance(prior_packet.get("market"), dict) else {}
+    next_market = next_packet.get("market") if isinstance(next_packet.get("market"), dict) else {}
+    try:
+        prior_price = float(prior_market.get("last"))
+        next_price = float(next_market.get("last"))
+    except (TypeError, ValueError):
+        return "unknown"
+    if not _change_condition_price_met(change, prior_price, next_price):
+        return "unmet"
+    subsequent = next_frame.get("subsequent_intent")
+    if not isinstance(subsequent, dict):
+        return "unknown"
+    prior_action = str(prior_decision.get("action") or "")
+    next_action = str(subsequent.get("action") or "")
+    if next_action != prior_action:
+        return "met_with_reassessment"
+    next_audit = subsequent.get("decision_audit")
+    if isinstance(next_audit, dict):
+        for field in ("decisive_evidence", "change_condition", "final_choice"):
+            if str(next_audit.get(field) or "") != str(audit.get(field) or ""):
+                return "met_with_reassessment"
+    return "met_without_reassessment"
+
+
 def wait_for_packet_rollover(
     packet: dict[str, Any],
     wait_seconds: float,
