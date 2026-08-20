@@ -340,6 +340,34 @@ class PacketModelTests(unittest.TestCase):
         )
         self.assertIn("partial_bar_note", rows[0])
 
+    def test_packet_for_model_passes_structural_evidence_and_regime(self):
+        packet = sample_packet()
+        packet["structural_levels"] = {
+            "schema_version": "glitch.topstep.structural_levels.v1",
+            "levels": [
+                {
+                    "kind": "session_high",
+                    "label": "session_high",
+                    "price": 20010,
+                    "provenance": "market.session_high",
+                }
+            ],
+        }
+        packet["price_delta_relationship"] = {
+            "schema_version": "glitch.topstep.price_delta_relationship.v1",
+            "summary": "aligned",
+            "windows": [{"window_seconds": 60, "alignment": "aligned"}],
+        }
+        value = packet_for_model(
+            packet,
+            profile_name="glitch-topstep",
+            core_model="gpt-5.6-luna",
+            prompt_version="glitch-topstep-v10",
+        )
+        self.assertEqual(value["structural_levels"]["levels"][0]["price"], 20010)
+        self.assertEqual(value["price_delta_relationship"]["summary"], "aligned")
+        self.assertIn(value["regime"], {"CHOP", "TREND_UP", "TREND_DOWN", "TRANSITION"})
+
 
 if __name__ == "__main__":
     unittest.main()

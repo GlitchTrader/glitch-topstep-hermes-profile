@@ -12,13 +12,13 @@
       116,
       118
     ],
-    "implementation_note": "Paired fixtures through EXEC-01/MULTI (#118). GTHP-TRIGGER-01 lifecycle + GTHP-OPS-01 learner defer/status (#118). Frozen cognition eval workflow (#118). Issues #62/#79 done in ledger — GitHub closed via housekeeping.",
-    "validation": "195 profile tests including test_frozen_cognition_eval, test_trigger_lifecycle, learning defer."
+    "implementation_note": "Paired fixtures through EXEC-01/MULTI (#118). GTHP-TRIGGER-01 lifecycle + GTHP-OPS-01 learner defer/status (#118). Frozen cognition eval workflow (#118). Production audit follow-ups GTHP-AUDIT-01 through GTHP-AUDIT-06 opened on 2026-08-20; the stale decision index is P0 and blocks live promotion.",
+    "validation": "209 profile tests passed with 1 expected skip; GTHP-031/032 structural evidence + calibration metrics closed."
   },
-  "profile_version": "0.2.0",
+  "profile_version": "0.2.1",
   "gateway": {
     "repository": "GlitchTrader/glitch-topstep",
-    "current_version": "0.2.0",
+    "current_version": "0.2.1",
     "intent_schema": "glitch.intent.v3",
     "decision_packet_schemas": [
       "glitch.direct.decision_packet.v1",
@@ -738,6 +738,230 @@
         "scripts/packet_model.py sanitize_market_for_model",
         "scripts/parity.py compact_receipt_row field/error",
         "distribution 0.1.31"
+      ]
+    },
+    {
+      "id": "GTHP-031",
+      "title": "Structural packet evidence, decision_scores, regime TRANSITION (#74)",
+      "status": "done",
+      "priority": "P2",
+      "owner_role": "architect",
+      "issue": 74,
+      "depends_on": [
+        "GTHP-029"
+      ],
+      "evidence": [
+        "docs/specs/GTHP-031.md",
+        "scripts/regime.py TRANSITION",
+        "scripts/packet_model.py structural_levels price_delta_relationship regime",
+        "scripts/run-topstep-cycle.py OPTIONAL_AUDIT_FIELDS decision_scores",
+        "skills/topstep-observe-market/SKILL.md",
+        "skills/topstep-form-thesis/SKILL.md",
+        "distribution 0.2.1"
+      ]
+    },
+    {
+      "id": "GTHP-032",
+      "title": "Calibration metrics and NOTHING accountability (#75)",
+      "status": "done",
+      "priority": "P3",
+      "owner_role": "architect",
+      "issue": 75,
+      "depends_on": [
+        "GTHP-031"
+      ],
+      "evidence": [
+        "docs/specs/GTHP-031.md",
+        "scripts/calibration_metrics.py",
+        "scripts/parity.py compute_nothing_counterfactual review_change_condition",
+        "scripts/run-topstep-learning.py calibration_metrics weekly evidence",
+        "skills/topstep-assess-risk/SKILL.md",
+        "skills/topstep-learning-loop/SKILL.md",
+        "docs/evidence/ISSUE-74-75-proof-2026-08-20.md",
+        "distribution 0.2.1"
+      ]
+    },
+    {
+      "id": "GTHP-AUDIT-01",
+      "title": "Keep the SQLite decision index synchronized after bootstrap",
+      "status": "open",
+      "priority": "P0",
+      "owner_role": "profile_persistence",
+      "issue": 121,
+      "depends_on": [
+        "GTHP-PROD-02"
+      ],
+      "resolution": [
+        "Make SQLite the operational query authority and append every new decision through ProfileStateStore in the cycle write path.",
+        "Persist an incremental identity or offset cursor for idempotent bootstrap and detect JSONL/SQLite divergence at startup.",
+        "Treat corruption or partial synchronization as an explicit degraded state rather than returning a silently stale tail."
+      ],
+      "acceptance": [
+        "Sequential decisions are immediately visible in tail_decisions and restart neither duplicates nor loses them.",
+        "Bootstrap processes only missing records and tests cover concurrent write, crash between stores, truncation, and migration.",
+        "Cognition never receives a silently frozen decision history."
+      ],
+      "deployment": [
+        "Add a red regression test, rebuild a copied state store, and shadow-compare JSONL with SQLite.",
+        "Back up operator state before upgrade and validate rollback.",
+        "Publish only in a paired release after checksums and soak; block live until fixed."
+      ],
+      "sources": [
+        "scripts/state_store.py",
+        "scripts/run-topstep-cycle.py",
+        "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/121"
+      ]
+    },
+    {
+      "id": "GTHP-AUDIT-02",
+      "title": "Bound JSONL journal growth and tail-read cost",
+      "status": "open",
+      "priority": "P1",
+      "owner_role": "profile_persistence",
+      "issue": 122,
+      "depends_on": [
+        "GTHP-PROD-02",
+        "GTHP-AUDIT-01"
+      ],
+      "resolution": [
+        "Implement byte- and line-bounded reverse tail reads plus configurable size/time rotation and retention.",
+        "Use indexed SQLite for frequent queries and expose file sizes, cursors, disk growth, and oldest retained evidence.",
+        "Compact only under lock with atomic replace and fsync while preserving checksummed audit archives."
+      ],
+      "acceptance": [
+        "Tail memory and latency stay bounded for multi-gigabyte journals.",
+        "Rotation preserves ordering without loss or duplication and readers tolerate a concurrent rotation.",
+        "Soak evidence reports disk growth per hour and p95 read latency."
+      ],
+      "deployment": [
+        "Collect baseline metrics, test against a large copied journal, then enable rotation default-off.",
+        "Validate recovery before making bounded retention the next paired-release default."
+      ],
+      "sources": [
+        "scripts/common.py",
+        "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/122"
+      ]
+    },
+    {
+      "id": "GTHP-AUDIT-03",
+      "title": "Make the intent outbox crash-durable and reconcile ambiguity before discard",
+      "status": "open",
+      "priority": "P1",
+      "owner_role": "delivery_recovery",
+      "issue": 123,
+      "depends_on": [
+        "GTHP-013",
+        "GTHP-AUDIT-01"
+      ],
+      "resolution": [
+        "Use write, flush, file fsync, atomic replace, and directory fsync for outbox state.",
+        "Model prepared, delivery_unknown, registered, terminal, and abandoned_after_reconciliation explicitly.",
+        "Before discarding a missing-frame intent, query the gateway by intent_id and retain ambiguity while unavailable."
+      ],
+      "acceptance": [
+        "Kill injection at every persistence stage converges without accepting partial state.",
+        "A known receipt is recovered, an unavailable gateway keeps delivery_unknown, and no blind retry duplicates mutation.",
+        "Windows replace, fsync, restart, and operator-visible SLA tests pass."
+      ],
+      "deployment": [
+        "Migrate the outbox format backward-compatibly and run the local fault matrix.",
+        "Complete restart soak and an approved PRAC timeout-after-registration scenario."
+      ],
+      "sources": [
+        "scripts/common.py",
+        "scripts/parity.py",
+        "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/123"
+      ]
+    },
+    {
+      "id": "GTHP-AUDIT-04",
+      "title": "Decompose monolithic Hermes cycle scripts behind ports and workflows",
+      "status": "open",
+      "priority": "P1",
+      "owner_role": "profile_architecture",
+      "issue": 124,
+      "depends_on": [
+        "GTHP-PROD-04"
+      ],
+      "resolution": [
+        "Extract DecisionJournal, IntentOutbox, DeliveryRecovery, CognitionPrompt, and GatewaySession workflows.",
+        "Separate pure functions from filesystem and network adapters and centralize delivery-state typing, retry, and error classification.",
+        "Reduce executable scripts to wiring while preserving wire semantics and checksums."
+      ],
+      "acceptance": [
+        "Workflows have isolated tests, no dependency cycles, and exactly one implementation for decision and outbox writes.",
+        "Restart and ambiguous-delivery fixtures remain green while complexity decreases against a recorded baseline."
+      ],
+      "deployment": [
+        "Land small workflow-specific changes with fixture replay and semantic output comparison.",
+        "Do not perform a big-bang rewrite."
+      ],
+      "sources": [
+        "scripts/run-topstep-cycle.py",
+        "scripts/parity.py",
+        "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/124"
+      ]
+    },
+    {
+      "id": "GTHP-AUDIT-05",
+      "title": "Align active documentation and configuration to glitch.intent.v3",
+      "status": "open",
+      "priority": "P1",
+      "owner_role": "release_architecture",
+      "issue": 125,
+      "depends_on": [
+        "GTHP-010",
+        "glitch-topstep:TS-AUDIT-10"
+      ],
+      "resolution": [
+        "Make the compatibility manifest authoritative for protocol defaults and validation.",
+        "Update operator.json and active architecture documentation to v3 and mark any historical v2 fixtures explicitly.",
+        "Fail CI, setup, and status when the declared pair disagrees."
+      ],
+      "acceptance": [
+        "Active v2 references are eliminated and clean install plus upgrade validate v3 before enabling jobs.",
+        "Checksums include corrected files and rollback cannot leave an incompatible pair active."
+      ],
+      "deployment": [
+        "Validate clean install, upgrade, and rollback in a path containing spaces.",
+        "Publish only with gateway TS-AUDIT-10."
+      ],
+      "sources": [
+        "operator.json",
+        "docs/ARCHITECTURE.md",
+        "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/125",
+        "https://github.com/GlitchTrader/glitch-topstep/issues/165"
+      ]
+    },
+    {
+      "id": "GTHP-AUDIT-06",
+      "title": "Add lint, types, coverage, and paired regression gates",
+      "status": "open",
+      "priority": "P1",
+      "owner_role": "quality_engineering",
+      "issue": 126,
+      "depends_on": [
+        "GTHP-AUDIT-01",
+        "GTHP-AUDIT-03",
+        "glitch-topstep:TS-AUDIT-11"
+      ],
+      "resolution": [
+        "Add incremental Ruff and type-checking gates to critical modules with an explicit branch-coverage baseline.",
+        "Add paired fixtures for indexed decisions, outbox recovery, protocol drift, restart, and fault transitions.",
+        "Run compatibility manifest and checksum validation in the same paired release job."
+      ],
+      "acceptance": [
+        "Every audit regression is red before correction and green after it.",
+        "New critical modules cannot add lint or type errors and coverage cannot silently regress.",
+        "Deterministic CI needs no credentials; PRAC remains a separate sanitized manual gate."
+      ],
+      "deployment": [
+        "Start non-blocking, fix the baseline, require by directory, then require across the profile."
+      ],
+      "sources": [
+        "tests",
+        "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/126",
+        "https://github.com/GlitchTrader/glitch-topstep/issues/166"
       ]
     }
   ],

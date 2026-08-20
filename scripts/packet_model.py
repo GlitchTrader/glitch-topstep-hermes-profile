@@ -37,6 +37,9 @@ FRAME_PACKET_KEYS = (
     "reconciliation",
     "session_activity",
     "orders_working",
+    "structural_levels",
+    "price_delta_relationship",
+    "regime",
 )
 
 FRAME_ACCOUNT_KEYS = (
@@ -162,6 +165,32 @@ def sanitize_stream_health_for_model(stream_health: Any) -> Any:
         out["raw_quote_age_ms"] = int(round(raw_number))
         out["clock_skew_detected"] = True
     return out
+
+
+def sanitize_structural_levels_for_model(value: Any) -> Any:
+    if not isinstance(value, dict):
+        return value
+    out = copy.deepcopy(value)
+    levels = out.get("levels")
+    if isinstance(levels, list):
+        sanitized: list[dict[str, Any]] = []
+        for level in levels:
+            if not isinstance(level, dict):
+                continue
+            price = _finite_number(level.get("price"))
+            if price is None:
+                continue
+            row = dict(level)
+            row["price"] = price
+            sanitized.append(row)
+        out["levels"] = sanitized
+    return out
+
+
+def sanitize_price_delta_relationship_for_model(value: Any) -> Any:
+    if not isinstance(value, dict):
+        return value
+    return copy.deepcopy(value)
 
 
 def sanitize_depth_for_model(
@@ -530,6 +559,12 @@ def continuity_packet_for_cycle(
                 market=market_for_depth if isinstance(market_for_depth, dict) else None,
                 tick_size=tick_size,
             )
+        elif key == "structural_levels":
+            out[key] = sanitize_structural_levels_for_model(value)
+        elif key == "price_delta_relationship":
+            out[key] = sanitize_price_delta_relationship_for_model(value)
+        elif key == "regime":
+            out[key] = value if isinstance(value, str) else None
         else:
             out[key] = value
     return out
@@ -542,6 +577,8 @@ def packet_for_model(
     core_model: str,
     prompt_version: str,
 ) -> dict[str, Any]:
+    from regime import detect_regime
+
     value = _strip_provider_ids(packet, drop_template=False)
     template = value.get("required_output_template")
     if isinstance(template, dict):
@@ -550,6 +587,16 @@ def packet_for_model(
         template["model_version"] = core_model
         template["prompt_version"] = prompt_version
         value["required_output_template"] = template
+    if "structural_levels" in value:
+        value["structural_levels"] = sanitize_structural_levels_for_model(
+            value["structural_levels"]
+        )
+    if "price_delta_relationship" in value:
+        value["price_delta_relationship"] = sanitize_price_delta_relationship_for_model(
+            value["price_delta_relationship"]
+        )
+    if not isinstance(value.get("regime"), str) or not value.get("regime"):
+        value["regime"] = detect_regime(value)
     return value
 
 
