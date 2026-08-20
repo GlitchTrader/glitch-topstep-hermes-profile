@@ -123,6 +123,27 @@ def sanitize_market_for_model(market: dict[str, Any]) -> dict[str, Any]:
             "session_high/low mirror last or session_open; "
             "prefer order_flow 60s high/low or observation range features"
         )
+    gateway_levels = market.get("session_levels")
+    if isinstance(gateway_levels, dict):
+        out["session_levels"] = copy.deepcopy(gateway_levels)
+    else:
+        out["session_levels"] = {
+            "available": high is not None and low is not None,
+            "reliable": reliable,
+            "high": high if high is not None and low is not None else None,
+            "low": low if high is not None and low is not None else None,
+            **(
+                {}
+                if reliable
+                else {
+                    "reason": (
+                        "mirror_last_open_heuristic"
+                        if high is not None and low is not None
+                        else "session_high_low_missing"
+                    )
+                }
+            ),
+        }
     return out
 
 
@@ -222,6 +243,8 @@ def sanitize_depth_for_model(
     )
     # Respect gateway availability; never revive a flagged book just because levels exist.
     gateway_available = depth.get("available")
+    raw_available = depth.get("raw_available")
+    integrity_valid = depth.get("integrity_valid")
     inconsistent = (
         best_bid is not None and best_ask is not None and best_bid >= best_ask
     ) or (spread is not None and spread <= 0)
@@ -236,8 +259,8 @@ def sanitize_depth_for_model(
         market_bid = _finite_number(market.get("bid"))
         market_ask = _finite_number(market.get("ask"))
         if market_bid is not None and market_ask is not None:
-            # ponytail: 8 ticks matches gateway DEPTH_QUOTE_MAX_DIVERGENCE_TICKS
-            max_ticks = 8
+            # ponytail: 4 ticks matches gateway DEPTH_QUOTE_MAX_DIVERGENCE_TICKS
+            max_ticks = 4
             if (
                 abs(best_bid - market_bid) / tick_size > max_ticks
                 or abs(best_ask - market_ask) / tick_size > max_ticks
@@ -245,11 +268,16 @@ def sanitize_depth_for_model(
                 diverged = True
     available = (
         gateway_available is not False
+        and integrity_valid is not False
         and has_levels
         and not inconsistent
         and not diverged
     )
     compact["available"] = available
+    if raw_available is not None:
+        compact["raw_available"] = raw_available
+    if integrity_valid is not None:
+        compact["integrity_valid"] = integrity_valid
     if not available:
         compact["imbalance_ratio"] = None
         reason = compact.get("unavailable_reason") or depth.get("unavailable_reason")
@@ -397,6 +425,14 @@ def compact_timeframe_observation(timeframe: dict[str, Any]) -> dict[str, Any]:
     close = timeframe.get("close")
     if close is not None and "features" not in compact:
         compact["close"] = close
+    minutes = timeframe.get("timeframe_minutes")
+    if minutes in (1, "1"):
+        partial = timeframe.get("latest_bar_partial") is True
+        compact["features_reference"] = "partial_bar" if partial else "completed_bar"
+        if partial:
+            compact["timing_note"] = (
+                "bar timestamps are open times; use quote for executable price."
+            )
     return compact
 
 

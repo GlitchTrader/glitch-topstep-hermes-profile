@@ -232,6 +232,25 @@ class PacketModelTests(unittest.TestCase):
         )
         self.assertFalse(market["session_levels_reliable"])
         self.assertIn("session_levels_note", market)
+        self.assertFalse(market["session_levels"]["reliable"])
+        self.assertTrue(market["session_levels"]["available"])
+
+    def test_sanitize_depth_seven_tick_divergence_at_four_ticks(self):
+        depth = sanitize_depth_for_model(
+            {
+                "available": True,
+                "best_bid": 20001.75,
+                "best_ask": 20002.0,
+                "spread_ticks": 1,
+                "bid_volume": 10,
+                "ask_volume": 8,
+                "imbalance_ratio": 0.1,
+            },
+            market={"bid": 20000.0, "ask": 20000.25},
+            tick_size=0.25,
+        )
+        self.assertFalse(depth["available"])
+        self.assertEqual(depth["unavailable_reason"], "depth_bbo_diverges_from_quote")
 
     def test_sanitize_quote_age_clamps_negative_values(self):
         self.assertEqual(sanitize_quote_age_ms(-205), 0)
