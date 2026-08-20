@@ -492,7 +492,7 @@
     {
       "id": "GTHP-023",
       "title": "Selective V2 skills (orderflow, session, post-trade)",
-      "status": "open",
+      "status": "done",
       "priority": "P2",
       "owner_role": "architect",
       "issue": 63,
@@ -513,12 +513,14 @@
         "SOUL.md",
         "skills/",
         "docs/specs/GTHP-023.md"
-      ]
+      ],
+      "last_verified_utc": "2026-08-20T19:30:00Z",
+      "implementation_note": "skills/orderflow-liquidity, session-playbook, post-trade-review; SOUL references without execution gates."
     },
     {
       "id": "GTHP-021",
       "title": "Learning calibration and similar-decision grouping",
-      "status": "open",
+      "status": "done",
       "priority": "P2",
       "owner_role": "architect",
       "issue": 64,
@@ -538,6 +540,62 @@
         "scripts/parity.py",
         "docs/specs/GTHP-021.md",
         "tests/test_learning.py"
+      ],
+      "last_verified_utc": "2026-08-20T19:30:00Z",
+      "implementation_note": "learning_clusters.py + bounded similarity_clusters in learning_context(); descriptive only."
+    },
+    {
+      "id": "GTHP-PROD-02",
+      "title": "Indexed profile state for bounded decision tail",
+      "status": "done",
+      "priority": "P1",
+      "owner_role": "architect",
+      "issue": 98,
+      "depends_on": [
+        "GTHP-027"
+      ],
+      "implementation_note": "scripts/state_store.py; cognition_cycle uses indexed tail.",
+      "last_verified_utc": "2026-08-20T19:30:00Z",
+      "sources": [
+        "scripts/state_store.py",
+        "tests/test_state_store.py",
+        "docs/evidence/PROD-02-04-skills-21-proof-2026-08-20.md"
+      ]
+    },
+    {
+      "id": "GTHP-PROD-03",
+      "title": "Hermetic profile root and compatibility upper bound",
+      "status": "done",
+      "priority": "P1",
+      "owner_role": "release_architecture",
+      "issue": 99,
+      "depends_on": [
+        "GTHP-PROD-02"
+      ],
+      "implementation_note": "test_hermetic.py, Windows CI matrix, max_gateway_version in compatibility.py.",
+      "last_verified_utc": "2026-08-20T19:30:00Z",
+      "sources": [
+        "tests/test_hermetic.py",
+        ".github/workflows/ci.yml",
+        "scripts/compatibility.py"
+      ]
+    },
+    {
+      "id": "GTHP-PROD-04",
+      "title": "Decompose cycle scripts into gateway_client and cognition_cycle modules",
+      "status": "done",
+      "priority": "P1",
+      "owner_role": "architect",
+      "issue": 100,
+      "depends_on": [
+        "GTHP-PROD-02"
+      ],
+      "implementation_note": "gateway_client.py, cognition_cycle.py; run-topstep-cycle recent_context delegates.",
+      "last_verified_utc": "2026-08-20T19:30:00Z",
+      "sources": [
+        "scripts/gateway_client.py",
+        "scripts/cognition_cycle.py",
+        "scripts/run-topstep-cycle.py"
       ]
     },
     {
@@ -713,8 +771,7 @@
       "complete MNQ/MES/MCL candidate ledger and global ranking"
     ],
     "external_validation_pending": [
-      "live two-prompt run on operator production minute-frames (optional archive)",
-      "GTHP-PROD-02/03/04 indexed state and service decomposition (#98–100)"
+      "live two-prompt run on operator production minute-frames (optional archive)"
     ]
   },
   "foundation_update_2026_08_19": {
@@ -772,8 +829,7 @@
       "simultaneous_exposure_default": false
     },
     "remaining_acceptance": [
-      "live armed trade outcome on MCL/MCLE (PARITY residual)",
-      "GTHP-PROD-02/03/04 hardening (#98–100) remains open"
+      "live armed trade outcome on MCL/MCLE (PARITY residual)"
     ]
   }
 }

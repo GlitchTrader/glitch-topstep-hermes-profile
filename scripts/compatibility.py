@@ -30,6 +30,7 @@ PROFILE_COMPATIBILITY: dict[str, Any] = {
     "gateway_name": "glitch-topstep",
     "min_gateway_version": MIN_GATEWAY_VERSION,
     "tested_gateway_version": TESTED_GATEWAY_VERSION,
+    "max_gateway_version": TESTED_GATEWAY_VERSION,
     "hermes_requires": ">=0.18.2",
     "required_capabilities": [
         "packet_supported_actions",
@@ -72,6 +73,10 @@ def version_at_least(actual: str, minimum: str) -> bool:
     return parse_version(actual) >= parse_version(minimum)
 
 
+def version_at_most(actual: str, maximum: str) -> bool:
+    return parse_version(actual) <= parse_version(maximum)
+
+
 def compatibility_issues(health: dict[str, Any]) -> list[str]:
     issues: list[str] = []
     if health.get("schema_version") != PROFILE_COMPATIBILITY["health_schema"]:
@@ -106,6 +111,14 @@ def compatibility_issues(health: dict[str, Any]) -> list[str]:
         issues.append(
             "gateway_version_too_old:"
             f"{gateway_version}<{PROFILE_COMPATIBILITY['min_gateway_version']}"
+        )
+    elif not version_at_most(
+        gateway_version,
+        str(PROFILE_COMPATIBILITY["max_gateway_version"]),
+    ):
+        issues.append(
+            "gateway_version_exceeds_tested:"
+            f"{gateway_version}>{PROFILE_COMPATIBILITY['max_gateway_version']}"
         )
 
     intent_schemas = contract.get("intent_schemas")
