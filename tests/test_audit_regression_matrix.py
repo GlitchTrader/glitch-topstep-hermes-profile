@@ -11,7 +11,9 @@ class AuditRegressionMatrixTests(unittest.TestCase):
             "tests/test_state_store.py",
             "tests/test_jsonl_tail.py",
             "tests/test_paired_contract.py",
+            "tests/test_workflow_modules.py",
             "scripts/check_profile_quality.py",
+            "scripts/workflows/delivery_recovery.py",
         ]
         for relative in required:
             self.assertTrue((ROOT / relative).is_file(), relative)

@@ -15,6 +15,29 @@ from pathlib import Path
 from typing import Any, Callable
 
 from distribution_manifest import PROMPT_VERSION
+from workflows.delivery_recovery import (
+    GATEWAY_COGNITIVE_REJECTION_CODES,
+    GATEWAY_SYSTEM_DEFECT_CODES,
+    classify_delivery_result,
+    classify_gateway_rejection,
+)
+from workflows.gateway_session import (
+    clear_delivery_wire,
+    deliver_packet_intent,
+    delivery_wire_path,
+    is_registered_delivery_conflict,
+    load_delivery_wire,
+    reconcile_registered_delivery,
+    save_delivery_wire,
+)
+from workflows.intent_outbox import (
+    discard_stale_outbox_intent,
+    frame_for_packet_id,
+    intent_is_entry,
+    packet_for_outbox_id,
+    pending_outbox,
+    prune_delivered_outboxes,
+)
 from common import (
     append_jsonl,
     parse_utc,
@@ -1299,93 +1322,6 @@ def active_trade_state(state: Path, packet: dict[str, Any]) -> dict[str, Any]:
     return value
 
 
-def classify_delivery_result(result: dict[str, Any]) -> str:
-    if not isinstance(result, dict):
-        return "transport_uncertain"
-    if result.get("transport_error"):
-        return "transport_uncertain"
-    status = result.get("http_status")
-    if not isinstance(status, int):
-        return "transport_uncertain"
-    if status in {408, 425, 429} or status >= 500:
-        return "transport_uncertain"
-    if isinstance(result.get("body"), dict):
-        body = result["body"]
-        if body.get("code") in {
-            "intent_delivery_unreconciled",
-            "intent_already_processing_or_recovery_required",
-        }:
-            return "transport_uncertain"
-    if status >= 400:
-        return "terminal_rejection"
-    body = result.get("body")
-    if isinstance(body, dict):
-        executor = body.get("executor")
-        executor_code = body.get("executor_code")
-        if executor == "failed":
-            return "terminal_rejection"
-        if executor == "skipped" and executor_code != "no_op_action":
-            return "terminal_rejection"
-        if executor == "pending":
-            return "transport_uncertain"
-    return "successful"
-
-
-GATEWAY_COGNITIVE_REJECTION_CODES = frozenset({
-    "stop_would_widen",
-    "target_would_widen",
-    "stop_wrong_side_of_market",
-    "target_wrong_side_of_entry",
-    "move_stop_unavailable",
-    "protection_not_proven",
-    "action_not_supported_in_current_packet",
-    "position_already_flat",
-    "position_not_found",
-    "target_tranche_not_found",
-    "target_tranche_already_flat",
-    "exit_quantity_exceeds_tranche_remaining",
-    "exit_quantity_exceeds_attributable_remaining",
-    "exit_quantity_invalid",
-    "target_intent_id_required",
-    "protective_leg_unresolved",
-    "position_side_unknown",
-    "amendment_current_price_missing",
-    "amendment_market_reference_missing",
-    "amendment_entry_reference_missing",
-    "no_execution_action",
-})
-
-GATEWAY_SYSTEM_DEFECT_CODES = frozenset({
-    "intent_schema_invalid",
-    "intent_delivery_unreconciled",
-    "intent_already_processing_or_recovery_required",
-    "intent_body_conflict",
-    "projectx_mutation_rejected",
-    "projectx_mutation_outcome_ambiguous",
-    "protection_cancel_failed",
-    "decision_packet_unknown_or_expired",
-    "action_not_implemented",
-    "trading_disabled_by_operator",
-    "account_name_mismatch",
-    "snapshot_hash_mismatch",
-})
-
-
-def classify_gateway_rejection(result: dict[str, Any]) -> str | None:
-    if classify_delivery_result(result) != "terminal_rejection":
-        return None
-    body = result.get("body") if isinstance(result.get("body"), dict) else {}
-    code = str(body.get("code") or body.get("executor_code") or "")
-    if code in GATEWAY_COGNITIVE_REJECTION_CODES:
-        return "cognitive_rejection"
-    if code in GATEWAY_SYSTEM_DEFECT_CODES:
-        return "system_defect"
-    http_status = result.get("http_status")
-    if isinstance(http_status, int) and 400 <= http_status < 500:
-        return "cognitive_rejection"
-    return "system_defect"
-
-
 def outcome_execution_summary(outcome: dict[str, Any]) -> dict[str, Any]:
     keys = (
         "exit_reason",
@@ -1521,110 +1457,6 @@ def debrief_prompt_evidence(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return prompt_rows
 
 
-def is_registered_delivery_conflict(result: dict[str, Any]) -> bool:
-    if not isinstance(result, dict):
-        return False
-    body = result.get("body")
-    return isinstance(body, dict) and body.get("code") == "intent_body_conflict"
-
-
-def delivery_wire_path(state: Path, packet_id: str) -> Path:
-    return state / "delivery-wire" / f"{packet_id}.json"
-
-
-def load_delivery_wire(state: Path, packet_id: str) -> dict[str, Any] | None:
-    payload = read_optional_json(delivery_wire_path(state, packet_id))
-    if not isinstance(payload, dict):
-        return None
-    wire = payload.get("wire")
-    return wire if isinstance(wire, dict) else None
-
-
-def save_delivery_wire(state: Path, packet_id: str, wire: dict[str, Any]) -> None:
-    delivery_wire_path(state, packet_id).parent.mkdir(parents=True, exist_ok=True)
-    write_json_atomic(
-        delivery_wire_path(state, packet_id),
-        {
-            "schema_version": "glitch.topstep.delivery_wire.v1",
-            "recorded_utc": utc_now(),
-            "packet_id": packet_id,
-            "intent_id": str(wire.get("intent_id") or ""),
-            "wire": wire,
-        },
-    )
-
-
-def clear_delivery_wire(state: Path, packet_id: str) -> None:
-    try:
-        delivery_wire_path(state, packet_id).unlink(missing_ok=True)
-    except OSError:
-        pass
-
-
-def reconcile_registered_delivery(
-    intent_id: str,
-    packet_id: str,
-    state: Path,
-    post_intent: Callable[[dict[str, Any]], dict[str, Any]],
-    fetch_receipt: Callable[[str], dict[str, Any] | None] | None = None,
-) -> dict[str, Any]:
-    wire = load_delivery_wire(state, packet_id)
-    if wire is not None:
-        retry = post_intent(wire)
-        if not is_registered_delivery_conflict(retry):
-            return retry
-    if fetch_receipt is not None and intent_id:
-        receipt = fetch_receipt(intent_id)
-        if isinstance(receipt, dict):
-            return {"http_status": 200, "body": receipt}
-    append_jsonl(
-        state / "events.jsonl",
-        {
-            "schema_version": "glitch.topstep.cycle_event.v2",
-            "event": "intent_delivery_unreconciled",
-            "recorded_utc": utc_now(),
-            "packet_id": packet_id,
-            "intent_id": intent_id,
-        },
-    )
-    return {
-        "http_status": 503,
-        "body": {
-            "code": "intent_delivery_unreconciled",
-            "intent_id": intent_id,
-        },
-    }
-
-
-def deliver_packet_intent(
-    state: Path,
-    packet_id: str,
-    intent: dict[str, Any],
-    directive: dict[str, Any] | None,
-    post_intent: Callable[[dict[str, Any]], dict[str, Any]],
-    prepare_intent_for_delivery: Callable[
-        [dict[str, Any], dict[str, Any] | None],
-        dict[str, Any],
-    ],
-    fetch_receipt: Callable[[str], dict[str, Any] | None] | None = None,
-) -> dict[str, Any]:
-    """POST /intent with frozen wire identity across transport-uncertain retries."""
-    wire = load_delivery_wire(state, packet_id)
-    if wire is None:
-        wire = prepare_intent_for_delivery(intent, directive)
-        save_delivery_wire(state, packet_id, wire)
-    result = post_intent(wire)
-    if is_registered_delivery_conflict(result):
-        result = reconcile_registered_delivery(
-            str(intent.get("intent_id") or ""),
-            packet_id,
-            state,
-            post_intent,
-            fetch_receipt,
-        )
-    return result
-
-
 def mark_attempt_from_receipt(state: Path, packet_id: str, result: dict[str, Any]) -> None:
     path = state / "attempts" / f"{packet_id}.json"
     if not path.is_file():
@@ -1639,159 +1471,6 @@ def mark_attempt_from_receipt(state: Path, packet_id: str, result: dict[str, Any
         attempt["status"] = "completed"
     attempt["completed_utc"] = utc_now()
     write_json_atomic(path, attempt)
-
-
-def pending_outbox(state: Path) -> tuple[str, Path] | None:
-    outbox_dir = state / "outbox"
-    if not outbox_dir.is_dir():
-        return None
-    for path in sorted(outbox_dir.glob("*.json")):
-        receipt_path = state / "receipts" / f"{path.stem}.json"
-        if not receipt_path.is_file():
-            return path.stem, path
-        receipt = read_optional_json(receipt_path)
-        if isinstance(receipt, dict) and classify_delivery_result(
-            receipt.get("result") if isinstance(receipt.get("result"), dict) else {}
-        ) == "transport_uncertain":
-            return path.stem, path
-    return None
-
-
-def intent_is_entry(intent: dict[str, Any]) -> bool:
-    return str(intent.get("action") or "") in {"ENTER_LONG", "ENTER_SHORT"}
-
-
-def _minute_frames_dir(state_or_frames_root: Path) -> Path:
-    nested = state_or_frames_root / "minute-frames"
-    if nested.is_dir():
-        return nested
-    return state_or_frames_root
-
-
-def frame_for_packet_id(state_or_frames_root: Path, packet_id: str) -> dict[str, Any] | None:
-    # ponytail: O(n) scan over minute-frames; fine at typical retention sizes
-    frames_dir = _minute_frames_dir(state_or_frames_root)
-    if not frames_dir.is_dir():
-        return None
-    for path in sorted(frames_dir.glob("*.json")):
-        frame = read_optional_json(path)
-        if not isinstance(frame, dict):
-            continue
-        packet = frame.get("packet")
-        if isinstance(packet, dict) and str(packet.get("packet_id") or "") == packet_id:
-            return frame
-    return None
-
-
-def packet_for_outbox_id(state: Path, packet_id: str) -> dict[str, Any] | None:
-    frame = frame_for_packet_id(state, packet_id)
-    if frame is None:
-        return None
-    packet = frame.get("packet")
-    return packet if isinstance(packet, dict) else None
-
-
-def prune_delivered_outboxes(state: Path) -> int:
-    outbox_dir = state / "outbox"
-    if not outbox_dir.is_dir():
-        return 0
-    pruned = 0
-    for path in outbox_dir.glob("*.json"):
-        receipt_path = state / "receipts" / f"{path.stem}.json"
-        if not receipt_path.is_file():
-            continue
-        receipt = read_optional_json(receipt_path)
-        if not isinstance(receipt, dict):
-            continue
-        result = receipt.get("result") if isinstance(receipt.get("result"), dict) else {}
-        if classify_delivery_result(result) == "transport_uncertain":
-            continue
-        try:
-            path.unlink(missing_ok=True)
-            pruned += 1
-        except OSError:
-            continue
-    return pruned
-
-
-def discard_stale_outbox_intent(
-    state: Path,
-    outbox_path: Path,
-    packet_id: str,
-    intent: dict[str, Any],
-    *,
-    token: str,
-) -> bool:
-    """Discard only when the decision packet was never captured locally.
-
-    A newer gateway packet never mutates a completed decision. Entry delivery is
-    permitted only while its frozen v3 scope and price range remain valid.
-    """
-    reason: str | None = None
-    if packet_for_outbox_id(state, packet_id) is None:
-        intent_id = str(intent.get("intent_id") or "")
-        if intent_id and token:
-            try:
-                status, body = request_json(
-                    f"/intent/receipt?intent_id={urllib.parse.quote(intent_id, safe='')}",
-                    token=token,
-                )
-            except (OSError, TimeoutError, urllib.error.URLError):
-                append_jsonl(
-                    state / "events.jsonl",
-                    {
-                        "schema_version": "glitch.topstep.cycle_event.v2",
-                        "event": "outbox_retained_delivery_unknown",
-                        "recorded_utc": utc_now(),
-                        "packet_id": packet_id,
-                        "intent_id": intent_id,
-                    },
-                )
-                return False
-            if status == 200 and isinstance(body, dict):
-                append_jsonl(
-                    state / "events.jsonl",
-                    {
-                        "schema_version": "glitch.topstep.cycle_event.v2",
-                        "event": "outbox_retained_gateway_receipt",
-                        "recorded_utc": utc_now(),
-                        "packet_id": packet_id,
-                        "intent_id": intent_id,
-                    },
-                )
-                return False
-            if status not in (404, 410):
-                append_jsonl(
-                    state / "events.jsonl",
-                    {
-                        "schema_version": "glitch.topstep.cycle_event.v2",
-                        "event": "outbox_retained_delivery_unknown",
-                        "recorded_utc": utc_now(),
-                        "packet_id": packet_id,
-                        "intent_id": intent_id,
-                        "http_status": status,
-                    },
-                )
-                return False
-        reason = "stored_packet_not_found"
-    if reason is None:
-        return False
-    try:
-        outbox_path.unlink(missing_ok=True)
-    except OSError:
-        return False
-    append_jsonl(
-        state / "events.jsonl",
-        {
-            "schema_version": "glitch.topstep.cycle_event.v2",
-            "event": "intent_discarded_stale_packet",
-            "reason": reason,
-            "recorded_utc": utc_now(),
-            "packet_id": packet_id,
-            "action": str(intent.get("action") or ""),
-        },
-    )
-    return True
 
 
 def defer_instrument_scope_mismatch(
