@@ -18,7 +18,7 @@
       "model": "gpt-5.6-luna",
       "provider": "openai-codex",
       "reasoning_effort": "medium",
-      "output_schema": "glitch.intent.v2",
+      "output_schema": "glitch.intent.v3",
       "execution_authority": false,
       "cognition_authority": true
     },

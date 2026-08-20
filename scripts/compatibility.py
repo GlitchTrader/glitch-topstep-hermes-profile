@@ -5,56 +5,30 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from distribution_manifest import (
-    MIN_GATEWAY_VERSION,
-    PROMPT_VERSION,
-    TESTED_GATEWAY_VERSION,
-    read_distribution_version,
-)
+from distribution_manifest import read_distribution_version
+from paired_contract import CONTRACT, RUNTIME_INTENT_SCHEMA
 
 _PROFILE_VERSION = read_distribution_version(Path(__file__).resolve().parent.parent)
 
 PROFILE_COMPATIBILITY: dict[str, Any] = {
-    "profile_name": "glitch-topstep",
+    "profile_name": CONTRACT["profile"]["name"],
     "profile_version": _PROFILE_VERSION,
-    "setup_schema": "glitch.topstep.hermes.setup.v1",
-    "operator_schema": "glitch.topstep.hermes.operator.v2",
-    "protocol_revision": "glitch.topstep.paired.v3",
-    "intent_schema": "glitch.intent.v3",
-    "decision_packet_schemas": [
-        "glitch.direct.decision_packet.v1",
-        "glitch.direct.decision_packet.v2",
-    ],
-    "prompt_version": PROMPT_VERSION,
-    "health_schema": "glitch.direct.health.v2",
-    "gateway_name": "glitch-topstep",
-    "min_gateway_version": MIN_GATEWAY_VERSION,
-    "tested_gateway_version": TESTED_GATEWAY_VERSION,
-    "max_gateway_version": TESTED_GATEWAY_VERSION,
-    "hermes_requires": ">=0.18.2",
-    "required_capabilities": [
-        "packet_supported_actions",
-        "durable_mutation_receipts",
-        "restart_reconciliation",
-        "bounded_entry_range_v1",
-        "daily_capture_context_v1",
-        "explicit_partial_completed_bars_v1",
-        "revisioned_outcome_feed_v1",
-        "multi_instrument_observation_v1",
-        "protected_reduction_saga_v1",
-    ],
-    "required_semantic_revisions": {
-        "bounded_entry_range": "glitch.topstep.entry_range.v1",
-        "daily_capture": "glitch.topstep.daily_capture.v1",
-        "outcome_feed": "glitch.topstep.outcome_feed.v2",
-        "market_universe": "glitch.topstep.market_universe.v1",
-        "execution_facts": "glitch.topstep.execution_fact.v1",
-    },
-    "required_provider_acceptance_evidence": {
-        "partial_exit_protection_transition": "proven_prac_short_long_with_saga",
-        "exact_contract_resolution": "catalog_fixture_plus_runtime_resolution",
-    },
-    "paired_manifest_schema": "glitch.topstep.paired_release.v1",
+    "setup_schema": CONTRACT["profile"]["setup_schema"],
+    "operator_schema": CONTRACT["profile"]["operator_schema"],
+    "protocol_revision": CONTRACT["protocol_revision"],
+    "intent_schema": RUNTIME_INTENT_SCHEMA,
+    "decision_packet_schemas": list(CONTRACT["decision_packet_schemas"]),
+    "prompt_version": CONTRACT["profile"]["prompt_version"],
+    "health_schema": CONTRACT["health_schema"],
+    "gateway_name": CONTRACT["gateway"]["name"],
+    "min_gateway_version": CONTRACT["profile"]["min_gateway_version"],
+    "tested_gateway_version": CONTRACT["profile"]["tested_gateway_version"],
+    "max_gateway_version": CONTRACT["profile"]["tested_gateway_version"],
+    "hermes_requires": CONTRACT["profile"]["hermes_requires"],
+    "required_capabilities": list(CONTRACT["required_capabilities"]),
+    "required_semantic_revisions": dict(CONTRACT["semantic_revisions"]),
+    "required_provider_acceptance_evidence": dict(CONTRACT["provider_acceptance_evidence"]),
+    "paired_manifest_schema": CONTRACT["paired_manifest_schema"],
 }
 
 

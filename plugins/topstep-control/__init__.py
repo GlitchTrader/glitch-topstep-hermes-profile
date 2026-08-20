@@ -335,7 +335,7 @@ def build_exit_intent(packet: dict[str, Any]) -> dict[str, Any]:
     now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     action = "EXIT"
     return {
-        "schema_version": "glitch.intent.v2",
+        "schema_version": "glitch.intent.v3",
         "intent_id": str(uuid.uuid4()),
         "created_utc": now,
         "instrument": packet["instrument"],

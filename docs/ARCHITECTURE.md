@@ -28,7 +28,7 @@ Hermes model
   observe · reason · choose · review · learn
   memory retrieval only during the trading cycle
   no terminal, browser, MCP, file, or provider toolsets
-       │ strict glitch.intent.v2
+       │ strict glitch.intent.v3
        ▼
 Python worker → local gateway → ProjectX
 ```

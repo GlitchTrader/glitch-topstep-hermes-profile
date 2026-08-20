@@ -6,6 +6,12 @@ import hashlib
 import re
 from pathlib import Path
 
+from paired_contract import (
+    MIN_GATEWAY_VERSION,
+    PROMPT_VERSION,
+    TESTED_GATEWAY_VERSION,
+)
+
 DISTRIBUTION_ROOT = Path(__file__).resolve().parent.parent
 MANIFEST_FILENAME = "distribution.yaml"
 SHA256SUMS_FILENAME = "SHA256SUMS"
@@ -14,9 +20,6 @@ SHA256SUMS_FILENAME = "SHA256SUMS"
 # into %LOCALAPPDATA%\\hermes\\profiles\\* or Windows updates fail on rmtree(.git).
 STAGING_ARTIFACTS = frozenset({".git", ".gitattributes"})
 
-PROMPT_VERSION = "glitch-topstep-v10"
-MIN_GATEWAY_VERSION = "0.2.0"
-TESTED_GATEWAY_VERSION = "0.2.1"
 
 
 def read_distribution_version(root: Path | None = None) -> str:
@@ -68,8 +71,8 @@ def regenerate_sha256sums(root: Path | None = None) -> list[str]:
     lines: list[str] = []
     included_roots = {
         ".env.EXAMPLE", ".github", ".gitignore", "README.md", "SOUL.md",
-        "config.yaml", "distribution.yaml", "docs", "operator.json", "plugins",
-        "scripts", "setup.ps1", "skills", "tests",
+        "config.yaml", "distribution.yaml", "docs", "operator.json", "paired-contract.json",
+        "plugins", "scripts", "setup.ps1", "skills", "tests",
     }
     paths = sorted(
         path for path in root.rglob("*")
