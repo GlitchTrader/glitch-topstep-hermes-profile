@@ -1,13 +1,17 @@
 {
   "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-08-19",
+  "updated": "2026-08-20",
   "release_target": "paired gateway/profile beta",
   "reconciliation": {
-    "date": "2026-08-19",
-    "merged_prs": [109, 110, 111],
-    "implementation_note": "Paired roadmap implementation and workflow dependency updates are merged. Open issues remain open when they still require live acceptance, operational evidence, or future learning/multi-instrument enablement.",
-    "validation": "172 Profile tests passed after checksum regeneration and workflow conflict resolution."
+    "date": "2026-08-20",
+    "merged_prs": [
+      109,
+      110,
+      111
+    ],
+    "implementation_note": "Profile compatibility now requires protected_reduction_saga_v1, outcome_feed v2, and proven_prac_short_long_with_saga. Paired fixtures added for CAP-01/MKT-01/ENTRY-01 contract consumption; GTHP issues 102/103/105 stay open until gateway paired tickets and cognition EV acceptance are fully closed.",
+    "validation": "185 Profile tests passed including tests/test_paired_contracts.py against gateway_health fixture ba84269."
   },
   "profile_version": "0.2.0",
   "gateway": {
@@ -680,9 +684,22 @@
   "implementation_run_2026_08_19": {
     "paired_protocol": "glitch.topstep.paired.v3",
     "prompt_version": "glitch-topstep-v10",
-    "operator_universe": ["MNQ", "MES", "MCL"],
+    "operator_universe": [
+      "MNQ",
+      "MES",
+      "MCL"
+    ],
     "provider_alias_note": "MCL is Micro Crude Oil; MCLE is the ProjectX catalog family used only for exact runtime resolution.",
-    "implemented_orders": [16, 17, 18, 19, 20, 21, 22, 25],
+    "implemented_orders": [
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      25
+    ],
     "features": [
       "0.5 percent daily context without quota",
       "explicit partial and completed bar roles",
@@ -726,7 +743,11 @@
   "scanner_ledger_validation_2026_08_19": {
     "status": "validated_foundation",
     "gateway_evidence": {
-      "candidate_instruments": ["MNQ", "MES", "MCL"],
+      "candidate_instruments": [
+        "MNQ",
+        "MES",
+        "MCL"
+      ],
       "exact_contracts": [
         "CON.F.US.MNQ.U26",
         "CON.F.US.MES.U26",

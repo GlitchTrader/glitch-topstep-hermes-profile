@@ -393,6 +393,7 @@ def compact_market_observation_state(state: Any) -> Any:
                 item = compact_timeframe_observation(row)
                 item.setdefault("timeframe_minutes", key)
                 compact_timeframes.append(item)
+        compact_timeframes = annotate_partial_timeframes(compact_timeframes)
     return {
         "last_succeeded_utc": state.get("last_succeeded_utc"),
         "last_error": state.get("last_error"),
