@@ -57,6 +57,32 @@ powershell -ExecutionPolicy Bypass -File "$env:LOCALAPPDATA\hermes\profiles\glit
 
 Contributors: after changing distribution-owned files, run `python scripts/regenerate_sha256sums.py` before merging. CI rejects drift.
 
+## Break-glass (main branch protection)
+
+`main` enforces admin rulesets (`enforce_admins=true`), required checks (`test`, `dependency-review`, `codeql`), CODEOWNERS review, conversation resolution, and no force-push/deletion.
+
+Break-glass is only for restoring a broken production path when CI or review would strand the trader. It is not a shortcut for ordinary merges.
+
+1. Record the reason, start UTC, and expected end UTC in the PR / incident note (max **4 hours**).
+2. Disable admin enforcement temporarily:
+   `gh api -X DELETE repos/GlitchTrader/glitch-topstep-hermes-profile/branches/main/protection/enforce_admins`
+3. Land the minimal fix via PR when possible; direct push only if the PR path is itself broken.
+4. Re-enable immediately:
+   `gh api -X POST repos/GlitchTrader/glitch-topstep-hermes-profile/branches/main/protection/enforce_admins`
+5. Verify `enforce_admins.enabled` is `true` and open a follow-up issue if any required check was bypassed.
+
+Never leave `enforce_admins` disabled overnight.
+
+## Armed promotion gate
+
+This profile **never** sets gateway execution mode. Armed promotion is a human gate on the gateway repo:
+
+1. Gateway `.env` requires both `GLITCH_TRADING_MODE=armed` and `GLITCH_ARMED_ACK=...`.
+2. Paired release candidate workflows run under GitHub Environment `armed-production` (required reviewer, no admin bypass, protected branches only) and demand a non-empty `evidence_ref` (PRAC/shadow doc or issue URL).
+3. Dispatch profile release only from `main` after CI is green:
+   `gh workflow run profile-release-candidate.yml -f evidence_ref='docs/evidence/...' -f gateway_commit='<gateway sha>'`
+4. Attach the resulting `profile-release` / `paired-release` artifacts and evidence to the ledger before treating the pair as production-ready.
+
 ## Release version checklist
 
 When cutting a profile release paired with a gateway build:
