@@ -163,6 +163,16 @@ class ControlPluginTests(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 MODULE._trade("")
 
+    def test_learning_worker_status_is_exposed(self):
+        with tempfile.TemporaryDirectory() as root, mock.patch.dict(
+            os.environ,
+            {"HERMES_HOME": root},
+        ):
+            path = Path(root) / "state" / "supervisor" / "learning-worker-status.json"
+            path.parent.mkdir(parents=True)
+            path.write_text(json.dumps({"status": "deferred"}), encoding="utf-8")
+            self.assertEqual(MODULE._learning_worker_status(), "deferred")
+
 
 if __name__ == "__main__":
     unittest.main()

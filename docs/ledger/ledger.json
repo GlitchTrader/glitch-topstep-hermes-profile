@@ -8,10 +8,12 @@
     "merged_prs": [
       109,
       110,
-      111
+      111,
+      116,
+      118
     ],
-    "implementation_note": "Profile compatibility now requires protected_reduction_saga_v1, outcome_feed v2, and proven_prac_short_long_with_saga. Paired fixtures added for CAP-01/MKT-01/ENTRY-01 contract consumption; GTHP issues 102/103/105 stay open until gateway paired tickets and cognition EV acceptance are fully closed.",
-    "validation": "185 Profile tests passed including tests/test_paired_contracts.py against gateway_health fixture ba84269."
+    "implementation_note": "Paired fixtures through EXEC-01/MULTI (#118). GTHP-TRIGGER-01 lifecycle + GTHP-OPS-01 learner defer/status (#118). Frozen cognition eval workflow (#118). Issues #62/#79 done in ledger — GitHub closed via housekeeping.",
+    "validation": "195 profile tests including test_frozen_cognition_eval, test_trigger_lifecycle, learning defer."
   },
   "profile_version": "0.2.0",
   "gateway": {
@@ -711,9 +713,8 @@
       "complete MNQ/MES/MCL candidate ledger and global ranking"
     ],
     "external_validation_pending": [
-      "real two-prompt frozen corpus run",
-      "simulated armed sessions against exact MNQ, MES, and MCL contracts",
-      "attested immutable paired release"
+      "live two-prompt run on operator production minute-frames (optional archive)",
+      "GTHP-PROD-02/03/04 indexed state and service decomposition (#98–100)"
     ]
   },
   "foundation_update_2026_08_19": {
@@ -771,9 +772,8 @@
       "simultaneous_exposure_default": false
     },
     "remaining_acceptance": [
-      "selected non-MNQ armed execution still requires live gateway/profile sessions for MES and MCL/MCLE",
-      "real two-prompt frozen-corpus comparison remains evaluation-only and pending",
-      "paired immutable release attestation remains pending"
+      "live armed trade outcome on MCL/MCLE (PARITY residual)",
+      "GTHP-PROD-02/03/04 hardening (#98–100) remains open"
     ]
   }
 }

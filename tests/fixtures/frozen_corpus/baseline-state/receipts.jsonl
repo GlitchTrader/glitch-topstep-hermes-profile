@@ -1,0 +1,1 @@
+{"schema_version":"glitch.topstep.delivery_receipt.v2","recorded_utc":"2026-08-20T12:01:05Z","packet_id":"20260820T1201Z","intent_id":"00000000-0000-4000-8000-000000000002","result":{"http_status":422,"body":{"code":"entry_range_superseded"}}}

@@ -1069,7 +1069,27 @@ def main() -> int:
             "retryable": True,
         })
         return 0
+    write_json_atomic(supervisor / "learning-worker-status.json", {
+        "schema_version": "glitch.topstep.learning_worker_status.v2",
+        "run_id": run_id,
+        "started_utc": started_utc,
+        "recorded_utc": utc_now(),
+        "status": "running",
+        "phase": "admission",
+        "retryable": False,
+    })
     try:
+        if (state / "direct-cycle.lock").is_file():
+            write_json_atomic(supervisor / "learning-worker-status.json", {
+                "schema_version": "glitch.topstep.learning_worker_status.v2",
+                "run_id": run_id,
+                "started_utc": started_utc,
+                "recorded_utc": utc_now(),
+                "status": "deferred",
+                "phase": "trading_priority",
+                "retryable": True,
+            })
+            return 0
         try:
             result = run_once(args, root)
         except Exception as error:

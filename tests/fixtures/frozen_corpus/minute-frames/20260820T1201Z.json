@@ -1,0 +1,14 @@
+{
+  "schema_version": "glitch.topstep.minute_frame.v2",
+  "minute_id": "20260820T1201Z",
+  "captured_utc": "2026-08-20T12:01:00Z",
+  "packet": {
+    "packet_id": "20260820T1201Z",
+    "created_utc": "2026-08-20T12:01:00Z",
+    "instrument": "MNQ",
+    "market": { "last": 20020.0, "high": 20030.0, "low": 20010.0 },
+    "account": { "name": "PRAC", "instrument_open_contracts": 0 },
+    "contract": { "symbol": "MNQ" }
+  },
+  "forward_observation": { "high": 20040.0, "low": 20015.0, "close": 20035.0 }
+}

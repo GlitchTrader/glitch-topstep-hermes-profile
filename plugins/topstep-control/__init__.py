@@ -125,6 +125,19 @@ def _job(name: str) -> Optional[dict[str, Any]]:
     return next((job for job in list_jobs(include_disabled=True) if job.get("name") == name), None)
 
 
+def _learning_worker_status() -> str:
+    path = _profile_root() / "state" / "supervisor" / "learning-worker-status.json"
+    if not path.is_file():
+        return "unknown"
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return "unknown"
+    if not isinstance(value, dict):
+        return "unknown"
+    return str(value.get("status") or "unknown")
+
+
 def _direct_worker_status() -> str:
     path = _profile_root() / "state" / "supervisor" / "direct-worker-status.json"
     try:
@@ -188,7 +201,8 @@ def _status_text() -> str:
     if health_status != 200:
         return (
             f"Glitch Topstep gateway: unavailable; Hermes jobs: {job_state}; "
-            f"operator worker: {_direct_worker_status()}."
+            f"operator worker: {_direct_worker_status()}; "
+            f"learning worker: {_learning_worker_status()}."
         )
     mode = str(health.get("trading_mode") or "unknown")
     compatibility = _compatibility_summary(health)
@@ -204,7 +218,8 @@ def _status_text() -> str:
         f"Glitch Topstep gateway: {mode}; compatibility: {compatibility}; "
         f"state: {state_text}; account: {account_name}; "
         f"canTrade: {can_trade}; Hermes jobs: {job_state}; "
-        f"operator worker: {_direct_worker_status()}."
+        f"operator worker: {_direct_worker_status()}; "
+        f"learning worker: {_learning_worker_status()}."
     )
 
 

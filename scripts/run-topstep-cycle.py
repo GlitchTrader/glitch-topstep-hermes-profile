@@ -33,7 +33,11 @@ from packet_model import (
     packet_for_cycle,
     packet_for_model as build_model_packet,
 )
-from regime import detect_regime
+from trigger_lifecycle import (
+    consume_pending_held_rescan,
+    pending_held_rescan_reason,
+    persist_comparison_triggers,
+)
 from scanner_contract import comparison_template, validate_comparison_ledger
 from common import (
     PROFILE_NAME,
@@ -1340,12 +1344,14 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         print(json.dumps({"packet_id": pending_id, "result": result}, separators=(",", ":")))
         return 0 if classification == "successful" else 1
 
-    reason = invocation_reason(
+    reason = pending_held_rescan_reason(state) or invocation_reason(
         packet,
         state,
         directive,
         flat_decision_interval_minutes=flat_decision_interval_minutes(),
     )
+    if reason == "held_rescan":
+        consume_pending_held_rescan(state)
     pending_wake = read_pending_wake_invocation(state)
     if reason is None and pending_wake:
         reason = "condition_change"
@@ -1500,6 +1506,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
             return run_once(args, root)
 
         persist_wake_triggers(state, intent, packet_id)
+        persist_comparison_triggers(state, intent, packet_id)
         write_json_atomic(outbox_path, intent)
         append_jsonl(
             state / "decisions.jsonl",
