@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -29,6 +30,47 @@ class ProfileStateStoreTests(unittest.TestCase):
                 self.assertEqual(len(tail), 3)
                 self.assertEqual(tail[-1]["packet_id"], "p9")
                 self.assertEqual(store.decision_by_packet("p4")["intent_id"], "i4")
+            finally:
+                store.close()
+
+    def test_tail_decisions_stays_current_after_jsonl_grows_post_bootstrap(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp)
+            jsonl = state / "decisions.jsonl"
+            jsonl.write_text(
+                json.dumps(
+                    {
+                        "packet_id": "p0",
+                        "intent_id": "i0",
+                        "recorded_utc": "2026-08-20T12:00:00Z",
+                    },
+                    separators=(",", ":"),
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            store = ProfileStateStore(state)
+            try:
+                store.bootstrap_decisions(jsonl)
+                self.assertEqual(store.tail_decisions(10)[-1]["packet_id"], "p0")
+
+                from common import append_jsonl
+
+                append_jsonl(
+                    jsonl,
+                    {
+                        "packet_id": "p1",
+                        "intent_id": "i1",
+                        "recorded_utc": "2026-08-20T12:01:00Z",
+                    },
+                )
+
+                tail = store.tail_decisions(10)
+                self.assertEqual(
+                    [row["packet_id"] for row in tail],
+                    ["p0", "p1"],
+                    "cycle must index new decisions, not freeze after bootstrap",
+                )
             finally:
                 store.close()
 
