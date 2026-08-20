@@ -41,6 +41,7 @@ from trigger_lifecycle import (
 )
 from scanner_contract import comparison_template, validate_comparison_ledger
 from cognition_cycle import recent_cycle_context
+from state_store import ProfileStateStore
 from common import (
     PROFILE_NAME,
     acquire_cycle_lock,
@@ -1519,16 +1520,18 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         persist_wake_triggers(state, intent, packet_id)
         persist_comparison_triggers(state, intent, packet_id)
         write_json_atomic(outbox_path, intent)
-        append_jsonl(
-            state / "decisions.jsonl",
-            {
-                "schema_version": "glitch.topstep.decision_record.v2",
-                "recorded_utc": utc_now(),
-                "packet_id": packet_id,
-                "regime_detected": detect_regime(packet),
-                "intent": intent,
-            },
-        )
+        decision_record = {
+            "schema_version": "glitch.topstep.decision_record.v2",
+            "recorded_utc": utc_now(),
+            "packet_id": packet_id,
+            "regime_detected": detect_regime(packet),
+            "intent": intent,
+        }
+        store = ProfileStateStore(state)
+        try:
+            store.append_decision(decision_record, jsonl_path=state / "decisions.jsonl")
+        finally:
+            store.close()
         write_last_evidence_fingerprint(
             state,
             packet,

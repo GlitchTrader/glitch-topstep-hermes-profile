@@ -32,22 +32,35 @@ class ProfileStateStore:
             """
         )
         self.db.commit()
+        self._decisions_jsonl: Path | None = None
 
     def close(self) -> None:
         self.db.close()
 
-    def bootstrap_decisions(self, jsonl_path: Path) -> None:
-        count = self.db.execute("SELECT COUNT(*) FROM decisions").fetchone()[0]
-        if count or not jsonl_path.is_file():
+    def sync_decisions_from_jsonl(self, jsonl_path: Path) -> None:
+        self._decisions_jsonl = jsonl_path
+        if not jsonl_path.is_file():
+            return
+        skip = self.db.execute("SELECT COUNT(*) FROM decisions").fetchone()[0]
+        pending: list[str] = []
+        for raw in jsonl_path.read_text(encoding="utf-8").splitlines():
+            if not raw.strip():
+                continue
+            if skip > 0:
+                skip -= 1
+                continue
+            pending.append(raw)
+        if not pending:
             return
         with self.db:
-            for raw in jsonl_path.read_text(encoding="utf-8").splitlines():
-                if not raw.strip():
-                    continue
+            for raw in pending:
                 row = json.loads(raw)
                 if not isinstance(row, dict):
                     continue
                 self._insert_decision(row)
+
+    def bootstrap_decisions(self, jsonl_path: Path) -> None:
+        self.sync_decisions_from_jsonl(jsonl_path)
 
     def append_decision(self, row: dict[str, Any], *, jsonl_path: Path | None = None) -> None:
         payload = json.dumps(row, separators=(",", ":"), ensure_ascii=False)
@@ -74,6 +87,9 @@ class ProfileStateStore:
         )
 
     def tail_decisions(self, limit: int) -> list[dict[str, Any]]:
+        jsonl_path = self._decisions_jsonl or (self.state / "decisions.jsonl")
+        if jsonl_path.is_file():
+            self.sync_decisions_from_jsonl(jsonl_path)
         rows = self.db.execute(
             "SELECT payload_json FROM decisions ORDER BY sequence DESC LIMIT ?",
             (max(0, limit),),
