@@ -13,7 +13,7 @@
       118
     ],
     "implementation_note": "Paired fixtures through EXEC-01/MULTI (#118). GTHP-TRIGGER-01 lifecycle + GTHP-OPS-01 learner defer/status (#118). Frozen cognition eval workflow (#118). Production audit follow-ups GTHP-AUDIT-01 through GTHP-AUDIT-06 opened on 2026-08-20; the stale decision index is P0 and blocks live promotion.",
-    "validation": "209 profile tests passed with 1 expected skip; GTHP-031/032 structural evidence + calibration metrics closed."
+    "validation": "209 profile tests passed with 1 expected skip; GTHP-031/032 structural evidence and calibration metrics closed; production audit reproduced stale indexed decisions after the first JSONL bootstrap."
   },
   "profile_version": "0.2.1",
   "gateway": {
