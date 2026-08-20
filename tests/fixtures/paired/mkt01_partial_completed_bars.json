@@ -1,0 +1,107 @@
+{
+  "schema_version": "glitch.direct.decision_packet.v2",
+  "packet_id": "mkt01-packet",
+  "created_utc": "2099-01-01T14:05:30Z",
+  "expires_utc": "2099-01-01T14:10:00Z",
+  "venue": "projectx",
+  "firm": "topstep",
+  "instrument": "MNQ",
+  "account": { "id": 1, "name": "PRAC", "balance": 50000, "instrument_open_contracts": 0 },
+  "contract": {
+    "id": "CON.MNQ",
+    "symbol_id": "F.US.MNQ",
+    "name": "MNQ",
+    "tick_size": 0.25
+  },
+  "market": {
+    "last": 21005.5,
+    "bid": 21005.25,
+    "ask": 21005.75,
+    "snapshot_hash": "mkt01-hash"
+  },
+  "market_observation": {
+    "last_succeeded_utc": "2099-01-01T14:05:30Z",
+    "last_error": null,
+    "observation": {
+      "schema_version": "glitch.projectx.market_observation.v1",
+      "instrument": "MNQ",
+      "timeframes": {
+        "1m": {
+          "timeframe_minutes": 1,
+          "bars_received": 120,
+          "bars_accepted": 120,
+          "rejected_bars": 0,
+          "latest_bar_utc": "2099-01-01T14:05:00Z",
+          "latest_bar_partial": true,
+          "current_partial_bar": {
+            "timestamp": "2099-01-01T14:05:00Z",
+            "open": 21000.0,
+            "high": 21008.0,
+            "low": 20998.0,
+            "close": 21005.5,
+            "volume": 420
+          },
+          "prior_completed_bar": {
+            "timestamp": "2099-01-01T14:04:00Z",
+            "open": 20990.0,
+            "high": 21002.0,
+            "low": 20988.0,
+            "close": 21000.0,
+            "volume": 1100
+          },
+          "partial_progress": 0.5,
+          "bar_identity_issues": [],
+          "gaps": [],
+          "features": {
+            "volume_z_score_20": -0.4,
+            "progress_adjusted_volume_z_score_20": 0.1
+          }
+        },
+        "5m": {
+          "timeframe_minutes": 5,
+          "latest_bar_utc": "2099-01-01T14:00:00Z",
+          "latest_bar_partial": false,
+          "current_partial_bar": null,
+          "prior_completed_bar": {
+            "timestamp": "2099-01-01T14:00:00Z",
+            "open": 20970.0,
+            "high": 21010.0,
+            "low": 20960.0,
+            "close": 21000.0,
+            "volume": 5000
+          },
+          "partial_progress": null,
+          "bar_identity_issues": [],
+          "features": {}
+        },
+        "60m": {
+          "timeframe_minutes": 60,
+          "latest_bar_utc": "2099-01-01T14:00:00Z",
+          "latest_bar_partial": true,
+          "current_partial_bar": {
+            "timestamp": "2099-01-01T14:00:00Z",
+            "open": 20950.0,
+            "high": 21020.0,
+            "low": 20940.0,
+            "close": 21005.5,
+            "volume": 8000
+          },
+          "prior_completed_bar": {
+            "timestamp": "2099-01-01T13:00:00Z",
+            "open": 20900.0,
+            "high": 20980.0,
+            "low": 20890.0,
+            "close": 20950.0,
+            "volume": 22000
+          },
+          "partial_progress": 0.09,
+          "bar_identity_issues": [],
+          "features": {}
+        }
+      }
+    }
+  },
+  "data_quality": { "state_complete": true, "issues": [] },
+  "execution": { "gateway_mode": "armed", "valid_entry_quantities": [1] },
+  "required_output_template": { "schema_version": "glitch.intent.v3", "action": "NOTHING" }
+}

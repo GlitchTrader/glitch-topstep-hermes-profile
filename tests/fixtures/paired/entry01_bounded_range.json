@@ -1,0 +1,91 @@
+{
+  "fresh_packet_in_range": {
+    "schema_version": "glitch.direct.decision_packet.v2",
+    "packet_id": "entry01-packet",
+    "created_utc": "2099-01-01T16:00:00Z",
+    "expires_utc": "2099-01-01T16:05:00Z",
+    "venue": "projectx",
+    "firm": "topstep",
+    "instrument": "MNQ",
+    "account": { "id": 1, "name": "PRAC", "balance": 50000, "instrument_open_contracts": 0 },
+    "contract": {
+      "id": "CON.MNQ",
+      "symbol_id": "F.US.MNQ",
+      "name": "MNQ",
+      "tick_size": 0.25
+    },
+    "decision_scope": {
+      "scope_hash": "scope-abc",
+      "generation": 3
+    },
+    "market": {
+      "last": 21000.0,
+      "bid": 20999.75,
+      "ask": 21000.25,
+      "snapshot_hash": "entry01-hash"
+    },
+    "execution": {
+      "gateway_mode": "armed",
+      "valid_entry_quantities": [1],
+      "supported_actions": ["NOTHING", "ENTER_LONG", "ENTER_SHORT"]
+    },
+    "data_quality": { "state_complete": true, "issues": [] },
+    "required_output_template": { "schema_version": "glitch.intent.v3", "action": "NOTHING" }
+  },
+  "fresh_packet_outside_range": {
+    "schema_version": "glitch.direct.decision_packet.v2",
+    "packet_id": "entry01-packet",
+    "created_utc": "2099-01-01T16:00:10Z",
+    "expires_utc": "2099-01-01T16:05:00Z",
+    "venue": "projectx",
+    "firm": "topstep",
+    "instrument": "MNQ",
+    "account": { "id": 1, "name": "PRAC", "balance": 50000, "instrument_open_contracts": 0 },
+    "contract": {
+      "id": "CON.MNQ",
+      "symbol_id": "F.US.MNQ",
+      "name": "MNQ",
+      "tick_size": 0.25
+    },
+    "decision_scope": {
+      "scope_hash": "scope-abc",
+      "generation": 3
+    },
+    "market": {
+      "last": 21050.0,
+      "bid": 21049.75,
+      "ask": 21050.25,
+      "snapshot_hash": "entry01-hash-moved"
+    },
+    "execution": {
+      "gateway_mode": "armed",
+      "valid_entry_quantities": [1],
+      "supported_actions": ["NOTHING", "ENTER_LONG", "ENTER_SHORT"]
+    },
+    "data_quality": { "state_complete": true, "issues": [] },
+    "required_output_template": { "schema_version": "glitch.intent.v3", "action": "NOTHING" }
+  },
+  "intent_v3_long": {
+    "schema_version": "glitch.intent.v3",
+    "intent_id": "123e4567-e89b-42d3-a456-426614174000",
+    "action": "ENTER_LONG",
+    "packet_id": "entry01-packet",
+    "contract_id": "CON.MNQ",
+    "scope_hash": "scope-abc",
+    "scope_generation": 3,
+    "expires_utc": "2099-12-31T00:00:00Z",
+    "quantity": 1,
+    "order_type": "MARKET",
+    "entry_price_min": 20990.0,
+    "entry_price_max": 21010.0,
+    "stop_loss": 20970.0,
+    "take_profit_1": 21040.0,
+    "reason": "bounded range entry fixture",
+    "decision_audit": {
+      "bull_case": "acceptance above prior completed bar",
+      "bear_case": "rejection below partial low",
+      "flat_case": "range chop",
+      "decisive_evidence": "1m timing inside practical zone"
+    }
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "schema_version": "glitch.direct.decision_packet.v2",
+  "packet_id": "cap01-packet",
+  "created_utc": "2099-01-01T15:00:00Z",
+  "expires_utc": "2099-01-01T15:05:00Z",
+  "venue": "projectx",
+  "firm": "topstep",
+  "instrument": "MNQ",
+  "account": {
+    "id": 1,
+    "name": "PRAC",
+    "balance": 50000,
+    "instrument_open_contracts": 0
+  },
+  "contract": {
+    "id": "CON.MNQ",
+    "symbol_id": "F.US.MNQ",
+    "name": "MNQ",
+    "tick_size": 0.25
+  },
+  "market": {
+    "last": 21000.0,
+    "bid": 20999.75,
+    "ask": 21000.25,
+    "snapshot_hash": "cap01-hash"
+  },
+  "execution": {
+    "gateway_mode": "armed",
+    "daily_capture_locked": false,
+    "valid_entry_quantities": [1, 2],
+    "supported_actions": ["NOTHING", "ENTER_LONG", "ENTER_SHORT", "EXIT", "MOVE_STOP", "MOVE_TP"]
+  },
+  "daily_economics": {
+    "authority": "reconciled_trades",
+    "trading_day_id": "2099-01-01",
+    "nominal_size_usd": 50000,
+    "realized_pnl_usd": 100,
+    "unrealized_pnl_usd": 0,
+    "net_daily_pnl_usd": 100,
+    "net_daily_pnl_pct": 0.2,
+    "calibration_band_pct": { "low": 0.4, "high": 2.0 },
+    "profit_target_usd": null,
+    "profit_target_remaining_usd": null,
+    "largest_winning_day_usd": null,
+    "consistency_pct_mirror": null,
+    "daily_capture": {
+      "schema_version": "glitch.topstep.daily_capture.v1",
+      "objective_rate_pct": 0.5,
+      "baseline_equity_usd": 50000,
+      "objective_usd": 250,
+      "realized_progress_usd": 100,
+      "remaining_usd": 150,
+      "reached": false,
+      "new_exposure_lock_configured": true,
+      "reset_start_utc": "2098-12-31T23:00:00.000Z",
+      "reset_end_exclusive_utc": "2099-01-01T23:00:00.000Z",
+      "authority": "reconciled_trades",
+      "note": "contextual objective only; never a quota or sizing formula"
+    },
+    "notes": []
+  },
+  "data_quality": { "state_complete": true, "issues": [] },
+  "required_output_template": {
+    "schema_version": "glitch.intent.v3",
+    "action": "NOTHING"
+  }
+}
