@@ -1442,6 +1442,38 @@ class DirectCycleTests(unittest.TestCase):
             self.assertFalse(discarded)
             self.assertTrue(outbox_path.exists())
 
+    def test_discard_stale_outbox_retained_when_gateway_receipt_exists(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            outbox = state / "outbox"
+            outbox.mkdir(parents=True)
+            outbox_path = outbox / "packet-5.json"
+            intent_row = intent("NOTHING")
+            MODULE.write_json_atomic(outbox_path, intent_row)
+
+            def fake_request(path: str, *, token=None, method="GET", body=None):
+                del method, body
+                self.assertEqual(token, "token")
+                self.assertIn("intent_id=", path)
+                return 200, {"intent_id": intent_row["intent_id"], "status": "registered"}
+
+            original = PARITY.request_json
+            PARITY.request_json = fake_request
+            try:
+                discarded = PARITY.discard_stale_outbox_intent(
+                    state,
+                    outbox_path,
+                    "packet-5",
+                    intent_row,
+                    token="token",
+                )
+            finally:
+                PARITY.request_json = original
+            self.assertFalse(discarded)
+            self.assertTrue(outbox_path.exists())
+            events = (state / "events.jsonl").read_text(encoding="utf-8")
+            self.assertIn("outbox_retained_gateway_receipt", events)
+
     def test_pending_management_intent_is_deferred_when_gateway_scope_changes(self):
         with tempfile.TemporaryDirectory() as root:
             state = Path(root)
