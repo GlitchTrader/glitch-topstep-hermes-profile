@@ -1,4 +1,4 @@
-"""Paired gateway/profile contract fixtures for PROD-07, CAP-01, MKT-01, ENTRY-01."""
+"""Paired gateway/profile contract fixtures for PROD-07, CAP-01, MKT-01, ENTRY-01, EXEC-01, MULTI-01."""
 
 from __future__ import annotations
 
@@ -15,9 +15,11 @@ SCRIPTS = ROOT / "scripts"
 FIXTURES = ROOT / "tests" / "fixtures" / "paired"
 sys.path.insert(0, str(SCRIPTS))
 
+import common as common_module  # noqa: E402
 import compatibility as compatibility_module  # noqa: E402
 from packet_model import compact_market_observation_state, packet_for_model  # noqa: E402
 from parity import discard_unexecutable_entry_outbox  # noqa: E402
+from scanner_contract import comparison_template, validate_comparison_ledger, MARKER  # noqa: E402
 
 
 def _load(name: str):
@@ -179,6 +181,77 @@ class Entry01BoundedRangeDeliveryTests(unittest.TestCase):
             # Favorable drift outside the frozen range is not permission to widen.
             self.assertEqual(intent["entry_price_max"], 21010.0)
             self.assertGreater(packet["market"]["ask"], intent["entry_price_max"])
+
+
+class Exec01ExecutionFactsFixtures(unittest.TestCase):
+    def test_execution_facts_page_has_stable_identity_and_live_status(self):
+        page = _load("exec01_execution_facts_page.json")
+        self.assertEqual(page["schema_version"], "glitch.topstep.execution_facts.v1")
+        self.assertGreaterEqual(page["high_water_sequence"], page["count"])
+        for fact in page["facts"]:
+            self.assertRegex(fact["fact_id"], r"^fact:[^:]+:[a-z_]+$")
+            self.assertEqual(fact["status"], "live")
+            self.assertEqual(fact["revision"], 1)
+            self.assertIsInstance(fact.get("diagnostics"), dict)
+
+    def test_sync_gateway_execution_facts_appends_without_duplicates(self):
+        page = _load("exec01_execution_facts_page.json")
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp)
+            with mock.patch.dict(
+                "os.environ",
+                {"GLITCH_TOPSTEP_LOCAL_TOKEN": "01234567890123456789012345678901"},
+                clear=False,
+            ), mock.patch.object(
+                common_module,
+                "request_json",
+                return_value=(200, page),
+            ):
+                first = common_module.sync_gateway_execution_facts(state)
+                second = common_module.sync_gateway_execution_facts(state)
+            self.assertEqual(first["added"], 3)
+            self.assertEqual(first["http_status"], 200)
+            self.assertEqual(second["added"], 0)
+            self.assertEqual(second["sequence"], 3)
+            lines = (state / "execution-facts.jsonl").read_text(encoding="utf-8").strip().splitlines()
+            self.assertEqual(len(lines), 3)
+
+
+class Multi01ScannerPacketFixtures(unittest.TestCase):
+    def _packet(self) -> dict:
+        universe = _load("multi01_scanner_packet.json")
+        return {
+            "packet_id": "multi01-packet",
+            "expires_utc": "2026-08-20T12:05:00Z",
+            "instrument": "MNQ",
+            "market_universe": universe,
+            "account_selection": universe["account_selection"],
+        }
+
+    def test_scanner_universe_preserves_exact_contracts_and_single_armed_selection(self):
+        universe = _load("multi01_scanner_packet.json")
+        selected = [row for row in universe["candidates"] if row["execution_mode"] == "selected"]
+        observation = [row for row in universe["candidates"] if row["execution_mode"] == "observation_only"]
+        self.assertEqual(len(selected), 1)
+        self.assertEqual(selected[0]["instrument"], "MNQ")
+        self.assertEqual(len(observation), 2)
+        self.assertFalse(universe["simultaneous_exposure_enabled"])
+        self.assertEqual(universe["account_selection"]["selected_contract_id"], "CON.F.US.MNQ.U26")
+
+    def test_scanner_comparison_ledger_requires_all_three_candidates(self):
+        packet = self._packet()
+        value = json.loads(comparison_template(packet)[len(MARKER) :])
+        for row in value["candidates"]:
+            for field in ("current_auction", "bullish_path", "bearish_path", "next_transition"):
+                row[field] = f"{row['instrument']} {field} evidence"
+            row["triggers"][0].update(
+                trigger_id=f"trigger-{row['instrument']}",
+                path="NEXT",
+                condition="price crosses frozen level",
+                status="HELD",
+            )
+        validated = validate_comparison_ledger(MARKER + json.dumps(value), packet)
+        self.assertEqual(validated["ranking"], ["MNQ", "MES", "MCL"])
 
 
 if __name__ == "__main__":
