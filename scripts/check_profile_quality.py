@@ -13,6 +13,7 @@ REGRESSION_TESTS = (
     "tests/test_state_store.py",
     "tests/test_jsonl_tail.py",
     "tests/test_paired_contract.py",
+    "tests/test_workflow_modules.py",
 )
 
 
@@ -25,7 +26,7 @@ def main() -> None:
         target = ROOT / relative
         if not target.is_file():
             raise SystemExit(f"missing_regression_test:{relative}")
-    for path in sorted(ROOT.glob("scripts/*.py")):
+    for path in sorted(ROOT.glob("scripts/**/*.py")):
         _syntax_ok(path)
     _syntax_ok(ROOT / "plugins/topstep-control/__init__.py")
     print("profile_quality_ok")
