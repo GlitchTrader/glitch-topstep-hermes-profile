@@ -11,6 +11,7 @@ distribution_owned:
   - skills
   - plugins
   - scripts
+  - tests
   - docs
   - setup.ps1
   - README.md
