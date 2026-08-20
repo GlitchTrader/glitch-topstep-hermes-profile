@@ -330,7 +330,17 @@ def write_json_atomic(path: Path, value: Any) -> None:
     try:
         with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as stream:
             json.dump(value, stream, separators=(",", ":"), ensure_ascii=False)
+            stream.flush()
+            os.fsync(stream.fileno())
         os.replace(temporary, path)
+        try:
+            directory_fd = os.open(path.parent, os.O_RDONLY)
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
+        except OSError:
+            pass
     finally:
         temporary.unlink(missing_ok=True)
 
@@ -358,8 +368,32 @@ def write_jsonl_atomic(path: Path, values: Iterable[dict[str, Any]]) -> None:
         temporary.unlink(missing_ok=True)
 
 
-def tail_jsonl(path: Path, count: int) -> list[dict[str, Any]]:
-    return read_jsonl(path)[-max(0, count):]
+def tail_jsonl(path: Path, count: int, *, tail_bytes: int = 1_048_576) -> list[dict[str, Any]]:
+    """Return the last JSON objects without reading the entire journal."""
+    if count <= 0 or not path.is_file():
+        return []
+    size = path.stat().st_size
+    if size == 0:
+        return []
+    with path.open("rb") as stream:
+        start = max(0, size - tail_bytes)
+        stream.seek(start)
+        data = stream.read()
+    text = data.decode("utf-8", errors="replace")
+    if start > 0:
+        first_newline = text.find("\n")
+        if first_newline >= 0:
+            text = text[first_newline + 1 :]
+    lines = [line for line in text.splitlines() if line.strip()]
+    result: list[dict[str, Any]] = []
+    for line in lines[-count:]:
+        try:
+            value = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(value, dict):
+            result.append(value)
+    return result
 
 
 def process_is_alive(pid: int) -> bool:

@@ -8,6 +8,8 @@ import math
 import os
 import re
 import time
+import urllib.error
+import urllib.parse
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable
@@ -1725,9 +1727,52 @@ def discard_stale_outbox_intent(
     A newer gateway packet never mutates a completed decision. Entry delivery is
     permitted only while its frozen v3 scope and price range remain valid.
     """
-    del token  # retained for call-site compatibility
     reason: str | None = None
     if packet_for_outbox_id(state, packet_id) is None:
+        intent_id = str(intent.get("intent_id") or "")
+        if intent_id and token:
+            try:
+                status, body = request_json(
+                    f"/intent/receipt?intent_id={urllib.parse.quote(intent_id, safe='')}",
+                    token=token,
+                )
+            except (OSError, TimeoutError, urllib.error.URLError):
+                append_jsonl(
+                    state / "events.jsonl",
+                    {
+                        "schema_version": "glitch.topstep.cycle_event.v2",
+                        "event": "outbox_retained_delivery_unknown",
+                        "recorded_utc": utc_now(),
+                        "packet_id": packet_id,
+                        "intent_id": intent_id,
+                    },
+                )
+                return False
+            if status == 200 and isinstance(body, dict):
+                append_jsonl(
+                    state / "events.jsonl",
+                    {
+                        "schema_version": "glitch.topstep.cycle_event.v2",
+                        "event": "outbox_retained_gateway_receipt",
+                        "recorded_utc": utc_now(),
+                        "packet_id": packet_id,
+                        "intent_id": intent_id,
+                    },
+                )
+                return False
+            if status not in (404, 410):
+                append_jsonl(
+                    state / "events.jsonl",
+                    {
+                        "schema_version": "glitch.topstep.cycle_event.v2",
+                        "event": "outbox_retained_delivery_unknown",
+                        "recorded_utc": utc_now(),
+                        "packet_id": packet_id,
+                        "intent_id": intent_id,
+                        "http_status": status,
+                    },
+                )
+                return False
         reason = "stored_packet_not_found"
     if reason is None:
         return False
