@@ -1,0 +1,61 @@
+{
+  "schema_version": "glitch.topstep.execution_facts.v1",
+  "after_sequence": 0,
+  "high_water_sequence": 3,
+  "count": 3,
+  "facts": [
+    {
+      "sequence": 1,
+      "fact_id": "fact:3f0435e5-dc64-4838-998b-38b8139dc2b4:intent_admitted",
+      "intent_id": "3f0435e5-dc64-4838-998b-38b8139dc2b4",
+      "phase": "intent_admitted",
+      "revision": 1,
+      "recorded_utc": "2026-08-19T20:48:18.382Z",
+      "status": "live",
+      "superseded_utc": null,
+      "superseded_by": null,
+      "content_hash": "",
+      "detail": {
+        "action": "ENTER_SHORT",
+        "decision_latency_ms": 18
+      },
+      "diagnostics": {}
+    },
+    {
+      "sequence": 2,
+      "fact_id": "fact:3f0435e5-dc64-4838-998b-38b8139dc2b4:intent_rejected",
+      "intent_id": "3f0435e5-dc64-4838-998b-38b8139dc2b4",
+      "phase": "intent_rejected",
+      "revision": 1,
+      "recorded_utc": "2026-08-19T20:48:19.722Z",
+      "status": "live",
+      "superseded_utc": null,
+      "superseded_by": null,
+      "content_hash": "",
+      "detail": {
+        "status": "rejected",
+        "code": "projectx_mutation_rejected",
+        "provider_order_id": null,
+        "transport_or_provider_detail": "ProjectXApiError:Trading is currently unavailable."
+      },
+      "diagnostics": {}
+    },
+    {
+      "sequence": 3,
+      "fact_id": "fact:33fa8e1e-d19c-422d-ac43-efb12061d97c:intent_admitted",
+      "intent_id": "33fa8e1e-d19c-422d-ac43-efb12061d97c",
+      "phase": "intent_admitted",
+      "revision": 1,
+      "recorded_utc": "2026-08-19T20:49:25.262Z",
+      "status": "live",
+      "superseded_utc": null,
+      "superseded_by": null,
+      "content_hash": "",
+      "detail": {
+        "action": "ENTER_SHORT",
+        "decision_latency_ms": 12
+      },
+      "diagnostics": {}
+    }
+  ]
+}
