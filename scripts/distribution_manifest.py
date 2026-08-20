@@ -16,7 +16,7 @@ STAGING_ARTIFACTS = frozenset({".git", ".gitattributes"})
 
 PROMPT_VERSION = "glitch-topstep-v10"
 MIN_GATEWAY_VERSION = "0.2.0"
-TESTED_GATEWAY_VERSION = "0.2.0"
+TESTED_GATEWAY_VERSION = "0.2.1"
 
 
 def read_distribution_version(root: Path | None = None) -> str:

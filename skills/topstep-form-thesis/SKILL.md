@@ -14,12 +14,13 @@ State one explicit regime label from packet evidence:
 - `TREND_UP` — aligned higher-timeframe location and slope support continuation higher.
 - `TREND_DOWN` — aligned higher-timeframe location and slope support continuation lower.
 - `CHOP` — overlapping structure, conflicting slopes, or mid-range location without directional edge.
+- `TRANSITION` — 5m and 60m location/slope disagree; lower conviction and prefer smaller size or NOTHING until one side resolves.
 - `LOW_LIQUIDITY` — thin tape or sparse order-flow windows; reduce conviction and prefer smaller size or NOTHING.
 - `DATA_DEGRADED` — incomplete state, `data_quality.issues` (including `quote_clock_skew` or `order_flow_depth_unavailable`), observation or order-flow `last_error`, stale quotes, or `CURRENT_CYCLE.continuity_gap.present`.
 
 ## HTF hierarchy
 
-Prefer the 60m timeframe for regime and location: `range_position_20` extremes plus `ema_20_slope_bps` and `ema_50_slope_bps`. Use 5m for local structure and 1m for immediate timing and invalidation. Timeframes are complementary descriptions, not a mandatory confirmation stack. A valid short-horizon thesis may exist when they conflict; conflict lowers confidence and may require smaller quantity or a different stop, but does not automatically force `NOTHING`.
+Prefer the 60m timeframe for regime and location: `range_position_20` extremes plus `ema_20_slope_bps` and `ema_50_slope_bps`. Use 5m for local structure and 1m for immediate timing and invalidation. When `packet.regime` is `TRANSITION`, treat 5m/60m conflict as explicit — do not pretend alignment. When `structural_levels.levels` is present, anchor invalidation and participation conditions to named levels and provenance instead of inventing price bands. When `price_delta_relationship.summary` is `conflict`, weigh tape disagreement in bull/bear/flat cases. Timeframes are complementary descriptions, not a mandatory confirmation stack. A valid short-horizon thesis may exist when they conflict; conflict lowers confidence and may require smaller quantity or a different stop, but does not automatically force `NOTHING`.
 
 ## Participation breadth
 
@@ -58,7 +59,11 @@ When `recent_frames` is non-empty, open `decisive_evidence` with `prior_hypothes
 
 ## Price zones
 
-Do not cite hardcoded price bands (e.g. "28010–28015") unless `reference_levels` or equivalent structural levels are present in the packet. Use supplied features, session range, and observation features instead.
+Prefer `structural_levels.levels` when present. Do not cite hardcoded price bands (e.g. "28010–28015") unless `structural_levels`, `reference_levels`, or equivalent structural levels are present in the packet. Use supplied features, session range, and observation features instead.
+
+## Optional decision_scores (cognitive only)
+
+You may attach `decision_scores` as a top-level dict of numeric hypothesis scores (for example `{"continuation_long": 0.62, "mean_reversion_short": 0.41}`). The worker persists it locally and strips it before gateway delivery. It is never a wire field, never a worker gate, and never a substitute for `decision_audit` text.
 
 ## Thesis rules
 

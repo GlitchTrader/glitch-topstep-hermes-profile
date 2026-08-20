@@ -13,12 +13,12 @@
       118
     ],
     "implementation_note": "Paired fixtures through EXEC-01/MULTI (#118). GTHP-TRIGGER-01 lifecycle + GTHP-OPS-01 learner defer/status (#118). Frozen cognition eval workflow (#118). Production audit follow-ups GTHP-AUDIT-01 through GTHP-AUDIT-06 opened on 2026-08-20; the stale decision index is P0 and blocks live promotion.",
-    "validation": "199 profile tests passed with 1 expected skip; production audit reproduced stale indexed decisions after the first JSONL bootstrap."
+    "validation": "209 profile tests passed with 1 expected skip; GTHP-031/032 structural evidence and calibration metrics closed; production audit reproduced stale indexed decisions after the first JSONL bootstrap."
   },
-  "profile_version": "0.2.0",
+  "profile_version": "0.2.1",
   "gateway": {
     "repository": "GlitchTrader/glitch-topstep",
-    "current_version": "0.2.0",
+    "current_version": "0.2.1",
     "intent_schema": "glitch.intent.v3",
     "decision_packet_schemas": [
       "glitch.direct.decision_packet.v1",
@@ -738,6 +738,47 @@
         "scripts/packet_model.py sanitize_market_for_model",
         "scripts/parity.py compact_receipt_row field/error",
         "distribution 0.1.31"
+      ]
+    },
+    {
+      "id": "GTHP-031",
+      "title": "Structural packet evidence, decision_scores, regime TRANSITION (#74)",
+      "status": "done",
+      "priority": "P2",
+      "owner_role": "architect",
+      "issue": 74,
+      "depends_on": [
+        "GTHP-029"
+      ],
+      "evidence": [
+        "docs/specs/GTHP-031.md",
+        "scripts/regime.py TRANSITION",
+        "scripts/packet_model.py structural_levels price_delta_relationship regime",
+        "scripts/run-topstep-cycle.py OPTIONAL_AUDIT_FIELDS decision_scores",
+        "skills/topstep-observe-market/SKILL.md",
+        "skills/topstep-form-thesis/SKILL.md",
+        "distribution 0.2.1"
+      ]
+    },
+    {
+      "id": "GTHP-032",
+      "title": "Calibration metrics and NOTHING accountability (#75)",
+      "status": "done",
+      "priority": "P3",
+      "owner_role": "architect",
+      "issue": 75,
+      "depends_on": [
+        "GTHP-031"
+      ],
+      "evidence": [
+        "docs/specs/GTHP-031.md",
+        "scripts/calibration_metrics.py",
+        "scripts/parity.py compute_nothing_counterfactual review_change_condition",
+        "scripts/run-topstep-learning.py calibration_metrics weekly evidence",
+        "skills/topstep-assess-risk/SKILL.md",
+        "skills/topstep-learning-loop/SKILL.md",
+        "docs/evidence/ISSUE-74-75-proof-2026-08-20.md",
+        "distribution 0.2.1"
       ]
     },
     {

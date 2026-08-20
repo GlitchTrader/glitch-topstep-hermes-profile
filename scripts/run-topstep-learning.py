@@ -40,13 +40,16 @@ from common import (
     write_json_atomic,
     write_jsonl_atomic,
 )
+from calibration_metrics import compute_session_metrics
 from parity import (
     PROMPT_VERSION,
     classify_delivery_result,
     classify_gateway_rejection,
+    compute_nothing_counterfactual,
     debrief_evidence,
     debrief_prompt_evidence,
     frame_for_packet_id,
+    review_change_condition,
     suggest_flat_abstention_classification,
 )
 
@@ -180,7 +183,7 @@ def collect_decision_episodes(state_root: Path, supervisor: Path) -> list[dict[s
         account = packet.get("account") if isinstance(packet.get("account"), dict) else {}
         contract = packet.get("contract") if isinstance(packet.get("contract"), dict) else {}
         delivery_result = receipt.get("result") if isinstance(receipt.get("result"), dict) else {}
-        records.append({
+        record: dict[str, Any] = {
             "schema_version": "glitch.topstep.decision_episode.v1",
             "episode_id": stable_id("decision-episode", intent_id),
             "recorded_utc": utc_now(),
@@ -228,7 +231,42 @@ def collect_decision_episodes(state_root: Path, supervisor: Path) -> list[dict[s
                 else None
             ),
             "classification_owner": "hermes",
-        })
+        }
+        if flat_nothing:
+            counterfactual = compute_nothing_counterfactual(
+                {
+                    "action": action,
+                    "contract": contract,
+                    "decision_audit": intent.get("decision_audit"),
+                    "packet": packet,
+                    "pre_decision_state": record["pre_decision_state"],
+                },
+                future,
+            )
+            record.update(
+                counterfactual_classification=counterfactual["classification"],
+                counterfactual_mfe_ticks=counterfactual["mfe_ticks"],
+                counterfactual_mae_ticks=counterfactual["mae_ticks"],
+            )
+            next_frame = read_optional_json(future_paths[-1]) or {}
+            if isinstance(next_frame, dict):
+                subsequent = next(
+                    (
+                        row.get("intent")
+                        for row in read_jsonl(state_root / "decisions.jsonl")
+                        if isinstance(row.get("intent"), dict)
+                        and str(row.get("packet_id") or "") > packet_id
+                    ),
+                    None,
+                )
+                if isinstance(subsequent, dict):
+                    next_frame = dict(next_frame)
+                    next_frame["subsequent_intent"] = subsequent
+                record["change_condition_review"] = review_change_condition(
+                    {**intent, "packet": packet},
+                    next_frame,
+                )
+        records.append(record)
         seen_intents.add(intent_id)
         existing.add(intent_id)
 
@@ -1028,6 +1066,7 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
                     "scope": {"kind": "weekly_distillation", "daily_journal_count": len(daily_journals)},
                     "daily_journals": bounded_learning_rows(daily_journals[-7:], 7, 260_000),
                     "recent_plans": bounded_learning_rows(plans[-4:], 4, 160_000),
+                    "calibration_metrics": compute_session_metrics(state_root),
                 },
                 [proposal_id],
                 supervisor,

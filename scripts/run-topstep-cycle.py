@@ -33,6 +33,7 @@ from packet_model import (
     packet_for_cycle,
     packet_for_model as build_model_packet,
 )
+from regime import detect_regime
 from trigger_lifecycle import (
     consume_pending_held_rescan,
     pending_held_rescan_reason,
@@ -126,6 +127,7 @@ AUDIT_FIELDS = {
     "change_condition",
     "final_choice",
 }
+OPTIONAL_AUDIT_FIELDS = {"decision_scores"}
 GATEWAY_REASON_MAX_LENGTH = 1000
 GATEWAY_AUDIT_FIELD_MAX_LENGTH = 5000
 ACTION_PLACEHOLDER = "<CHOOSE_FROM_supported_actions>"
@@ -921,7 +923,9 @@ def validate_intent(
         raise ValueError("unsupported_action")
 
     allowed_fields = allowed_intent_fields(action)
-    unknown = set(intent).difference(allowed_fields | {"wake_triggers"})
+    unknown = set(intent).difference(
+        allowed_fields | {"wake_triggers"} | OPTIONAL_AUDIT_FIELDS
+    )
     required_fields = CORE_FIELDS if intent.get("schema_version") == "glitch.intent.v3" else (CORE_FIELDS - DECISION_IDENTITY_FIELDS)
     missing = required_fields.difference(intent)
     if unknown:
@@ -979,6 +983,20 @@ def validate_intent(
         != str(packet.get("instrument") or "").upper()
     ):
         raise ValueError("selected_instrument_not_executable_in_current_scope")
+
+    scores = intent.get("decision_scores")
+    if scores is not None:
+        if not isinstance(scores, dict) or not scores:
+            raise ValueError("decision_scores_invalid")
+        for key, value in scores.items():
+            if not isinstance(key, str) or not key.strip():
+                raise ValueError("decision_scores_invalid")
+            if (
+                not isinstance(value, (int, float))
+                or isinstance(value, bool)
+                or not math.isfinite(float(value))
+            ):
+                raise ValueError("decision_scores_invalid")
 
     wake_triggers = intent.get("wake_triggers")
     if wake_triggers is not None:
@@ -1175,6 +1193,7 @@ def prepare_intent_for_delivery(
     # wake_triggers drives the local scheduler and is not part of glitch.intent.v3 on the gateway.
     # Validate the complete decision first, then project the already-valid wire payload.
     aligned.pop("wake_triggers", None)
+    aligned.pop("decision_scores", None)
     return aligned
 
 
@@ -1182,6 +1201,7 @@ def post_intent(intent: dict[str, Any]) -> dict[str, Any]:
     wire = copy.deepcopy(intent)
     wire.pop("wake_triggers", None)
     wire.pop("wake_trigger", None)
+    wire.pop("decision_scores", None)
     try:
         status, body = request_json(
             "/intent",
