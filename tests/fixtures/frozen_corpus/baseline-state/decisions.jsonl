@@ -1,0 +1,2 @@
+{"schema_version":"glitch.topstep.decision_record.v2","recorded_utc":"2026-08-20T12:00:00Z","packet_id":"20260820T1200Z","intent":{"action":"NOTHING","created_utc":"2026-08-20T12:00:00Z","intent_id":"00000000-0000-4000-8000-000000000001"}}
+{"schema_version":"glitch.topstep.decision_record.v2","recorded_utc":"2026-08-20T12:01:00Z","packet_id":"20260820T1201Z","intent":{"action":"ENTER_LONG","created_utc":"2026-08-20T12:01:00Z","intent_id":"00000000-0000-4000-8000-000000000002"}}

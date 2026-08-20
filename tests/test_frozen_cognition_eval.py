@@ -1,14 +1,28 @@
 import importlib.util
+import json
+import sys
+import tempfile
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SPEC = importlib.util.spec_from_file_location(
-    "frozen_eval", ROOT / "scripts" / "evaluate-frozen-cognition.py"
+SCRIPTS = ROOT / "scripts"
+FIXTURES = ROOT / "tests" / "fixtures" / "frozen_corpus"
+sys.path.insert(0, str(SCRIPTS))
+
+EVAL_SPEC = importlib.util.spec_from_file_location(
+    "frozen_eval", SCRIPTS / "evaluate-frozen-cognition.py"
 )
-MODULE = importlib.util.module_from_spec(SPEC)
-assert SPEC and SPEC.loader
-SPEC.loader.exec_module(MODULE)
+EVAL = importlib.util.module_from_spec(EVAL_SPEC)
+assert EVAL_SPEC and EVAL_SPEC.loader
+EVAL_SPEC.loader.exec_module(EVAL)
+
+RUN_SPEC = importlib.util.spec_from_file_location(
+    "run_frozen_cognition", SCRIPTS / "run-frozen-cognition.py"
+)
+RUN = importlib.util.module_from_spec(RUN_SPEC)
+assert RUN_SPEC and RUN_SPEC.loader
+RUN_SPEC.loader.exec_module(RUN)
 
 
 class FrozenCognitionEvalTests(unittest.TestCase):
@@ -25,7 +39,7 @@ class FrozenCognitionEvalTests(unittest.TestCase):
             "decisions": [{"frame_id": "1", "action": "ENTER_LONG", "rejection": "range",
                            "abstention_classification": None}],
         }
-        report = MODULE.compare_runs(baseline, candidate)
+        report = EVAL.compare_runs(baseline, candidate)
         self.assertEqual(report["changed_frames"], 1)
         self.assertFalse(report["armed_promotion_allowed"])
         self.assertEqual(
@@ -37,7 +51,24 @@ class FrozenCognitionEvalTests(unittest.TestCase):
         left = {"prompt_version": "a", "corpus_hash": "1", "decisions": []}
         right = {"prompt_version": "b", "corpus_hash": "2", "decisions": []}
         with self.assertRaisesRegex(ValueError, "frozen_corpus_hash_mismatch"):
-            MODULE.compare_runs(left, right)
+            EVAL.compare_runs(left, right)
+
+    def test_builds_runs_from_frozen_corpus_and_diffs_prompt_versions(self):
+        baseline = RUN.build_run(
+            frames_dir=FIXTURES / "minute-frames",
+            state_root=FIXTURES / "baseline-state",
+            prompt_version="glitch-topstep-v9",
+        )
+        candidate = RUN.build_run(
+            frames_dir=FIXTURES / "minute-frames",
+            state_root=FIXTURES / "candidate-state",
+            prompt_version="glitch-topstep-v10",
+        )
+        self.assertEqual(baseline["corpus_hash"], candidate["corpus_hash"])
+        report = EVAL.compare_runs(baseline, candidate)
+        self.assertEqual(report["frames_compared"], 2)
+        self.assertEqual(report["changed_frames"], 1)
+        self.assertFalse(report["armed_promotion_allowed"])
 
 
 if __name__ == "__main__":
