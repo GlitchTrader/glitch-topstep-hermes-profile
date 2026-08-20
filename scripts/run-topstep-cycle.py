@@ -39,6 +39,7 @@ from trigger_lifecycle import (
     persist_comparison_triggers,
 )
 from scanner_contract import comparison_template, validate_comparison_ledger
+from cognition_cycle import recent_cycle_context
 from common import (
     PROFILE_NAME,
     acquire_cycle_lock,
@@ -533,17 +534,7 @@ def consume_directive(
 
 
 def recent_context(root: Path) -> dict[str, Any]:
-    supervisor = root / "supervisor"
-    context = learning_context(supervisor)
-    tail_limit = 4
-    context.update(
-        compact_cycle_ledger_context(
-            decisions=tail_jsonl(root / "decisions.jsonl", tail_limit),
-            receipts=tail_jsonl(root / "receipts.jsonl", tail_limit),
-            outcomes=tail_jsonl(root / "outcomes.jsonl", tail_limit),
-        )
-    )
-    return context
+    return recent_cycle_context(root, tail_limit=4)
 
 
 CYCLE_OPERATOR_INSTRUCTION = (

@@ -1119,6 +1119,8 @@ def compact_cycle_ledger_context(
 
 
 def learning_context(supervisor: Path) -> dict[str, Any]:
+    from learning_clusters import build_similarity_clusters, summarize_clusters
+
     overlay = read_optional_json(supervisor / "active-cognitive-overlay.json")
     if (
         not overlay
@@ -1137,6 +1139,10 @@ def learning_context(supervisor: Path) -> dict[str, Any]:
         ),
         "active_cognitive_overlay": overlay,
         "outcome_backed_lessons": summarized_outcome_backed_lessons(supervisor),
+        "similarity_clusters": summarize_clusters(
+            build_similarity_clusters(read_jsonl(supervisor / "decision-episodes.jsonl")),
+            limit=3,
+        ),
     }
 
 
