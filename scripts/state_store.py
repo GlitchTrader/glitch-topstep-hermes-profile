@@ -50,7 +50,8 @@ class ProfileStateStore:
         row = self.db.execute(
             "SELECT value FROM sync_meta WHERE key = 'decisions_jsonl_lines'"
         ).fetchone()
-        skip = int(row[0]) if row else 0
+        initial_skip = int(row[0]) if row else 0
+        skip = initial_skip
         pending: list[str] = []
         for raw in jsonl_path.read_text(encoding="utf-8").splitlines():
             if not raw.strip():
@@ -72,7 +73,7 @@ class ProfileStateStore:
                 INSERT INTO sync_meta(key, value) VALUES ('decisions_jsonl_lines', ?)
                 ON CONFLICT(key) DO UPDATE SET value = excluded.value
                 """,
-                (str(skip + len(pending)),),
+                (str(initial_skip + len(pending)),),
             )
 
     def bootstrap_decisions(self, jsonl_path: Path) -> None:
