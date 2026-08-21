@@ -1394,7 +1394,7 @@ class DirectCycleTests(unittest.TestCase):
             return_value=Path(root),
         ), mock.patch.object(
             MODULE,
-            "acquire_cycle_lock",
+            "acquire_model_owner",
             return_value=True,
         ), mock.patch.object(
             MODULE,
