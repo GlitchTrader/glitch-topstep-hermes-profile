@@ -78,6 +78,7 @@ from common import (
     read_optional_json,
     request_json,
     sync_gateway_outcomes,
+    bootstrap_profile_state,
     tail_jsonl,
     use_hermes_model_routing,
     utc_now,
@@ -124,6 +125,7 @@ from parity import (
 )
 
 TRADING_SOURCE = "trading"
+_ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*m")
 ALLOWED_ACTIONS = {
     "ENTER_LONG",
     "ENTER_SHORT",
@@ -798,8 +800,11 @@ def invoke_hermes(
         ),
     )
     if completed.returncode != 0:
+        stderr = _ANSI_ESCAPE.sub("", completed.stderr or "").strip()
+        stdout = _ANSI_ESCAPE.sub("", completed.stdout or "").strip()
+        detail = stderr or stdout
         raise RuntimeError(
-            f"hermes_failed:{completed.returncode}:{completed.stderr.strip()[:400]}"
+            f"hermes_failed:{completed.returncode}:{detail[:400]}"
         )
     return extract_single_json_object(
         completed.stdout,
@@ -1374,7 +1379,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     verify_gateway_compatibility(health)
 
     state = state_root(root)
-    sync_gateway_outcomes(state)
+    bootstrap_profile_state(state)
 
     packet_status, packet = request_json("/packet", token=token)
     if packet_status != 200:

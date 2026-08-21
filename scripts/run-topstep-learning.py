@@ -35,6 +35,7 @@ from common import (
     read_jsonl,
     read_optional_json,
     sync_gateway_outcomes_meta,
+    bootstrap_profile_state,
     sync_gateway_execution_facts,
     utc_now,
     write_json_atomic,
@@ -925,7 +926,7 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
     supervisor.mkdir(parents=True, exist_ok=True)
     state_path = supervisor / "learning-state.json"
     state = read_optional_json(state_path) or {"schema_version": "glitch.topstep.learning_state.v1"}
-    sync_meta = sync_gateway_outcomes_meta(state_root)
+    sync_meta = bootstrap_profile_state(state_root)
     execution_facts_meta = sync_gateway_execution_facts(state_root)
     outcome_file = outcomes_path(root)
     all_outcomes = canonical_outcomes(outcome_file)
