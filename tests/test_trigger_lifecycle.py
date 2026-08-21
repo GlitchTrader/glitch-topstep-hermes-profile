@@ -91,13 +91,32 @@ class TriggerLifecycleTests(unittest.TestCase):
         self.assertEqual(mnq["status"], "FAILED")
 
     def test_nothing_with_held_trigger_schedules_rescan(self):
-        intent = _intent_from_ledger(_ledger("trigger-mnq"))
+        ledger = _ledger("trigger-mnq")
+        for row in ledger["candidates"]:
+            for trigger in row["triggers"]:
+                trigger["expires_utc"] = "2099-01-01T12:05:00Z"
+        intent = _intent_from_ledger(ledger)
+        intent["expires_utc"] = "2099-01-01T12:05:00Z"
         with tempfile.TemporaryDirectory() as tmp:
             state = Path(tmp) / "state"
             TL.persist_comparison_triggers(state, intent, "packet-1")
             pending_path = TL.pending_held_rescan_path(state / "supervisor")
             self.assertTrue(pending_path.is_file())
             self.assertEqual(TL.pending_held_rescan_reason(state), "held_rescan")
+
+    def test_expired_held_does_not_schedule_rescan(self):
+        ledger = _ledger("trigger-mnq", status="HELD", condition="cross 20000")
+        for row in ledger["candidates"]:
+            for trigger in row["triggers"]:
+                trigger["expires_utc"] = "2000-01-01T12:05:00Z"
+        intent = _intent_from_ledger(ledger)
+        intent["expires_utc"] = "2000-01-01T12:05:00Z"
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp) / "state"
+            TL.persist_comparison_triggers(state, intent, "packet-1")
+            pending_path = TL.pending_held_rescan_path(state / "supervisor")
+            self.assertFalse(pending_path.is_file())
+            self.assertIsNone(TL.pending_held_rescan_reason(state))
 
     def test_ratchet_without_status_change_is_rejected(self):
         prior = {"trigger-mnq": {
