@@ -40,5 +40,5 @@ jobs:
       - run: python -c "import pathlib, py_compile; [py_compile.compile(str(p), doraise=True) for p in pathlib.Path('scripts').glob('*.py')]; py_compile.compile('plugins/topstep-control/__init__.py', doraise=True)"
       - run: python scripts/check_profile_quality.py
       - name: unittest (windows)
-        shell: cmd
-        run: python -m unittest discover -s tests -p "test_*.py"
+        shell: pwsh
+        run: python -m unittest discover -s tests -p 'test_*.py'
