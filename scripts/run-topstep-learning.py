@@ -657,6 +657,28 @@ def auto_overlay_enabled() -> bool:
     return os.environ.get("GLITCH_TOPSTEP_AUTO_ACTIVATE_OVERLAY", "false").strip().lower() == "true"
 
 
+OVERLAY_LIFECYCLE: dict[str, frozenset[str]] = {
+    "proposed": frozenset({"holdout_evaluated", "active", "rolled_back"}),
+    "holdout_evaluated": frozenset({"shadow", "rolled_back"}),
+    "shadow": frozenset({"canary", "expired", "rolled_back"}),
+    "canary": frozenset({"active", "expired", "rolled_back"}),
+    "active": frozenset({"promoted", "expired", "rolled_back"}),
+    "promoted": frozenset({"expired", "rolled_back"}),
+    "activated": frozenset({"promoted", "expired", "rolled_back"}),
+    "expired": frozenset(),
+    "rolled_back": frozenset(),
+}
+
+
+def transition_overlay_lifecycle(overlay: dict[str, Any], next_status: str) -> None:
+    current = str(overlay.get("status") or "")
+    allowed = OVERLAY_LIFECYCLE.get(current, frozenset())
+    if next_status not in allowed:
+        raise ValueError("overlay_lifecycle_transition_invalid")
+    overlay["status"] = next_status
+    overlay["evaluated_utc"] = utc_now()
+
+
 def overlay_min_episodes() -> int:
     try:
         return max(2, int(os.environ.get("GLITCH_TOPSTEP_OVERLAY_MIN_EPISODES", "6")))
@@ -729,15 +751,34 @@ def apply_cognitive_decision(record: dict[str, Any], supervisor: Path, episode_i
             trade_evidence_ids(supervisor)
         )
         later = [value for value in decision.get("evidence_episode_ids", []) if value in later_episode_ids]
-        if len(set(later)) < 1 or action not in {"continue", "promote", "rollback"} or not contradiction_review:
+        if len(set(later)) < 1 or action not in {
+            "continue",
+            "promote",
+            "rollback",
+            "holdout_pass",
+            "shadow_pass",
+            "canary_pass",
+            "expire",
+        } or not contradiction_review:
             return
-        active["status"] = {"continue": "active", "promote": "promoted", "rollback": "rolled_back"}[action]
-        active["evaluated_utc"] = utc_now()
+        if action == "continue":
+            pass
+        elif action == "promote":
+            transition_overlay_lifecycle(active, "promoted")
+        elif action == "rollback":
+            transition_overlay_lifecycle(active, "rolled_back")
+            active.pop("replacement_text", None)
+        elif action == "holdout_pass":
+            transition_overlay_lifecycle(active, "holdout_evaluated")
+        elif action == "shadow_pass":
+            transition_overlay_lifecycle(active, "shadow")
+        elif action == "canary_pass":
+            transition_overlay_lifecycle(active, "canary")
+        elif action == "expire":
+            transition_overlay_lifecycle(active, "expired")
         active["evaluation_episode_count"] = len(episode_ids)
         active["baseline_evidence_ids"] = list(episode_ids)
         active["evaluation"] = decision
-        if action == "rollback":
-            active.pop("replacement_text", None)
         write_json_atomic(active_path, active)
         return
 
@@ -757,11 +798,14 @@ def apply_cognitive_decision(record: dict[str, Any], supervisor: Path, episode_i
     later = [value for value in decision.get("evidence_episode_ids", []) if value in later_episode_ids]
     if len(set(later)) < 1 or not contradiction_review:
         return
-    proposed["status"] = "activated" if action == "activate" else "rolled_back"
-    proposed["evaluated_utc"] = utc_now()
-    proposed["evaluation"] = decision
-    if action == "rollback":
+    if action == "activate":
+        transition_overlay_lifecycle(proposed, "active")
+    elif action == "rollback":
+        transition_overlay_lifecycle(proposed, "rolled_back")
         proposed.pop("replacement_text", None)
+    else:
+        return
+    proposed["evaluation"] = decision
     write_json_atomic(proposed_path, proposed)
     if action == "activate":
         write_json_atomic(
@@ -1095,7 +1139,6 @@ def main() -> int:
     state = root / "state"
     supervisor = state / "supervisor"
     supervisor.mkdir(parents=True, exist_ok=True)
-    lock_path = state / "learning-cycle.lock"
     run_id = stable_id("learning-run", utc_now())
     started_utc = utc_now()
     if not acquire_model_owner(state, owner_kind="learning", invocation_id=run_id):
