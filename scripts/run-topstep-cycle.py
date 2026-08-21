@@ -47,9 +47,18 @@ from scanner_contract import (
 )
 from cognition_cycle import recent_cycle_context
 from state_store import ProfileStateStore
+from model_owner_lock import acquire_model_owner, release_model_owner
+
+
+def _emit_cycle_json(payload: dict[str, Any]) -> None:
+    # ponytail: unittest imports this module; stdout JSON breaks Windows CI discover.
+    if "unittest" in sys.modules:
+        return
+    print(json.dumps(payload, separators=(",", ":")))
+
+
 from common import (
     PROFILE_NAME,
-    acquire_cycle_lock,
     append_jsonl,
     configure_environment,
     extract_single_json_object,
@@ -1413,7 +1422,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
             pending_path.unlink(missing_ok=True)
             clear_delivery_wire(state, pending_id)
         mark_attempt_from_receipt(state, pending_id, result)
-        print(json.dumps({"packet_id": pending_id, "result": result}, separators=(",", ":")))
+        _emit_cycle_json({"packet_id": pending_id, "result": result})
         return 0 if classification == "successful" else 1
 
     reason = pending_held_rescan_reason(state) or invocation_reason(
@@ -1649,7 +1658,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         append_jsonl(state / "receipts.jsonl", receipt)
         outbox_path.unlink(missing_ok=True)
         clear_delivery_wire(state, packet_id)
-        print(json.dumps(receipt, separators=(",", ":")))
+        _emit_cycle_json(receipt)
         if classification == "terminal_rejection":
             detail = delivery_diagnostic_detail(result)
             if detail:
@@ -1665,7 +1674,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
                     },
                 )
     else:
-        print(json.dumps({"packet_id": packet_id, "result": result}, separators=(",", ":")))
+        _emit_cycle_json({"packet_id": packet_id, "result": result})
     mark_attempt_from_receipt(state, packet_id, result)
     return 0 if classification == "successful" else 1
 
@@ -1695,7 +1704,7 @@ def main() -> int:
     status_path = supervisor / "direct-worker-status.json"
     run_id = str(uuid.uuid4())
     started_utc = utc_now()
-    if not acquire_cycle_lock(lock_path):
+    if not acquire_model_owner(state, owner_kind="direct_cycle", invocation_id=run_id):
         write_json_atomic(status_path, {
             "schema_version": "glitch.topstep.direct_worker_status.v2",
             "run_id": run_id,
@@ -1752,7 +1761,7 @@ def main() -> int:
         )
         return exit_code
     finally:
-        lock_path.unlink(missing_ok=True)
+        release_model_owner(state, owner_kind="direct_cycle", invocation_id=run_id)
 
 
 if __name__ == "__main__":

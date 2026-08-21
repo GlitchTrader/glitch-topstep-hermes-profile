@@ -1,0 +1,190 @@
+"""Single atomic Hermes CLI ownership lock (GTHP-RUNTIME-01 / Wave 1)."""
+
+from __future__ import annotations
+
+import json
+import os
+import time
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Literal
+
+from common import append_jsonl, process_matches_owner, process_start_utc, read_json, utc_now
+
+OwnerKind = Literal["direct_cycle", "learning", "wake_monitor", "repair"]
+OwnerState = Literal[
+    "waiting",
+    "active",
+    "deferred",
+    "preempted",
+    "recovered",
+    "failed",
+    "completed",
+]
+
+PRIORITY = {
+    "direct_cycle": 100,
+    "repair": 90,
+    "wake_monitor": 80,
+    "learning": 10,
+}
+
+MODEL_OWNER_FILENAME = "model-owner.lock"
+STATUS_FILENAME = "model-owner-status.json"
+
+
+def model_owner_lock_path(state: Path) -> Path:
+    return state / MODEL_OWNER_FILENAME
+
+
+def model_owner_status_path(state: Path) -> Path:
+    return state / "supervisor" / STATUS_FILENAME
+
+
+def _owner_alive(owner: dict[str, Any]) -> bool:
+    pid = int(owner.get("pid") or 0)
+    if pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)
+    except OSError:
+        return False
+    return process_matches_owner(pid, owner.get("process_start_utc"))
+
+
+def read_model_owner(lock_path: Path) -> dict[str, Any] | None:
+    if not lock_path.is_file():
+        return None
+    try:
+        owner = read_json(lock_path)
+    except (OSError, ValueError, json.JSONDecodeError):
+        return None
+    return owner if isinstance(owner, dict) else None
+
+
+def publish_model_owner_status(state: Path, payload: dict[str, Any]) -> None:
+    path = model_owner_status_path(state)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
+
+
+def acquire_model_owner(
+    state: Path,
+    *,
+    owner_kind: OwnerKind,
+    invocation_id: str,
+    priority: int | None = None,
+) -> bool:
+    lock_path = model_owner_lock_path(state)
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    effective_priority = priority if priority is not None else PRIORITY[owner_kind]
+    started = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    payload = {
+        "schema_version": "glitch.topstep.model_owner.v1",
+        "owner_kind": owner_kind,
+        "invocation_id": invocation_id,
+        "pid": os.getpid(),
+        "process_start_utc": (process_start_utc(os.getpid()) or datetime.now(timezone.utc))
+        .isoformat()
+        .replace("+00:00", "Z"),
+        "acquired_utc": started,
+        "priority": effective_priority,
+        "state": "active",
+    }
+    for _ in range(3):
+        try:
+            descriptor = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError:
+            current = read_model_owner(lock_path)
+            if current is None:
+                try:
+                    lock_path.unlink(missing_ok=True)
+                except OSError:
+                    return False
+                continue
+            if not _owner_alive(current):
+                try:
+                    lock_path.unlink(missing_ok=True)
+                except OSError:
+                    return False
+                append_jsonl(
+                    state / "events.jsonl",
+                    {
+                        "schema_version": "glitch.topstep.cycle_event.v2",
+                        "event": "model_owner_recovered",
+                        "recorded_utc": utc_now(),
+                        "previous_owner_kind": current.get("owner_kind"),
+                    },
+                )
+                continue
+            current_priority = int(current.get("priority") or 0)
+            if effective_priority > current_priority:
+                append_jsonl(
+                    state / "events.jsonl",
+                    {
+                        "schema_version": "glitch.topstep.cycle_event.v2",
+                        "event": "model_owner_preempted",
+                        "recorded_utc": utc_now(),
+                        "preempted_owner_kind": current.get("owner_kind"),
+                        "winner_owner_kind": owner_kind,
+                    },
+                )
+                try:
+                    lock_path.unlink(missing_ok=True)
+                except OSError:
+                    return False
+                continue
+            publish_model_owner_status(
+                state,
+                {
+                    "schema_version": "glitch.topstep.model_owner_status.v1",
+                    "recorded_utc": utc_now(),
+                    "state": "deferred",
+                    "owner_kind": owner_kind,
+                    "blocking_owner_kind": current.get("owner_kind"),
+                },
+            )
+            return False
+        else:
+            try:
+                os.write(descriptor, json.dumps(payload, separators=(",", ":")).encode("utf-8"))
+            finally:
+                os.close(descriptor)
+            publish_model_owner_status(state, payload)
+            return True
+    publish_model_owner_status(
+        state,
+        {
+            "schema_version": "glitch.topstep.model_owner_status.v1",
+            "recorded_utc": utc_now(),
+            "state": "waiting",
+            "owner_kind": owner_kind,
+        },
+    )
+    return False
+
+
+def release_model_owner(state: Path, *, owner_kind: OwnerKind, invocation_id: str) -> None:
+    lock_path = model_owner_lock_path(state)
+    current = read_model_owner(lock_path)
+    if not isinstance(current, dict):
+        return
+    if (
+        str(current.get("owner_kind") or "") != owner_kind
+        or str(current.get("invocation_id") or "") != invocation_id
+    ):
+        return
+    try:
+        lock_path.unlink(missing_ok=True)
+    except OSError:
+        return
+    publish_model_owner_status(
+        state,
+        {
+            "schema_version": "glitch.topstep.model_owner_status.v1",
+            "recorded_utc": utc_now(),
+            "state": "completed",
+            "owner_kind": owner_kind,
+            "invocation_id": invocation_id,
+        },
+    )
