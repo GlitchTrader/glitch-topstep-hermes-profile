@@ -41,4 +41,8 @@ jobs:
       - run: python scripts/check_profile_quality.py
       - name: unittest (windows)
         shell: pwsh
-        run: python -m unittest discover -s tests -p 'test_*.py'
+        env:
+          PYTHONPATH: scripts
+        run: |
+          python -m unittest discover -s tests -p 'test_*.py'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
