@@ -784,7 +784,7 @@
     {
       "id": "GTHP-033",
       "title": "Discard superseded pending outbox before delivery retry loop",
-      "status": "open",
+      "status": "done",
       "priority": "P1",
       "owner_role": "delivery_recovery",
       "issue": 138,
@@ -802,6 +802,8 @@
         "HTTP 200 receipt retains outbox; transport unknown retains outbox.",
         "Unit tests cover discard and retain paths; SHA256SUMS regenerated after script changes."
       ],
+      "last_verified_utc": "2026-08-21T01:45:00Z",
+      "implementation_note": "discard_superseded_pending_outbox + discard_superseded_delivery_error in intent_outbox.py; pending branch in run-topstep-cycle.py.",
       "sources": [
         "docs/specs/GTHP-033.md",
         "scripts/workflows/intent_outbox.py",

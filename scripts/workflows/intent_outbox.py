@@ -5,10 +5,19 @@ from __future__ import annotations
 import urllib.error
 import urllib.parse
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
-from common import append_jsonl, read_optional_json, utc_now
+from common import append_jsonl, parse_utc, read_optional_json, utc_now
 from workflows.delivery_recovery import classify_delivery_result
+
+ReceiptGateResult = Literal["discard", "retain_receipt", "retain_unknown"]
+
+SUPERSESSION_DELIVERY_ERRORS = frozenset({
+    "packet_superseded_before_delivery",
+    "entry_intent_expired",
+    "entry_scope_superseded",
+    "entry_range_superseded",
+})
 
 
 def _minute_frames_dir(state_or_frames_root: Path) -> Path:
@@ -83,69 +92,88 @@ def prune_delivered_outboxes(state: Path) -> int:
     return pruned
 
 
-def discard_stale_outbox_intent(
+def gateway_receipt_gate(
     state: Path,
-    outbox_path: Path,
     packet_id: str,
     intent: dict[str, Any],
     *,
     token: str,
-) -> bool:
-    reason: str | None = None
-    if packet_for_outbox_id(state, packet_id) is None:
-        intent_id = str(intent.get("intent_id") or "")
-        if intent_id and token:
-            import parity as parity_module
+) -> ReceiptGateResult:
+    intent_id = str(intent.get("intent_id") or "")
+    if not intent_id or not token:
+        return "discard"
+    import parity as parity_module
 
-            try:
-                status, body = parity_module.request_json(
-                    f"/intent/receipt?intent_id={urllib.parse.quote(intent_id, safe='')}",
-                    token=token,
-                )
-            except (OSError, TimeoutError, urllib.error.URLError):
-                append_jsonl(
-                    state / "events.jsonl",
-                    {
-                        "schema_version": "glitch.topstep.cycle_event.v2",
-                        "event": "outbox_retained_delivery_unknown",
-                        "recorded_utc": utc_now(),
-                        "packet_id": packet_id,
-                        "intent_id": intent_id,
-                    },
-                )
-                return False
-            if status == 200 and isinstance(body, dict):
-                append_jsonl(
-                    state / "events.jsonl",
-                    {
-                        "schema_version": "glitch.topstep.cycle_event.v2",
-                        "event": "outbox_retained_gateway_receipt",
-                        "recorded_utc": utc_now(),
-                        "packet_id": packet_id,
-                        "intent_id": intent_id,
-                    },
-                )
-                return False
-            if status not in (404, 410):
-                append_jsonl(
-                    state / "events.jsonl",
-                    {
-                        "schema_version": "glitch.topstep.cycle_event.v2",
-                        "event": "outbox_retained_delivery_unknown",
-                        "recorded_utc": utc_now(),
-                        "packet_id": packet_id,
-                        "intent_id": intent_id,
-                        "http_status": status,
-                    },
-                )
-                return False
-        reason = "stored_packet_not_found"
-    if reason is None:
-        return False
     try:
-        outbox_path.unlink(missing_ok=True)
-    except OSError:
-        return False
+        status, body = parity_module.request_json(
+            f"/intent/receipt?intent_id={urllib.parse.quote(intent_id, safe='')}",
+            token=token,
+        )
+    except (OSError, TimeoutError, urllib.error.URLError):
+        append_jsonl(
+            state / "events.jsonl",
+            {
+                "schema_version": "glitch.topstep.cycle_event.v2",
+                "event": "outbox_retained_delivery_unknown",
+                "recorded_utc": utc_now(),
+                "packet_id": packet_id,
+                "intent_id": intent_id,
+            },
+        )
+        return "retain_unknown"
+    if status == 200 and isinstance(body, dict):
+        append_jsonl(
+            state / "events.jsonl",
+            {
+                "schema_version": "glitch.topstep.cycle_event.v2",
+                "event": "outbox_retained_gateway_receipt",
+                "recorded_utc": utc_now(),
+                "packet_id": packet_id,
+                "intent_id": intent_id,
+            },
+        )
+        return "retain_receipt"
+    if status not in (404, 410):
+        append_jsonl(
+            state / "events.jsonl",
+            {
+                "schema_version": "glitch.topstep.cycle_event.v2",
+                "event": "outbox_retained_delivery_unknown",
+                "recorded_utc": utc_now(),
+                "packet_id": packet_id,
+                "intent_id": intent_id,
+                "http_status": status,
+            },
+        )
+        return "retain_unknown"
+    return "discard"
+
+
+def supersession_discard_reason(
+    intent: dict[str, Any],
+    current_packet: dict[str, Any],
+    outbox_packet_id: str,
+) -> str | None:
+    expires_utc = intent.get("expires_utc")
+    if expires_utc:
+        try:
+            if parse_utc(expires_utc) < parse_utc(utc_now()):
+                return "packet_lease_expired"
+        except (TypeError, ValueError):
+            pass
+    current_id = str(current_packet.get("packet_id") or "")
+    if current_id and current_id != outbox_packet_id:
+        return "packet_superseded"
+    return None
+
+
+def _emit_discarded_stale_packet(
+    state: Path,
+    *,
+    reason: str,
+    packet_id: str,
+    intent: dict[str, Any],
+) -> None:
     append_jsonl(
         state / "events.jsonl",
         {
@@ -154,7 +182,97 @@ def discard_stale_outbox_intent(
             "reason": reason,
             "recorded_utc": utc_now(),
             "packet_id": packet_id,
+            "intent_id": str(intent.get("intent_id") or ""),
             "action": str(intent.get("action") or ""),
         },
     )
+
+
+def discard_outbox_after_receipt_gate(
+    state: Path,
+    outbox_path: Path,
+    packet_id: str,
+    intent: dict[str, Any],
+    reason: str,
+    *,
+    token: str,
+) -> bool:
+    gate = gateway_receipt_gate(state, packet_id, intent, token=token)
+    if gate != "discard":
+        return False
+    try:
+        outbox_path.unlink(missing_ok=True)
+    except OSError:
+        return False
+    _emit_discarded_stale_packet(
+        state,
+        reason=reason,
+        packet_id=packet_id,
+        intent=intent,
+    )
     return True
+
+
+def discard_superseded_pending_outbox(
+    state: Path,
+    outbox_path: Path,
+    outbox_packet_id: str,
+    intent: dict[str, Any],
+    current_packet: dict[str, Any],
+    *,
+    token: str,
+) -> bool:
+    reason = supersession_discard_reason(intent, current_packet, outbox_packet_id)
+    if reason is None:
+        return False
+    return discard_outbox_after_receipt_gate(
+        state,
+        outbox_path,
+        outbox_packet_id,
+        intent,
+        reason,
+        token=token,
+    )
+
+
+def discard_superseded_delivery_error(
+    state: Path,
+    outbox_path: Path,
+    packet_id: str,
+    intent: dict[str, Any],
+    error: BaseException,
+    *,
+    token: str,
+) -> bool:
+    message = str(error)
+    if message not in SUPERSESSION_DELIVERY_ERRORS:
+        return False
+    reason = message if message != "packet_superseded_before_delivery" else "packet_superseded"
+    return discard_outbox_after_receipt_gate(
+        state,
+        outbox_path,
+        packet_id,
+        intent,
+        reason,
+        token=token,
+    )
+
+
+def discard_stale_outbox_intent(
+    state: Path,
+    outbox_path: Path,
+    packet_id: str,
+    intent: dict[str, Any],
+    *,
+    token: str,
+) -> bool:
+    if packet_for_outbox_id(state, packet_id) is not None:
+        return False
+    return discard_outbox_after_receipt_gate(
+        state,
+        outbox_path,
+        packet_id,
+        intent,
+        "stored_packet_not_found",
+        token=token,
+    )

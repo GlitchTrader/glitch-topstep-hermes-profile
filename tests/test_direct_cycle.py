@@ -1477,6 +1477,155 @@ class DirectCycleTests(unittest.TestCase):
             events = (state / "events.jsonl").read_text(encoding="utf-8")
             self.assertIn("outbox_retained_gateway_receipt", events)
 
+    def test_discard_superseded_pending_outbox_when_current_packet_id_differs(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            outbox = state / "outbox"
+            frames = state / "minute-frames"
+            outbox.mkdir(parents=True)
+            frames.mkdir(parents=True)
+            stored = packet(5)
+            MODULE.write_json_atomic(
+                frames / "20990101T1405Z.json",
+                {"packet": stored},
+            )
+            outbox_path = outbox / "packet-5.json"
+            pending = intent("NOTHING")
+            MODULE.write_json_atomic(outbox_path, pending)
+            current = packet(6)
+            current["packet_id"] = "packet-6"
+
+            def fake_request(path: str, *, token=None, method="GET", body=None):
+                del path, token, method, body
+                return 404, {"error": "not_found"}
+
+            original = PARITY.request_json
+            PARITY.request_json = fake_request
+            try:
+                discarded = PARITY.discard_superseded_pending_outbox(
+                    state,
+                    outbox_path,
+                    "packet-5",
+                    pending,
+                    current,
+                    token="token",
+                )
+            finally:
+                PARITY.request_json = original
+            self.assertTrue(discarded)
+            self.assertFalse(outbox_path.exists())
+            events = (state / "events.jsonl").read_text(encoding="utf-8")
+            self.assertIn("intent_discarded_stale_packet", events)
+            self.assertIn("packet_superseded", events)
+
+    def test_discard_superseded_pending_outbox_when_lease_expired(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            outbox = state / "outbox"
+            frames = state / "minute-frames"
+            outbox.mkdir(parents=True)
+            frames.mkdir(parents=True)
+            stored = packet(5)
+            MODULE.write_json_atomic(
+                frames / "20990101T1405Z.json",
+                {"packet": stored},
+            )
+            outbox_path = outbox / "packet-5.json"
+            pending = intent("NOTHING")
+            pending["expires_utc"] = "2000-01-01T00:00:00Z"
+            MODULE.write_json_atomic(outbox_path, pending)
+
+            def fake_request(path: str, *, token=None, method="GET", body=None):
+                del path, token, method, body
+                return 404, {"error": "not_found"}
+
+            original = PARITY.request_json
+            PARITY.request_json = fake_request
+            try:
+                discarded = PARITY.discard_superseded_pending_outbox(
+                    state,
+                    outbox_path,
+                    "packet-5",
+                    pending,
+                    stored,
+                    token="token",
+                )
+            finally:
+                PARITY.request_json = original
+            self.assertTrue(discarded)
+            self.assertFalse(outbox_path.exists())
+            events = (state / "events.jsonl").read_text(encoding="utf-8")
+            self.assertIn("packet_lease_expired", events)
+
+    def test_discard_superseded_pending_outbox_retained_when_gateway_receipt_exists(
+        self,
+    ):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            outbox = state / "outbox"
+            outbox.mkdir(parents=True)
+            outbox_path = outbox / "packet-5.json"
+            pending = intent("NOTHING")
+            pending["expires_utc"] = "2000-01-01T00:00:00Z"
+            MODULE.write_json_atomic(outbox_path, pending)
+            current = packet(6)
+            current["packet_id"] = "packet-6"
+
+            def fake_request(path: str, *, token=None, method="GET", body=None):
+                del method, body
+                self.assertEqual(token, "token")
+                self.assertIn("intent_id=", path)
+                return 200, {"intent_id": pending["intent_id"], "status": "registered"}
+
+            original = PARITY.request_json
+            PARITY.request_json = fake_request
+            try:
+                discarded = PARITY.discard_superseded_pending_outbox(
+                    state,
+                    outbox_path,
+                    "packet-5",
+                    pending,
+                    current,
+                    token="token",
+                )
+            finally:
+                PARITY.request_json = original
+            self.assertFalse(discarded)
+            self.assertTrue(outbox_path.exists())
+            events = (state / "events.jsonl").read_text(encoding="utf-8")
+            self.assertIn("outbox_retained_gateway_receipt", events)
+
+    def test_discard_superseded_delivery_error_maps_packet_superseded(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            outbox = state / "outbox"
+            outbox.mkdir(parents=True)
+            outbox_path = outbox / "packet-5.json"
+            pending = intent("NOTHING")
+            MODULE.write_json_atomic(outbox_path, pending)
+
+            def fake_request(path: str, *, token=None, method="GET", body=None):
+                del path, token, method, body
+                return 404, {"error": "not_found"}
+
+            original = PARITY.request_json
+            PARITY.request_json = fake_request
+            try:
+                discarded = PARITY.discard_superseded_delivery_error(
+                    state,
+                    outbox_path,
+                    "packet-5",
+                    pending,
+                    ValueError("packet_superseded_before_delivery"),
+                    token="token",
+                )
+            finally:
+                PARITY.request_json = original
+            self.assertTrue(discarded)
+            self.assertFalse(outbox_path.exists())
+            events = (state / "events.jsonl").read_text(encoding="utf-8")
+            self.assertIn("packet_superseded", events)
+
     def test_pending_management_intent_is_deferred_when_gateway_scope_changes(self):
         with tempfile.TemporaryDirectory() as root:
             state = Path(root)

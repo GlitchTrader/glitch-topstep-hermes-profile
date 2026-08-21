@@ -32,11 +32,14 @@ from workflows.gateway_session import (
 )
 from workflows.intent_outbox import (
     discard_stale_outbox_intent,
+    discard_superseded_delivery_error,
+    discard_superseded_pending_outbox,
     frame_for_packet_id,
     intent_is_entry,
     packet_for_outbox_id,
     pending_outbox,
     prune_delivered_outboxes,
+    supersession_discard_reason,
 )
 from common import (
     append_jsonl,

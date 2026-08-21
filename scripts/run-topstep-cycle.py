@@ -84,6 +84,8 @@ from parity import (
     delivery_diagnostic_detail,
     discard_stale_outbox_intent,
     defer_instrument_scope_mismatch,
+    discard_superseded_delivery_error,
+    discard_superseded_pending_outbox,
     discard_unexecutable_entry_outbox,
     evaluate_wake_triggers,
     invocation_reason,
@@ -1359,6 +1361,15 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
             token=token,
         ):
             return run_once(args, root)
+        if discard_superseded_pending_outbox(
+            state,
+            pending_path,
+            pending_id,
+            pending_intent,
+            packet,
+            token=token,
+        ):
+            return run_once(args, root)
         pending_packet = packet_for_outbox_id(state, pending_id)
         if pending_packet is None:
             raise ValueError("pending_outbox_packet_not_found")
@@ -1376,6 +1387,15 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         except ValueError as error:
             if discard_unexecutable_entry_outbox(
                 state, pending_path, pending_id, pending_intent, error
+            ):
+                return run_once(args, root)
+            if discard_superseded_delivery_error(
+                state,
+                pending_path,
+                pending_id,
+                pending_intent,
+                error,
+                token=token,
             ):
                 return run_once(args, root)
             raise
