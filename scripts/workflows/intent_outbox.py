@@ -11,6 +11,14 @@ from common import append_jsonl, parse_utc, read_optional_json, utc_now
 from workflows.delivery_recovery import classify_delivery_result
 
 ReceiptGateResult = Literal["discard", "retain_receipt", "retain_unknown"]
+OutboxState = Literal["prepared", "delivery_unknown", "registered", "terminal", "abandoned"]
+OUTBOX_STATES: frozenset[str] = frozenset({
+    "prepared",
+    "delivery_unknown",
+    "registered",
+    "terminal",
+    "abandoned",
+})
 
 SUPERSESSION_DELIVERY_ERRORS = frozenset({
     "packet_superseded_before_delivery",
@@ -324,3 +332,41 @@ def discard_stale_outbox_intent(
         "stored_packet_not_found",
         token=token,
     )
+
+
+def load_outbox_record(path: Path) -> tuple[OutboxState, dict[str, Any]]:
+    """Read wrapped or legacy outbox JSON (GTHP-AUDIT-03)."""
+    from common import read_optional_json
+
+    raw = read_optional_json(path)
+    if not isinstance(raw, dict):
+        return "prepared", {}
+    intent = raw.get("intent")
+    if isinstance(intent, dict):
+        state = str(raw.get("state") or "prepared")
+        if state not in OUTBOX_STATES:
+            state = "prepared"
+        return state, intent
+    return "prepared", raw
+
+
+def write_outbox_record(
+    path: Path,
+    intent: dict[str, Any],
+    *,
+    state: OutboxState = "prepared",
+) -> None:
+    from common import write_json_atomic
+
+    write_json_atomic(
+        path,
+        {
+            "schema_version": "glitch.topstep.outbox_record.v1",
+            "state": state,
+            "intent": intent,
+        },
+    )
+
+
+def transition_outbox_record(path: Path, intent: dict[str, Any], state: OutboxState) -> None:
+    write_outbox_record(path, intent, state=state)

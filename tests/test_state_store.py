@@ -74,6 +74,60 @@ class ProfileStateStoreTests(unittest.TestCase):
             finally:
                 store.close()
 
+    def test_export_queue_drains_after_append(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp)
+            jsonl = state / "decisions.jsonl"
+            store = ProfileStateStore(state)
+            try:
+                store.append_decision(
+                    {
+                        "packet_id": "p-export",
+                        "intent_id": "i-export",
+                        "recorded_utc": "2026-08-21T12:00:00Z",
+                    },
+                    jsonl_path=jsonl,
+                )
+                self.assertEqual(store.export_backlog_count(jsonl), 0)
+                self.assertTrue(jsonl.is_file())
+                lines = jsonl.read_text(encoding="utf-8").strip().splitlines()
+                self.assertEqual(len(lines), 1)
+                self.assertIn("p-export", lines[0])
+            finally:
+                store.close()
+
+    def test_export_queue_survives_crash_before_jsonl(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp)
+            jsonl = state / "decisions.jsonl"
+            store = ProfileStateStore(state)
+            try:
+                payload = json.dumps(
+                    {
+                        "packet_id": "p-crash",
+                        "intent_id": "i-crash",
+                        "recorded_utc": "2026-08-21T12:01:00Z",
+                    },
+                    separators=(",", ":"),
+                    ensure_ascii=False,
+                )
+                with store.db:
+                    store._insert_decision(json.loads(payload))
+                    store.db.execute(
+                        """
+                        INSERT INTO jsonl_export_queue(target, payload_json, created_utc)
+                        VALUES (?, ?, ?)
+                        """,
+                        (str(jsonl), payload, "2026-08-21T12:01:00Z"),
+                    )
+                self.assertEqual(store.export_backlog_count(jsonl), 1)
+                self.assertFalse(jsonl.is_file())
+                exported = store.export_pending_jsonl(jsonl)
+                self.assertEqual(exported, 1)
+                self.assertTrue(jsonl.is_file())
+            finally:
+                store.close()
+
 
 if __name__ == "__main__":
     unittest.main()
