@@ -370,3 +370,22 @@ def write_outbox_record(
 
 def transition_outbox_record(path: Path, intent: dict[str, Any], state: OutboxState) -> None:
     write_outbox_record(path, intent, state=state)
+
+
+def finalize_outbox_after_delivery(
+    path: Path,
+    intent: dict[str, Any],
+    classification: str,
+) -> OutboxState:
+    """Persist explicit outbox state before unlink (TS-REAUDIT-04 / audit W1)."""
+    if classification == "transport_uncertain":
+        transition_outbox_record(path, intent, "delivery_unknown")
+        return "delivery_unknown"
+    if classification == "successful":
+        transition_outbox_record(path, intent, "registered")
+        return "registered"
+    if classification == "terminal_rejection":
+        transition_outbox_record(path, intent, "terminal")
+        return "terminal"
+    transition_outbox_record(path, intent, "prepared")
+    return "prepared"

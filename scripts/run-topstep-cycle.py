@@ -52,7 +52,11 @@ from cognition_cycle import recent_cycle_context
 from cycle_empirical import empirical_from_decision, record_cycle_empirical
 from state_store import ProfileStateStore
 from model_owner_lock import acquire_model_owner, release_model_owner
-from workflows.intent_outbox import load_outbox_record, write_outbox_record
+from workflows.intent_outbox import (
+    finalize_outbox_after_delivery,
+    load_outbox_record,
+    write_outbox_record,
+)
 
 
 def _emit_cycle_json(payload: dict[str, Any]) -> None:
@@ -1501,6 +1505,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
                 return run_once(args, root)
             raise
         classification = classify_delivery_result(result)
+        finalize_outbox_after_delivery(pending_path, pending_intent, classification)
         if classification != "transport_uncertain":
             receipt = {
                 "schema_version": "glitch.topstep.delivery_receipt.v2",
@@ -1749,6 +1754,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
             return run_once(args, root)
         raise
     classification = classify_delivery_result(result)
+    finalize_outbox_after_delivery(outbox_path, intent, classification)
     if classification != "transport_uncertain":
         receipt = {
             "schema_version": "glitch.topstep.delivery_receipt.v2",
