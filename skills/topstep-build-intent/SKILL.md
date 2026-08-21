@@ -29,7 +29,7 @@ When `market_universe.candidates` has more than one entry:
 
 - Put the **full** line ledger in `decision_audit.decisive_evidence` exactly as supplied in `required_output_template.decision_audit.decisive_evidence`.
 - Put continuity in `disconfirming_evidence`: `prior_hypothesis=<CONFIRMED|INVALIDATED|PARTIALLY_CONFIRMED|UNCHANGED>; ...` when `recent_frames` is non-empty.
-- `SELECTION_INSTRUMENT` equals `packet.instrument` (reference/top candidate in single_contract scope), even when `SELECTION_ACTION=NOTHING`.
+- `SELECTION_INSTRUMENT` equals the ranking winner. While flat it may differ from `packet.instrument` when the winner is another eligible candidate; delivery fetches `/packet?contract_id=` for that instrument before POST `/intent`.
 - Do not emit JSON, Markdown fences, or a second comparison format.
 
 `NOTHING` is allowed only after all instrument blocks are complete.

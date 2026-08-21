@@ -32,7 +32,8 @@ Use when `decision_packet.market_universe.candidates` has more than one instrume
 - `MCL` is Micro Crude Oil; `MCLE` is ProjectX identity only.
 - When `market.session_levels_reliable` is false, do not treat session high/low as structural edges.
 - When `market_alignment.synchronized` is false, use quote and order flow of the selected contract for timing; use 5m/60m plus partial 1m for structure; state lag in `disconfirming_evidence`, not as automatic NOTHING.
-- `account_selection.mode=single_contract`: cognitive ranking picks the best candidate; orders execute only on the scoped instrument (`execution_mode=selected`).
+- `account_selection.mode=single_active_position`: cognitive ranking picks the best candidate; when the account is flat any eligible candidate may receive `ENTER_*`; only one instrument may be positioned account-wide.
+- `execution_mode=eligible` means the candidate may receive entries while flat; `flat_required` means another instrument is currently positioned; `selected` is the active positioned contract or the packet target while managing.
 
 ## Output contract
 

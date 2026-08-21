@@ -279,9 +279,17 @@ def packet_is_current(
 
 def positioned(packet: dict[str, Any]) -> bool:
     account = packet.get("account")
-    if not isinstance(account, dict):
-        return False
-    return int(account.get("instrument_open_contracts") or 0) != 0
+    if isinstance(account, dict):
+        if int(account.get("total_open_contracts") or 0) > 0:
+            return True
+        if int(account.get("instrument_open_contracts") or 0) != 0:
+            return True
+    universe = packet.get("market_universe")
+    if isinstance(universe, dict):
+        for row in universe.get("candidates") or []:
+            if isinstance(row, dict) and int(row.get("open_contracts") or 0) > 0:
+                return True
+    return False
 
 
 def packet_minute(packet: dict[str, Any]) -> int:
@@ -595,6 +603,8 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "exceeds threshold—state lag in disconfirming_evidence instead. "
     "Cross-instrument ranking must use evidence classes present for every candidate; "
     "selected-contract order flow is post-selection microstructure, not a ranking bonus. "
+    "Under single_active_position the ranking winner may be MNQ, MES, or MCL while flat; "
+    "only one instrument may be positioned account-wide and delivery must fetch the matching contract packet before entry. "
     "Use candidate_alignment and universe_freshness: never rank a candidate higher solely "
     "because its observation is newer; when ranking_freshness_valid is false, lower ranking "
     "confidence and state the skew in disconfirming_evidence. "
@@ -1045,6 +1055,7 @@ def validate_intent(
         and action in {"ENTER_LONG", "ENTER_SHORT"}
         and str(comparison.get("selected_instrument") or "").upper()
         != str(packet.get("instrument") or "").upper()
+        and not _selected_instrument_eligible(packet, str(comparison.get("selected_instrument") or ""))
     ):
         raise ValueError("selected_instrument_not_executable_in_current_scope")
 
@@ -1200,11 +1211,34 @@ def invoke_valid_intent(
     raise AssertionError("unreachable")
 
 
+def _selected_instrument_eligible(packet: dict[str, Any], instrument: str) -> bool:
+    selected = str(instrument or "").upper()
+    if not selected:
+        return False
+    universe = packet.get("market_universe")
+    if not isinstance(universe, dict):
+        return False
+    for row in universe.get("candidates") or []:
+        if not isinstance(row, dict):
+            continue
+        if str(row.get("instrument") or "").upper() != selected:
+            continue
+        return str(row.get("execution_mode") or "") in {"selected", "eligible"}
+    return False
+
+
 def prepare_intent_for_delivery(
     intent: dict[str, Any],
     directive: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    packet_status, fresh_packet = request_json("/packet", token=local_token())
+    contract_id = str(intent.get("contract_id") or "").strip()
+    instrument = str(intent.get("instrument") or "").strip()
+    packet_path = "/packet"
+    if contract_id:
+        packet_path = f"/packet?contract_id={urllib.parse.quote(contract_id, safe='')}"
+    elif instrument:
+        packet_path = f"/packet?instrument={urllib.parse.quote(instrument, safe='')}"
+    packet_status, fresh_packet = request_json(packet_path, token=local_token())
     if packet_status != 200:
         raise RuntimeError(f"gateway_packet_failed:{packet_status}")
     if (

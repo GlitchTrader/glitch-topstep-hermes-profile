@@ -273,23 +273,36 @@ def validate_selected_candidate_handoff(
 ) -> None:
     selected = str(handoff.get("selected_instrument") or "").upper()
     packet_instrument = str(packet.get("instrument") or "").upper()
-    if not selected or selected != packet_instrument:
+    if not selected:
         raise ValueError("selected_candidate_packet_mismatch")
+    account = packet.get("account") if isinstance(packet.get("account"), dict) else {}
+    account_flat = int(account.get("total_open_contracts") or 0) == 0
+    selection = packet.get("account_selection")
+    selection_mode = selection.get("mode") if isinstance(selection, dict) else None
+    if selected != packet_instrument:
+        if not (
+            account_flat
+            and selection_mode in {"single_active_position", "single_contract"}
+        ):
+            raise ValueError("selected_candidate_packet_mismatch")
     account_selection = packet.get("account_selection")
     if not isinstance(account_selection, dict):
         return
     scoped = str(account_selection.get("selected_instrument") or "").upper()
     if scoped and scoped != selected:
-        raise ValueError("selected_candidate_scope_mismatch")
+        if not (account_flat and selection_mode == "single_active_position"):
+            raise ValueError("selected_candidate_scope_mismatch")
     handoff_scope = handoff.get("account_selection")
     if isinstance(handoff_scope, dict):
         handoff_instrument = str(handoff_scope.get("selected_instrument") or "").upper()
         if handoff_instrument and handoff_instrument != packet_instrument:
-            raise ValueError("selected_candidate_scope_mismatch")
+            if not (account_flat and selection_mode == "single_active_position"):
+                raise ValueError("selected_candidate_scope_mismatch")
         contract_id = str(handoff_scope.get("selected_contract_id") or "")
         packet_contract = str(account_selection.get("selected_contract_id") or "")
         if contract_id and packet_contract and contract_id != packet_contract:
-            raise ValueError("selected_candidate_contract_mismatch")
+            if not (account_flat and selected == packet_instrument):
+                raise ValueError("selected_candidate_contract_mismatch")
 
 
 def _validate_account_selection(packet: dict[str, Any], expected: list[str]) -> None:
@@ -300,7 +313,7 @@ def _validate_account_selection(packet: dict[str, Any], expected: list[str]) -> 
         raise ValueError("account_selection_invalid")
     if selection.get("schema_version") != "glitch.topstep.account_selection.v1":
         raise ValueError("account_selection_schema_invalid")
-    if selection.get("mode") != "single_contract":
+    if selection.get("mode") not in {"single_contract", "single_active_position"}:
         raise ValueError("account_selection_mode_invalid")
     selected_instrument = str(selection.get("selected_instrument") or "").upper()
     selected_contract_id = str(selection.get("selected_contract_id") or "")

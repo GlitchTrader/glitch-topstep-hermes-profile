@@ -24,20 +24,21 @@ def packet():
         "instrument": "MNQ",
         "market_universe": {
             "candidates": [
-                {"instrument": "MNQ"},
-                {"instrument": "MES"},
-                {"instrument": "MCL", "symbol_id": "F.US.MCLE"},
+                {"instrument": "MNQ", "execution_mode": "eligible"},
+                {"instrument": "MES", "execution_mode": "eligible"},
+                {"instrument": "MCL", "execution_mode": "eligible", "symbol_id": "F.US.MCLE"},
             ]
         },
         "account_selection": {
             "schema_version": "glitch.topstep.account_selection.v1",
-            "mode": "single_contract",
+            "mode": "single_active_position",
             "selected_instrument": "MNQ",
             "selected_contract_id": "CON.F.US.MNQ.U26",
             "scope_generation": 1,
             "scope_hash": "scope-hash",
             "simultaneous_exposure_enabled": False,
         },
+        "account": {"total_open_contracts": 0},
     }
 
 
@@ -123,7 +124,47 @@ class ScannerContractTests(unittest.TestCase):
         self.assertEqual(handoff["selection_action"], "ENTER_LONG")
         validate_selected_candidate_handoff(handoff, packet())
 
+    def test_validate_selected_candidate_handoff_allows_flat_eligible_winner(self):
+        mes_packet = {
+            **packet(),
+            "instrument": "MES",
+            "account_selection": {
+                **packet()["account_selection"],
+                "selected_instrument": "MES",
+                "selected_contract_id": "CON.F.US.MES.U26",
+            },
+        }
+        intent = {
+            "packet_id": packet()["packet_id"],
+            "expires_utc": packet()["expires_utc"],
+            "decision_audit": {
+                "decisive_evidence": filled_ledger_text("ENTER_LONG").replace(
+                    "SELECTION_INSTRUMENT=MNQ",
+                    "SELECTION_INSTRUMENT=MES",
+                )
+            },
+            "account_selection": {
+                **packet()["account_selection"],
+                "selected_instrument": "MES",
+                "selected_contract_id": "CON.F.US.MES.U26",
+            },
+        }
+        handoff = parse_selected_candidate_handoff(intent)
+        assert handoff is not None
+        validate_selected_candidate_handoff(handoff, mes_packet)
+
     def test_validate_selected_candidate_handoff_rejects_scope_mismatch(self):
+        positioned_packet = {
+            **packet(),
+            "account": {"total_open_contracts": 1},
+            "market_universe": {
+                "candidates": [
+                    {"instrument": "MNQ", "execution_mode": "selected", "open_contracts": 1},
+                    {"instrument": "MES", "execution_mode": "flat_required"},
+                    {"instrument": "MCL", "execution_mode": "flat_required"},
+                ]
+            },
+        }
         intent = {
             "packet_id": packet()["packet_id"],
             "expires_utc": packet()["expires_utc"],
@@ -136,7 +177,7 @@ class ScannerContractTests(unittest.TestCase):
         handoff = parse_selected_candidate_handoff(intent)
         assert handoff is not None
         with self.assertRaisesRegex(ValueError, "selected_candidate_scope_mismatch"):
-            validate_selected_candidate_handoff(handoff, packet())
+            validate_selected_candidate_handoff(handoff, positioned_packet)
 
 
 if __name__ == "__main__":
