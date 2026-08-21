@@ -396,6 +396,33 @@ def tail_jsonl(path: Path, count: int, *, tail_bytes: int = 1_048_576) -> list[d
     return result
 
 
+def rotate_jsonl(
+    path: Path,
+    *,
+    max_bytes: int | None = None,
+    enabled: bool = False,
+) -> Path | None:
+    """Optional journal rotation — default-off (GTHP-AUDIT-02)."""
+    if not enabled or not path.is_file():
+        return None
+    size = path.stat().st_size
+    if max_bytes is not None and size <= max_bytes:
+        return None
+    stamp = utc_now().replace(":", "").replace("-", "")
+    archive = path.with_name(f"{path.stem}.{stamp}{path.suffix}.archive")
+    path.rename(archive)
+    path.touch()
+    return archive
+
+
+def journal_metrics(path: Path) -> dict[str, int]:
+    if not path.is_file():
+        return {"bytes": 0, "lines": 0}
+    data = path.read_bytes()
+    lines = sum(1 for line in data.splitlines() if line.strip())
+    return {"bytes": len(data), "lines": lines}
+
+
 def process_is_alive(pid: int) -> bool:
     if pid <= 0:
         return False
