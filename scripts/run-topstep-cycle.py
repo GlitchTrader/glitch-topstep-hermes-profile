@@ -43,8 +43,11 @@ from scanner_contract import (
     backfill_constant_comparison_fields,
     comparison_template,
     multi_candidate_packet,
+    parse_selected_candidate_handoff,
     validate_comparison_ledger,
+    validate_selected_candidate_handoff,
 )
+from forecast_metadata import strip_forecast_metadata, validate_forecast_metadata
 from cognition_cycle import recent_cycle_context
 from state_store import ProfileStateStore
 from common import (
@@ -136,6 +139,7 @@ AUDIT_FIELDS = {
     "final_choice",
 }
 OPTIONAL_AUDIT_FIELDS = {"decision_scores"}
+FORECAST_METADATA_FIELD = "forecast_metadata"
 GATEWAY_REASON_MAX_LENGTH = 1000
 GATEWAY_AUDIT_FIELD_MAX_LENGTH = 5000
 ACTION_PLACEHOLDER = "<CHOOSE_FROM_supported_actions>"
@@ -955,7 +959,7 @@ def validate_intent(
 
     allowed_fields = allowed_intent_fields(action)
     unknown = set(intent).difference(
-        allowed_fields | {"wake_triggers"} | OPTIONAL_AUDIT_FIELDS
+        allowed_fields | {"wake_triggers"} | OPTIONAL_AUDIT_FIELDS | {FORECAST_METADATA_FIELD}
     )
     required_fields = CORE_FIELDS if intent.get("schema_version") == "glitch.intent.v3" else (CORE_FIELDS - DECISION_IDENTITY_FIELDS)
     missing = required_fields.difference(intent)
@@ -1037,6 +1041,10 @@ def validate_intent(
                 or not math.isfinite(float(value))
             ):
                 raise ValueError("decision_scores_invalid")
+
+    forecast = intent.get(FORECAST_METADATA_FIELD)
+    if forecast is not None:
+        validate_forecast_metadata(forecast)
 
     wake_triggers = intent.get("wake_triggers")
     if wake_triggers is not None:
@@ -1233,10 +1241,14 @@ def prepare_intent_for_delivery(
                 audit[field] = truncate_gateway_string(audit[field], GATEWAY_AUDIT_FIELD_MAX_LENGTH)
     if same_packet:
         validate_intent(aligned, fresh_packet, directive)
+    handoff = parse_selected_candidate_handoff(aligned)
+    if handoff is not None:
+        validate_selected_candidate_handoff(handoff, fresh_packet)
     # wake_triggers drives the local scheduler and is not part of glitch.intent.v3 on the gateway.
     # Validate the complete decision first, then project the already-valid wire payload.
     aligned.pop("wake_triggers", None)
     aligned.pop("decision_scores", None)
+    strip_forecast_metadata(aligned)
     return aligned
 
 
@@ -1245,6 +1257,7 @@ def post_intent(intent: dict[str, Any]) -> dict[str, Any]:
     wire.pop("wake_triggers", None)
     wire.pop("wake_trigger", None)
     wire.pop("decision_scores", None)
+    strip_forecast_metadata(wire)
     try:
         status, body = request_json(
             "/intent",
