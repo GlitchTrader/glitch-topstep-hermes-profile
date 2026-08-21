@@ -23,6 +23,7 @@ MODULE = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
 SPEC.loader.exec_module(MODULE)
 PARITY = importlib.import_module("parity")
+GATEWAY_CLIENT = importlib.import_module("gateway_client")
 
 
 def packet(
@@ -1324,7 +1325,13 @@ class DirectCycleTests(unittest.TestCase):
                 packet_rollover_wait_seconds=0,
                 dry_run=False,
             )
-            def fake_request_json(path, token=None):
+            def fake_request_json(path, token=None, method="GET", body=None):
+                del method, body
+                if "/intent/status" in path:
+                    return 200, {
+                        "schema_version": "glitch.topstep.intent_delivery_status.v1",
+                        "status": "registered",
+                    }
                 if path == "/health":
                     return (
                         200,
@@ -1370,6 +1377,14 @@ class DirectCycleTests(unittest.TestCase):
 
             with mock.patch.object(MODULE, "local_token", return_value="token"), mock.patch.object(
                 MODULE,
+                "request_json",
+                side_effect=fake_request_json,
+            ), mock.patch.object(
+                GATEWAY_CLIENT,
+                "request_json",
+                side_effect=fake_request_json,
+            ), mock.patch.object(
+                PARITY,
                 "request_json",
                 side_effect=fake_request_json,
             ), mock.patch.object(MODULE, "wait_for_packet_rollover", return_value=current), mock.patch.object(
@@ -1496,7 +1511,12 @@ class DirectCycleTests(unittest.TestCase):
             current["packet_id"] = "packet-6"
 
             def fake_request(path: str, *, token=None, method="GET", body=None):
-                del path, token, method, body
+                del token, method, body
+                if "/intent/status" in path:
+                    return 200, {
+                        "schema_version": "glitch.topstep.intent_delivery_status.v1",
+                        "status": "not_seen",
+                    }
                 return 404, {"error": "not_found"}
 
             original = PARITY.request_json
@@ -1536,7 +1556,12 @@ class DirectCycleTests(unittest.TestCase):
             MODULE.write_json_atomic(outbox_path, pending)
 
             def fake_request(path: str, *, token=None, method="GET", body=None):
-                del path, token, method, body
+                del token, method, body
+                if "/intent/status" in path:
+                    return 200, {
+                        "schema_version": "glitch.topstep.intent_delivery_status.v1",
+                        "status": "not_seen",
+                    }
                 return 404, {"error": "not_found"}
 
             original = PARITY.request_json
@@ -1593,7 +1618,8 @@ class DirectCycleTests(unittest.TestCase):
             self.assertFalse(discarded)
             self.assertTrue(outbox_path.exists())
             events = (state / "events.jsonl").read_text(encoding="utf-8")
-            self.assertIn("outbox_retained_gateway_receipt", events)
+            self.assertIn("outbox_retained_delivery_unknown", events)
+            self.assertIn("registered", events)
 
     def test_discard_superseded_delivery_error_maps_packet_superseded(self):
         with tempfile.TemporaryDirectory() as root:
@@ -1605,7 +1631,12 @@ class DirectCycleTests(unittest.TestCase):
             MODULE.write_json_atomic(outbox_path, pending)
 
             def fake_request(path: str, *, token=None, method="GET", body=None):
-                del path, token, method, body
+                del token, method, body
+                if "/intent/status" in path:
+                    return 200, {
+                        "schema_version": "glitch.topstep.intent_delivery_status.v1",
+                        "status": "not_seen",
+                    }
                 return 404, {"error": "not_found"}
 
             original = PARITY.request_json
@@ -1697,7 +1728,13 @@ class DirectCycleTests(unittest.TestCase):
                 dry_run=False,
             )
 
-            def fake_request_json(path, token=None):
+            def fake_request_json(path, token=None, method="GET", body=None):
+                del method, body
+                if "/intent/status" in path:
+                    return 200, {
+                        "schema_version": "glitch.topstep.intent_delivery_status.v1",
+                        "status": "registered",
+                    }
                 if path == "/health":
                     return (
                         200,
@@ -1743,6 +1780,14 @@ class DirectCycleTests(unittest.TestCase):
 
             with mock.patch.object(MODULE, "local_token", return_value="token"), mock.patch.object(
                 MODULE,
+                "request_json",
+                side_effect=fake_request_json,
+            ), mock.patch.object(
+                GATEWAY_CLIENT,
+                "request_json",
+                side_effect=fake_request_json,
+            ), mock.patch.object(
+                PARITY,
                 "request_json",
                 side_effect=fake_request_json,
             ), mock.patch.object(MODULE, "wait_for_packet_rollover", return_value=current), mock.patch.object(

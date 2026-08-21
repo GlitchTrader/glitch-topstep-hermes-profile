@@ -27,8 +27,14 @@ class ProfileStateStore:
                 recorded_utc TEXT,
                 payload_json TEXT NOT NULL
             );
+            CREATE UNIQUE INDEX IF NOT EXISTS decisions_packet_uidx ON decisions(packet_id)
+                WHERE packet_id IS NOT NULL AND packet_id <> '';
             CREATE INDEX IF NOT EXISTS decisions_packet_idx ON decisions(packet_id);
             CREATE INDEX IF NOT EXISTS decisions_recorded_idx ON decisions(recorded_utc);
+            CREATE TABLE IF NOT EXISTS sync_meta (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL
+            );
             """
         )
         self.db.commit()
@@ -41,7 +47,11 @@ class ProfileStateStore:
         self._decisions_jsonl = jsonl_path
         if not jsonl_path.is_file():
             return
-        skip = self.db.execute("SELECT COUNT(*) FROM decisions").fetchone()[0]
+        row = self.db.execute(
+            "SELECT value FROM sync_meta WHERE key = 'decisions_jsonl_lines'"
+        ).fetchone()
+        initial_skip = int(row[0]) if row else 0
+        skip = initial_skip
         pending: list[str] = []
         for raw in jsonl_path.read_text(encoding="utf-8").splitlines():
             if not raw.strip():
@@ -58,12 +68,18 @@ class ProfileStateStore:
                 if not isinstance(row, dict):
                     continue
                 self._insert_decision(row)
+            self.db.execute(
+                """
+                INSERT INTO sync_meta(key, value) VALUES ('decisions_jsonl_lines', ?)
+                ON CONFLICT(key) DO UPDATE SET value = excluded.value
+                """,
+                (str(initial_skip + len(pending)),),
+            )
 
     def bootstrap_decisions(self, jsonl_path: Path) -> None:
         self.sync_decisions_from_jsonl(jsonl_path)
 
     def append_decision(self, row: dict[str, Any], *, jsonl_path: Path | None = None) -> None:
-        payload = json.dumps(row, separators=(",", ":"), ensure_ascii=False)
         with self.db:
             self._insert_decision(row)
         if jsonl_path is not None:
@@ -73,13 +89,14 @@ class ProfileStateStore:
 
     def _insert_decision(self, row: dict[str, Any]) -> None:
         payload = json.dumps(row, separators=(",", ":"), ensure_ascii=False)
+        packet_id = str(row.get("packet_id") or "")
         self.db.execute(
             """
-            INSERT INTO decisions (packet_id, intent_id, recorded_utc, payload_json)
+            INSERT OR IGNORE INTO decisions (packet_id, intent_id, recorded_utc, payload_json)
             VALUES (?, ?, ?, ?)
             """,
             (
-                str(row.get("packet_id") or ""),
+                packet_id,
                 str(row.get("intent_id") or ""),
                 str(row.get("recorded_utc") or row.get("decision_utc") or ""),
                 payload,

@@ -92,6 +92,15 @@ def prune_delivered_outboxes(state: Path) -> int:
     return pruned
 
 
+def _intent_delivery_status(intent_id: str, *, token: str) -> tuple[int, dict[str, Any] | None]:
+    import parity as parity_module
+
+    return parity_module.request_json(
+        f"/intent/status?intent_id={urllib.parse.quote(intent_id, safe='')}",
+        token=token,
+    )
+
+
 def gateway_receipt_gate(
     state: Path,
     packet_id: str,
@@ -146,7 +155,18 @@ def gateway_receipt_gate(
             },
         )
         return "retain_unknown"
-    return "discard"
+    append_jsonl(
+        state / "events.jsonl",
+        {
+            "schema_version": "glitch.topstep.cycle_event.v2",
+            "event": "outbox_retained_receipt_only_not_found",
+            "recorded_utc": utc_now(),
+            "packet_id": packet_id,
+            "intent_id": intent_id,
+            "http_status": status,
+        },
+    )
+    return "retain_unknown"
 
 
 def supersession_discard_reason(
@@ -197,6 +217,34 @@ def discard_outbox_after_receipt_gate(
     *,
     token: str,
 ) -> bool:
+    intent_id = str(intent.get("intent_id") or "")
+    if reason in {"packet_superseded", "packet_lease_expired"}:
+        status_code, body = _intent_delivery_status(intent_id, token=token)
+        if status_code != 200 or not isinstance(body, dict) or body.get("status") != "not_seen":
+            append_jsonl(
+                state / "events.jsonl",
+                {
+                    "schema_version": "glitch.topstep.cycle_event.v2",
+                    "event": "outbox_retained_delivery_unknown",
+                    "recorded_utc": utc_now(),
+                    "packet_id": packet_id,
+                    "intent_id": intent_id,
+                    "reason": reason,
+                    "delivery_status": body.get("status") if isinstance(body, dict) else None,
+                },
+            )
+            return False
+        try:
+            outbox_path.unlink(missing_ok=True)
+        except OSError:
+            return False
+        _emit_discarded_stale_packet(
+            state,
+            reason=reason,
+            packet_id=packet_id,
+            intent=intent,
+        )
+        return True
     gate = gateway_receipt_gate(state, packet_id, intent, token=token)
     if gate != "discard":
         return False

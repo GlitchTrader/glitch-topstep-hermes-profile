@@ -1333,6 +1333,38 @@ def resolve_wake_invocation_context(
     return None, None
 
 
+def ensure_model_attempt(state: Path, packet_id: str, *, reason: str | None) -> Path:
+    path = state / "attempts" / f"{packet_id}.json"
+    if path.is_file():
+        return path
+    write_json_atomic(
+        path,
+        {
+            "schema_version": "glitch.topstep.model_attempt.v2",
+            "packet_id": packet_id,
+            "started_utc": utc_now(),
+            "status": "started",
+            "model": core_model(),
+            "provider": core_provider(),
+            "session_mode": "isolated",
+            "invocation_reason": reason,
+        },
+    )
+    return path
+
+
+def load_model_attempt(path: Path) -> dict[str, Any]:
+    value = read_optional_json(path)
+    if isinstance(value, dict):
+        return value
+    return {
+        "schema_version": "glitch.topstep.model_attempt.v2",
+        "packet_id": path.stem,
+        "started_utc": utc_now(),
+        "status": "started",
+    }
+
+
 def run_once(args: argparse.Namespace, root: Path) -> int:
     token = local_token()
     health_status, health = request_json("/health")
@@ -1396,6 +1428,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         if pending_packet is None:
             raise ValueError("pending_outbox_packet_not_found")
         validate_intent(pending_intent, pending_packet, None)
+        ensure_model_attempt(state, pending_id, reason="pending_outbox_delivery")
         if args.dry_run:
             print(
                 json.dumps(
@@ -1530,7 +1563,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
 
     receipt_path = state / "receipts" / f"{packet_id}.json"
     outbox_path = state / "outbox" / f"{packet_id}.json"
-    attempt_path = state / "attempts" / f"{packet_id}.json"
+    attempt_path = ensure_model_attempt(state, packet_id, reason=reason)
     if receipt_path.is_file():
         receipt = read_json(receipt_path)
         if classify_delivery_result(receipt.get("result", {})) != "transport_uncertain":
@@ -1544,22 +1577,15 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         intent = read_json(outbox_path)
         validate_intent(intent, packet, None)
     else:
-        if attempt_path.is_file():
+        existing_attempt = read_optional_json(attempt_path)
+        if isinstance(existing_attempt, dict) and existing_attempt.get("status") in {
+            "completed",
+            "decision_ready",
+            "failed",
+            "stale_packet_discarded",
+        }:
             return 0
 
-        write_json_atomic(
-            attempt_path,
-            {
-                "schema_version": "glitch.topstep.model_attempt.v2",
-                "packet_id": packet_id,
-                "started_utc": utc_now(),
-                "status": "started",
-                "model": core_model(),
-                "provider": core_provider(),
-                "session_mode": "isolated",
-                "invocation_reason": reason,
-            },
-        )
         try:
             intent, repair_count = invoke_valid_intent(
                 args.profile,
@@ -1570,7 +1596,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
                 frames=frames,
             )
         except Exception as error:
-            attempt = read_json(attempt_path)
+            attempt = load_model_attempt(attempt_path)
             attempt.update(
                 completed_utc=utc_now(),
                 status="failed",
@@ -1591,7 +1617,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
             raise
 
         if discard_stale_outbox_intent(state, outbox_path, packet_id, intent, token=token):
-            attempt = read_json(attempt_path)
+            attempt = load_model_attempt(attempt_path)
             attempt.update(
                 completed_utc=utc_now(),
                 status="stale_packet_discarded",
@@ -1620,7 +1646,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
             packet,
             evidence_fingerprint(packet),
         )
-        attempt = read_json(attempt_path)
+        attempt = load_model_attempt(attempt_path)
         attempt.update(
             completed_utc=utc_now(),
             status="decision_ready",
