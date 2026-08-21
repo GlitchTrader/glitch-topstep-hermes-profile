@@ -1410,7 +1410,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     pending = pending_outbox(state)
     if pending is not None:
         pending_id, pending_path = pending
-        pending_intent = read_json(pending_path)
+        _, pending_intent = load_outbox_record(pending_path)
         if defer_instrument_scope_mismatch(state, pending_id, pending_intent, packet):
             return 0
         if discard_stale_outbox_intent(
@@ -1689,6 +1689,15 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
             state, outbox_path, packet_id, intent, error
         ):
             return 0
+        if discard_superseded_delivery_error(
+            state,
+            outbox_path,
+            packet_id,
+            intent,
+            error,
+            token=token,
+        ):
+            return run_once(args, root)
         raise
     classification = classify_delivery_result(result)
     if classification != "transport_uncertain":
