@@ -54,6 +54,21 @@ class Prod07PairedCompatibilityTests(unittest.TestCase):
         )
 
 
+class DistributedContractTests(unittest.TestCase):
+    def test_paired_contract_publishes_distributed_state_machine(self):
+        contract = json.loads((ROOT / "paired-contract.json").read_text(encoding="utf-8"))
+        distributed = contract["distributed_contract"]
+        self.assertEqual(
+            distributed["schema_version"],
+            "glitch.topstep.distributed_state_machine.v1",
+        )
+        self.assertEqual(distributed["cadence"]["flat_decision_interval_minutes"], 5)
+        self.assertEqual(
+            distributed["amendment_source_schema"],
+            "glitch.topstep.amendment_source.v1",
+        )
+
+
 class Cap01DailyCaptureFixtures(unittest.TestCase):
     def test_model_packet_preserves_daily_capture_context_not_as_quota(self):
         packet = _load("cap01_daily_capture_packet.json")
