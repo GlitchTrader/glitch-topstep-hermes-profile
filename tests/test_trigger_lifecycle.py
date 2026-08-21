@@ -110,6 +110,30 @@ class TriggerLifecycleTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "comparison_trigger_ratchet_detected"):
             TL.merge_comparison_triggers(prior, ledger, packet_id="packet-2")
 
+    def test_evaluate_comparison_trigger_fires_on_cross(self):
+        ledger = _ledger("trigger-mnq", condition="cross 20000")
+        for row in ledger["candidates"]:
+            for trigger in row["triggers"]:
+                trigger["expires_utc"] = "2099-01-01T12:05:00Z"
+        intent = _intent_from_ledger(ledger)
+        intent["expires_utc"] = "2099-01-01T12:05:00Z"
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp) / "state"
+            TL.persist_comparison_triggers(state, intent, "packet-1")
+            path = TL.comparison_trigger_path(state / "supervisor")
+            document = json.loads(path.read_text(encoding="utf-8"))
+            document["eval_snapshot"] = {"price": 19990.0}
+            path.write_text(json.dumps(document), encoding="utf-8")
+            packet = {
+                "packet_id": "packet-live",
+                "market": {"last": 20010.0},
+            }
+            fired = TL.evaluate_comparison_triggers(state, packet)
+        self.assertEqual(len(fired), 1)
+        self.assertEqual(fired[0]["trigger_id"], "trigger-mnq")
+        detail = TL.comparison_wake_detail(fired[0])
+        self.assertEqual(detail["wake_reason"], "COMPARISON_TRIGGER:MNQ:trigger-mnq")
+
 
 if __name__ == "__main__":
     unittest.main()

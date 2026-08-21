@@ -26,6 +26,7 @@ from parity import (
     record_wake_trigger_fire,
     write_pending_wake_invocation,
 )
+from trigger_lifecycle import comparison_wake_detail, evaluate_comparison_triggers
 
 
 def flat_decision_interval_minutes() -> int:
@@ -110,6 +111,10 @@ def poll_once(root: Path) -> dict[str, object]:
         directive,
         flat_decision_interval_minutes=flat_decision_interval_minutes(),
     )
+    if not wake_detail:
+        fired = evaluate_comparison_triggers(state, packet)
+        if fired:
+            wake_detail = comparison_wake_detail(fired[0])
     if not wake_detail:
         write_json_atomic(
             status_path,

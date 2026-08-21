@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import json
+import re
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from common import read_optional_json, utc_now, write_json_atomic
+from common import parse_utc, read_optional_json, utc_now, write_json_atomic
 from scanner_contract import MARKER, TRIGGER_STATUSES, parse_comparison_line
 
 
@@ -132,3 +134,127 @@ def pending_held_rescan_reason(state: Path) -> str | None:
 
 def consume_pending_held_rescan(state: Path) -> None:
     pending_held_rescan_path(state / "supervisor").unlink(missing_ok=True)
+
+
+_CONDITION_LEVEL = re.compile(
+    r"(?i)\b(cross|above|below)\b[^0-9.-]*([0-9]+(?:\.[0-9]+)?)"
+)
+
+
+def _packet_price(packet: dict[str, Any]) -> float | None:
+    market = packet.get("market")
+    if not isinstance(market, dict):
+        return None
+    for key in ("last", "bid", "ask"):
+        value = market.get(key)
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            return float(value)
+    return None
+
+
+def _parse_condition_level(condition: str) -> tuple[str, float] | None:
+    match = _CONDITION_LEVEL.search(str(condition or ""))
+    if not match:
+        return None
+    return match.group(1).lower(), float(match.group(2))
+
+
+def _trigger_expired(trigger: dict[str, Any], now: datetime) -> bool:
+    raw = trigger.get("expires_utc")
+    if not isinstance(raw, str) or not raw.strip():
+        return False
+    try:
+        return parse_utc(raw) <= now
+    except (TypeError, ValueError):
+        return True
+
+
+def _trigger_condition_met(
+    trigger: dict[str, Any],
+    packet: dict[str, Any],
+    *,
+    prior_price: float | None,
+) -> bool:
+    parsed = _parse_condition_level(str(trigger.get("condition") or ""))
+    current = _packet_price(packet)
+    if parsed is None or current is None:
+        return False
+    mode, level = parsed
+    if mode == "above":
+        return current > level
+    if mode == "below":
+        return current < level
+    if prior_price is None:
+        return False
+    return prior_price <= level < current or prior_price >= level > current
+
+
+def _comparison_eval_snapshot(document: dict[str, Any] | None) -> dict[str, Any]:
+    if not isinstance(document, dict):
+        return {}
+    snapshot = document.get("eval_snapshot")
+    return snapshot if isinstance(snapshot, dict) else {}
+
+
+def update_comparison_eval_snapshot(state: Path, packet: dict[str, Any]) -> None:
+    supervisor = state / "supervisor"
+    path = comparison_trigger_path(supervisor)
+    document = read_optional_json(path)
+    if not isinstance(document, dict):
+        return
+    price = _packet_price(packet)
+    snapshot = _comparison_eval_snapshot(document)
+    if price is not None:
+        snapshot["price"] = price
+    snapshot["packet_id"] = str(packet.get("packet_id") or "")
+    snapshot["updated_utc"] = utc_now()
+    document["eval_snapshot"] = snapshot
+    write_json_atomic(path, document)
+
+
+def evaluate_comparison_triggers(
+    state: Path,
+    packet: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """Return HELD comparison triggers whose frozen condition is met on the current packet."""
+    supervisor = state / "supervisor"
+    document = read_optional_json(comparison_trigger_path(supervisor))
+    if not isinstance(document, dict):
+        update_comparison_eval_snapshot(state, packet)
+        return []
+    rows = document.get("triggers")
+    if not isinstance(rows, list) or not rows:
+        update_comparison_eval_snapshot(state, packet)
+        return []
+    prior_price = _comparison_eval_snapshot(document).get("price")
+    prior = float(prior_price) if isinstance(prior_price, (int, float)) and not isinstance(prior_price, bool) else None
+    now = datetime.now(timezone.utc)
+    fired: list[dict[str, Any]] = []
+    for trigger in rows:
+        if not isinstance(trigger, dict):
+            continue
+        if trigger.get("status") != "HELD":
+            continue
+        if _trigger_expired(trigger, now):
+            continue
+        if not _trigger_condition_met(trigger, packet, prior_price=prior):
+            continue
+        fired.append(trigger)
+    update_comparison_eval_snapshot(state, packet)
+    return fired
+
+
+def comparison_wake_detail(trigger: dict[str, Any]) -> dict[str, Any]:
+    trigger_id = str(trigger.get("trigger_id") or "")
+    instrument = str(trigger.get("instrument") or "").upper()
+    return {
+        "wake_reason": f"COMPARISON_TRIGGER:{instrument}:{trigger_id}",
+        "wake_trigger": {
+            "type": "COMPARISON_TRIGGER",
+            "trigger_id": trigger_id,
+            "instrument": instrument,
+            "condition": trigger.get("condition"),
+            "path": trigger.get("path"),
+        },
+        "trigger_key": f"COMPARISON_TRIGGER:{trigger_id}",
+    }
