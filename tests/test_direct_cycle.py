@@ -1402,6 +1402,121 @@ class DirectCycleTests(unittest.TestCase):
         post_intent.assert_called_once()
         self.assertFalse((outbox / "packet-5.json").exists())
 
+    def test_pending_wrapped_outbox_discards_when_superseded(self):
+        from workflows.intent_outbox import write_outbox_record
+
+        stored = packet(5)
+        current = packet(6)
+        current["packet_id"] = "packet-6"
+        pending_intent = intent("NOTHING")
+
+        with tempfile.TemporaryDirectory() as root:
+            profile_root = Path(root)
+            state = MODULE.state_root(profile_root)
+            state.mkdir(parents=True)
+            frames = state / "minute-frames"
+            outbox = state / "outbox"
+            frames.mkdir(parents=True)
+            outbox.mkdir(parents=True)
+            MODULE.write_json_atomic(
+                frames / "20990101T1405Z.json",
+                {"minute_id": "20990101T1405Z", "packet": stored},
+            )
+            write_outbox_record(outbox / "packet-5.json", pending_intent)
+
+            args = argparse.Namespace(
+                profile="glitch-topstep",
+                timeout_seconds=30,
+                packet_rollover_wait_seconds=0,
+                dry_run=False,
+            )
+
+            def fake_request_json(path, token=None, method="GET", body=None):
+                del method, body
+                if "/intent/status" in path:
+                    return 200, {
+                        "schema_version": "glitch.topstep.intent_delivery_status.v1",
+                        "status": "not_seen",
+                    }
+                if path == "/health":
+                    return (
+                        200,
+                        {
+                            "schema_version": "glitch.direct.health.v2",
+                            "status": "ok",
+                            "compatibility": {
+                                "gateway_name": "glitch-topstep",
+                                "protocol_revision": "glitch.topstep.paired.v3",
+                                "gateway_version": "0.2.0",
+                                "intent_schemas": ["glitch.intent.v2", "glitch.intent.v3"],
+                                "decision_packet_schemas": [
+                                    "glitch.direct.decision_packet.v1",
+                                    "glitch.direct.decision_packet.v2",
+                                ],
+                                "capabilities": [
+                                    "packet_supported_actions",
+                                    "durable_mutation_receipts",
+                                    "restart_reconciliation",
+                                    "bounded_entry_range_v1",
+                                    "daily_capture_context_v1",
+                                    "explicit_partial_completed_bars_v1",
+                                    "revisioned_outcome_feed_v1",
+                                    "multi_instrument_observation_v1",
+                                    "protected_reduction_saga_v1",
+                                ],
+                                "semantic_revisions": {
+                                    "bounded_entry_range": "glitch.topstep.entry_range.v1",
+                                    "daily_capture": "glitch.topstep.daily_capture.v1",
+                                    "outcome_feed": "glitch.topstep.outcome_feed.v2",
+                                    "market_universe": "glitch.topstep.market_universe.v1",
+                                    "execution_facts": "glitch.topstep.execution_fact.v1",
+                                },
+                                "provider_acceptance_evidence": {
+                                    "partial_exit_protection_transition": "proven_prac_short_long_with_saga",
+                                    "exact_contract_resolution": "catalog_fixture_plus_runtime_resolution",
+                                },
+                                "paired_manifest_schema": "glitch.topstep.paired_release.v1",
+                            },
+                        },
+                    )
+                if path == "/packet":
+                    return (200, current)
+                if path == "/scanner":
+                    return (
+                        200,
+                        {
+                            "schema_version": "glitch.topstep.market_universe.v1",
+                            "candidates": [],
+                        },
+                    )
+                return (404, {"error": "not_found"})
+
+            with mock.patch.object(MODULE, "local_token", return_value="token"), mock.patch.object(
+                MODULE,
+                "request_json",
+                side_effect=fake_request_json,
+            ), mock.patch.object(
+                GATEWAY_CLIENT,
+                "request_json",
+                side_effect=fake_request_json,
+            ), mock.patch.object(
+                PARITY,
+                "request_json",
+                side_effect=fake_request_json,
+            ), mock.patch.object(MODULE, "wait_for_packet_rollover", return_value=current), mock.patch.object(
+                MODULE,
+                "packet_is_current",
+                return_value=True,
+            ), mock.patch.object(
+                MODULE,
+                "invocation_reason",
+                return_value=None,
+            ):
+                exit_code = MODULE.run_once(args, profile_root)
+
+        self.assertEqual(exit_code, 0)
+        self.assertFalse((outbox / "packet-5.json").exists())
+
     def test_main_records_detached_worker_failure(self):
         with tempfile.TemporaryDirectory() as root, mock.patch.object(
             MODULE,

@@ -16,6 +16,7 @@ class WorkflowModuleTests(unittest.TestCase):
             "scripts/workflows/gateway_session.py",
             "scripts/workflows/decision_journal.py",
             "scripts/workflows/cognition_prompt.py",
+            "scripts/workflows/wake_triggers.py",
         ]
         for relative in required:
             self.assertTrue((ROOT / relative).is_file(), relative)

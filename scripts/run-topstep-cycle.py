@@ -78,6 +78,7 @@ from common import (
     read_optional_json,
     request_json,
     sync_gateway_outcomes,
+    bootstrap_profile_state,
     tail_jsonl,
     use_hermes_model_routing,
     utc_now,
@@ -124,6 +125,7 @@ from parity import (
 )
 
 TRADING_SOURCE = "trading"
+_ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*m")
 ALLOWED_ACTIONS = {
     "ENTER_LONG",
     "ENTER_SHORT",
@@ -798,8 +800,11 @@ def invoke_hermes(
         ),
     )
     if completed.returncode != 0:
+        stderr = _ANSI_ESCAPE.sub("", completed.stderr or "").strip()
+        stdout = _ANSI_ESCAPE.sub("", completed.stdout or "").strip()
+        detail = stderr or stdout
         raise RuntimeError(
-            f"hermes_failed:{completed.returncode}:{completed.stderr.strip()[:400]}"
+            f"hermes_failed:{completed.returncode}:{detail[:400]}"
         )
     return extract_single_json_object(
         completed.stdout,
@@ -1374,7 +1379,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     verify_gateway_compatibility(health)
 
     state = state_root(root)
-    sync_gateway_outcomes(state)
+    bootstrap_profile_state(state)
 
     packet_status, packet = request_json("/packet", token=token)
     if packet_status != 200:
@@ -1405,7 +1410,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     pending = pending_outbox(state)
     if pending is not None:
         pending_id, pending_path = pending
-        pending_intent = read_json(pending_path)
+        _, pending_intent = load_outbox_record(pending_path)
         if defer_instrument_scope_mismatch(state, pending_id, pending_intent, packet):
             return 0
         if discard_stale_outbox_intent(
@@ -1684,6 +1689,15 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
             state, outbox_path, packet_id, intent, error
         ):
             return 0
+        if discard_superseded_delivery_error(
+            state,
+            outbox_path,
+            packet_id,
+            intent,
+            error,
+            token=token,
+        ):
+            return run_once(args, root)
         raise
     classification = classify_delivery_result(result)
     if classification != "transport_uncertain":

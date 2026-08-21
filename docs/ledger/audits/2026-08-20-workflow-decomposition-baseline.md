@@ -10,5 +10,6 @@
 | `scripts/workflows/gateway_session.py` | Delivery wire + POST /intent |
 | `scripts/workflows/decision_journal.py` | Indexed decisions writer |
 | `scripts/workflows/cognition_prompt.py` | Cycle context assembly |
+| `scripts/workflows/wake_triggers.py` | PRICE_CROSS / SESSION_PHASE wake evaluation and persistence |
 
 `parity.py` re-exports workflow APIs for backward compatibility. Regression: `tests/test_workflow_modules.py`.

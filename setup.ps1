@@ -1,6 +1,9 @@
 [CmdletBinding()]
 param(
-    [string]$Profile = 'glitch-topstep'
+    [string]$Profile = 'glitch-topstep',
+    [switch]$ForceConfig,
+    [switch]$SkipIntegrityCheck,
+    [switch]$SkipGatewayInstall
 )
 
 Set-StrictMode -Version Latest
@@ -57,11 +60,32 @@ function Ensure-HermesDistributionPatch {
 
 Ensure-HermesDistributionPatch
 
+function Get-DistributionOwnedPaths {
+    $yaml = Join-Path $profileRoot 'distribution.yaml'
+    $owned = @()
+    $inOwned = $false
+    foreach ($line in Get-Content -LiteralPath $yaml) {
+        if ($line -match '^distribution_owned:\s*$') {
+            $inOwned = $true
+            continue
+        }
+        if ($inOwned) {
+            if ($line -match '^\s+-\s+(.+)$') {
+                $owned += ($Matches[1].Trim().Trim('"').Trim("'") -replace '\\', '/')
+                continue
+            }
+            if ($line -match '^\S') { break }
+        }
+    }
+    return $owned
+}
+
 function Assert-DistributionIntegrity {
     $manifestPath = Join-Path $profileRoot 'SHA256SUMS'
     if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
         throw 'SHA256SUMS is missing; reinstall the profile before setup.'
     }
+    $ownedRoots = @(Get-DistributionOwnedPaths)
     foreach ($line in Get-Content -LiteralPath $manifestPath) {
         $line = $line.TrimStart([char]0xFEFF)
         if ([string]::IsNullOrWhiteSpace($line)) { continue }
@@ -70,9 +94,19 @@ function Assert-DistributionIntegrity {
             throw "Invalid SHA256SUMS line: $line"
         }
         $relative = $parts[1].Replace('/', '\')
+        $relativePosix = $parts[1]
         if ($relative -ieq 'distribution.yaml' -or $relative -ieq 'config.yaml') {
             continue
         }
+        $inOwned = $false
+        foreach ($root in $ownedRoots) {
+            $rootWin = $root.Replace('/', '\')
+            if ($relativePosix -eq $root -or $relativePosix.StartsWith("$root/")) {
+                $inOwned = $true
+                break
+            }
+        }
+        if (-not $inOwned) { continue }
         $path = [IO.Path]::GetFullPath((Join-Path $profileRoot $relative))
         if (-not $path.StartsWith($profileRoot.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) {
             throw "Manifest path escapes the profile: $relative"
@@ -171,8 +205,13 @@ function Ensure-CronJob {
     return [ordered]@{ name = $Name; id = $jobId; enabled = $preserveEnabled; schedule = $Schedule }
 }
 
-Assert-DistributionIntegrity
 Assert-DistributionManifest
+if (-not $SkipIntegrityCheck) {
+    Assert-DistributionIntegrity
+}
+else {
+    Write-Warning 'Skipping SHA256SUMS integrity check (operator recovery path).'
+}
 $requiredFiles = @(
     'scripts\common.py',
     'scripts\launch-topstep-cycle.py',
@@ -197,8 +236,13 @@ New-Item -ItemType Directory -Force -Path (Join-Path $profileRoot 'state\supervi
 
 & hermes -p $Profile plugins enable topstep-control --no-allow-tool-override | Out-Null
 if ($LASTEXITCODE -ne 0) { throw 'Could not enable the Topstep control plugin.' }
-& hermes -p $Profile gateway install --start-now --start-on-login
-if ($LASTEXITCODE -ne 0) { throw 'Could not install the supervised Glitch Topstep Hermes gateway.' }
+if (-not $SkipGatewayInstall) {
+    & hermes -p $Profile gateway install --start-now --start-on-login
+    if ($LASTEXITCODE -ne 0) { throw 'Could not install the supervised Glitch Topstep Hermes gateway.' }
+}
+else {
+    Write-Warning 'Skipping gateway install (operator recovery path). Run: hermes gateway install --start-now'
+}
 
 $hermesCommand = Get-Command hermes -ErrorAction Stop
 $python = Join-Path (Split-Path $hermesCommand.Source -Parent) 'python.exe'

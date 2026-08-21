@@ -75,9 +75,38 @@ def load_dotenv(path: Path) -> None:
         os.environ[key] = value
 
 
+_PARENT_PROVIDER_KEYS = (
+    "OPENROUTER_API_KEY",
+    "OPENAI_API_KEY",
+    "ANTHROPIC_API_KEY",
+)
+
+
+def load_parent_hermes_provider_env() -> None:
+    """Fill provider API keys from %LOCALAPPDATA%/hermes/.env when the profile omits them."""
+    local_app = os.environ.get("LOCALAPPDATA")
+    if not local_app:
+        return
+    parent_env = Path(local_app) / "hermes" / ".env"
+    if not parent_env.is_file():
+        return
+    for raw in parent_env.read_text(encoding="utf-8-sig", errors="replace").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        if key not in _PARENT_PROVIDER_KEYS or os.environ.get(key):
+            continue
+        value = value.strip().strip('"').strip("'")
+        if value:
+            os.environ[key] = value
+
+
 def configure_environment(root: Path | None = None) -> Path:
     resolved = (root or profile_root()).resolve()
     load_dotenv(resolved / ".env")
+    load_parent_hermes_provider_env()
     return resolved
 
 
@@ -250,6 +279,18 @@ def sync_gateway_outcomes_meta(state: Path) -> dict[str, Any]:
 def sync_gateway_outcomes(state: Path) -> int:
     """Append new canonical trade outcomes exposed by the gateway."""
     return int(sync_gateway_outcomes_meta(state).get("added") or 0)
+
+
+def bootstrap_profile_state(state: Path) -> dict[str, Any]:
+    """GTHP-REAUDIT-01: index decisions + sync outcomes before cycle/learning work."""
+    from workflows.decision_journal import DecisionJournal
+
+    journal = DecisionJournal(state)
+    try:
+        journal.bootstrap(state / "decisions.jsonl")
+    finally:
+        journal.close()
+    return sync_gateway_outcomes_meta(state)
 
 
 def sync_gateway_execution_facts(state: Path) -> dict[str, Any]:
