@@ -21,9 +21,9 @@ from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from model_owner_lock import acquire_model_owner, release_model_owner
 from common import (
     PROFILE_NAME,
-    acquire_cycle_lock,
     append_jsonl,
     configure_environment,
     extract_single_json_object,
@@ -1098,7 +1098,7 @@ def main() -> int:
     lock_path = state / "learning-cycle.lock"
     run_id = stable_id("learning-run", utc_now())
     started_utc = utc_now()
-    if not acquire_cycle_lock(lock_path):
+    if not acquire_model_owner(state, owner_kind="learning", invocation_id=run_id):
         write_json_atomic(supervisor / "learning-worker-status.json", {
             "schema_version": "glitch.topstep.learning_worker_status.v2",
             "run_id": run_id,
@@ -1118,17 +1118,6 @@ def main() -> int:
         "retryable": False,
     })
     try:
-        if (state / "direct-cycle.lock").is_file():
-            write_json_atomic(supervisor / "learning-worker-status.json", {
-                "schema_version": "glitch.topstep.learning_worker_status.v2",
-                "run_id": run_id,
-                "started_utc": started_utc,
-                "recorded_utc": utc_now(),
-                "status": "deferred",
-                "phase": "trading_priority",
-                "retryable": True,
-            })
-            return 0
         try:
             result = run_once(args, root)
         except Exception as error:
@@ -1159,7 +1148,7 @@ def main() -> int:
         print(json.dumps(result, separators=(",", ":")))
         return 0
     finally:
-        lock_path.unlink(missing_ok=True)
+        release_model_owner(state, owner_kind="learning", invocation_id=run_id)
 
 
 if __name__ == "__main__":

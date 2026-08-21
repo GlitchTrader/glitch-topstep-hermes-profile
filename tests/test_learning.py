@@ -463,21 +463,20 @@ class LearningTests(unittest.TestCase):
             self.assertEqual(result["outcomes_synced"], 1)
             self.assertEqual(result["outcomes_sync_http_status"], 200)
 
-    def test_main_defers_when_direct_cycle_lock_is_active(self):
+    def test_main_defers_when_model_owner_is_busy(self):
         with tempfile.TemporaryDirectory() as root, mock.patch.object(
             MODULE, "configure_environment", return_value=Path(root)
-        ), mock.patch.object(MODULE, "acquire_cycle_lock", return_value=True), mock.patch.object(
+        ), mock.patch.object(MODULE, "acquire_model_owner", return_value=False), mock.patch.object(
             sys, "argv", ["run-topstep-learning.py", "--dry-run"]
         ):
             state = Path(root) / "state"
             supervisor = state / "supervisor"
             supervisor.mkdir(parents=True)
-            (state / "direct-cycle.lock").write_text("locked", encoding="utf-8")
             code = MODULE.main()
             status = json.loads((supervisor / "learning-worker-status.json").read_text(encoding="utf-8"))
         self.assertEqual(code, 0)
-        self.assertEqual(status["status"], "deferred")
-        self.assertEqual(status["phase"], "trading_priority")
+        self.assertEqual(status["status"], "preempted")
+        self.assertEqual(status["phase"], "lock_admission")
 
     def test_weekly_output_template_schema(self):
         template = MODULE.output_template("weekly", ["proposal-1"])
