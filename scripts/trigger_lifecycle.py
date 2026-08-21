@@ -110,8 +110,8 @@ def persist_comparison_triggers(state: Path, intent: dict[str, Any], packet_id: 
             "triggers": list(merged.values()),
         },
     )
-    if str(intent.get("action") or "").upper() == "NOTHING" and any(
-        row.get("status") == "HELD" for row in merged.values()
+    if str(intent.get("action") or "").upper() == "NOTHING" and _has_active_held(
+        merged.values()
     ):
         write_json_atomic(
             pending_held_rescan_path(supervisor),
@@ -126,9 +126,17 @@ def persist_comparison_triggers(state: Path, intent: dict[str, Any], packet_id: 
 
 
 def pending_held_rescan_reason(state: Path) -> str | None:
-    pending = read_optional_json(pending_held_rescan_path(state / "supervisor"))
-    if pending:
+    supervisor = state / "supervisor"
+    pending = read_optional_json(pending_held_rescan_path(supervisor))
+    if not pending:
+        return None
+    document = read_optional_json(comparison_trigger_path(supervisor))
+    rows = document.get("triggers") if isinstance(document, dict) else None
+    if isinstance(rows, list) and _has_active_held(
+        row for row in rows if isinstance(row, dict)
+    ):
         return "held_rescan"
+    consume_pending_held_rescan(state)
     return None
 
 
@@ -167,6 +175,19 @@ def _trigger_expired(trigger: dict[str, Any], now: datetime) -> bool:
         return parse_utc(raw) <= now
     except (TypeError, ValueError):
         return True
+
+
+def _has_active_held(rows: Any) -> bool:
+    now = datetime.now(timezone.utc)
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        if row.get("status") != "HELD":
+            continue
+        if _trigger_expired(row, now):
+            continue
+        return True
+    return False
 
 
 def _trigger_condition_met(
