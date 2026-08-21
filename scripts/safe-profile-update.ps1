@@ -298,6 +298,29 @@ if ($LASTEXITCODE -ne 0) {
 
 Remove-StagingArtifacts -Root $profileRoot
 
+function Sync-LocalProfilePatches {
+    param([string]$Root)
+    $repoRoot = $env:GLITCH_TOPSTEP_PROFILE_REPO
+    if ([string]::IsNullOrWhiteSpace($repoRoot) -or -not (Test-Path -LiteralPath $repoRoot -PathType Container)) {
+        return
+    }
+    foreach ($rel in @(
+            'setup.ps1', 'distribution.yaml', 'paired-contract.json', 'SHA256SUMS',
+            'scripts\safe-profile-update.ps1', 'scripts\unblock-profile-install.ps1'
+        )) {
+        $src = Join-Path $repoRoot $rel
+        if (-not (Test-Path -LiteralPath $src -PathType Leaf)) { continue }
+        $dest = Join-Path $Root $rel
+        $destDir = Split-Path $dest -Parent
+        if (-not (Test-Path -LiteralPath $destDir)) {
+            New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+        }
+        Copy-Item -LiteralPath $src -Destination $dest -Force
+    }
+    Write-Host "Applied local profile patches from $repoRoot"
+}
+
+Sync-LocalProfilePatches -Root $profileRoot
 $setup = Join-Path $profileRoot 'setup.ps1'
 & powershell -ExecutionPolicy Bypass -File $setup
 if ($LASTEXITCODE -ne 0) {
