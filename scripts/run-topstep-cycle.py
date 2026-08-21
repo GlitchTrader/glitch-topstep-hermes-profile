@@ -581,6 +581,8 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "Encode the complete comparison only in decision_audit.decisive_evidence using the supplied "
     "INSTRUMENT_COMPARISON_V1 line template (see topstep-market-scan). Put prior_hypothesis and "
     "frame continuity in disconfirming_evidence when recent_frames is non-empty. "
+    "When continuity_gap.present is true, do not infer unobserved transitions inside the gap; "
+    "rebuild from the current packet and state the gap in disconfirming_evidence. "
     "MCL is Micro Crude Oil; MCLE is only ProjectX identity. "
     "Use market.session_levels.reliable as the authoritative session-level reliability field. "
     "When session_levels.available is false or session_levels.reliable is false, do not treat "
