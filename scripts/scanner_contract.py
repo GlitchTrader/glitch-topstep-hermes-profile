@@ -23,6 +23,10 @@ TRIGGER_LINE_PREFIXES = (
     "TRIGGER_STATUS",
 )
 TRIGGER_STATUSES = {"HELD", "FAILED", "EXPIRED"}
+PRIOR_TRIGGER_REVIEW_PREFIX = re.compile(
+    r"^(HELD|FAILED|EXPIRED)([:|].+)?$",
+    re.IGNORECASE,
+)
 _INSTRUMENT_HEADER = re.compile(r"^INSTRUMENT\s+([A-Za-z0-9._-]+)\s*:\s*$")
 _FIELD_LINE = re.compile(r"^(?P<key>[A-Z_]+)\s*=\s*(?P<value>.+?)\s*$")
 
@@ -392,4 +396,48 @@ def validate_comparison_ledger(
     if not selection_reason or _placeholder_value(selection_reason):
         raise ValueError("candidate_comparison_selection_incomplete")
 
+    return value
+
+
+def validate_trigger_review_ledger(
+    text: Any,
+    packet: dict[str, Any],
+    *,
+    action: str | None = None,
+) -> dict[str, Any]:
+    """TRIGGER_REVIEW_V1: every candidate must classify the prior frozen trigger."""
+    value = validate_comparison_ledger(text, packet, action=action)
+    if value is None:
+        raise ValueError("instrument_comparison_missing")
+    for row in value.get("candidates") or []:
+        if not isinstance(row, dict):
+            continue
+        instrument = str(row.get("instrument") or "").upper()
+        review = str(row.get("prior_trigger_review") or "").strip()
+        if not review or review.upper() == "NOT_APPLICABLE":
+            raise ValueError(f"prior_trigger_review_required:{instrument}")
+        if not PRIOR_TRIGGER_REVIEW_PREFIX.match(review):
+            raise ValueError(f"prior_trigger_review_invalid:{instrument}")
+    return value
+
+
+def validate_trigger_review_ledger(
+    text: Any,
+    packet: dict[str, Any],
+    *,
+    action: str | None = None,
+) -> dict[str, Any]:
+    """TRIGGER_REVIEW_V1: every candidate must classify the prior frozen trigger."""
+    value = validate_comparison_ledger(text, packet, action=action)
+    if value is None:
+        raise ValueError("instrument_comparison_missing")
+    for row in value.get("candidates") or []:
+        if not isinstance(row, dict):
+            continue
+        instrument = str(row.get("instrument") or "").upper()
+        review = str(row.get("prior_trigger_review") or "").strip()
+        if not review or review.upper() == "NOT_APPLICABLE":
+            raise ValueError(f"prior_trigger_review_required:{instrument}")
+        if not PRIOR_TRIGGER_REVIEW_PREFIX.match(review):
+            raise ValueError(f"prior_trigger_review_invalid:{instrument}")
     return value

@@ -469,6 +469,67 @@ def protection_status_management_guidance(status: str | None) -> str | None:
     )
 
 
+def resolve_cycle_invocation(
+    state: Path,
+    packet: dict[str, Any],
+    directive: dict[str, Any] | None,
+    *,
+    flat_decision_interval_minutes: int,
+) -> tuple[str | None, dict[str, Any] | None]:
+    """Resolve one direct-cycle invocation: wake first, held rescan fallback, then scheduled."""
+    from trigger_lifecycle import (
+        comparison_wake_detail,
+        evaluate_comparison_triggers,
+        pending_held_rescan_reason,
+    )
+
+    packet_id = str(packet.get("packet_id") or "")
+    account = packet.get("account") if isinstance(packet.get("account"), dict) else {}
+    is_positioned = int(account.get("instrument_open_contracts") or 0) != 0
+
+    if directive is not None:
+        return "operator_directive", None
+    if is_positioned:
+        return "positioned", None
+
+    pending_wake = read_pending_wake_invocation(state)
+    if pending_wake:
+        return "condition_change", {
+            "wake_reason": pending_wake.get("wake_reason"),
+            "wake_trigger": pending_wake.get("wake_trigger"),
+            "trigger_key": pending_wake.get("trigger_key"),
+        }
+
+    comparison_fired = evaluate_comparison_triggers(state, packet)
+    if comparison_fired:
+        return "condition_change", comparison_wake_detail(comparison_fired[0])
+
+    wake_detail = evaluate_wake_triggers(state, packet)
+    if wake_detail:
+        return "condition_change", wake_detail
+
+    if flat_outside_session_window(packet, directive):
+        return None, None
+
+    held = pending_held_rescan_reason(
+        state,
+        packet,
+        flat_decision_interval_minutes=flat_decision_interval_minutes,
+    )
+    if held:
+        return held, None
+
+    if not last_evidence_exists(state):
+        return "first_packet", None
+    prior = latest_prior_attempt(state, packet_id)
+    if prior is not None and prior.get("status") in RETRYABLE_ATTEMPT_STATUSES:
+        return "retry_after_failure", None
+    minute = parse_utc(packet["created_utc"]).minute
+    if minute % flat_decision_interval_minutes == 0:
+        return "scheduled", None
+    return None, None
+
+
 def invocation_reason(
     packet: dict[str, Any],
     state: Path,

@@ -109,8 +109,9 @@ class TriggerLifecycleTests(unittest.TestCase):
             TL.persist_comparison_triggers(state, intent, "packet-1")
             pending_path = TL.pending_held_rescan_path(state / "supervisor")
             self.assertTrue(pending_path.is_file())
+            self.assertIsNone(TL.pending_held_rescan_reason(state, _flat_packet(0)))
             self.assertEqual(
-                TL.pending_held_rescan_reason(state, _flat_packet(0)),
+                TL.pending_held_rescan_reason(state, _flat_packet(5)),
                 "held_rescan",
             )
 
@@ -215,6 +216,49 @@ class TriggerLifecycleTests(unittest.TestCase):
         self.assertEqual(fired[0]["trigger_id"], "trigger-mnq")
         detail = TL.comparison_wake_detail(fired[0])
         self.assertEqual(detail["wake_reason"], "COMPARISON_TRIGGER:MNQ:trigger-mnq")
+
+    def test_reconcile_persists_expired_held_to_disk(self):
+        ledger = _ledger("trigger-mnq")
+        for row in ledger["candidates"]:
+            for trigger in row["triggers"]:
+                trigger["expires_utc"] = "2000-01-01T12:05:00Z"
+        intent = _intent_from_ledger(ledger)
+        intent["expires_utc"] = "2000-01-01T12:05:00Z"
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp) / "state"
+            TL.persist_comparison_triggers(state, intent, "packet-1")
+            TL.pending_held_rescan_reason(state, _flat_packet(0))
+            document = json.loads(
+                (state / "supervisor" / "active-comparison-triggers.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+        statuses = {row["trigger_id"]: row["status"] for row in document["triggers"]}
+        self.assertEqual(statuses["trigger-mnq"], "EXPIRED")
+
+    def test_omitted_instrument_is_expired_on_new_ledger(self):
+        ledger = _ledger("trigger-mnq")
+        for row in ledger["candidates"]:
+            for trigger in row["triggers"]:
+                trigger["expires_utc"] = "2099-01-01T12:05:00Z"
+        intent = _intent_from_ledger(ledger, packet_id="packet-1")
+        intent["expires_utc"] = "2099-01-01T12:05:00Z"
+        partial = _ledger("trigger-mnq-next", packet_id="packet-2")
+        partial["candidates"] = [partial["candidates"][0]]
+        partial["ranking"] = ["MNQ"]
+        next_intent = _intent_from_ledger(partial, packet_id="packet-2")
+        next_intent["expires_utc"] = "2099-01-01T12:10:00Z"
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp) / "state"
+            TL.persist_comparison_triggers(state, intent, "packet-1")
+            TL.persist_comparison_triggers(state, next_intent, "packet-2")
+            document = json.loads(
+                (state / "supervisor" / "active-comparison-triggers.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+        mes = next(row for row in document["triggers"] if row["trigger_id"] == "trigger-mes")
+        self.assertEqual(mes["status"], "EXPIRED")
 
 
 if __name__ == "__main__":
