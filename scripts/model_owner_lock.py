@@ -10,7 +10,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
 
-from common import append_jsonl, process_matches_owner, process_start_utc, read_json, utc_now
+from common import (
+    append_jsonl,
+    process_is_alive,
+    process_matches_owner,
+    process_start_utc,
+    read_json,
+    utc_now,
+)
 
 OwnerKind = Literal["direct_cycle", "learning", "wake_monitor", "repair"]
 OwnerState = Literal[
@@ -48,10 +55,18 @@ def _owner_alive(owner: dict[str, Any]) -> bool:
     if pid <= 0:
         return False
     try:
-        os.kill(pid, 0)
-    except OSError:
+        if not process_is_alive(pid):
+            return False
+    except SystemError:
         return False
     return process_matches_owner(pid, owner.get("process_start_utc"))
+
+
+def active_model_owner(state: Path) -> dict[str, Any] | None:
+    owner = read_model_owner(model_owner_lock_path(state))
+    if isinstance(owner, dict) and _owner_alive(owner):
+        return owner
+    return None
 
 
 def _read_generation(lock_path: Path) -> int:
@@ -77,7 +92,7 @@ def _request_owner_stand_down(
         return True
     try:
         os.kill(pid, signal.SIGTERM)
-    except OSError:
+    except (OSError, SystemError):
         return not _owner_alive(owner)
     deadline = time.monotonic() + grace_seconds
     while time.monotonic() < deadline:

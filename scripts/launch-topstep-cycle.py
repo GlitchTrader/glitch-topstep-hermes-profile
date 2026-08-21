@@ -10,7 +10,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from common import PROFILE_NAME, configure_environment
+from common import PROFILE_NAME, configure_environment, state_root
+from model_owner_lock import active_model_owner
 
 
 def worker_command(args: argparse.Namespace) -> list[str]:
@@ -31,7 +32,17 @@ def worker_command(args: argparse.Namespace) -> list[str]:
 
 def launch(args: argparse.Namespace) -> dict[str, object]:
     root = configure_environment()
-    events = root / "state" / "events"
+    state = state_root(root)
+    active = active_model_owner(state)
+    if active is not None:
+        return {
+            "launched": False,
+            "reason": "direct_cycle_already_running",
+            "owner_kind": active.get("owner_kind"),
+            "pid": active.get("pid"),
+        }
+
+    events = state / "events"
     events.mkdir(parents=True, exist_ok=True)
     log_path = events / "direct-worker.log"
 
