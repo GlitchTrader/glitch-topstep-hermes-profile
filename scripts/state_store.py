@@ -55,21 +55,25 @@ class ProfileStateStore:
         self._decisions_jsonl = jsonl_path
         if not jsonl_path.is_file():
             return
-        row = self.db.execute(
-            "SELECT value FROM sync_meta WHERE key = 'decisions_jsonl_lines'"
+        offset_row = self.db.execute(
+            "SELECT value FROM sync_meta WHERE key = 'decisions_jsonl_offset'"
         ).fetchone()
-        initial_skip = int(row[0]) if row else 0
-        skip = initial_skip
+        offset = int(offset_row[0]) if offset_row else 0
+        size = jsonl_path.stat().st_size
+        if offset >= size:
+            return
+        with jsonl_path.open("rb") as stream:
+            stream.seek(offset)
+            chunk = stream.read()
+        if not chunk:
+            return
         pending: list[str] = []
-        for raw in jsonl_path.read_text(encoding="utf-8").splitlines():
-            if not raw.strip():
-                continue
-            if skip > 0:
-                skip -= 1
-                continue
-            pending.append(raw)
+        for raw in chunk.decode("utf-8").splitlines():
+            if raw.strip():
+                pending.append(raw)
         if not pending:
             return
+        new_offset = offset + len(chunk)
         with self.db:
             for raw in pending:
                 row = json.loads(raw)
@@ -78,10 +82,21 @@ class ProfileStateStore:
                 self._insert_decision(row)
             self.db.execute(
                 """
+                INSERT INTO sync_meta(key, value) VALUES ('decisions_jsonl_offset', ?)
+                ON CONFLICT(key) DO UPDATE SET value = excluded.value
+                """,
+                (str(new_offset),),
+            )
+            line_row = self.db.execute(
+                "SELECT value FROM sync_meta WHERE key = 'decisions_jsonl_lines'"
+            ).fetchone()
+            prior_lines = int(line_row[0]) if line_row else 0
+            self.db.execute(
+                """
                 INSERT INTO sync_meta(key, value) VALUES ('decisions_jsonl_lines', ?)
                 ON CONFLICT(key) DO UPDATE SET value = excluded.value
                 """,
-                (str(initial_skip + len(pending)),),
+                (str(prior_lines + len(pending)),),
             )
 
     def bootstrap_decisions(self, jsonl_path: Path) -> None:
