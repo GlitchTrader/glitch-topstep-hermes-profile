@@ -1428,6 +1428,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         if pending_packet is None:
             raise ValueError("pending_outbox_packet_not_found")
         validate_intent(pending_intent, pending_packet, None)
+        ensure_model_attempt(state, pending_id, reason="pending_outbox_delivery")
         if args.dry_run:
             print(
                 json.dumps(

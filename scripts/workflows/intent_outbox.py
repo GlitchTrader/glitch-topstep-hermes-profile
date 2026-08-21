@@ -234,6 +234,17 @@ def discard_outbox_after_receipt_gate(
                 },
             )
             return False
+        try:
+            outbox_path.unlink(missing_ok=True)
+        except OSError:
+            return False
+        _emit_discarded_stale_packet(
+            state,
+            reason=reason,
+            packet_id=packet_id,
+            intent=intent,
+        )
+        return True
     gate = gateway_receipt_gate(state, packet_id, intent, token=token)
     if gate != "discard":
         return False

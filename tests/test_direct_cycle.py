@@ -1603,7 +1603,8 @@ class DirectCycleTests(unittest.TestCase):
             self.assertFalse(discarded)
             self.assertTrue(outbox_path.exists())
             events = (state / "events.jsonl").read_text(encoding="utf-8")
-            self.assertIn("outbox_retained_gateway_receipt", events)
+            self.assertIn("outbox_retained_delivery_unknown", events)
+            self.assertIn("registered", events)
 
     def test_discard_superseded_delivery_error_maps_packet_superseded(self):
         with tempfile.TemporaryDirectory() as root:
