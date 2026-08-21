@@ -1,0 +1,38 @@
+INSTRUMENT_COMPARISON_V1
+INSTRUMENT MNQ:
+CURRENT_AUCTION=partial 1m below 5m VWAP; quote fresh; observation ready
+BULLISH_PATH=reclaim 5m VWAP with 1m higher low sequence
+BEARISH_PATH=lose 1m partial low and 60m range mid
+NEXT_TRANSITION=hold below VWAP → bearish continuation test
+PRIOR_TRIGGER_REVIEW=NOT_APPLICABLE
+ASYMMETRY=slight bearish edge; timing mixed; MNQ selected-contract flow neutral
+TRIGGER_ID=mnq-next-vwap-reclaim
+TRIGGER_PATH=NEXT
+TRIGGER_CONDITION=1m close above 5m rolling_vwap_20 with non-negative 60s delta
+TRIGGER_STATUS=HELD
+INSTRUMENT MES:
+CURRENT_AUCTION=5m range mid; quote fresh; bars lag one minute
+BULLISH_PATH=break above 5m range high with 1m follow-through
+BEARISH_PATH=reject range high and return to mid
+NEXT_TRANSITION=failed high break → fade to mid
+PRIOR_TRIGGER_REVIEW=NOT_APPLICABLE
+ASYMMETRY=neutral; no clear edge after fees
+TRIGGER_ID=mes-range-high-break
+TRIGGER_PATH=NEXT
+TRIGGER_CONDITION=1m close above 5m range high with positive 60s delta
+TRIGGER_STATUS=HELD
+INSTRUMENT MCL:
+CURRENT_AUCTION=60m down-channel; partial 1m basing near low
+BULLISH_PATH=reclaim 5m mid with crude beta support
+BEARISH_PATH=lose partial low and extend channel
+NEXT_TRANSITION=hold below 5m mid → continuation lower
+PRIOR_TRIGGER_REVIEW=NOT_APPLICABLE
+ASYMMETRY=bearish context; timing poor for long entry
+TRIGGER_ID=mcl-mid-reclaim
+TRIGGER_PATH=NEXT
+TRIGGER_CONDITION=1m close above 5m mid with non-negative 60s delta
+TRIGGER_STATUS=HELD
+RANKING=MNQ,MES,MCL
+SELECTION_INSTRUMENT=MNQ
+SELECTION_ACTION=NOTHING
+SELECTION_REASON=symmetric bars ready but no candidate retains positive EV after fees and scope

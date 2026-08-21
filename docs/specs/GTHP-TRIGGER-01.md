@@ -1,6 +1,6 @@
 # GTHP-TRIGGER-01 — frozen per-path trigger lifecycle
 
-Comparison triggers live in `decision_audit.decisive_evidence` as `INSTRUMENT_COMPARISON_V1`.
+Comparison triggers live in `decision_audit.decisive_evidence` as an `INSTRUMENT_COMPARISON_V1` line ledger (Phase B); Phase D2 will move the same structure to a native object.
 
 ## Runtime
 

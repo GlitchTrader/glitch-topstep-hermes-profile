@@ -39,7 +39,12 @@ from trigger_lifecycle import (
     pending_held_rescan_reason,
     persist_comparison_triggers,
 )
-from scanner_contract import comparison_template, validate_comparison_ledger
+from scanner_contract import (
+    backfill_constant_comparison_fields,
+    comparison_template,
+    multi_candidate_packet,
+    validate_comparison_ledger,
+)
 from cognition_cycle import recent_cycle_context
 from state_store import ProfileStateStore
 from common import (
@@ -133,11 +138,9 @@ GATEWAY_REASON_MAX_LENGTH = 1000
 GATEWAY_AUDIT_FIELD_MAX_LENGTH = 5000
 ACTION_PLACEHOLDER = "<CHOOSE_FROM_supported_actions>"
 CONFIDENCE_PLACEHOLDER = "<0.0-1.0>"
-PRIOR_HYPOTHESIS_LABELS = (
-    "CONFIRMED",
-    "INVALIDATED",
-    "PARTIALLY_CONFIRMED",
-    "UNCHANGED",
+PRIOR_HYPOTHESIS_RE = re.compile(
+    r"prior_hypothesis=(CONFIRMED|INVALIDATED|PARTIALLY_CONFIRMED|UNCHANGED)",
+    re.IGNORECASE,
 )
 
 
@@ -557,8 +560,10 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "not automatic cognitive vetoes. Do not invent missing facts. "
     "When market_universe has multiple candidates, complete CURRENT_AUCTION, BULLISH_PATH, "
     "BEARISH_PATH, NEXT_TRANSITION, and frozen trigger status for every candidate before ranking. "
-    "Encode that exact complete ledger in decision_audit.decisive_evidence using the supplied "
-    "INSTRUMENT_COMPARISON_V1 template. MCL is Micro Crude Oil; MCLE is only ProjectX identity. "
+    "Encode the complete comparison only in decision_audit.decisive_evidence using the supplied "
+    "INSTRUMENT_COMPARISON_V1 line template (see topstep-market-scan). Put prior_hypothesis and "
+    "frame continuity in disconfirming_evidence when recent_frames is non-empty. "
+    "MCL is Micro Crude Oil; MCLE is only ProjectX identity. "
     "When market.session_levels_reliable is false, do not treat session_high/low as structural edges; "
     "use order_flow windows and observation range features instead. "
     "When market_alignment.synchronized is false, use quote and order_flow for timing and "
@@ -585,8 +590,11 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "Replace template placeholders action and confidence with real values; never emit placeholder strings. "
     "decision_audit must include bull_case, bear_case, flat_case, aggressive_case, conservative_case, "
     "decisive_evidence, disconfirming_evidence, change_condition, and final_choice (matching action). "
-    "decisive_evidence must begin with prior_hypothesis=<CONFIRMED|INVALIDATED|PARTIALLY_CONFIRMED|UNCHANGED> "
-    "versus the immediately prior frame when recent_frames is non-empty, then state material deltas since that frame. "
+    "When market_universe has a single candidate, decisive_evidence must begin with "
+    "prior_hypothesis=<CONFIRMED|INVALIDATED|PARTIALLY_CONFIRMED|UNCHANGED> versus the immediately "
+    "prior frame when recent_frames is non-empty, then state material deltas since that frame. "
+    "When multiple candidates are present, decisive_evidence must contain only the INSTRUMENT_COMPARISON_V1 "
+    "line ledger; put prior_hypothesis continuity in disconfirming_evidence instead. "
     "change_condition is an advisory re-evaluation hypothesis, not a rigid execution gate; "
     "rewrite it when cycle_evidence_delta or prior ledger repetition guidance indicates stale wording. "
     "Action contract: ENTER_LONG and ENTER_SHORT require positive integer quantity, order_type MARKET, "
@@ -649,18 +657,26 @@ def build_prompt(
     )
 
     audit = template.setdefault("decision_audit", {})
+    multi_candidate = multi_candidate_packet(packet)
     for field in AUDIT_FIELDS:
         if field == "decisive_evidence":
+            if multi_candidate:
+                audit[field] = comparison_template(packet)
+            else:
+                audit[field] = (
+                    "Replace. Begin with prior_hypothesis=<CONFIRMED|INVALIDATED|"
+                    "PARTIALLY_CONFIRMED|UNCHANGED> then material deltas since prior frame."
+                )
+        elif field == "disconfirming_evidence" and multi_candidate:
             audit[field] = (
-                "Replace. Begin with prior_hypothesis=<CONFIRMED|INVALIDATED|"
-                "PARTIALLY_CONFIRMED|UNCHANGED> then material deltas since prior frame."
+                "Replace. When recent_frames is non-empty, begin with "
+                "prior_hypothesis=<CONFIRMED|INVALIDATED|PARTIALLY_CONFIRMED|UNCHANGED> "
+                "then material deltas since prior frame."
             )
         elif field == "final_choice":
             audit[field] = ACTION_PLACEHOLDER
         else:
             audit[field] = "Replace"
-    if len(packet.get("market_universe", {}).get("candidates", [])) > 1:
-        audit["decisive_evidence"] = comparison_template(packet)
 
     protection_guidance = protection_status_management_guidance(
         packet_protection_status(packet),
@@ -729,8 +745,8 @@ def invoke_hermes(
         "4",
         "--skills",
         (
-            "topstep-observe-market,topstep-assess-risk,topstep-form-thesis,"
-            "topstep-build-intent"
+            "topstep-observe-market,topstep-market-scan,topstep-assess-risk,"
+            "topstep-form-thesis,topstep-build-intent"
         ),
         "--toolsets",
         "memory",
@@ -923,6 +939,8 @@ def validate_intent(
     intent: dict[str, Any],
     packet: dict[str, Any],
     directive: dict[str, Any] | None = None,
+    *,
+    frames: list[dict[str, Any]] | None = None,
 ) -> None:
     action = intent.get("action")
     if action not in ALLOWED_ACTIONS:
@@ -981,7 +999,16 @@ def validate_intent(
     decisive = audit.get("decisive_evidence")
     if isinstance(decisive, str) and decisive.strip().startswith("Replace"):
         raise ValueError("decision_audit_placeholder_not_replaced")
-    comparison = validate_comparison_ledger(decisive, packet)
+    comparison = validate_comparison_ledger(decisive, packet, action=action)
+    frame_context = frames or []
+    if frame_context:
+        continuity = (
+            audit.get("disconfirming_evidence")
+            if multi_candidate_packet(packet)
+            else decisive
+        )
+        if not isinstance(continuity, str) or not PRIOR_HYPOTHESIS_RE.search(continuity):
+            raise ValueError("prior_hypothesis_missing")
     if (
         comparison is not None
         and action in {"ENTER_LONG", "ENTER_SHORT"}
@@ -1108,6 +1135,8 @@ def invoke_valid_intent(
     packet: dict[str, Any],
     directive: dict[str, Any] | None,
     timeout_seconds: int,
+    *,
+    frames: list[dict[str, Any]] | None = None,
 ) -> tuple[dict[str, Any], int]:
     current_prompt = prompt
     for repair_count in range(2):
@@ -1116,7 +1145,8 @@ def invoke_valid_intent(
                 invoke_hermes(profile, current_prompt, timeout_seconds),
                 packet,
             )
-            validate_intent(intent, packet, directive)
+            backfill_constant_comparison_fields(intent)
+            validate_intent(intent, packet, directive, frames=frames)
             return intent, repair_count
         except ValueError as error:
             if repair_count:
@@ -1490,6 +1520,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
                 packet,
                 directive,
                 args.timeout_seconds,
+                frames=frames,
             )
         except Exception as error:
             attempt = read_json(attempt_path)

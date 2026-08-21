@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from common import read_optional_json, utc_now, write_json_atomic
-from scanner_contract import MARKER, TRIGGER_STATUSES
+from scanner_contract import MARKER, TRIGGER_STATUSES, parse_comparison_line
 
 
 SCHEMA_VERSION = "glitch.topstep.comparison_triggers.v1"
@@ -27,12 +27,18 @@ def parse_comparison_ledger(intent: dict[str, Any]) -> dict[str, Any] | None:
     if not isinstance(audit, dict):
         return None
     text = audit.get("decisive_evidence")
-    if not isinstance(text, str) or not text.startswith(MARKER):
+    if not isinstance(text, str):
         return None
-    value = json.loads(text[len(MARKER) :])
-    if not isinstance(value, dict):
-        raise ValueError("instrument_comparison_invalid")
-    return value
+    stripped = text.lstrip()
+    if not stripped.startswith(MARKER):
+        return None
+    if stripped.startswith("INSTRUMENT_COMPARISON_V1:"):
+        raise ValueError("instrument_comparison_legacy_json")
+    return parse_comparison_line(
+        text,
+        packet_id=str(intent.get("packet_id") or ""),
+        expires_utc=str(intent.get("expires_utc") or ""),
+    )
 
 
 def _trigger_map(document: dict[str, Any] | None) -> dict[str, dict[str, Any]]:
