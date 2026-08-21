@@ -108,25 +108,25 @@ def sanitize_market_for_model(market: dict[str, Any]) -> dict[str, Any]:
     high = _finite_number(market.get("session_high"))
     low = _finite_number(market.get("session_low"))
     session_open = _finite_number(market.get("session_open"))
-    reliable = True
-    if last is not None and high is not None and low is not None:
-        if high == low == last:
-            reliable = False
-        elif (
-            session_open is not None
-            and high == low == session_open == last
-        ):
-            reliable = False
-    out["session_levels_reliable"] = reliable
-    if not reliable:
-        out["session_levels_note"] = (
-            "session_high/low mirror last or session_open; "
-            "prefer order_flow 60s high/low or observation range features"
-        )
     gateway_levels = market.get("session_levels")
+    mirror_note = (
+        "session_high/low mirror last or session_open; "
+        "prefer order_flow 60s high/low or observation range features"
+    )
+
     if isinstance(gateway_levels, dict):
         out["session_levels"] = copy.deepcopy(gateway_levels)
+        reliable = bool(gateway_levels.get("reliable"))
     else:
+        reliable = True
+        if last is not None and high is not None and low is not None:
+            if high == low == last:
+                reliable = False
+            elif (
+                session_open is not None
+                and high == low == session_open == last
+            ):
+                reliable = False
         out["session_levels"] = {
             "available": high is not None and low is not None,
             "reliable": reliable,
@@ -144,6 +144,11 @@ def sanitize_market_for_model(market: dict[str, Any]) -> dict[str, Any]:
                 }
             ),
         }
+
+    # ponytail: legacy field mirrors nested authoritative reliable flag
+    out["session_levels_reliable"] = reliable
+    if not reliable:
+        out["session_levels_note"] = mirror_note
     return out
 
 
@@ -188,7 +193,11 @@ def sanitize_stream_health_for_model(stream_health: Any) -> Any:
     return out
 
 
-def sanitize_structural_levels_for_model(value: Any) -> Any:
+def sanitize_structural_levels_for_model(
+    value: Any,
+    *,
+    market: dict[str, Any] | None = None,
+) -> Any:
     if not isinstance(value, dict):
         return value
     out = copy.deepcopy(value)
@@ -204,6 +213,24 @@ def sanitize_structural_levels_for_model(value: Any) -> Any:
             row = dict(level)
             row["price"] = price
             sanitized.append(row)
+        session_levels = market.get("session_levels") if isinstance(market, dict) else None
+        unreliable = (
+            isinstance(market, dict)
+            and (
+                market.get("session_levels_reliable") is False
+                or (
+                    isinstance(session_levels, dict)
+                    and session_levels.get("reliable") is False
+                )
+            )
+        )
+        if unreliable:
+            sanitized = [
+                row
+                for row in sanitized
+                if row.get("kind") != "session_open"
+                and row.get("label") != "session_open"
+            ]
         out["levels"] = sanitized
     return out
 
@@ -596,7 +623,15 @@ def continuity_packet_for_cycle(
                 tick_size=tick_size,
             )
         elif key == "structural_levels":
-            out[key] = sanitize_structural_levels_for_model(value)
+            market_for_levels = out.get("market")
+            if not isinstance(market_for_levels, dict):
+                market_for_levels = (
+                    slim.get("market") if isinstance(slim.get("market"), dict) else None
+                )
+            out[key] = sanitize_structural_levels_for_model(
+                value,
+                market=market_for_levels if isinstance(market_for_levels, dict) else None,
+            )
         elif key == "price_delta_relationship":
             out[key] = sanitize_price_delta_relationship_for_model(value)
         elif key == "regime":
@@ -623,9 +658,11 @@ def packet_for_model(
         template["model_version"] = core_model
         template["prompt_version"] = prompt_version
         value["required_output_template"] = template
+    market_for_levels = value.get("market") if isinstance(value.get("market"), dict) else None
     if "structural_levels" in value:
         value["structural_levels"] = sanitize_structural_levels_for_model(
-            value["structural_levels"]
+            value["structural_levels"],
+            market=market_for_levels,
         )
     if "price_delta_relationship" in value:
         value["price_delta_relationship"] = sanitize_price_delta_relationship_for_model(
