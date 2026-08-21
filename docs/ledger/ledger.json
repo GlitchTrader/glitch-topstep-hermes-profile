@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-08-21T01:15:00Z",
+  "updated": "2026-08-21T13:15:00Z",
   "release_target": "paired gateway/profile beta",
   "reconciliation": {
     "date": "2026-08-20",
@@ -10,10 +10,23 @@
       110,
       111,
       116,
-      118
+      118,
+      159,
+      161,
+      162,
+      163
     ],
-    "implementation_note": "Paired fixtures through EXEC-01/MULTI (#118). GTHP-DATA-01 Phase B merged in #139. The 2026-08-20 re-audit supersedes incomplete assumptions in the first audit: GTHP-REAUDIT-01 through GTHP-REAUDIT-04 are open and paired armed promotion remains blocked.",
-    "validation": "Re-audit baseline at ce8a267: 222 profile tests passed with 1 expected skip, compile/checksum/quality gates green. Ledger branch is based on current main 66ab507."
+    "implementation_note": "Paired fixtures through EXEC-01/MULTI (#118). NT waves #159–#162 merged. REAUDIT wave 1 (#163) partial P0/P1 increments 2026-08-21; all REAUDIT acceptance open. Armed promotion blocked.",
+    "reaudit_wave_1_2026_08_21": {
+      "profile_pr": 163,
+      "profile_commit": "097808b",
+      "gateway_pr": 210,
+      "gateway_commit": "a346ced",
+      "plan": "glitch-topstep:docs/plans/2026-08-21-reaudit-p0-p1-attack-plan.md",
+      "status": "partial_merged",
+      "issues_remain_open": true
+    },
+    "validation": "Post wave 1: 249 profile tests green (#163). Residual: atomic SQLite authority, incremental learning reads, lint/type gates, signed pair manifest."
   },
   "profile_version": "0.2.1",
   "gateway": {
@@ -840,7 +853,8 @@
         "scripts/state_store.py",
         "scripts/run-topstep-cycle.py",
         "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/121"
-      ]
+      ],
+      "implementation_note": "Open — overlaps GTHP-REAUDIT-01 wave 1 (#163 sync_meta cursor). Close together when atomic SQLite authority acceptance is met."
     },
     {
       "id": "GTHP-AUDIT-02",
@@ -898,10 +912,11 @@
         "Complete restart soak and an approved PRAC timeout-after-registration scenario."
       ],
       "sources": [
+        "scripts/workflows/intent_outbox.py",
         "scripts/common.py",
-        "scripts/parity.py",
         "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/123"
-      ]
+      ],
+      "implementation_note": "Open — wave 1 (#163) improved retain-safe 404 via /intent/status; residual: fsync outbox states, full fault matrix per acceptance."
     },
     {
       "id": "GTHP-AUDIT-04",
@@ -1030,7 +1045,9 @@
         "scripts/workflows/decision_journal.py",
         "tests/test_state_store.py",
         "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/140"
-      ]
+      ],
+      "pull_request": 163,
+      "implementation_note": "Wave 1 (#163): sync_meta line cursor, INSERT OR IGNORE on packet_id, ensure_model_attempt in cycle + pending outbox path. Residual: single-transaction authority, async JSONL exporter, kill injection matrix."
     },
     {
       "id": "GTHP-REAUDIT-02",
@@ -1102,7 +1119,9 @@
         "scripts/compatibility.py",
         "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/142",
         "https://github.com/GlitchTrader/glitch-topstep/issues/195"
-      ]
+      ],
+      "pull_request": 163,
+      "implementation_note": "Wave 1 (#163): GATEWAY_COMMIT required in profile release workflow. Residual: byte-identical pair manifest in both repos, signed attestation, rollback drill proof."
     },
     {
       "id": "GTHP-REAUDIT-04",
@@ -1160,17 +1179,29 @@
       "glitch-topstep#195"
     ],
     "implementation_order": [
-      "GTHP-REAUDIT-01 atomic decision authority",
-      "glitch-topstep:TS-REAUDIT-04 intent delivery status plus retain-safe consumer",
-      "GTHP-REAUDIT-02 incremental reads and retention",
-      "GTHP-REAUDIT-04 quality and paired fault gates",
-      "GTHP-REAUDIT-03 immutable paired release"
+      "TS-REAUDIT-02 evidence outbox (gateway)",
+      "TS-REAUDIT-08 shutdown authority (gateway)",
+      "TS-REAUDIT-01 auth session complete (gateway)",
+      "TS-REAUDIT-03 flatten terminal complete (gateway)",
+      "GTHP-REAUDIT-01 atomic decision authority (profile)",
+      "TS-REAUDIT-04 paired delivery status + fixtures (both)",
+      "GTHP-AUDIT-03 outbox durable (profile)",
+      "TS-REAUDIT-05 cache bounds + soak (gateway)",
+      "TS-REAUDIT-06 safety invariants (gateway)",
+      "GTHP-REAUDIT-02 incremental reads (profile)",
+      "TS-REAUDIT-07 ports (gateway)",
+      "TS-REAUDIT-10 fault matrix (both)",
+      "GTHP-REAUDIT-04 quality gates (profile)",
+      "TS-REAUDIT-11 operational SLOs (gateway)",
+      "GTHP-REAUDIT-03 signed pair manifest (both)",
+      "TS-REAUDIT-12 armed runbook + validator (both)"
     ],
     "promotion_gate": [
       "No armed promotion while any P0 re-audit item is open.",
       "All critical fault regressions must be red-before-fix and green-after-fix.",
       "A paired Sim/PRAC soak, rollback rehearsal, and human approval are required."
-    ]
+    ],
+    "next_plan": "glitch-topstep:docs/plans/2026-08-21-reaudit-p0-p1-attack-plan.md"
   },
   "implementation_run_2026_08_19": {
     "paired_protocol": "glitch.topstep.paired.v3",
