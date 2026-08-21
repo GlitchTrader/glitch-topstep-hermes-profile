@@ -1,10 +1,16 @@
 {
   "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-08-21T17:30:00Z",
+  "updated": "2026-08-21T17:45:00Z",
   "release_target": "paired gateway/profile beta",
   "reconciliation": {
-    "date": "2026-08-20",
+    "date": "2026-08-21",
+    "cadence_alignment_2026_08_21": {
+      "status": "open",
+      "summary": "Worker default flat_decision_interval_minutes aligned to paired contract 5/1; docs and tests updated without paired-contract bump.",
+      "evidence": "docs/evidence/cadence-alignment-2026-08-21.md",
+      "cost_impact": "flat LLM 60/hr max to 12/hr max; positioned 60/hr unchanged"
+    },
     "merged_prs": [
       109,
       110,

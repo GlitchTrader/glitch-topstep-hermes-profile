@@ -258,11 +258,11 @@ def flat_decision_interval_minutes() -> int:
             1,
             min(
                 60,
-                int(os.environ.get("GLITCH_TOPSTEP_FLAT_DECISION_INTERVAL_MINUTES", "1")),
+                int(os.environ.get("GLITCH_TOPSTEP_FLAT_DECISION_INTERVAL_MINUTES", "5")),
             ),
         )
     except ValueError:
-        return 1
+        return 5
 
 
 def packet_is_current(
