@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-08-21T16:00:00Z",
+  "updated": "2026-08-21T17:30:00Z",
   "release_target": "paired gateway/profile beta",
   "reconciliation": {
     "date": "2026-08-20",
@@ -20,7 +20,8 @@
       167,
       168,
       169,
-      171
+      171,
+      173
     ],
     "implementation_note": "Paired fixtures through EXEC-01/MULTI (#118). NT waves #159-#162 merged. REAUDIT waves 1-3 (#163-#168) merged 2026-08-21. Data freshness follow-up (#169) merged 2026-08-21 with gateway #215. Continuity gap operator rule (#171) merged 2026-08-21. All REAUDIT acceptance open. Armed promotion blocked.",
     "reaudit_wave_1_2026_08_21": {
@@ -80,12 +81,45 @@
       ],
       "summary": "Operator instruction when continuity_gap.present is true: do not infer unobserved transitions inside the gap; rebuild from current packet and cite gap in disconfirming_evidence."
     },
-    "validation": "Post wave 3 merge (#168/#214), freshness follow-up (#169/#215), and continuity_gap operator rule (#171 on main 2026-08-21): profile unittest green; safe-profile-update v0.2.1 integrity OK. Residual: atomic SQLite authority, kill injection matrix, parity.py shrink baseline, lint/type gates, signed pair manifest."
+    "single_active_position_followup_2026_08_21": {
+      "gateway_pr": 218,
+      "gateway_commit": "e20c676",
+      "profile_pr": 173,
+      "profile_commit": "47435fa",
+      "status": "merged",
+      "items_touched": [
+        "GTHP-MULTI-01",
+        "GTHP-DATA-01",
+        "single_active_position delivery"
+      ],
+      "summary": "Paired 0.2.2: flat eligible MNQ/MES/MCL entry, one account position, per-contract packet fetch before intent delivery, updated scanner/skills."
+    },
+    "trail_a_d_2026_08_21": {
+      "status": "pending_merge",
+      "gateway_branch": "feat/trail-a-d-integrity-empirical",
+      "profile_branch": "feat/trail-a-d-integrity-empirical",
+      "trail_a": {
+        "C1_model_owner_preempt": "model_owner_lock: SIGTERM + 15s grace + generation before preemption",
+        "C3_quiescence": "parity.py default GLITCH_TOPSTEP_SKIP_MARKET_QUIESCENT=false; OPERATIONS cadence 5m",
+        "C7_export_idempotent": "state_store: export queue only when packet_id INSERT succeeds"
+      },
+      "trail_d": {
+        "cycle_empirical_jsonl": "cycle_empirical.py + hooks in run-topstep-cycle (decision_ready + delivery_complete)",
+        "next": "offline sampler joining trade-outcomes for MFE/MAE (PRAC soak)"
+      },
+      "items_touched": [
+        "GTHP-REAUDIT-01",
+        "GTHP-018",
+        "GTHP-RUNTIME-01",
+        "TS-TRAIL-D-01"
+      ]
+    },
+    "validation": "Post trail A+D (#TBD on 2026-08-21): profile unittest green; cycle-empirical.jsonl instrumented. Residual: kill injection matrix, credentialed soak, signed pair manifest."
   },
-  "profile_version": "0.2.1",
+  "profile_version": "0.2.2",
   "gateway": {
     "repository": "GlitchTrader/glitch-topstep",
-    "current_version": "0.2.1",
+    "current_version": "0.2.2",
     "intent_schema": "glitch.intent.v3",
     "decision_packet_schemas": [
       "glitch.direct.decision_packet.v1",

@@ -213,7 +213,7 @@ def _env_truthy(name: str, *, default: str = "false") -> bool:
 
 def market_quiescence_gate_enabled() -> bool:
     """GTHP-018: skip flat Luna when quote is stale and tape is quiescent."""
-    if _env_truthy("GLITCH_TOPSTEP_SKIP_MARKET_QUIESCENT", default="true"):
+    if _env_truthy("GLITCH_TOPSTEP_SKIP_MARKET_QUIESCENT", default="false"):
         return True
     # ponytail: legacy alias until operators migrate .env
     return _env_truthy("GLITCH_TOPSTEP_SKIP_STALE_GATEWAY_EVIDENCE")

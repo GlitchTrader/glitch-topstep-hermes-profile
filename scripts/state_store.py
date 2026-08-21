@@ -102,21 +102,24 @@ class ProfileStateStore:
     def bootstrap_decisions(self, jsonl_path: Path) -> None:
         self.sync_decisions_from_jsonl(jsonl_path)
 
-    def append_decision(self, row: dict[str, Any], *, jsonl_path: Path | None = None) -> None:
+    def append_decision(self, row: dict[str, Any], *, jsonl_path: Path | None = None) -> bool:
         payload = json.dumps(row, separators=(",", ":"), ensure_ascii=False)
         recorded = str(row.get("recorded_utc") or row.get("decision_utc") or "")
         target = str(jsonl_path) if jsonl_path is not None else "decisions.jsonl"
+        inserted = False
         with self.db:
-            self._insert_decision(row)
-            self.db.execute(
-                """
-                INSERT INTO jsonl_export_queue(target, payload_json, created_utc)
-                VALUES (?, ?, ?)
-                """,
-                (target, payload, recorded),
-            )
-        if jsonl_path is not None:
+            inserted = self._insert_decision(row)
+            if inserted:
+                self.db.execute(
+                    """
+                    INSERT INTO jsonl_export_queue(target, payload_json, created_utc)
+                    VALUES (?, ?, ?)
+                    """,
+                    (target, payload, recorded),
+                )
+        if jsonl_path is not None and inserted:
             self.export_pending_jsonl(jsonl_path)
+        return inserted
 
     def export_pending_jsonl(self, jsonl_path: Path) -> int:
         """Drain export queue to JSONL after SQLite commit (GTHP-REAUDIT-01)."""
@@ -152,10 +155,10 @@ class ProfileStateStore:
         ).fetchone()
         return int(row[0]) if row else 0
 
-    def _insert_decision(self, row: dict[str, Any]) -> None:
+    def _insert_decision(self, row: dict[str, Any]) -> bool:
         payload = json.dumps(row, separators=(",", ":"), ensure_ascii=False)
         packet_id = str(row.get("packet_id") or "")
-        self.db.execute(
+        cursor = self.db.execute(
             """
             INSERT OR IGNORE INTO decisions (packet_id, intent_id, recorded_utc, payload_json)
             VALUES (?, ?, ?, ?)
@@ -167,6 +170,7 @@ class ProfileStateStore:
                 payload,
             ),
         )
+        return cursor.rowcount > 0
 
     def tail_decisions(self, limit: int) -> list[dict[str, Any]]:
         jsonl_path = self._decisions_jsonl or (self.state / "decisions.jsonl")

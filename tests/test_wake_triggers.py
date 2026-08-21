@@ -206,7 +206,9 @@ class WakeTriggerTests(unittest.TestCase):
                 flat_decision_interval_minutes=5,
             )
             self.assertEqual(reason, "condition_change")
-            self.assertIsNotNone(PARITY.market_quiescent_skip_details(quiescent, None))
+            # Default TS-DATA-01 invokes Luna during quiescence; skip details only when opt-in.
+            with mock.patch.dict(os.environ, {"GLITCH_TOPSTEP_SKIP_MARKET_QUIESCENT": "true"}, clear=False):
+                self.assertIsNotNone(PARITY.market_quiescent_skip_details(quiescent, None))
 
     def test_monitor_should_launch_when_flat_between_ticks(self):
         with tempfile.TemporaryDirectory() as root:
