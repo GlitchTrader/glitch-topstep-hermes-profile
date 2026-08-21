@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-08-21",
+  "updated": "2026-08-21T01:15:00Z",
   "release_target": "paired gateway/profile beta",
   "reconciliation": {
     "date": "2026-08-20",
@@ -12,8 +12,8 @@
       116,
       118
     ],
-    "implementation_note": "Paired fixtures through EXEC-01/MULTI (#118). GTHP-TRIGGER-01 lifecycle + GTHP-OPS-01 learner defer/status (#118). Frozen cognition eval workflow (#118). Production audit follow-ups GTHP-AUDIT-01 through GTHP-AUDIT-06 opened on 2026-08-20; the stale decision index is P0 and blocks live promotion.",
-    "validation": "209 profile tests passed with 1 expected skip; GTHP-031/032 structural evidence + calibration metrics closed."
+    "implementation_note": "Paired fixtures through EXEC-01/MULTI (#118). GTHP-DATA-01 Phase B merged in #139. The 2026-08-20 re-audit supersedes incomplete assumptions in the first audit: GTHP-REAUDIT-01 through GTHP-REAUDIT-04 are open and paired armed promotion remains blocked.",
+    "validation": "Re-audit baseline at ce8a267: 222 profile tests passed with 1 expected skip, compile/checksum/quality gates green. Ledger branch is based on current main 66ab507."
   },
   "profile_version": "0.2.1",
   "gateway": {
@@ -991,8 +991,185 @@
         "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/126",
         "https://github.com/GlitchTrader/glitch-topstep/issues/166"
       ]
+    },
+    {
+      "id": "GTHP-REAUDIT-01",
+      "title": "Make SQLite the atomic authority for decision journaling",
+      "status": "open",
+      "priority": "P0",
+      "owner_role": "profile_persistence",
+      "issue": 140,
+      "depends_on": [
+        "GTHP-AUDIT-01",
+        "GTHP-PROD-02"
+      ],
+      "finding": "SQLite commits before decisions.jsonl, so a fault creates split-brain history; COUNT(*) is not a safe source cursor after divergence.",
+      "resolution": [
+        "Make SQLite the sole operational decision authority with a unique packet/intent identity.",
+        "Persist decision and export-outbox row in one FULL/WAL transaction.",
+        "Project JSONL asynchronously from a durable sequence cursor with idempotent replay and fsync.",
+        "Replace COUNT(*) synchronization with generation, byte offset, sequence, and content-integrity metadata.",
+        "Quarantine migration conflicts and expose a degraded state instead of silently choosing one copy."
+      ],
+      "acceptance": [
+        "Kill injection before, during, and after export converges to one SQLite decision and one JSONL row.",
+        "Retry and restart never duplicate packet_id or intent_id.",
+        "A read-only migration report detects every JSONL/SQLite mismatch before upgrade.",
+        "Cognition tail stays current and bounded after restart and rotation."
+      ],
+      "deployment": [
+        "Back up operator state and run the divergence report.",
+        "Deploy schema and exporter disabled, then shadow-compare projections.",
+        "Enable projection after crash/restart soak and remove synchronous dual-write only after parity.",
+        "Publish only in a paired release; armed promotion remains blocked while open."
+      ],
+      "sources": [
+        "scripts/state_store.py",
+        "scripts/workflows/decision_journal.py",
+        "tests/test_state_store.py",
+        "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/140"
+      ]
+    },
+    {
+      "id": "GTHP-REAUDIT-02",
+      "title": "Make journal reads incremental and retention bounded",
+      "status": "open",
+      "priority": "P1",
+      "owner_role": "profile_persistence",
+      "issue": 141,
+      "depends_on": [
+        "GTHP-REAUDIT-01",
+        "GTHP-AUDIT-02"
+      ],
+      "finding": "Decision tail synchronization and learning/calibration paths still perform full JSONL scans, while general journal rotation is absent.",
+      "resolution": [
+        "Import only appended bytes using durable generation/offset/sequence cursors.",
+        "Serve operational tails and learning pages from indexed SQLite.",
+        "Add generation-aware size/time rotation, checksummed archives, and explicit recovery/learning/audit retention classes.",
+        "Expose cursor lag, file size, disk growth, and p95 read latency."
+      ],
+      "acceptance": [
+        "Tail memory and latency remain bounded on multi-gigabyte fixtures.",
+        "Concurrent append, rotation, and restart lose or duplicate zero records.",
+        "Paginated learning output is semantically equivalent to the current full scan.",
+        "The one-minute cycle remains inside its documented deadline during soak."
+      ],
+      "deployment": [
+        "Capture baseline metrics on copied state.",
+        "Ship rotation default-off and shadow-compare readers.",
+        "Enable retention gradually with archive restore and rollback rehearsal."
+      ],
+      "sources": [
+        "scripts/state_store.py",
+        "scripts/common.py",
+        "scripts/run-topstep-learning.py",
+        "scripts/calibration_metrics.py",
+        "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/141"
+      ]
+    },
+    {
+      "id": "GTHP-REAUDIT-03",
+      "title": "Require the immutable gateway pair for promotable profile releases",
+      "status": "open",
+      "priority": "P0",
+      "owner_role": "release_architecture",
+      "issue": 142,
+      "depends_on": [
+        "glitch-topstep:TS-REAUDIT-09",
+        "glitch-topstep:TS-REAUDIT-12"
+      ],
+      "finding": "Profile release accepts a nullable gateway_commit even though armed operation requires an exact compatible pair.",
+      "resolution": [
+        "Require gateway SHA/version, profile SHA/version, protocol, prompt, effective-config hash, and evidence reference in one signed manifest.",
+        "Validate byte-identical pair metadata in both release workflows.",
+        "Mark standalone artifacts explicitly non-promotable and surface the active pair in status."
+      ],
+      "acceptance": [
+        "Armed-promotable release fails on absent, nullable, mutable, or incompatible pair fields.",
+        "Both repositories attest the same pair manifest.",
+        "Rollback selects a prior attested pair and preserves durable recovery state.",
+        "Human environment approval remains mandatory."
+      ],
+      "deployment": [
+        "Introduce a non-blocking pair validator.",
+        "Build a rehearsal artifact and complete a rollback drill.",
+        "Make the manifest required in both armed-production workflows."
+      ],
+      "sources": [
+        ".github/workflows/release.yml",
+        "scripts/compatibility.py",
+        "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/142",
+        "https://github.com/GlitchTrader/glitch-topstep/issues/195"
+      ]
+    },
+    {
+      "id": "GTHP-REAUDIT-04",
+      "title": "Add incremental lint, typing, branch coverage, and mutation gates",
+      "status": "open",
+      "priority": "P1",
+      "owner_role": "quality_engineering",
+      "issue": 143,
+      "depends_on": [
+        "GTHP-REAUDIT-01",
+        "GTHP-REAUDIT-02",
+        "glitch-topstep:TS-REAUDIT-10"
+      ],
+      "finding": "Critical Python workflows lack enforced Ruff/type gates and risk-based branch/mutation coverage despite compile, unittest, checksum, quality, and CodeQL checks.",
+      "resolution": [
+        "Add Ruff and Pyright or mypy incrementally to persistence, delivery, gateway-client, and workflow modules.",
+        "Measure branch coverage for crash, discard, retry, and restart paths.",
+        "Use selective mutation testing to prove unsafe 404 deletion and dual-write variants are rejected.",
+        "Compile/import workflow packages explicitly on Linux and Windows and ratchet baselines."
+      ],
+      "acceptance": [
+        "Critical modules are lint and type clean.",
+        "Every re-audit regression has a branch assertion and coverage cannot silently decrease.",
+        "Mutation tests kill unsafe terminal/discard/write-order changes.",
+        "Credential-free CI remains deterministic on both supported operating systems."
+      ],
+      "deployment": [
+        "Start reporting-only, fix critical modules, require by directory, then ratchet the full profile."
+      ],
+      "sources": [
+        ".github/workflows/ci.yml",
+        "scripts/check_profile_quality.py",
+        "tests",
+        "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/143"
+      ]
     }
   ],
+  "reaudit_program_2026_08_20": {
+    "status": "planned_armed_blocked",
+    "audit_commit": "ce8a26759302dd369e53d9b543b198936fcfae80",
+    "ledger_base_commit": "66ab507d09f096806046a0e23f3eb93e58b8f50a",
+    "primary_issues": [
+      140,
+      141,
+      142,
+      143
+    ],
+    "cross_repo_issues": [
+      "glitch-topstep#184",
+      "glitch-topstep#185",
+      "glitch-topstep#186",
+      "glitch-topstep#187",
+      "glitch-topstep#190",
+      "glitch-topstep#193",
+      "glitch-topstep#195"
+    ],
+    "implementation_order": [
+      "GTHP-REAUDIT-01 atomic decision authority",
+      "glitch-topstep:TS-REAUDIT-04 intent delivery status plus retain-safe consumer",
+      "GTHP-REAUDIT-02 incremental reads and retention",
+      "GTHP-REAUDIT-04 quality and paired fault gates",
+      "GTHP-REAUDIT-03 immutable paired release"
+    ],
+    "promotion_gate": [
+      "No armed promotion while any P0 re-audit item is open.",
+      "All critical fault regressions must be red-before-fix and green-after-fix.",
+      "A paired Sim/PRAC soak, rollback rehearsal, and human approval are required."
+    ]
+  },
   "implementation_run_2026_08_19": {
     "paired_protocol": "glitch.topstep.paired.v3",
     "prompt_version": "glitch-topstep-v10",
