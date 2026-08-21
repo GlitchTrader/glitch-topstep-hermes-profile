@@ -232,6 +232,66 @@ def backfill_constant_comparison_fields(intent: dict[str, Any]) -> None:
     audit["decisive_evidence"] = "\n".join(repaired)
 
 
+def parse_selected_candidate_handoff(intent: dict[str, Any]) -> dict[str, Any] | None:
+    audit = intent.get("decision_audit")
+    if not isinstance(audit, dict):
+        return None
+    evidence = audit.get("decisive_evidence")
+    if not isinstance(evidence, str) or not _comparison_text_starts(evidence):
+        return None
+    ledger = parse_comparison_line(
+        evidence,
+        packet_id=str(intent.get("packet_id") or ""),
+        expires_utc=str(intent.get("expires_utc") or ""),
+    )
+    selection = intent.get("account_selection")
+    handoff: dict[str, Any] = {
+        "schema_version": "glitch.topstep.selected_candidate_handoff.v1",
+        "packet_id": str(intent.get("packet_id") or ""),
+        "selected_instrument": str(ledger.get("selected_instrument") or "").upper(),
+        "selection_action": str(ledger.get("selection_action") or "").upper(),
+        "selection_reason": str(ledger.get("selection_reason") or ""),
+        "ranking": [
+            str(item).upper()
+            for item in ledger.get("ranking", [])
+            if str(item).strip()
+        ],
+    }
+    if isinstance(selection, dict):
+        handoff["account_selection"] = {
+            "selected_instrument": str(selection.get("selected_instrument") or "").upper(),
+            "selected_contract_id": str(selection.get("selected_contract_id") or ""),
+            "scope_generation": selection.get("scope_generation"),
+            "scope_hash": selection.get("scope_hash"),
+        }
+    return handoff
+
+
+def validate_selected_candidate_handoff(
+    handoff: dict[str, Any],
+    packet: dict[str, Any],
+) -> None:
+    selected = str(handoff.get("selected_instrument") or "").upper()
+    packet_instrument = str(packet.get("instrument") or "").upper()
+    if not selected or selected != packet_instrument:
+        raise ValueError("selected_candidate_packet_mismatch")
+    account_selection = packet.get("account_selection")
+    if not isinstance(account_selection, dict):
+        return
+    scoped = str(account_selection.get("selected_instrument") or "").upper()
+    if scoped and scoped != selected:
+        raise ValueError("selected_candidate_scope_mismatch")
+    handoff_scope = handoff.get("account_selection")
+    if isinstance(handoff_scope, dict):
+        handoff_instrument = str(handoff_scope.get("selected_instrument") or "").upper()
+        if handoff_instrument and handoff_instrument != packet_instrument:
+            raise ValueError("selected_candidate_scope_mismatch")
+        contract_id = str(handoff_scope.get("selected_contract_id") or "")
+        packet_contract = str(account_selection.get("selected_contract_id") or "")
+        if contract_id and packet_contract and contract_id != packet_contract:
+            raise ValueError("selected_candidate_contract_mismatch")
+
+
 def _validate_account_selection(packet: dict[str, Any], expected: list[str]) -> None:
     selection = packet.get("account_selection")
     if selection is None:
