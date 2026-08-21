@@ -269,9 +269,19 @@ class DirectCycleTests(unittest.TestCase):
         self.assertNotIn("id", value["contract"])
         self.assertNotIn("symbol_id", value["contract"])
 
-    def test_flat_default_cadence_is_every_minute(self):
+    def test_flat_default_cadence_is_every_five_minutes(self):
         with mock.patch.dict(os.environ, {}, clear=False):
             os.environ.pop("GLITCH_TOPSTEP_FLAT_DECISION_INTERVAL_MINUTES", None)
+            self.assertEqual(MODULE.flat_decision_interval_minutes(), 5)
+            self.assertTrue(MODULE.should_invoke(packet(5), None))
+            self.assertFalse(MODULE.should_invoke(packet(6), None))
+
+    def test_flat_cadence_env_override_one_minute(self):
+        with mock.patch.dict(
+            os.environ,
+            {"GLITCH_TOPSTEP_FLAT_DECISION_INTERVAL_MINUTES": "1"},
+        ):
+            self.assertEqual(MODULE.flat_decision_interval_minutes(), 1)
             self.assertTrue(MODULE.should_invoke(packet(6), None))
 
     def test_configurable_cadence_is_scheduling_not_eligibility(self):
@@ -283,6 +293,46 @@ class DirectCycleTests(unittest.TestCase):
                 MODULE.should_invoke(packet(5, state_complete=False), None)
             )
             self.assertFalse(MODULE.should_invoke(packet(6), None))
+
+    def test_positioned_minute_six_invokes_llm(self):
+        self.assertTrue(MODULE.should_invoke(packet(6, positioned=True), None))
+
+    def test_operator_directive_anticipates_flat_cadence(self):
+        self.assertTrue(MODULE.should_invoke(packet(6), {"status": "pending"}))
+
+    def test_wake_trigger_anticipates_flat_cadence(self):
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            supervisor = state / "supervisor"
+            supervisor.mkdir(parents=True)
+            frames = state / "minute-frames"
+            frames.mkdir(parents=True)
+            prior = packet(4)
+            prior["market"]["last"] = 19990.0
+            MODULE.write_json_atomic(
+                frames / "20990101T1404Z.json",
+                {"minute_id": "20990101T1404Z", "packet": prior},
+            )
+            current = packet(6)
+            current["market"]["last"] = 20010.0
+            MODULE.write_json_atomic(
+                PARITY.wake_trigger_path(supervisor),
+                {
+                    "schema_version": "glitch.topstep.wake_triggers.v1",
+                    "triggers": [{"type": "PRICE_CROSS", "direction": "ABOVE", "price": 20000.0}],
+                },
+            )
+            MODULE.write_json_atomic(
+                state / "last-evidence.json",
+                {"schema_version": "glitch.topstep.last_evidence.v1", "fingerprint": "x"},
+            )
+            reason = PARITY.invocation_reason(
+                current,
+                state,
+                None,
+                flat_decision_interval_minutes=5,
+            )
+        self.assertEqual(reason, "condition_change")
 
     def test_positioned_and_directive_wake_cycle(self):
         self.assertTrue(MODULE.should_invoke(packet(6, positioned=True), None))
@@ -833,6 +883,104 @@ class DirectCycleTests(unittest.TestCase):
             MODULE.capture_frame(packet(1), state)
             self.assertEqual(len(MODULE.recent_frames(state, 5)), 1)
 
+    def test_off_cadence_flat_cycle_captures_frame_without_llm(self):
+        current = packet(6)
+        with tempfile.TemporaryDirectory() as root:
+            profile_root = Path(root)
+            state = MODULE.state_root(profile_root)
+            state.mkdir(parents=True)
+            MODULE.write_json_atomic(
+                state / "last-evidence.json",
+                {"schema_version": "glitch.topstep.last_evidence.v1", "fingerprint": "x"},
+            )
+            args = argparse.Namespace(
+                profile="glitch-topstep",
+                timeout_seconds=30,
+                packet_rollover_wait_seconds=0,
+                dry_run=False,
+            )
+
+            def fake_request_json(path, token=None, method="GET", body=None):
+                del method, body
+                if path == "/health":
+                    return (
+                        200,
+                        {
+                            "schema_version": "glitch.direct.health.v2",
+                            "status": "ok",
+                            "compatibility": {
+                                "gateway_name": "glitch-topstep",
+                                "protocol_revision": "glitch.topstep.paired.v3",
+                                "gateway_version": "0.2.0",
+                                "intent_schemas": ["glitch.intent.v2", "glitch.intent.v3"],
+                                "decision_packet_schemas": [
+                                    "glitch.direct.decision_packet.v1",
+                                    "glitch.direct.decision_packet.v2",
+                                ],
+                                "capabilities": [
+                                    "packet_supported_actions",
+                                    "durable_mutation_receipts",
+                                    "restart_reconciliation",
+                                    "bounded_entry_range_v1",
+                                    "daily_capture_context_v1",
+                                    "explicit_partial_completed_bars_v1",
+                                    "revisioned_outcome_feed_v1",
+                                    "multi_instrument_observation_v1",
+                                    "protected_reduction_saga_v1",
+                                ],
+                                "semantic_revisions": {
+                                    "bounded_entry_range": "glitch.topstep.entry_range.v1",
+                                    "daily_capture": "glitch.topstep.daily_capture.v1",
+                                    "outcome_feed": "glitch.topstep.outcome_feed.v2",
+                                    "market_universe": "glitch.topstep.market_universe.v1",
+                                    "execution_facts": "glitch.topstep.execution_fact.v1",
+                                },
+                                "provider_acceptance_evidence": {
+                                    "partial_exit_protection_transition": "proven_prac_short_long_with_saga",
+                                    "exact_contract_resolution": "catalog_fixture_plus_runtime_resolution",
+                                },
+                                "paired_manifest_schema": "glitch.topstep.paired_release.v1",
+                            },
+                        },
+                    )
+                if path == "/packet":
+                    return (200, current)
+                if path == "/scanner":
+                    return (
+                        200,
+                        {
+                            "schema_version": "glitch.topstep.market_universe.v1",
+                            "candidates": [],
+                        },
+                    )
+                return (404, {})
+
+            with mock.patch.dict(os.environ, {}, clear=False):
+                os.environ.pop("GLITCH_TOPSTEP_FLAT_DECISION_INTERVAL_MINUTES", None)
+                self.assertFalse(MODULE.should_invoke(current, None))
+            with mock.patch.object(MODULE, "local_token", return_value="token"), mock.patch.object(
+                MODULE,
+                "request_json",
+                side_effect=fake_request_json,
+            ), mock.patch.object(
+                GATEWAY_CLIENT,
+                "request_json",
+                side_effect=fake_request_json,
+            ), mock.patch.object(
+                PARITY,
+                "request_json",
+                side_effect=fake_request_json,
+            ), mock.patch.object(MODULE, "wait_for_packet_rollover", return_value=current), mock.patch.object(
+                MODULE,
+                "packet_is_current",
+                return_value=True,
+            ), mock.patch.object(MODULE, "invoke_valid_intent") as invoke:
+                exit_code = MODULE.run_once(args, profile_root)
+
+        self.assertEqual(exit_code, 0)
+        invoke.assert_not_called()
+        self.assertTrue((state / "minute-frames" / "20990101T1406Z.json").is_file())
+
     def test_extract_single_json_accepts_transport_chatter(self):
         raw = "status\n" + json.dumps(intent()) + "\ndone"
         value = MODULE.extract_single_json_object(
@@ -1296,6 +1444,9 @@ class DirectCycleTests(unittest.TestCase):
         stored["account"]["name"] = "TopstepX-50K"
         current = packet(6)
         current["market"]["snapshot_hash"] = "hash-other"
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("GLITCH_TOPSTEP_FLAT_DECISION_INTERVAL_MINUTES", None)
+            self.assertFalse(MODULE.should_invoke(current, None))
         pending_intent = intent("NOTHING")
         pending_intent["decision_audit"]["change_condition"] = (
             "Reassess above 20010 or below 19990."

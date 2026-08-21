@@ -48,7 +48,7 @@ The worker validates schema, fixed identity, finite values, entry field complete
 
 ## Decision cadence
 
-Native Hermes cron runs every minute and launches the worker without waiting for model latency. By default, the worker considers one isolated decision every minute while flat or positioned. `GLITCH_TOPSTEP_FLAT_DECISION_INTERVAL_MINUTES` may reduce flat-book observation frequency, but it is scheduling only and never a statement that a trade is permitted or forbidden.
+Native Hermes cron runs every minute and launches the worker without waiting for model latency. Each launch captures a minute frame. By default, flat LLM cognition runs at minutes 0, 5, 10, … (`GLITCH_TOPSTEP_FLAT_DECISION_INTERVAL_MINUTES`, default **5**). Positioned LLM cognition runs every minute. Wake triggers and operator directives may invoke an extra cycle early. Cadence is scheduling only and never a statement that a trade is permitted or forbidden.
 
 Operator directives may wake a cycle. While positioned, the worker invokes Hermes with every available recent frame. While flat, the worker waits until `GLITCH_TOPSTEP_DECISION_FRAME_COUNT` minute frames exist (default **5**) before the first model call. That flat warmup is scheduling continuity, not a cognition veto: once the window is full, Hermes receives compact frame snapshots plus the current decision packet and may still choose NOTHING on thin evidence.
 

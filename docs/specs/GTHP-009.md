@@ -10,7 +10,7 @@ Scheduling may decide when a model call occurs for explicit operator cost or att
 
 ## Changes
 
-- Flat cadence defaults to every minute.
+- Flat LLM cadence defaults to every five minutes; the worker still wakes every minute for frame capture.
 - `GLITCH_TOPSTEP_DECISION_FRAME_COUNT` is only the recent-frame context-window size.
 - The first captured frame can reach Hermes; there is no fixed-frame warmup veto.
 - Unchanged-evidence and stale-quote skip features remain optional operator scheduling controls but default false.
