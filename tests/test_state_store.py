@@ -96,6 +96,25 @@ class ProfileStateStoreTests(unittest.TestCase):
             finally:
                 store.close()
 
+    def test_duplicate_packet_exports_once(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp)
+            jsonl = state / "decisions.jsonl"
+            store = ProfileStateStore(state)
+            try:
+                row = {
+                    "packet_id": "p-dup",
+                    "intent_id": "i-dup",
+                    "recorded_utc": "2026-08-21T16:00:00Z",
+                }
+                self.assertTrue(store.append_decision(row, jsonl_path=jsonl))
+                self.assertFalse(store.append_decision(row, jsonl_path=jsonl))
+                lines = jsonl.read_text(encoding="utf-8").strip().splitlines()
+                self.assertEqual(len(lines), 1)
+                self.assertEqual(store.export_backlog_count(jsonl), 0)
+            finally:
+                store.close()
+
     def test_export_queue_survives_crash_before_jsonl(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             state = Path(tmp)

@@ -49,6 +49,7 @@ from scanner_contract import (
 )
 from forecast_metadata import strip_forecast_metadata, validate_forecast_metadata
 from cognition_cycle import recent_cycle_context
+from cycle_empirical import empirical_from_decision, record_cycle_empirical
 from state_store import ProfileStateStore
 from model_owner_lock import acquire_model_owner, release_model_owner
 from workflows.intent_outbox import load_outbox_record, write_outbox_record
@@ -1686,6 +1687,15 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
             store.append_decision(decision_record, jsonl_path=state / "decisions.jsonl")
         finally:
             store.close()
+        record_cycle_empirical(
+            state,
+            empirical_from_decision(
+                packet=packet,
+                intent=intent,
+                invocation_reason=reason,
+                phase="decision_ready",
+            ),
+        )
         write_last_evidence_fingerprint(
             state,
             packet,
@@ -1769,6 +1779,16 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     else:
         _emit_cycle_json({"packet_id": packet_id, "result": result})
     mark_attempt_from_receipt(state, packet_id, result)
+    record_cycle_empirical(
+        state,
+        empirical_from_decision(
+            packet=packet,
+            intent=intent,
+            invocation_reason=reason,
+            phase="delivery_complete",
+            delivery_classification=classification,
+        ),
+    )
     return 0 if classification == "successful" else 1
 
 

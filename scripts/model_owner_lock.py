@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import signal
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -31,6 +32,7 @@ PRIORITY = {
 
 MODEL_OWNER_FILENAME = "model-owner.lock"
 STATUS_FILENAME = "model-owner-status.json"
+PREEMPT_GRACE_SECONDS = 15.0
 
 
 def model_owner_lock_path(state: Path) -> Path:
@@ -50,6 +52,44 @@ def _owner_alive(owner: dict[str, Any]) -> bool:
     except OSError:
         return False
     return process_matches_owner(pid, owner.get("process_start_utc"))
+
+
+def _read_generation(lock_path: Path) -> int:
+    owner = read_model_owner(lock_path)
+    if not isinstance(owner, dict):
+        return 0
+    try:
+        return int(owner.get("generation") or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _request_owner_stand_down(
+    state: Path,
+    lock_path: Path,
+    owner: dict[str, Any],
+    *,
+    grace_seconds: float = PREEMPT_GRACE_SECONDS,
+) -> bool:
+    """Signal a live owner and wait for release before lock preemption (audit C1)."""
+    pid = int(owner.get("pid") or 0)
+    if pid <= 0:
+        return True
+    try:
+        os.kill(pid, signal.SIGTERM)
+    except OSError:
+        return not _owner_alive(owner)
+    deadline = time.monotonic() + grace_seconds
+    while time.monotonic() < deadline:
+        if not _owner_alive(owner):
+            return True
+        current = read_model_owner(lock_path)
+        if current is None:
+            return True
+        if str(current.get("invocation_id") or "") != str(owner.get("invocation_id") or ""):
+            return True
+        time.sleep(0.2)
+    return not _owner_alive(owner)
 
 
 def read_model_owner(lock_path: Path) -> dict[str, Any] | None:
@@ -79,6 +119,7 @@ def acquire_model_owner(
     lock_path.parent.mkdir(parents=True, exist_ok=True)
     effective_priority = priority if priority is not None else PRIORITY[owner_kind]
     started = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    generation = _read_generation(lock_path) + 1
     payload = {
         "schema_version": "glitch.topstep.model_owner.v1",
         "owner_kind": owner_kind,
@@ -89,6 +130,7 @@ def acquire_model_owner(
         .replace("+00:00", "Z"),
         "acquired_utc": started,
         "priority": effective_priority,
+        "generation": generation,
         "state": "active",
     }
     for _ in range(3):
@@ -127,8 +169,22 @@ def acquire_model_owner(
                         "recorded_utc": utc_now(),
                         "preempted_owner_kind": current.get("owner_kind"),
                         "winner_owner_kind": owner_kind,
+                        "preempted_pid": current.get("pid"),
                     },
                 )
+                if not _request_owner_stand_down(state, lock_path, current):
+                    publish_model_owner_status(
+                        state,
+                        {
+                            "schema_version": "glitch.topstep.model_owner_status.v1",
+                            "recorded_utc": utc_now(),
+                            "state": "deferred",
+                            "owner_kind": owner_kind,
+                            "blocking_owner_kind": current.get("owner_kind"),
+                            "detail": "preempt_timeout",
+                        },
+                    )
+                    return False
                 try:
                     lock_path.unlink(missing_ok=True)
                 except OSError:
