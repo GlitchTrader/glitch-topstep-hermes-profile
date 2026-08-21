@@ -8,7 +8,9 @@ Comparison triggers live in `decision_audit.decisive_evidence` as an `INSTRUMENT
 - Status must be one of `HELD`, `FAILED`, `EXPIRED`
 - `NOTHING` with any non-expired `HELD` trigger schedules `pending-held-rescan.json`
 - Rescan runs on the next flat cognition slot (same cadence as `scheduled`; default 5 minutes), not every worker minute
-- Runtime reconciles expired HELD to `EXPIRED`, supersedes prior-instrument watches on each new comparison ledger, and compacts old `EXPIRED` rows
+- Runtime reconciles expired HELD to `EXPIRED`, supersedes prior-instrument watches on each new comparison ledger, persists reconcile on read paths, and compacts old `EXPIRED` rows
+- `pending-held-rescan.json` includes `earliest_rescan_utc` so rescan runs on the **next** flat slot, not the same worker pass that created HELD
+- `held_rescan` and comparison-trigger `condition_change` use `TRIGGER_REVIEW_V1` (see `GTHP-TRIGGER-02.md`)
 - `run-topstep-cycle.py` consumes the pending rescan as invocation reason `held_rescan`
 - Ratchet: changing `condition` without a status transition fails closed
 

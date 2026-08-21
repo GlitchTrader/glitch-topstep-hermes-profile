@@ -35,9 +35,9 @@ from packet_model import (
 )
 from regime import detect_regime
 from trigger_lifecycle import (
-    consume_pending_held_rescan,
-    pending_held_rescan_reason,
+    active_held_triggers,
     persist_comparison_triggers,
+    trigger_review_mode,
 )
 from scanner_contract import (
     backfill_constant_comparison_fields,
@@ -46,6 +46,7 @@ from scanner_contract import (
     parse_selected_candidate_handoff,
     validate_comparison_ledger,
     validate_selected_candidate_handoff,
+    validate_trigger_review_ledger,
 )
 from forecast_metadata import strip_forecast_metadata, validate_forecast_metadata
 from cognition_cycle import recent_cycle_context
@@ -108,6 +109,7 @@ from parity import (
     discard_unexecutable_entry_outbox,
     evaluate_wake_triggers,
     invocation_reason,
+    resolve_cycle_invocation,
     flat_outside_session_window,
     market_quiescent_skip_details,
     session_maintenance_skip_details,
@@ -121,6 +123,7 @@ from parity import (
     pending_outbox,
     persist_wake_triggers,
     prune_delivered_outboxes,
+    clear_pending_wake_invocation,
     read_pending_wake_invocation,
     record_wake_trigger_fire,
     repeated_change_condition_warning,
@@ -311,12 +314,12 @@ def should_invoke(
             return True
         return packet_minute(packet) % flat_decision_interval_minutes() == 0
     return (
-        invocation_reason(
-            packet,
+        resolve_cycle_invocation(
             state,
+            packet,
             directive,
             flat_decision_interval_minutes=flat_decision_interval_minutes(),
-        )
+        )[0]
         is not None
     )
 
@@ -663,6 +666,16 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "CURRENT_CYCLE="
 )
 
+TRIGGER_REVIEW_INSTRUCTION = (
+    "TRIGGER_REVIEW_V1: active_frozen_triggers lists the persisted HELD watches. "
+    "Review those frozen conditions first; do not run a fresh full-market scan unless "
+    "review evidence requires it. For each INSTRUMENT block set "
+    "PRIOR_TRIGGER_REVIEW=HELD|FAILED|EXPIRED followed by a concise evidence clause. "
+    "At most one open HELD trigger per instrument; close prior paths when FAILED or EXPIRED. "
+    "A HELD trigger does not force entry. Preserve unrelated candidate paths unless review "
+    "evidence invalidates them. "
+)
+
 
 def build_prompt(
     packet: dict[str, Any],
@@ -670,6 +683,10 @@ def build_prompt(
     context: dict[str, Any],
     directive: dict[str, Any] | None,
     trade_state: dict[str, Any] | None = None,
+    *,
+    invocation_reason: str | None = None,
+    wake_detail: dict[str, Any] | None = None,
+    state: Path | None = None,
 ) -> str:
     model_packet = cycle_packet_for_model(packet)
     template = copy.deepcopy(packet.get("required_output_template") or {})
@@ -700,11 +717,17 @@ def build_prompt(
     )
 
     audit = template.setdefault("decision_audit", {})
+    review_mode = trigger_review_mode(invocation_reason, wake_detail)
     multi_candidate = multi_candidate_packet(packet)
     for field in AUDIT_FIELDS:
         if field == "decisive_evidence":
             if multi_candidate:
                 audit[field] = comparison_template(packet)
+                if review_mode:
+                    audit[field] = audit[field].replace(
+                        "PRIOR_TRIGGER_REVIEW=NOT_APPLICABLE",
+                        "PRIOR_TRIGGER_REVIEW=HELD: Replace with evidence-based review of the prior frozen trigger.",
+                    )
             else:
                 audit[field] = (
                     "Replace. Begin with prior_hypothesis=<CONFIRMED|INVALIDATED|"
@@ -750,9 +773,18 @@ def build_prompt(
             "gateway_may_reject_only_factual_execution_invalidity": True,
         },
     }
+    if review_mode and state is not None:
+        envelope["trigger_review_mode"] = "TRIGGER_REVIEW_V1"
+        envelope["active_frozen_triggers"] = active_held_triggers(state)
+        if wake_detail:
+            envelope["wake_context"] = wake_detail
+
+    instruction = CYCLE_OPERATOR_INSTRUCTION
+    if review_mode:
+        instruction = TRIGGER_REVIEW_INSTRUCTION + instruction
 
     return apply_cognitive_overlay(
-        CYCLE_OPERATOR_INSTRUCTION
+        instruction
         + json.dumps(envelope, separators=(",", ":"), ensure_ascii=False),
         context.get("active_cognitive_overlay"),
     )
@@ -987,6 +1019,7 @@ def validate_intent(
     directive: dict[str, Any] | None = None,
     *,
     frames: list[dict[str, Any]] | None = None,
+    require_trigger_review: bool = False,
 ) -> None:
     action = intent.get("action")
     if action not in ALLOWED_ACTIONS:
@@ -1045,7 +1078,11 @@ def validate_intent(
     decisive = audit.get("decisive_evidence")
     if isinstance(decisive, str) and decisive.strip().startswith("Replace"):
         raise ValueError("decision_audit_placeholder_not_replaced")
-    comparison = validate_comparison_ledger(decisive, packet, action=action)
+    comparison = (
+        validate_trigger_review_ledger(decisive, packet, action=action)
+        if require_trigger_review
+        else validate_comparison_ledger(decisive, packet, action=action)
+    )
     frame_context = frames or []
     if frame_context:
         continuity = (
@@ -1188,6 +1225,7 @@ def invoke_valid_intent(
     timeout_seconds: int,
     *,
     frames: list[dict[str, Any]] | None = None,
+    require_trigger_review: bool = False,
 ) -> tuple[dict[str, Any], int]:
     current_prompt = prompt
     for repair_count in range(2):
@@ -1196,8 +1234,15 @@ def invoke_valid_intent(
                 invoke_hermes(profile, current_prompt, timeout_seconds),
                 packet,
             )
-            backfill_constant_comparison_fields(intent)
-            validate_intent(intent, packet, directive, frames=frames)
+            if not require_trigger_review:
+                backfill_constant_comparison_fields(intent)
+            validate_intent(
+                intent,
+                packet,
+                directive,
+                frames=frames,
+                require_trigger_review=require_trigger_review,
+            )
             return intent, repair_count
         except ValueError as error:
             if repair_count:
@@ -1522,27 +1567,33 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         _emit_cycle_json({"packet_id": pending_id, "result": result})
         return 0 if classification == "successful" else 1
 
-    reason = pending_held_rescan_reason(
+    reason, wake_detail = resolve_cycle_invocation(
         state,
         packet,
-        flat_decision_interval_minutes=flat_decision_interval_minutes(),
-    ) or invocation_reason(
-        packet,
-        state,
         directive,
         flat_decision_interval_minutes=flat_decision_interval_minutes(),
     )
-    if reason == "held_rescan":
-        consume_pending_held_rescan(state)
-    pending_wake = read_pending_wake_invocation(state)
-    if reason is None and pending_wake:
-        reason = "condition_change"
-    wake_detail, wake_source = resolve_wake_invocation_context(
-        state,
-        packet,
-        reason,
-        pending_wake,
-    )
+    wake_source = None
+    if reason == "condition_change":
+        pending_wake = read_pending_wake_invocation(state)
+        if pending_wake:
+            clear_pending_wake_invocation(state)
+            wake_source = "monitor"
+            if wake_detail is None:
+                wake_detail = {
+                    "wake_reason": pending_wake.get("wake_reason"),
+                    "wake_trigger": pending_wake.get("wake_trigger"),
+                    "trigger_key": pending_wake.get("trigger_key"),
+                }
+        elif wake_detail is not None:
+            wake_source = "cycle"
+        else:
+            wake_detail, wake_source = resolve_wake_invocation_context(
+                state,
+                packet,
+                reason,
+                None,
+            )
     if reason is None:
         if flat_outside_session_window(packet, directive):
             if packet_minute(packet) % flat_decision_interval_minutes() == 0:
@@ -1595,7 +1646,10 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         if isinstance(trigger, dict):
             record_wake_trigger_fire(state, trigger, packet, source="cycle")
 
-    if should_skip_unchanged_evidence(packet, directive, state):
+    if should_skip_unchanged_evidence(packet, directive, state) and not trigger_review_mode(
+        reason,
+        wake_detail,
+    ):
         append_jsonl(
             state / "events.jsonl",
             {
@@ -1642,13 +1696,24 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
             return 0
 
         try:
+            review_mode = trigger_review_mode(reason, wake_detail)
             intent, repair_count = invoke_valid_intent(
                 args.profile,
-                build_prompt(packet, frames, context, directive, trade_state),
+                build_prompt(
+                    packet,
+                    frames,
+                    context,
+                    directive,
+                    trade_state,
+                    invocation_reason=reason,
+                    wake_detail=wake_detail,
+                    state=state,
+                ),
                 packet,
                 directive,
                 args.timeout_seconds,
                 frames=frames,
+                require_trigger_review=review_mode,
             )
         except Exception as error:
             attempt = load_model_attempt(attempt_path)
@@ -1682,7 +1747,12 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
             return run_once(args, root)
 
         persist_wake_triggers(state, intent, packet_id)
-        persist_comparison_triggers(state, intent, packet_id)
+        persist_comparison_triggers(
+            state,
+            intent,
+            packet_id,
+            flat_decision_interval_minutes=flat_decision_interval_minutes(),
+        )
         write_outbox_record(outbox_path, intent, state="prepared")
         decision_record = {
             "schema_version": "glitch.topstep.decision_record.v2",

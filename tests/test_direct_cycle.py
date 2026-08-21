@@ -1660,8 +1660,8 @@ class DirectCycleTests(unittest.TestCase):
                 return_value=True,
             ), mock.patch.object(
                 MODULE,
-                "invocation_reason",
-                return_value=None,
+                "resolve_cycle_invocation",
+                return_value=(None, None),
             ):
                 exit_code = MODULE.run_once(args, profile_root)
 
@@ -2062,8 +2062,8 @@ class DirectCycleTests(unittest.TestCase):
                 return_value=True,
             ), mock.patch.object(
                 MODULE,
-                "invocation_reason",
-                return_value=None,
+                "resolve_cycle_invocation",
+                return_value=(None, None),
             ), mock.patch.object(
                 MODULE,
                 "post_intent",

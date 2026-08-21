@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +24,16 @@ def comparison_trigger_path(supervisor: Path) -> Path:
 
 def pending_held_rescan_path(supervisor: Path) -> Path:
     return supervisor / "pending-held-rescan.json"
+
+
+def _next_flat_slot_utc(moment: datetime, interval_minutes: int) -> datetime:
+    interval = max(1, interval_minutes)
+    base = moment.astimezone(timezone.utc).replace(second=0, microsecond=0)
+    slot_minute = (base.minute // interval + 1) * interval
+    if slot_minute >= 60:
+        hour_carry = slot_minute // 60
+        return base.replace(minute=0) + timedelta(hours=hour_carry)
+    return base.replace(minute=slot_minute)
 
 
 def parse_comparison_ledger(intent: dict[str, Any]) -> dict[str, Any] | None:
@@ -156,13 +166,84 @@ def reconcile_comparison_triggers(
                 continue
             instrument = str(row.get("instrument") or "").upper()
             if instrument not in instruments:
+                row["status"] = "EXPIRED"
+                row["updated_utc"] = utc_now()
                 continue
             if row.get("source_packet_id") != packet_id:
                 row["status"] = "EXPIRED"
                 row["updated_utc"] = utc_now()
 
 
-def persist_comparison_triggers(state: Path, intent: dict[str, Any], packet_id: str) -> None:
+def _write_trigger_document(
+    state: Path,
+    merged: dict[str, dict[str, Any]],
+    *,
+    packet_id: str | None = None,
+) -> list[dict[str, Any]]:
+    supervisor = state / "supervisor"
+    supervisor.mkdir(parents=True, exist_ok=True)
+    prior_doc = read_optional_json(comparison_trigger_path(supervisor))
+    triggers = _compact_expired_triggers(list(merged.values()))
+    document: dict[str, Any] = {
+        "schema_version": SCHEMA_VERSION,
+        "updated_utc": utc_now(),
+        "triggers": triggers,
+    }
+    if packet_id:
+        document["packet_id"] = packet_id
+    elif isinstance(prior_doc, dict) and prior_doc.get("packet_id"):
+        document["packet_id"] = prior_doc.get("packet_id")
+    if isinstance(prior_doc, dict) and isinstance(prior_doc.get("eval_snapshot"), dict):
+        document["eval_snapshot"] = prior_doc["eval_snapshot"]
+    write_json_atomic(comparison_trigger_path(supervisor), document)
+    return triggers
+
+
+def load_reconciled_trigger_map(
+    state: Path,
+    *,
+    ledger: dict[str, Any] | None = None,
+    packet_id: str | None = None,
+) -> dict[str, dict[str, Any]]:
+    supervisor = state / "supervisor"
+    document = read_optional_json(comparison_trigger_path(supervisor))
+    merged = _trigger_map(document)
+    reconcile_comparison_triggers(merged, ledger=ledger, packet_id=packet_id)
+    _write_trigger_document(state, merged, packet_id=packet_id or (document or {}).get("packet_id"))
+    return merged
+
+
+def active_held_triggers(state: Path) -> list[dict[str, Any]]:
+    merged = load_reconciled_trigger_map(state)
+    now = datetime.now(timezone.utc)
+    return [
+        row
+        for row in merged.values()
+        if isinstance(row, dict)
+        and row.get("status") == "HELD"
+        and not _trigger_expired(row, now)
+    ]
+
+
+def trigger_review_mode(
+    invocation_reason: str | None,
+    wake_detail: dict[str, Any] | None,
+) -> bool:
+    if invocation_reason == "held_rescan":
+        return True
+    if invocation_reason != "condition_change" or not isinstance(wake_detail, dict):
+        return False
+    trigger = wake_detail.get("wake_trigger")
+    return isinstance(trigger, dict) and trigger.get("type") == "COMPARISON_TRIGGER"
+
+
+def persist_comparison_triggers(
+    state: Path,
+    intent: dict[str, Any],
+    packet_id: str,
+    *,
+    flat_decision_interval_minutes: int = 5,
+) -> None:
     ledger = parse_comparison_ledger(intent)
     if ledger is None:
         return
@@ -171,24 +252,23 @@ def persist_comparison_triggers(state: Path, intent: dict[str, Any], packet_id: 
     prior_doc = read_optional_json(comparison_trigger_path(supervisor))
     merged = merge_comparison_triggers(_trigger_map(prior_doc), ledger, packet_id=packet_id)
     reconcile_comparison_triggers(merged, ledger=ledger, packet_id=packet_id)
-    triggers = _compact_expired_triggers(list(merged.values()))
-    write_json_atomic(
-        comparison_trigger_path(supervisor),
-        {
-            "schema_version": SCHEMA_VERSION,
-            "packet_id": packet_id,
-            "updated_utc": utc_now(),
-            "triggers": triggers,
-        },
-    )
+    triggers = _write_trigger_document(state, merged, packet_id=packet_id)
     if str(intent.get("action") or "").upper() == "NOTHING" and _has_active_held(triggers):
+        created_raw = intent.get("created_utc") or utc_now()
+        created = parse_utc(str(created_raw))
         write_json_atomic(
             pending_held_rescan_path(supervisor),
             {
                 "schema_version": PENDING_HELD_SCHEMA,
                 "recorded_utc": utc_now(),
                 "source_packet_id": packet_id,
-                "due_minute_utc": intent.get("created_utc") or utc_now(),
+                "due_minute_utc": created_raw,
+                "earliest_rescan_utc": _next_flat_slot_utc(
+                    created,
+                    flat_decision_interval_minutes,
+                )
+                .isoformat()
+                .replace("+00:00", "Z"),
                 "reason": "held_trigger_requires_rescan",
             },
         )
@@ -204,21 +284,15 @@ def pending_held_rescan_reason(
     pending = read_optional_json(pending_held_rescan_path(supervisor))
     if not pending:
         return None
-    document = read_optional_json(comparison_trigger_path(supervisor))
-    rows = document.get("triggers") if isinstance(document, dict) else None
-    if not isinstance(rows, list):
-        consume_pending_held_rescan(state)
-        return None
-    merged = {
-        str(row.get("trigger_id")): row
-        for row in rows
-        if isinstance(row, dict) and row.get("trigger_id")
-    }
-    reconcile_comparison_triggers(merged)
+    merged = load_reconciled_trigger_map(state)
     if not _has_active_held(merged.values()):
         consume_pending_held_rescan(state)
         return None
     if isinstance(packet, dict) and packet.get("created_utc"):
+        earliest_raw = pending.get("earliest_rescan_utc")
+        if isinstance(earliest_raw, str) and earliest_raw.strip():
+            if parse_utc(packet["created_utc"]) < parse_utc(earliest_raw):
+                return None
         minute = parse_utc(packet["created_utc"]).minute
         if minute % max(1, flat_decision_interval_minutes) != 0:
             return None
@@ -309,11 +383,14 @@ def evaluate_comparison_triggers(
     if not isinstance(rows, list) or not rows:
         update_comparison_eval_snapshot(state, packet)
         return []
+    merged = _trigger_map(document)
+    reconcile_comparison_triggers(merged)
+    _write_trigger_document(state, merged, packet_id=str(document.get("packet_id") or ""))
     prior_price = _comparison_eval_snapshot(document).get("price")
     prior = float(prior_price) if isinstance(prior_price, (int, float)) and not isinstance(prior_price, bool) else None
     now = datetime.now(timezone.utc)
     fired: list[dict[str, Any]] = []
-    for trigger in rows:
+    for trigger in merged.values():
         if not isinstance(trigger, dict):
             continue
         if trigger.get("status") != "HELD":
