@@ -1496,7 +1496,12 @@ class DirectCycleTests(unittest.TestCase):
             current["packet_id"] = "packet-6"
 
             def fake_request(path: str, *, token=None, method="GET", body=None):
-                del path, token, method, body
+                del token, method, body
+                if "/intent/status" in path:
+                    return 200, {
+                        "schema_version": "glitch.topstep.intent_delivery_status.v1",
+                        "status": "not_seen",
+                    }
                 return 404, {"error": "not_found"}
 
             original = PARITY.request_json
@@ -1536,7 +1541,12 @@ class DirectCycleTests(unittest.TestCase):
             MODULE.write_json_atomic(outbox_path, pending)
 
             def fake_request(path: str, *, token=None, method="GET", body=None):
-                del path, token, method, body
+                del token, method, body
+                if "/intent/status" in path:
+                    return 200, {
+                        "schema_version": "glitch.topstep.intent_delivery_status.v1",
+                        "status": "not_seen",
+                    }
                 return 404, {"error": "not_found"}
 
             original = PARITY.request_json
@@ -1605,7 +1615,12 @@ class DirectCycleTests(unittest.TestCase):
             MODULE.write_json_atomic(outbox_path, pending)
 
             def fake_request(path: str, *, token=None, method="GET", body=None):
-                del path, token, method, body
+                del token, method, body
+                if "/intent/status" in path:
+                    return 200, {
+                        "schema_version": "glitch.topstep.intent_delivery_status.v1",
+                        "status": "not_seen",
+                    }
                 return 404, {"error": "not_found"}
 
             original = PARITY.request_json
