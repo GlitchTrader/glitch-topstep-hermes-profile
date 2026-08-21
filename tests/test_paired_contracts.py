@@ -68,6 +68,11 @@ class DistributedContractTests(unittest.TestCase):
             "glitch.topstep.amendment_source.v1",
         )
 
+    def test_wave8_skill_files_exist(self):
+        for name in ("topstep-setup-state", "topstep-position-management"):
+            path = ROOT / "skills" / name / "SKILL.md"
+            self.assertTrue(path.is_file(), path)
+
 
 class Cap01DailyCaptureFixtures(unittest.TestCase):
     def test_model_packet_preserves_daily_capture_context_not_as_quota(self):
