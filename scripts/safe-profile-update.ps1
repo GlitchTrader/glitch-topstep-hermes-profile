@@ -34,13 +34,69 @@ Run future updates from outside the profile tree, e.g.:
 
 function Get-ProfilePythonProcesses {
     $escapedRoot = [regex]::Escape($profileRoot)
-    return @(
-        Get-CimInstance Win32_Process -Filter "name='python.exe'" -ErrorAction SilentlyContinue |
-            Where-Object {
-                $_.CommandLine -match [regex]::Escape($Profile) -or
-                $_.CommandLine -match $escapedRoot
+    $pythonNames = @('python.exe', 'python3.exe', 'python3.12.exe', 'python3.11.exe')
+    $processes = @()
+    foreach ($name in $pythonNames) {
+        $processes += @(
+            Get-CimInstance Win32_Process -Filter "name='$name'" -ErrorAction SilentlyContinue |
+                Where-Object {
+                    $_.CommandLine -match [regex]::Escape($Profile) -or
+                    $_.CommandLine -match $escapedRoot
+                }
+        )
+    }
+    return @($processes | Sort-Object ProcessId -Unique)
+}
+
+function Clear-DistributionReadOnly {
+    param([string]$Root)
+    $yaml = Join-Path $Root 'distribution.yaml'
+    if (-not (Test-Path -LiteralPath $yaml -PathType Leaf)) { return }
+    $owned = @()
+    $inOwned = $false
+    foreach ($line in Get-Content -LiteralPath $yaml) {
+        if ($line -match '^distribution_owned:\s*$') {
+            $inOwned = $true
+            continue
+        }
+        if ($inOwned) {
+            if ($line -match '^\s+-\s+(.+)$') {
+                $owned += $Matches[1].Trim().Trim('"').Trim("'")
+                continue
             }
-    )
+            if ($line -match '^\S') {
+                break
+            }
+        }
+    }
+    foreach ($relative in $owned) {
+        $path = Join-Path $Root ($relative.Replace('/', '\'))
+        if (-not (Test-Path -LiteralPath $path)) { continue }
+        cmd /c "attrib -R `"$path`" /S /D" 2>$null | Out-Null
+        if (Test-Path -LiteralPath $path -PathType Container) {
+            cmd /c "attrib -R `"$path\*`" /S /D" 2>$null | Out-Null
+        }
+        Write-Host "Cleared ReadOnly: $relative"
+    }
+}
+
+function Remove-StaleDistributionTrees {
+    param([string]$Root)
+    foreach ($rel in @('skills', 'plugins')) {
+        $path = Join-Path $Root ($rel.Replace('/', '\'))
+        if (-not (Test-Path -LiteralPath $path)) { continue }
+        cmd /c "attrib -R `"$path`" /S /D" 2>$null | Out-Null
+        if (Test-Path -LiteralPath $path -PathType Container) {
+            cmd /c "attrib -R `"$path\*`" /S /D" 2>$null | Out-Null
+        }
+        Remove-Item -LiteralPath $path -Recurse -Force -ErrorAction SilentlyContinue
+        if (Test-Path -LiteralPath $path) {
+            Write-Warning "Could not remove $rel; install/update may still fail on Windows rmtree."
+        }
+        else {
+            Write-Host "Removed stale tree: $rel"
+        }
+    }
 }
 
 function Stop-ProfileProcesses {
@@ -227,6 +283,8 @@ Set-ProfileCronJobsPaused -Paused $true
 Start-Sleep -Seconds 5
 Stop-ProfileProcesses
 Wait-ProfileQuiescent
+Clear-DistributionReadOnly -Root $profileRoot
+Remove-StaleDistributionTrees -Root $profileRoot
 Remove-StagingArtifacts -Root $profileRoot
 Ensure-HermesDistributionPatch
 

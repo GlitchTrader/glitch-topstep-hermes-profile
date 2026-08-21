@@ -3,11 +3,13 @@ version: 0.2.1
 description: "Experimental Glitch Topstep AI operator profile"
 hermes_requires: ">=0.18.2"
 author: "GlitchTrader"
+source: github.com/GlitchTrader/glitch-topstep-hermes-profile
 distribution_owned:
   - distribution.yaml
   - SOUL.md
   - operator.json
   - config.yaml
+  - .github
   - skills
   - plugins
   - scripts
