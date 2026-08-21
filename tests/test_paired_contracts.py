@@ -240,17 +240,10 @@ class Multi01ScannerPacketFixtures(unittest.TestCase):
 
     def test_scanner_comparison_ledger_requires_all_three_candidates(self):
         packet = self._packet()
-        value = json.loads(comparison_template(packet)[len(MARKER) :])
-        for row in value["candidates"]:
-            for field in ("current_auction", "bullish_path", "bearish_path", "next_transition"):
-                row[field] = f"{row['instrument']} {field} evidence"
-            row["triggers"][0].update(
-                trigger_id=f"trigger-{row['instrument']}",
-                path="NEXT",
-                condition="price crosses frozen level",
-                status="HELD",
-            )
-        validated = validate_comparison_ledger(MARKER + json.dumps(value), packet)
+        ledger_text = (
+            ROOT / "tests" / "fixtures" / "paired" / "multi01_comparison_ledger.txt"
+        ).read_text(encoding="utf-8")
+        validated = validate_comparison_ledger(ledger_text, packet, action="NOTHING")
         self.assertEqual(validated["ranking"], ["MNQ", "MES", "MCL"])
 
 

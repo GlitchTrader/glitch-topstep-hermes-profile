@@ -790,7 +790,10 @@ class DirectCycleTests(unittest.TestCase):
             [row["execution_mode"] for row in model_universe["candidates"]],
             ["selected", "observation_only", "observation_only"],
         )
-        self.assertIn("INSTRUMENT_COMPARISON_V1:", envelope["required_output_template"]["decision_audit"]["decisive_evidence"])
+        decisive = envelope["required_output_template"]["decision_audit"]["decisive_evidence"]
+        self.assertTrue(decisive.startswith("INSTRUMENT_COMPARISON_V1\n"))
+        self.assertNotIn("prior_hypothesis=", decisive)
+        self.assertIn("INSTRUMENT MNQ:", decisive)
 
     def test_adaptive_decision_frame_count_uses_fewer_frames_when_flat(self):
         with mock.patch.dict(os.environ, {"GLITCH_TOPSTEP_FLAT_FRAME_COUNT": "4"}):

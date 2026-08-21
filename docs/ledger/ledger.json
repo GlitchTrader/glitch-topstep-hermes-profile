@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-08-20",
+  "updated": "2026-08-21",
   "release_target": "paired gateway/profile beta",
   "reconciliation": {
     "date": "2026-08-20",
@@ -779,6 +779,34 @@
         "skills/topstep-learning-loop/SKILL.md",
         "docs/evidence/ISSUE-74-75-proof-2026-08-20.md",
         "distribution 0.2.1"
+      ]
+    },
+    {
+      "id": "GTHP-033",
+      "title": "Discard superseded pending outbox before delivery retry loop",
+      "status": "open",
+      "priority": "P1",
+      "owner_role": "delivery_recovery",
+      "issue": 138,
+      "depends_on": [
+        "GTHP-013",
+        "GTHP-DATA-01"
+      ],
+      "resolution": [
+        "Before pending deliver_intent, discard outbox when expires_utc is past or current gateway packet_id differs from outbox packet_id, gated by gateway intent receipt lookup.",
+        "Map packet_superseded_before_delivery and related entry supersession ValueErrors to the same discard path in the pending-outbox branch.",
+        "On discard emit intent_discarded_stale_packet and recurse run_once in the same worker invocation."
+      ],
+      "acceptance": [
+        "No minute-cron failure loop after packet lease expiry when gateway receipt is absent (404/410).",
+        "HTTP 200 receipt retains outbox; transport unknown retains outbox.",
+        "Unit tests cover discard and retain paths; SHA256SUMS regenerated after script changes."
+      ],
+      "sources": [
+        "docs/specs/GTHP-033.md",
+        "scripts/workflows/intent_outbox.py",
+        "scripts/run-topstep-cycle.py",
+        "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/138"
       ]
     },
     {
