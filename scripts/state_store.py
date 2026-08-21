@@ -35,6 +35,14 @@ class ProfileStateStore:
                 key TEXT PRIMARY KEY,
                 value TEXT NOT NULL
             );
+            CREATE TABLE IF NOT EXISTS jsonl_export_queue (
+                sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+                target TEXT NOT NULL,
+                payload_json TEXT NOT NULL,
+                created_utc TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS jsonl_export_queue_target_idx
+                ON jsonl_export_queue(target, sequence);
             """
         )
         self.db.commit()
@@ -80,12 +88,54 @@ class ProfileStateStore:
         self.sync_decisions_from_jsonl(jsonl_path)
 
     def append_decision(self, row: dict[str, Any], *, jsonl_path: Path | None = None) -> None:
+        payload = json.dumps(row, separators=(",", ":"), ensure_ascii=False)
+        recorded = str(row.get("recorded_utc") or row.get("decision_utc") or "")
+        target = str(jsonl_path) if jsonl_path is not None else "decisions.jsonl"
         with self.db:
             self._insert_decision(row)
+            self.db.execute(
+                """
+                INSERT INTO jsonl_export_queue(target, payload_json, created_utc)
+                VALUES (?, ?, ?)
+                """,
+                (target, payload, recorded),
+            )
         if jsonl_path is not None:
-            from common import append_jsonl
+            self.export_pending_jsonl(jsonl_path)
 
-            append_jsonl(jsonl_path, row)
+    def export_pending_jsonl(self, jsonl_path: Path) -> int:
+        """Drain export queue to JSONL after SQLite commit (GTHP-REAUDIT-01)."""
+        target = str(jsonl_path)
+        rows = self.db.execute(
+            """
+            SELECT sequence, payload_json FROM jsonl_export_queue
+            WHERE target = ?
+            ORDER BY sequence ASC
+            """,
+            (target,),
+        ).fetchall()
+        if not rows:
+            return 0
+        from common import append_jsonl
+
+        exported = 0
+        with self.db:
+            for row in rows:
+                append_jsonl(jsonl_path, json.loads(row["payload_json"]))
+                self.db.execute(
+                    "DELETE FROM jsonl_export_queue WHERE sequence = ?",
+                    (row["sequence"],),
+                )
+                exported += 1
+        return exported
+
+    def export_backlog_count(self, jsonl_path: Path | None = None) -> int:
+        target = str(jsonl_path) if jsonl_path is not None else "decisions.jsonl"
+        row = self.db.execute(
+            "SELECT COUNT(*) AS count FROM jsonl_export_queue WHERE target = ?",
+            (target,),
+        ).fetchone()
+        return int(row[0]) if row else 0
 
     def _insert_decision(self, row: dict[str, Any]) -> None:
         payload = json.dumps(row, separators=(",", ":"), ensure_ascii=False)

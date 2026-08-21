@@ -51,6 +51,7 @@ from forecast_metadata import strip_forecast_metadata, validate_forecast_metadat
 from cognition_cycle import recent_cycle_context
 from state_store import ProfileStateStore
 from model_owner_lock import acquire_model_owner, release_model_owner
+from workflows.intent_outbox import load_outbox_record, write_outbox_record
 
 
 def _emit_cycle_json(payload: dict[str, Any]) -> None:
@@ -1574,7 +1575,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     context = recent_context(state)
 
     if outbox_path.is_file():
-        intent = read_json(outbox_path)
+        _, intent = load_outbox_record(outbox_path)
         validate_intent(intent, packet, None)
     else:
         existing_attempt = read_optional_json(attempt_path)
@@ -1628,7 +1629,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
 
         persist_wake_triggers(state, intent, packet_id)
         persist_comparison_triggers(state, intent, packet_id)
-        write_json_atomic(outbox_path, intent)
+        write_outbox_record(outbox_path, intent, state="prepared")
         decision_record = {
             "schema_version": "glitch.topstep.decision_record.v2",
             "recorded_utc": utc_now(),
