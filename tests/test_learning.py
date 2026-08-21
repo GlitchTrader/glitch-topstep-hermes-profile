@@ -456,7 +456,7 @@ class LearningTests(unittest.TestCase):
             }
             with mock.patch.object(
                 MODULE,
-                "sync_gateway_outcomes_meta",
+                "bootstrap_profile_state",
                 return_value={"added": 1, "http_status": 200},
             ), mock.patch.object(MODULE, "gateway_feed_is_fresh", return_value=False):
                 result = MODULE.run_once(args, root_path)

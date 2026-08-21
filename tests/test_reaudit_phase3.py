@@ -8,6 +8,7 @@ from common import bootstrap_profile_state
 from state_store import ProfileStateStore
 
 
+class ReauditPhase3Tests(unittest.TestCase):
     def test_bootstrap_profile_state_indexes_decisions_before_sync(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             state = Path(tmp)
