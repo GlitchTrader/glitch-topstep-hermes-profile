@@ -8,6 +8,7 @@ distribution_owned:
   - distribution.yaml
   - SOUL.md
   - operator.json
+  - paired-contract.json
   - config.yaml
   - .github
   - skills

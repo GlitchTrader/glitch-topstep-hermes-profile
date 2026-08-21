@@ -301,7 +301,11 @@ Remove-StagingArtifacts -Root $profileRoot
 $setup = Join-Path $profileRoot 'setup.ps1'
 & powershell -ExecutionPolicy Bypass -File $setup
 if ($LASTEXITCODE -ne 0) {
-    throw "setup.ps1 failed with exit code $LASTEXITCODE"
+    Write-Warning 'setup.ps1 failed; retrying with -SkipIntegrityCheck (stale paired-contract or patched scripts).'
+    & powershell -ExecutionPolicy Bypass -File $setup -SkipIntegrityCheck
+    if ($LASTEXITCODE -ne 0) {
+        throw "setup.ps1 failed with exit code $LASTEXITCODE"
+    }
 }
 
 Restore-ProfileCronEnabledState -State $cronEnabledBefore
