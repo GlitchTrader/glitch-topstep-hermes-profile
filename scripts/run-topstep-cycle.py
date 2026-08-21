@@ -1522,7 +1522,11 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         _emit_cycle_json({"packet_id": pending_id, "result": result})
         return 0 if classification == "successful" else 1
 
-    reason = pending_held_rescan_reason(state) or invocation_reason(
+    reason = pending_held_rescan_reason(
+        state,
+        packet,
+        flat_decision_interval_minutes=flat_decision_interval_minutes(),
+    ) or invocation_reason(
         packet,
         state,
         directive,

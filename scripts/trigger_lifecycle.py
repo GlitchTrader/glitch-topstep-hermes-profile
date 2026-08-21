@@ -14,6 +14,8 @@ from scanner_contract import MARKER, TRIGGER_STATUSES, parse_comparison_line
 
 SCHEMA_VERSION = "glitch.topstep.comparison_triggers.v1"
 PENDING_HELD_SCHEMA = "glitch.topstep.pending_held_rescan.v1"
+# ponytail: retain last N EXPIRED rows only; active HELD/FAILED are never dropped here.
+EXPIRED_TRIGGER_RETENTION = 100
 
 
 def comparison_trigger_path(supervisor: Path) -> Path:
@@ -93,6 +95,73 @@ def merge_comparison_triggers(
     return merged
 
 
+def _ledger_instruments(ledger: dict[str, Any]) -> set[str]:
+    instruments: set[str] = set()
+    for candidate in ledger.get("candidates") or []:
+        if isinstance(candidate, dict):
+            instrument = str(candidate.get("instrument") or "").upper()
+            if instrument:
+                instruments.add(instrument)
+    return instruments
+
+
+def _trigger_expired(trigger: dict[str, Any], now: datetime) -> bool:
+    raw = trigger.get("expires_utc")
+    if not isinstance(raw, str) or not raw.strip():
+        return False
+    try:
+        return parse_utc(raw) <= now
+    except (TypeError, ValueError):
+        return True
+
+
+def _has_active_held(rows: Any, *, now: datetime | None = None) -> bool:
+    current = now or datetime.now(timezone.utc)
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        if row.get("status") != "HELD":
+            continue
+        if _trigger_expired(row, current):
+            continue
+        return True
+    return False
+
+
+def _compact_expired_triggers(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    active = [row for row in rows if row.get("status") != "EXPIRED"]
+    expired = [row for row in rows if row.get("status") == "EXPIRED"]
+    expired.sort(key=lambda row: str(row.get("updated_utc") or ""), reverse=True)
+    return active + expired[:EXPIRED_TRIGGER_RETENTION]
+
+
+def reconcile_comparison_triggers(
+    merged: dict[str, dict[str, Any]],
+    *,
+    now: datetime | None = None,
+    ledger: dict[str, Any] | None = None,
+    packet_id: str | None = None,
+) -> None:
+    """Expire stale HELD at runtime and supersede prior-instrument watches."""
+    current = now or datetime.now(timezone.utc)
+    for row in merged.values():
+        if row.get("status") == "HELD" and _trigger_expired(row, current):
+            row["status"] = "EXPIRED"
+            row["updated_utc"] = utc_now()
+
+    if ledger is not None and packet_id:
+        instruments = _ledger_instruments(ledger)
+        for row in merged.values():
+            if row.get("status") != "HELD" or _trigger_expired(row, current):
+                continue
+            instrument = str(row.get("instrument") or "").upper()
+            if instrument not in instruments:
+                continue
+            if row.get("source_packet_id") != packet_id:
+                row["status"] = "EXPIRED"
+                row["updated_utc"] = utc_now()
+
+
 def persist_comparison_triggers(state: Path, intent: dict[str, Any], packet_id: str) -> None:
     ledger = parse_comparison_ledger(intent)
     if ledger is None:
@@ -101,18 +170,18 @@ def persist_comparison_triggers(state: Path, intent: dict[str, Any], packet_id: 
     supervisor.mkdir(parents=True, exist_ok=True)
     prior_doc = read_optional_json(comparison_trigger_path(supervisor))
     merged = merge_comparison_triggers(_trigger_map(prior_doc), ledger, packet_id=packet_id)
+    reconcile_comparison_triggers(merged, ledger=ledger, packet_id=packet_id)
+    triggers = _compact_expired_triggers(list(merged.values()))
     write_json_atomic(
         comparison_trigger_path(supervisor),
         {
             "schema_version": SCHEMA_VERSION,
             "packet_id": packet_id,
             "updated_utc": utc_now(),
-            "triggers": list(merged.values()),
+            "triggers": triggers,
         },
     )
-    if str(intent.get("action") or "").upper() == "NOTHING" and _has_active_held(
-        merged.values()
-    ):
+    if str(intent.get("action") or "").upper() == "NOTHING" and _has_active_held(triggers):
         write_json_atomic(
             pending_held_rescan_path(supervisor),
             {
@@ -125,19 +194,35 @@ def persist_comparison_triggers(state: Path, intent: dict[str, Any], packet_id: 
         )
 
 
-def pending_held_rescan_reason(state: Path) -> str | None:
+def pending_held_rescan_reason(
+    state: Path,
+    packet: dict[str, Any] | None = None,
+    *,
+    flat_decision_interval_minutes: int = 5,
+) -> str | None:
     supervisor = state / "supervisor"
     pending = read_optional_json(pending_held_rescan_path(supervisor))
     if not pending:
         return None
     document = read_optional_json(comparison_trigger_path(supervisor))
     rows = document.get("triggers") if isinstance(document, dict) else None
-    if isinstance(rows, list) and _has_active_held(
-        row for row in rows if isinstance(row, dict)
-    ):
-        return "held_rescan"
-    consume_pending_held_rescan(state)
-    return None
+    if not isinstance(rows, list):
+        consume_pending_held_rescan(state)
+        return None
+    merged = {
+        str(row.get("trigger_id")): row
+        for row in rows
+        if isinstance(row, dict) and row.get("trigger_id")
+    }
+    reconcile_comparison_triggers(merged)
+    if not _has_active_held(merged.values()):
+        consume_pending_held_rescan(state)
+        return None
+    if isinstance(packet, dict) and packet.get("created_utc"):
+        minute = parse_utc(packet["created_utc"]).minute
+        if minute % max(1, flat_decision_interval_minutes) != 0:
+            return None
+    return "held_rescan"
 
 
 def consume_pending_held_rescan(state: Path) -> None:
@@ -165,29 +250,6 @@ def _parse_condition_level(condition: str) -> tuple[str, float] | None:
     if not match:
         return None
     return match.group(1).lower(), float(match.group(2))
-
-
-def _trigger_expired(trigger: dict[str, Any], now: datetime) -> bool:
-    raw = trigger.get("expires_utc")
-    if not isinstance(raw, str) or not raw.strip():
-        return False
-    try:
-        return parse_utc(raw) <= now
-    except (TypeError, ValueError):
-        return True
-
-
-def _has_active_held(rows: Any) -> bool:
-    now = datetime.now(timezone.utc)
-    for row in rows:
-        if not isinstance(row, dict):
-            continue
-        if row.get("status") != "HELD":
-            continue
-        if _trigger_expired(row, now):
-            continue
-        return True
-    return False
 
 
 def _trigger_condition_met(

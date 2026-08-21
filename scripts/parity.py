@@ -55,7 +55,7 @@ from common import (
 CURRENT_PLAN_SCHEMA = "glitch.topstep.portfolio_plan.v1"
 CURRENT_GUIDANCE_SCHEMA = "glitch.topstep.guidance.v1"
 RETRYABLE_ATTEMPT_STATUSES = frozenset(
-    {"started", "failed", "execution_failed", "delivery_incomplete"}
+    {"failed", "execution_failed", "delivery_incomplete"}
 )
 
 
