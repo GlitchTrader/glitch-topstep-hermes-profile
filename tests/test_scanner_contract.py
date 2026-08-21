@@ -10,8 +10,10 @@ from scanner_contract import (  # noqa: E402
     comparison_line_template,
     comparison_template,
     parse_comparison_line,
+    parse_selected_candidate_handoff,
     serialize_comparison_line,
     validate_comparison_ledger,
+    validate_selected_candidate_handoff,
 )
 
 
@@ -106,6 +108,35 @@ class ScannerContractTests(unittest.TestCase):
 
     def test_comparison_template_alias(self):
         self.assertEqual(comparison_template(packet()), comparison_line_template(packet()))
+
+    def test_parse_selected_candidate_handoff(self):
+        intent = {
+            "packet_id": packet()["packet_id"],
+            "expires_utc": packet()["expires_utc"],
+            "decision_audit": {"decisive_evidence": filled_ledger_text("ENTER_LONG")},
+            "account_selection": packet()["account_selection"],
+        }
+        handoff = parse_selected_candidate_handoff(intent)
+        self.assertIsNotNone(handoff)
+        assert handoff is not None
+        self.assertEqual(handoff["selected_instrument"], "MNQ")
+        self.assertEqual(handoff["selection_action"], "ENTER_LONG")
+        validate_selected_candidate_handoff(handoff, packet())
+
+    def test_validate_selected_candidate_handoff_rejects_scope_mismatch(self):
+        intent = {
+            "packet_id": packet()["packet_id"],
+            "expires_utc": packet()["expires_utc"],
+            "decision_audit": {"decisive_evidence": filled_ledger_text("ENTER_LONG")},
+            "account_selection": {
+                **packet()["account_selection"],
+                "selected_instrument": "MES",
+            },
+        }
+        handoff = parse_selected_candidate_handoff(intent)
+        assert handoff is not None
+        with self.assertRaisesRegex(ValueError, "selected_candidate_scope_mismatch"):
+            validate_selected_candidate_handoff(handoff, packet())
 
 
 if __name__ == "__main__":
