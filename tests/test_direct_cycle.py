@@ -977,9 +977,9 @@ class DirectCycleTests(unittest.TestCase):
             ), mock.patch.object(MODULE, "invoke_valid_intent") as invoke:
                 exit_code = MODULE.run_once(args, profile_root)
 
-        self.assertEqual(exit_code, 0)
-        invoke.assert_not_called()
-        self.assertTrue((state / "minute-frames" / "20990101T1406Z.json").is_file())
+            self.assertEqual(exit_code, 0)
+            invoke.assert_not_called()
+            self.assertTrue((state / "minute-frames" / "20990101T1406Z.json").is_file())
 
     def test_extract_single_json_accepts_transport_chatter(self):
         raw = "status\n" + json.dumps(intent()) + "\ndone"
