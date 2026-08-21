@@ -22,7 +22,8 @@
       169,
       171,
       173,
-      175
+      175,
+      177
     ],
     "implementation_note": "Paired fixtures through EXEC-01/MULTI (#118). NT waves #159-#162 merged. REAUDIT waves 1-3 (#163-#168) merged 2026-08-21. Data freshness follow-up (#169) merged 2026-08-21 with gateway #215. Continuity gap operator rule (#171) merged 2026-08-21. All REAUDIT acceptance open. Armed promotion blocked.",
     "reaudit_wave_1_2026_08_21": {
@@ -117,7 +118,18 @@
         "TS-TRAIL-D-01"
       ]
     },
-    "validation": "Trail A+D merged (#220 gateway, #175 profile on 2026-08-21): profile unittest green; cycle-empirical.jsonl instrumented. Residual: kill injection matrix, credentialed soak, signed pair manifest."
+    "p0_items_1_5_2026_08_21": {
+      "gateway_pr": 223,
+      "gateway_commit": "19aa4f4",
+      "profile_pr": 177,
+      "profile_commit": "bd821a3",
+      "status": "merged",
+      "items": {
+        "3_delivery_outbox": "finalize_outbox_after_delivery in intent_outbox.py + run-topstep-cycle hooks"
+      },
+      "residual": "PRAC soak execution; SQLite single-transaction authority (GTHP-REAUDIT-01)"
+    },
+    "validation": "P0 items 1-5 merged (#223/#177 2026-08-21). Outbox delivery states wired. PRAC soak pending operator."
   },
   "profile_version": "0.2.2",
   "gateway": {
