@@ -21,6 +21,7 @@ from packet_model import (  # noqa: E402
     sanitize_depth_for_model,
     sanitize_market_for_model,
     sanitize_quote_age_ms,
+    sanitize_structural_levels_for_model,
 )
 
 
@@ -235,6 +236,65 @@ class PacketModelTests(unittest.TestCase):
         self.assertFalse(market["session_levels"]["reliable"])
         self.assertTrue(market["session_levels"]["available"])
 
+    def test_sanitize_market_syncs_legacy_from_gateway_session_levels(self):
+        market = sanitize_market_for_model(
+            {
+                "last": 29351.75,
+                "session_high": None,
+                "session_low": None,
+                "bid": 29351.5,
+                "ask": 29352.0,
+                "session_levels": {
+                    "available": True,
+                    "reliable": False,
+                    "high": 29351.75,
+                    "low": 29351.75,
+                    "reason": "mirror_last_open_heuristic",
+                },
+            }
+        )
+        self.assertFalse(market["session_levels_reliable"])
+        self.assertFalse(market["session_levels"]["reliable"])
+        self.assertEqual(
+            market["session_levels_reliable"],
+            market["session_levels"]["reliable"],
+        )
+
+    def test_sanitize_structural_levels_drops_session_open_when_unreliable(self):
+        sanitized = sanitize_structural_levels_for_model(
+            {
+                "schema_version": "glitch.topstep.structural_levels.v1",
+                "generated_utc": "2026-08-21T00:45:48.752Z",
+                "levels": [
+                    {
+                        "kind": "session_open",
+                        "label": "session_open",
+                        "price": 29351.75,
+                        "provenance": "market.session_open",
+                    },
+                    {
+                        "kind": "range",
+                        "label": "tape_high_60s",
+                        "price": 29356.25,
+                        "provenance": "order_flow.observation.windows.60.high_price",
+                    },
+                ],
+            },
+            market={
+                "session_levels_reliable": False,
+                "session_levels": {
+                    "available": True,
+                    "reliable": False,
+                    "high": 29351.75,
+                    "low": 29351.75,
+                    "reason": "mirror_last_open_heuristic",
+                },
+            },
+        )
+        labels = [row["label"] for row in sanitized["levels"]]
+        self.assertNotIn("session_open", labels)
+        self.assertIn("tape_high_60s", labels)
+
     def test_sanitize_depth_seven_tick_divergence_at_four_ticks(self):
         depth = sanitize_depth_for_model(
             {
@@ -381,7 +441,7 @@ class PacketModelTests(unittest.TestCase):
             packet,
             profile_name="glitch-topstep",
             core_model="gpt-5.6-luna",
-            prompt_version="glitch-topstep-v10",
+            prompt_version="glitch-topstep-v11",
         )
         self.assertEqual(value["structural_levels"]["levels"][0]["price"], 20010)
         self.assertEqual(value["price_delta_relationship"]["summary"], "aligned")
