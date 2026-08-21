@@ -251,10 +251,12 @@ class Multi01ScannerPacketFixtures(unittest.TestCase):
     def test_scanner_universe_preserves_exact_contracts_and_single_armed_selection(self):
         universe = _load("multi01_scanner_packet.json")
         selected = [row for row in universe["candidates"] if row["execution_mode"] == "selected"]
-        observation = [row for row in universe["candidates"] if row["execution_mode"] == "observation_only"]
+        flat_required = [row for row in universe["candidates"] if row["execution_mode"] == "flat_required"]
+        assert len(selected) == 1
+        assert len(flat_required) >= 1
         self.assertEqual(len(selected), 1)
         self.assertEqual(selected[0]["instrument"], "MNQ")
-        self.assertEqual(len(observation), 2)
+        self.assertEqual(len(flat_required), 2)
         self.assertFalse(universe["simultaneous_exposure_enabled"])
         self.assertEqual(universe["account_selection"]["selected_contract_id"], "CON.F.US.MNQ.U26")
 

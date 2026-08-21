@@ -210,7 +210,7 @@ def multi_instrument_packet() -> dict:
                 "symbol_id": "F.US.MES",
                 "tick_size": 0.25,
                 "tick_value": 1.25,
-                "execution_mode": "observation_only",
+                "execution_mode": "flat_required",
                 "observation_quality": {"status": "ready", "observation_ready": True},
             },
             {
@@ -219,7 +219,7 @@ def multi_instrument_packet() -> dict:
                 "symbol_id": "F.US.MCLE",
                 "tick_size": 0.01,
                 "tick_value": 1.0,
-                "execution_mode": "observation_only",
+                "execution_mode": "flat_required",
                 "observation_quality": {"status": "ready", "observation_ready": True},
             },
         ],
@@ -789,7 +789,7 @@ class DirectCycleTests(unittest.TestCase):
         )
         self.assertEqual(
             [row["execution_mode"] for row in model_universe["candidates"]],
-            ["selected", "observation_only", "observation_only"],
+            ["selected", "flat_required", "flat_required"],
         )
         decisive = envelope["required_output_template"]["decision_audit"]["decisive_evidence"]
         self.assertTrue(decisive.startswith("INSTRUMENT_COMPARISON_V1\n"))
