@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-08-21T14:10:00Z",
+  "updated": "2026-08-21T16:00:00Z",
   "release_target": "paired gateway/profile beta",
   "reconciliation": {
     "date": "2026-08-20",
@@ -17,9 +17,11 @@
       163,
       164,
       165,
-      167
+      167,
+      168,
+      169
     ],
-    "implementation_note": "Paired fixtures through EXEC-01/MULTI (#118). NT waves #159–#162 merged. REAUDIT waves 1–2 (#163–#167) merged 2026-08-21; wave 3 open (#168). All REAUDIT acceptance open. Armed promotion blocked.",
+    "implementation_note": "Paired fixtures through EXEC-01/MULTI (#118). NT waves #159-#162 merged. REAUDIT waves 1-3 (#163-#168) merged 2026-08-21. Data freshness follow-up (#169) merged 2026-08-21 with gateway #215. All REAUDIT acceptance open. Armed promotion blocked.",
     "reaudit_wave_1_2026_08_21": {
       "profile_pr": 163,
       "profile_commit": "097808b",
@@ -43,11 +45,11 @@
     },
     "reaudit_wave_3_2026_08_21": {
       "profile_pr": 168,
-      "profile_commit": "35bcaa7",
+      "profile_commit": "2299d46",
       "gateway_pr": 214,
-      "gateway_commit": "c59e8f7",
+      "gateway_commit": "437b6a6",
       "plan": "glitch-topstep:docs/plans/2026-08-21-reaudit-p0-p1-attack-plan.md",
-      "status": "open_pr",
+      "status": "merged",
       "items_touched": [
         "GTHP-AUDIT-04",
         "GTHP-AUDIT-01",
@@ -55,7 +57,19 @@
       ],
       "issues_remain_open": true
     },
-    "validation": "Post wave 3 PR (#168): profile unittest green; waves 1–2 merged (#165/#167). Residual: atomic SQLite authority, kill injection matrix, parity.py shrink baseline, lint/type gates, signed pair manifest."
+    "data_freshness_followup_2026_08_21": {
+      "profile_pr": 169,
+      "profile_commit": "c542058",
+      "gateway_pr": 215,
+      "gateway_commit": "0b2d935",
+      "status": "merged",
+      "items_touched": [
+        "GTHP-DATA-01 follow-up",
+        "CYCLE_OPERATOR_INSTRUCTION ranking freshness"
+      ],
+      "summary": "Prompt rule for candidate_alignment and universe_freshness; pairs with gateway token-bucket refreshForPacket metadata."
+    },
+    "validation": "Post wave 3 merge (#168/#214) and freshness follow-up (#169/#215 on main 2026-08-21): profile unittest green; safe-profile-update v0.2.1 integrity OK. Residual: atomic SQLite authority, kill injection matrix, parity.py shrink baseline, lint/type gates, signed pair manifest."
   },
   "profile_version": "0.2.1",
   "gateway": {
@@ -883,7 +897,7 @@
         "scripts/run-topstep-cycle.py",
         "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/121"
       ],
-      "implementation_note": "Wave 3 (#168, open): bootstrap_profile_state indexes decisions.jsonl and syncs gateway outcomes before cycle/learning; load_parent_hermes_provider_env inherits API keys from parent Hermes .env. Residual: atomic txn authority, divergence report, kill injection matrix, degraded-state gate."
+      "implementation_note": "Wave 3 merged (#168, 2299d46): bootstrap_profile_state indexes decisions.jsonl and syncs gateway outcomes before cycle/learning; load_parent_hermes_provider_env inherits API keys from parent Hermes .env. Residual: atomic txn authority, divergence report, kill injection matrix, degraded-state gate."
     },
     {
       "id": "GTHP-AUDIT-02",
@@ -977,7 +991,7 @@
         "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/124"
       ],
       "pull_request": 168,
-      "implementation_note": "Wave 3 (#168, open): extracted scripts/workflows/wake_triggers.py from parity.py (~430 lines); parity re-exports for compatibility; test_workflow_modules.py updated. Residual: session gates, market quiescence, cognition_prompt parity imports, recorded baseline line-count proof."
+      "implementation_note": "Wave 3 merged (#168, 2299d46): extracted scripts/workflows/wake_triggers.py from parity.py (~430 lines); parity re-exports for compatibility; test_workflow_modules.py updated. Residual: session gates, market quiescence, cognition_prompt parity imports, recorded baseline line-count proof."
     },
     {
       "id": "GTHP-AUDIT-05",
@@ -1079,7 +1093,7 @@
         "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/140"
       ],
       "pull_request": 163,
-      "implementation_note": "Wave 1 (#163): sync_meta line cursor, INSERT OR IGNORE on packet_id, ensure_model_attempt. Wave 3 (#168, open): bootstrap_profile_state before cycle/learning. Residual: single-transaction authority, async JSONL exporter, kill injection matrix."
+      "implementation_note": "Wave 1 (#163): sync_meta line cursor, INSERT OR IGNORE on packet_id, ensure_model_attempt. Wave 3 merged (#168): bootstrap_profile_state before cycle/learning. Freshness follow-up (#169): ranking freshness prompt rule for candidate_alignment. Residual: single-transaction authority, async JSONL exporter, kill injection matrix."
     },
     {
       "id": "GTHP-REAUDIT-02",
