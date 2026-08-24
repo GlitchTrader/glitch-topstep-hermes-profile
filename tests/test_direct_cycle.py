@@ -2044,6 +2044,8 @@ class DirectCycleTests(unittest.TestCase):
             outbox.mkdir(parents=True)
             wire_dir.mkdir(parents=True)
             pending = intent("ENTER_SHORT")
+            pending["entry_price_min"] = 19999.5
+            pending["entry_price_max"] = 20000.5
             outbox_path = outbox / "packet-5.json"
             MODULE.write_json_atomic(outbox_path, pending)
             MODULE.write_json_atomic(
@@ -2062,6 +2064,14 @@ class DirectCycleTests(unittest.TestCase):
             self.assertFalse((wire_dir / "packet-5.json").exists())
             events = (state / "events.jsonl").read_text(encoding="utf-8")
             self.assertIn("intent_discarded_geometry_invalid", events)
+            payload = json.loads(events.strip().splitlines()[-1])
+            self.assertEqual(payload.get("entry_price_min"), pending.get("entry_price_min"))
+            self.assertEqual(payload.get("entry_price_max"), pending.get("entry_price_max"))
+            if pending.get("entry_price_min") is not None and pending.get("entry_price_max") is not None:
+                self.assertEqual(
+                    payload.get("entry_width"),
+                    float(pending["entry_price_max"]) - float(pending["entry_price_min"]),
+                )
 
     def test_pending_outbox_discards_when_fresh_geometry_invalid(self):
         stored = packet(5)

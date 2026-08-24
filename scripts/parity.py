@@ -1225,6 +1225,12 @@ def discard_unexecutable_entry_outbox(
     except OSError:
         return False
     clear_delivery_wire(state, packet_id)
+    entry_min = intent.get("entry_price_min")
+    entry_max = intent.get("entry_price_max")
+    entry_width = None
+    if isinstance(entry_min, (int, float)) and not isinstance(entry_min, bool):
+        if isinstance(entry_max, (int, float)) and not isinstance(entry_max, bool):
+            entry_width = float(entry_max) - float(entry_min)
     append_jsonl(
         state / "events.jsonl",
         {
@@ -1237,6 +1243,9 @@ def discard_unexecutable_entry_outbox(
             "action": str(intent.get("action") or ""),
             "stop_loss": intent.get("stop_loss"),
             "take_profit_1": intent.get("take_profit_1"),
+            "entry_price_min": entry_min,
+            "entry_price_max": entry_max,
+            "entry_width": entry_width,
         },
     )
     return True
