@@ -5,6 +5,8 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from selection_ev import SELECTION_EV_TEMPLATE, validate_selection_ev
+
 MARKER = "INSTRUMENT_COMPARISON_V1"
 LEGACY_JSON_MARKER = "INSTRUMENT_COMPARISON_V1:"
 PATH_FIELDS = ("current_auction", "bullish_path", "bearish_path", "next_transition")
@@ -67,6 +69,7 @@ def comparison_line_template(packet: dict[str, Any]) -> str:
         f"RANKING={','.join(instruments)}",
         f"SELECTION_INSTRUMENT={packet.get('instrument')}",
         "SELECTION_ACTION=REPLACE_WITH_ACTION",
+        SELECTION_EV_TEMPLATE,
         "SELECTION_REASON=REPLACE_WITH_COMPARATIVE_REASON",
     ])
     return "\n".join(lines)
@@ -93,7 +96,13 @@ def _placeholder_value(value: str) -> bool:
     return upper.startswith("REPLACE_WITH_") or upper == "REPLACE"
 
 
-_TAIL_KEYS = {"RANKING", "SELECTION_INSTRUMENT", "SELECTION_ACTION", "SELECTION_REASON"}
+_TAIL_KEYS = {
+    "RANKING",
+    "SELECTION_INSTRUMENT",
+    "SELECTION_ACTION",
+    "SELECTION_EV",
+    "SELECTION_REASON",
+}
 
 
 def parse_comparison_line(
@@ -159,6 +168,7 @@ def parse_comparison_line(
         "ranking": ranking,
         "selected_instrument": tail_fields.get("SELECTION_INSTRUMENT", ""),
         "selection_action": tail_fields.get("SELECTION_ACTION", ""),
+        "selection_ev": tail_fields.get("SELECTION_EV", ""),
         "selection_reason": tail_fields.get("SELECTION_REASON", ""),
     }
 
@@ -193,10 +203,12 @@ def serialize_comparison_line(
     ranking = ledger.get("ranking")
     if not isinstance(ranking, list):
         ranking = [row.get("instrument") for row in ledger.get("candidates", []) if isinstance(row, dict)]
+    selection_ev = str(ledger.get("selection_ev") or "").strip()
     lines.extend([
         f"RANKING={','.join(str(item).upper() for item in ranking)}",
         f"SELECTION_INSTRUMENT={ledger.get('selected_instrument', '')}",
         f"SELECTION_ACTION={action}",
+        f"SELECTION_EV={selection_ev or 'REPLACE'}",
         f"SELECTION_REASON={ledger.get('selection_reason', '')}",
     ])
     return "\n".join(lines)
@@ -396,6 +408,12 @@ def validate_comparison_ledger(
     if not selection_reason or _placeholder_value(selection_reason):
         raise ValueError("candidate_comparison_selection_incomplete")
 
+    selection_ev = str(value.get("selection_ev") or "").strip()
+    if not selection_ev or _placeholder_value(selection_ev):
+        raise ValueError("selection_ev_missing:comparison")
+    if action is not None:
+        validate_selection_ev(selection_ev, action, source="comparison")
+
     return value
 
 
@@ -418,26 +436,10 @@ def validate_trigger_review_ledger(
             raise ValueError(f"prior_trigger_review_required:{instrument}")
         if not PRIOR_TRIGGER_REVIEW_PREFIX.match(review):
             raise ValueError(f"prior_trigger_review_invalid:{instrument}")
-    return value
-
-
-def validate_trigger_review_ledger(
-    text: Any,
-    packet: dict[str, Any],
-    *,
-    action: str | None = None,
-) -> dict[str, Any]:
-    """TRIGGER_REVIEW_V1: every candidate must classify the prior frozen trigger."""
-    value = validate_comparison_ledger(text, packet, action=action)
-    if value is None:
-        raise ValueError("instrument_comparison_missing")
-    for row in value.get("candidates") or []:
-        if not isinstance(row, dict):
-            continue
-        instrument = str(row.get("instrument") or "").upper()
-        review = str(row.get("prior_trigger_review") or "").strip()
-        if not review or review.upper() == "NOT_APPLICABLE":
-            raise ValueError(f"prior_trigger_review_required:{instrument}")
-        if not PRIOR_TRIGGER_REVIEW_PREFIX.match(review):
-            raise ValueError(f"prior_trigger_review_invalid:{instrument}")
+        # reclaim/retest alone stays HELD; FAILED requires invalidation or contradiction
+        if re.search(r"(?i)\bFAILED\b", review) and not re.search(
+            r"(?i)\b(?:invalidat\w*|structural\s+contradiction)\b",
+            review,
+        ):
+            raise ValueError(f"prior_trigger_failed_without_invalidation:{instrument}")
     return value

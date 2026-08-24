@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import re
 import sys
 import unittest
 from pathlib import Path
@@ -42,9 +43,27 @@ def multi_packet() -> dict:
 
 
 def filled_ledger_text(action: str = "NOTHING") -> str:
-    return (
+    text = (
         ROOT / "tests" / "fixtures" / "paired" / "multi01_comparison_ledger.txt"
     ).read_text(encoding="utf-8").replace("SELECTION_ACTION=NOTHING", f"SELECTION_ACTION={action}")
+    if action in {"ENTER_LONG", "ENTER_SHORT"}:
+        direction = "LONG" if action == "ENTER_LONG" else "SHORT"
+        if direction == "LONG":
+            ev = (
+                "SELECTION_EV=direction=LONG;entry=20000;stop=19990;target=20030;"
+                "risk_points=10;reward_points=30;friction_points=1;breakeven_target_first=0.275;"
+                "estimated_target_first_range=0.30-0.40;now_ev=POSITIVE;wait_price=19995;"
+                "wait_ev=no improvement;decisive_reason=current-zone positive EV"
+            )
+        else:
+            ev = (
+                "SELECTION_EV=direction=SHORT;entry=20000;stop=20010;target=19970;"
+                "risk_points=10;reward_points=30;friction_points=1;breakeven_target_first=0.275;"
+                "estimated_target_first_range=0.30-0.40;now_ev=POSITIVE;wait_price=20005;"
+                "wait_ev=no improvement;decisive_reason=current-zone positive EV"
+            )
+        text = re.sub(r"(?m)^SELECTION_EV=.*$", ev, text)
+    return text
 
 
 class MultiMarketComparisonContractTests(unittest.TestCase):

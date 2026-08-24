@@ -11,6 +11,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -75,6 +76,9 @@ LOOP_SCHEMAS = {
     "daily": "glitch.topstep.daily_journal.v1",
     "weekly": "glitch.topstep.weekly_skill_proposal.v1",
 }
+MAX_DEBRIEF_OUTCOMES = 4
+MAX_PROMPT_CHARS = 320_000
+LEARNING_REPAIR_PROMPT_RESERVE_CHARS = 2_000
 
 
 def stable_id(kind: str, value: str) -> str:
@@ -505,11 +509,16 @@ def prompt_for(loop_id: str, evidence: Any, template: dict[str, Any], continuity
             "missed_directional_participation, or ambiguous by comparing the declared forecast and "
             "change_condition with the observed path. Label the actual outcome no trade and every "
             "counterfactual informational only; never invent counterfactual fills, geometry, or PnL. "
+            "Independently reconstruct the nearest setup-specific invalidation that survives ordinary "
+            "noise; do not inherit a remote invalidation, consumed objective, or acceptance/retest "
+            "prerequisite merely because the rejected rationale used it. Ordinary partial bars, stale "
+            "depth, or incomplete flow are uncertainty costs, not proof that abstention was disciplined. "
             "When supplied evidence includes daily_economics mirrors, note band position and stage-appropriate "
             "preservation or eval-target context without creating entry pressure or automatic stop rules. "
             "For each prior change_condition, record met, reassessed, threshold_moved, or not_applicable. "
             "Separate repeated cognitive errors from venue, policy, transport, or execution defects. "
-            "Propose at most one compact cognitive change only when multiple comparable episodes support it. "
+            "Propose at most one compact cognitive change only when multiple comparable episodes across "
+            "at least two sessions support it, with contradiction-reviewed IDs and a declared metric. "
             "Decision episodes may improve questions and attention, but must not create entry pressure, "
             "anti-abstention pressure, or quantity pressure."
         ),
@@ -585,6 +594,8 @@ def invoke_loop(args: argparse.Namespace, loop_id: str, evidence: Any, ids: list
         "active_cognitive_overlay": read_optional_json(supervisor / "active-cognitive-overlay.json"),
     }
     prompt = prompt_for(loop_id, evidence, template, continuity)
+    if len(prompt) > MAX_PROMPT_CHARS:
+        raise ValueError(f"learning_prompt_too_large:{loop_id}:{len(prompt)}")
     try:
         value = invoke_hermes(args.profile, prompt, skills, args.timeout_seconds)
         return validate_output(value, loop_id, ids)
@@ -596,8 +607,53 @@ def invoke_loop(args: argparse.Namespace, loop_id: str, evidence: Any, ids: list
             + ". Re-answer the same evidence once using exactly required_output_template. "
             + "Return one complete JSON object only; do not explain the repair."
         )
+        if len(repair_prompt) > MAX_PROMPT_CHARS:
+            raise ValueError(f"learning_repair_prompt_too_large:{loop_id}:{len(repair_prompt)}")
         value = invoke_hermes(args.profile, repair_prompt, skills, args.timeout_seconds)
         return validate_output(value, loop_id, ids)
+
+
+def outcome_is_reconciled_for_learning(row: dict[str, Any]) -> bool:
+    """Quarantine learning-eligible rows that still lack attributable exit evidence."""
+    if row.get("learning_eligible") is not True:
+        return False
+    fills = row.get("fills")
+    has_fills = isinstance(fills, list) and len(fills) >= 1
+    chronology = row.get("path_chronology")
+    has_chronology = isinstance(chronology, dict) and chronology.get("schema_version")
+    protection = str(row.get("protection_status") or "").lower()
+    if protection in {"pending", "unknown", "failed"}:
+        return False
+    return bool(has_fills or has_chronology)
+
+
+def fit_debrief_evidence(
+    state_root: Path,
+    outcomes: list[dict[str, Any]],
+    supervisor: Path,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Keep the oldest complete debrief slice inside the model and repair budgets."""
+    batch = list(outcomes)
+    evidence = debrief_evidence(state_root, batch)
+    while batch:
+        ids = [stable_id("episode", str(row["outcome_id"])) for row in batch]
+        prompt = prompt_for(
+            "debrief",
+            debrief_prompt_evidence(evidence),
+            output_template("debrief", ids),
+            {
+                "current_plan": read_optional_json(supervisor / "current-plan.json"),
+                "current_guidance": read_optional_json(supervisor / "current-guidance.json"),
+                "active_cognitive_overlay": read_optional_json(
+                    supervisor / "active-cognitive-overlay.json"
+                ),
+            },
+        )
+        if len(prompt) <= MAX_PROMPT_CHARS - LEARNING_REPAIR_PROMPT_RESERVE_CHARS:
+            return batch, evidence
+        batch.pop()
+        evidence.pop()
+    raise ValueError("learning_prompt_too_large:debrief:single_outcome")
 
 
 def append_unique(path: Path, records: list[dict[str, Any]], id_field: str) -> None:
@@ -687,6 +743,77 @@ def overlay_min_episodes() -> int:
         return 6
 
 
+def cognitive_candidate_is_general(expected_old_text: str, replacement_text: str) -> bool:
+    forbidden_patterns = (
+        r"\b(?:MES|MNQ|MCL|ES|NQ|YM|RTY|CL|GC)\b",
+        r"\b\d{1,2}:\d{2}\b",
+        r"\b\d+(?:\.\d+)?\s*(?:ticks?|points?|contracts?)\b",
+        r"\b(?:always|never)\s+(?:enter|exit|buy|sell|go\s+long|go\s+short)\b",
+        r"\b(?:long|short)[ -]only\b",
+        r"\b(?:daily|weekly)\s+(?:profit|loss|trade)\s+(?:target|limit|quota)\b",
+        r"\bfixed\s+(?:stop|target|size|quantity|risk|reward)\b",
+    )
+    if any(re.search(pattern, replacement_text, flags=re.IGNORECASE) for pattern in forbidden_patterns):
+        return False
+    old = expected_old_text.lower()
+    new = replacement_text.lower()
+    protected_terms = (
+        "schema_version",
+        "intent_id",
+        "operator_profile",
+        "authorization",
+        "loss floor",
+        "account limit",
+        "execution contract",
+    )
+    return not any(term in new and term not in old for term in protected_terms)
+
+
+def decision_episode_session_dates(supervisor: Path, evidence_ids: list[str]) -> set[str]:
+    wanted = set(evidence_ids)
+    sessions: set[str] = set()
+    for row in read_jsonl(supervisor / "decision-episodes.jsonl"):
+        episode_id = str(row.get("episode_id") or "")
+        if episode_id not in wanted:
+            continue
+        context = row.get("evidence_context") if isinstance(row.get("evidence_context"), dict) else {}
+        session = str(context.get("session_date_et") or "")
+        if not session:
+            stamp = str(row.get("decision_utc") or row.get("recorded_utc") or "")
+            session = stamp[:10]
+        if session:
+            sessions.add(session)
+    for row in read_jsonl(supervisor / "trade-episodes.jsonl"):
+        episode_id = str(row.get("episode_id") or "")
+        if episode_id not in wanted:
+            continue
+        stamp = str(row.get("exit_utc") or row.get("recorded_utc") or "")
+        if stamp[:10]:
+            sessions.add(stamp[:10])
+    return sessions
+
+
+def promotion_gate_allows_proposal(
+    supervisor: Path,
+    evidence_ids: list[str],
+    *,
+    expected_old_text: str,
+    replacement_text: str,
+    evaluation_metric: Any,
+    rollback_condition: Any,
+) -> bool:
+    unique_ids = sorted(set(evidence_ids))
+    if len(unique_ids) < 2:
+        return False
+    if len(decision_episode_session_dates(supervisor, unique_ids)) < 2:
+        return False
+    if not cognitive_candidate_is_general(expected_old_text, replacement_text):
+        return False
+    if not str(evaluation_metric or "").strip() or not str(rollback_condition or "").strip():
+        return False
+    return True
+
+
 def process_candidate(record: dict[str, Any], supervisor: Path, episode_ids: list[str]) -> None:
     candidate = record.get("cognitive_change_candidate")
     if not isinstance(candidate, dict) or candidate.get("propose") is not True:
@@ -699,6 +826,15 @@ def process_candidate(record: dict[str, Any], supervisor: Path, episode_ids: lis
     if not instruction or len(instruction) > 1200 or len(set(evidence_ids)) < overlay_min_episodes():
         return
     if any(value not in set(episode_ids) for value in evidence_ids):
+        return
+    if not promotion_gate_allows_proposal(
+        supervisor,
+        evidence_ids,
+        expected_old_text=instruction,
+        replacement_text=instruction,
+        evaluation_metric=candidate.get("evaluation_metric"),
+        rollback_condition=candidate.get("rollback_condition"),
+    ):
         return
     candidate_id = str(candidate.get("candidate_id") or stable_id("cognitive-change", target + "|" + instruction))
     value = {
@@ -849,8 +985,16 @@ def activate_cognitive_candidate(record: dict[str, Any], supervisor: Path, episo
         or expected_old_text == replacement_text
         or len(expected_old_text) > 600
         or len(replacement_text) > 600
-        or len(set(evidence_ids)) < 1
+        or len(set(evidence_ids)) < 2
         or any(value not in set(episode_ids) for value in evidence_ids)
+        or not promotion_gate_allows_proposal(
+            supervisor,
+            evidence_ids,
+            expected_old_text=expected_old_text,
+            replacement_text=replacement_text,
+            evaluation_metric=candidate.get("evaluation_metric"),
+            rollback_condition=candidate.get("rollback_condition"),
+        )
     ):
         return
     candidate_id = str(
@@ -953,9 +1097,15 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
             )
     pending = [
         row for row in outcomes
-        if int(row.get("_feed_revision") or 1) > processed_revisions.get(str(row.get("outcome_id")), 0)
+        if outcome_is_reconciled_for_learning(row)
+        and int(row.get("_feed_revision") or 1) > processed_revisions.get(str(row.get("outcome_id")), 0)
     ]
-    pending = sorted(pending, key=lambda row: str(row.get("exit_utc") or ""), reverse=True)[:8]
+    pending = sorted(pending, key=lambda row: str(row.get("exit_utc") or ""))[:MAX_DEBRIEF_OUTCOMES]
+    quarantined = [
+        row for row in outcomes
+        if not outcome_is_reconciled_for_learning(row)
+        and int(row.get("_feed_revision") or 1) > processed_revisions.get(str(row.get("outcome_id")), 0)
+    ]
     now = datetime.now(timezone.utc)
     feed_fresh = gateway_feed_is_fresh()
     if feed_fresh and not args.dry_run:
@@ -971,6 +1121,7 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
         "execution_facts_synced": int(execution_facts_meta.get("added") or 0),
         "execution_facts_sequence": execution_facts_meta.get("sequence"),
         "debriefed": 0,
+        "quarantined_unreconciled": len(quarantined),
         "hourly": False,
         "planning": False,
         "daily": False,
@@ -978,9 +1129,9 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
     }
 
     if feed_fresh and pending and args.force_loop in {None, "debrief"}:
-        ids = [stable_id("episode", str(row["outcome_id"])) for row in pending]
         if not args.dry_run:
-            factual_evidence = debrief_evidence(state_root, pending)
+            pending, factual_evidence = fit_debrief_evidence(state_root, pending, supervisor)
+            ids = [stable_id("episode", str(row["outcome_id"])) for row in pending]
             records = invoke_loop(
                 args,
                 "debrief",

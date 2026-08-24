@@ -35,4 +35,5 @@ TRIGGER_STATUS=HELD
 RANKING=MNQ,MES,MCL
 SELECTION_INSTRUMENT=MNQ
 SELECTION_ACTION=NOTHING
+SELECTION_EV=direction=LONG;entry=20000;stop=19990;target=20030;risk_points=10;reward_points=30;friction_points=1;breakeven_target_first=0.275;estimated_target_first_range=0.20-0.25;now_ev=NEGATIVE;wait_price=19995;wait_ev=no improvement;decisive_reason=no candidate retains positive current-zone EV after friction
 SELECTION_REASON=symmetric bars ready but no candidate retains positive EV after fees and scope

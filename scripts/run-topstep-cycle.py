@@ -48,6 +48,7 @@ from scanner_contract import (
     validate_selected_candidate_handoff,
     validate_trigger_review_ledger,
 )
+from selection_ev import validate_decisive_selection_ev
 from forecast_metadata import strip_forecast_metadata, validate_forecast_metadata
 from cognition_cycle import recent_cycle_context
 from cycle_empirical import empirical_from_decision, record_cycle_empirical
@@ -620,13 +621,25 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "inconsistent, including best_bid >= best_ask, spread_ticks <= 0, or material disagreement "
     "with the current market bid/ask, even if depth.available is still true. "
     "ALTERED PARTICIPATION GUIDANCE: do not require all timeframes, a closed candle, "
-    "a retest, or sustained multi-window flow as universal entry gates. Use 60m for context, "
+    "a retest, or sustained multi-window flow as universal entry gates. Acceptance, "
+    "confirmation, and retest are probability evidence, not sequential prerequisites — "
+    "enter when current location, a setup-specific invalidation beyond ordinary noise, "
+    "and a probabilistic objective already produce positive current-zone expected value "
+    "after fees and latency. Do not replace an adequate setup-specific invalidation with "
+    "remote higher-timeframe structure that manufactures negative geometry. Compare NOW "
+    "with WAIT; WAIT is superior only before the primary target and only when probability "
+    "improvement compensates for lost room. Ordinary partial-bar, stale-depth, latency, "
+    "and noise uncertainty are bounded costs, not decisive missing conditions by themselves; "
+    "reserve UNCERTAIN for a genuinely unusable fact, otherwise judge the path POSITIVE or "
+    "NEGATIVE in SELECTION_EV.now_ev. Use 60m for context, "
     "5m for structure, and 1m for timing; mixed evidence lowers confidence but does not by itself "
     "force NOTHING when a locally falsifiable, protected, bounded thesis exists. Consider continuation, "
     "pullback, breakout, failed breakout, mean reversion, and transition without imposing a trade quota. "
     "Before flat NOTHING, state long and short triggers, invalidations, and plausible paths in decision_audit. "
     "At range edges, sweeps, or failed continuation, compare continuation vs reversion; neither is automatic. "
     "Do not manufacture mid-range trades in CHOP; prefer smallest supported quantity when asymmetry is bounded. "
+    "Treat venue exit fills and immediate lifecycle facts as completed trade results for new entry reasoning "
+    "without waiting for the learner's later enriched outcome. "
     "The gateway independently verifies ProjectX truth, hard capacity, geometry, loss-floor survival, "
     "packet issuance, and order transport; rejection is an attributable episode, not pre-emption. "
     "Return exactly one strict glitch.intent.v3 JSON object with no prose. "
@@ -640,9 +653,10 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "When market_universe has a single candidate, decisive_evidence must begin with "
     "prior_hypothesis=<CONFIRMED|INVALIDATED|PARTIALLY_CONFIRMED|UNCHANGED> versus the immediately "
     "prior frame when recent_frames is non-empty, then state material deltas since that frame in "
-    "compact evidence-dense sentences. "
+    "compact evidence-dense sentences, and include one SELECTION_EV= line for flat ENTER_* or NOTHING. "
     "When multiple candidates are present, decisive_evidence must contain only the INSTRUMENT_COMPARISON_V1 "
-    "line ledger; keep every comparison field to one compact evidence-dense sentence, avoid repeated "
+    "line ledger including SELECTION_EV; keep every comparison field to one compact evidence-dense sentence, "
+    "avoid repeated "
     "facts across fields, and keep the complete ledger under 8000 characters; put prior_hypothesis "
     "continuity in disconfirming_evidence instead. "
     "change_condition is an advisory re-evaluation hypothesis, not a rigid execution gate; "
@@ -676,8 +690,11 @@ TRIGGER_REVIEW_INSTRUCTION = (
     "Review those frozen conditions first; do not run a fresh full-market scan unless "
     "review evidence requires it. For each INSTRUMENT block set "
     "PRIOR_TRIGGER_REVIEW=HELD|FAILED|EXPIRED followed by a concise evidence clause. "
+    "A reclaim or retest alone remains HELD while the named invalidation is intact; "
+    "FAILED requires that invalidation or a specific structural contradiction. "
     "Keep every field to one compact evidence-dense sentence, avoid repeated facts, and keep "
     "the complete TRIGGER_REVIEW_V1 ledger under 6000 characters. "
+    "Include SELECTION_EV for the selected flat action. "
     "At most one open HELD trigger per instrument; close prior paths when FAILED or EXPIRED. "
     "A HELD trigger does not force entry. Preserve unrelated candidate paths unless review "
     "evidence invalidates them. "
@@ -1096,6 +1113,15 @@ def validate_intent(
         if require_trigger_review
         else validate_comparison_ledger(decisive, packet, action=action)
     )
+    if comparison is None:
+        validate_decisive_selection_ev(
+            decisive,
+            str(action or ""),
+            positioned=positioned(packet),
+            forecast=intent.get(FORECAST_METADATA_FIELD)
+            if isinstance(intent.get(FORECAST_METADATA_FIELD), dict)
+            else None,
+        )
     frame_context = frames or []
     if frame_context:
         continuity = (

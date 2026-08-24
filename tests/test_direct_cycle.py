@@ -171,12 +171,31 @@ def intent(action: str = "NOTHING", quantity: int = 1) -> dict:
             stop_loss=19990,
             take_profit_1=20020,
         )
+        value["decision_audit"]["decisive_evidence"] = (
+            "Evidence\nSELECTION_EV=direction=LONG;entry=20000;stop=19990;target=20020;"
+            "risk_points=10;reward_points=20;friction_points=1;breakeven_target_first=0.367;"
+            "estimated_target_first_range=0.40-0.50;now_ev=POSITIVE;wait_price=19995;"
+            "wait_ev=no improvement;decisive_reason=current-zone positive EV"
+        )
     if action == "ENTER_SHORT":
         value.update(
             quantity=quantity,
             order_type="MARKET",
             stop_loss=20010,
             take_profit_1=19980,
+        )
+        value["decision_audit"]["decisive_evidence"] = (
+            "Evidence\nSELECTION_EV=direction=SHORT;entry=20000;stop=20010;target=19980;"
+            "risk_points=10;reward_points=20;friction_points=1;breakeven_target_first=0.367;"
+            "estimated_target_first_range=0.40-0.50;now_ev=POSITIVE;wait_price=20005;"
+            "wait_ev=no improvement;decisive_reason=current-zone positive EV"
+        )
+    if action == "NOTHING":
+        value["decision_audit"]["decisive_evidence"] = (
+            "Evidence\nSELECTION_EV=direction=LONG;entry=20000;stop=19990;target=20030;"
+            "risk_points=10;reward_points=30;friction_points=1;breakeven_target_first=0.275;"
+            "estimated_target_first_range=0.20-0.25;now_ev=NEGATIVE;wait_price=19995;"
+            "wait_ev=no improvement;decisive_reason=no current-zone edge"
         )
     if action == "MOVE_STOP":
         value.update(new_stop_price=19995)
@@ -1015,18 +1034,7 @@ class DirectCycleTests(unittest.TestCase):
         fresh_packet = copy.deepcopy(cognition_packet)
         fresh_packet["packet_id"] = "packet-6"
         fresh_packet["market"]["snapshot_hash"] = "hash-2"
-        value = MODULE.normalize_intent(
-            {
-                "action": "NOTHING",
-                "confidence": 0.6,
-                "reason": "Flat while evidence is mixed.",
-                "decision_audit": {
-                    field: "NOTHING" if field == "final_choice" else "Evidence"
-                    for field in MODULE.AUDIT_FIELDS
-                },
-            },
-            cognition_packet,
-        )
+        value = MODULE.normalize_intent(intent("NOTHING"), cognition_packet)
         with mock.patch.object(
             MODULE,
             "request_json",
@@ -1054,18 +1062,7 @@ class DirectCycleTests(unittest.TestCase):
             "generation": 2,
             "scope_hash": "scope-2",
         }
-        value = MODULE.normalize_intent(
-            {
-                "action": "NOTHING",
-                "confidence": 0.6,
-                "reason": "Flat while evidence is mixed.",
-                "decision_audit": {
-                    field: "NOTHING" if field == "final_choice" else "Evidence"
-                    for field in MODULE.AUDIT_FIELDS
-                },
-            },
-            cognition_packet,
-        )
+        value = MODULE.normalize_intent(intent("NOTHING"), cognition_packet)
         with mock.patch.object(
             MODULE,
             "request_json",
@@ -1221,7 +1218,14 @@ class DirectCycleTests(unittest.TestCase):
         value["reason"] = "r" * 1100
         long_audit = "x" * 8000
         value["decision_audit"]["bear_case"] = long_audit
-        value["decision_audit"]["decisive_evidence"] = long_audit
+        # Keep a valid SELECTION_EV line while padding decisive_evidence length.
+        prefix = (
+            "SELECTION_EV=direction=LONG;entry=20000;stop=19990;target=20030;"
+            "risk_points=10;reward_points=30;friction_points=1;breakeven_target_first=0.275;"
+            "estimated_target_first_range=0.20-0.25;now_ev=NEGATIVE;wait_price=19995;"
+            "wait_ev=no improvement;decisive_reason=no edge\n"
+        )
+        value["decision_audit"]["decisive_evidence"] = prefix + ("x" * (8000 - len(prefix)))
         with mock.patch.object(MODULE, "request_json") as request_json:
             request_json.return_value = (200, packet())
             with mock.patch.object(MODULE, "local_token", return_value="test-token"):

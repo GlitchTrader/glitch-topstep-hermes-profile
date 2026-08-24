@@ -1,10 +1,31 @@
 {
   "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-08-21T17:45:00Z",
+  "updated": "2026-08-24T16:00:00Z",
   "release_target": "paired gateway/profile beta",
   "reconciliation": {
-    "date": "2026-08-21",
+    "date": "2026-08-24",
+    "nt_cognition_p0_2026_08_24": {
+      "status": "implemented_local",
+      "summary": "Port NT current-zone EV / SELECTION_EV / learning P0 (bound debrief, quarantine, promotion gate) to profile prompt glitch-topstep-v13 / distribution 0.2.3; gateway operator prompt bumped in lockstep.",
+      "sources": {
+        "nt_addon": "d2b8e9e",
+        "nt_hermes": "ca785c2"
+      },
+      "files": [
+        "SOUL.md",
+        "skills/topstep-setup-state",
+        "skills/topstep-form-thesis",
+        "skills/topstep-market-scan",
+        "skills/topstep-build-intent",
+        "skills/topstep-position-management",
+        "skills/topstep-learning-loop",
+        "scripts/selection_ev.py",
+        "scripts/scanner_contract.py",
+        "scripts/run-topstep-cycle.py",
+        "scripts/run-topstep-learning.py"
+      ]
+    },
     "cadence_alignment_2026_08_21": {
       "status": "open",
       "summary": "Worker default flat_decision_interval_minutes aligned to paired contract 5/1; docs and tests updated without paired-contract bump.",
@@ -137,7 +158,7 @@
     },
     "validation": "P0 items 1-5 merged (#223/#177 2026-08-21). Outbox delivery states wired. PRAC soak pending operator."
   },
-  "profile_version": "0.2.2",
+  "profile_version": "0.2.3",
   "gateway": {
     "repository": "GlitchTrader/glitch-topstep",
     "current_version": "0.2.2",
