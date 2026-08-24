@@ -1132,6 +1132,12 @@ class DirectCycleTests(unittest.TestCase):
         self.assertEqual(template["decision_audit"]["final_choice"], MODULE.ACTION_PLACEHOLDER)
         self.assertIn("prior_hypothesis=", template["decision_audit"]["decisive_evidence"])
         self.assertIn("Rebuild LONG, SHORT, and flat hypotheses", prompt)
+        self.assertIn("one compact evidence-dense sentence", prompt)
+        self.assertIn("under 8000 characters", prompt)
+        self.assertEqual(
+            template["decision_audit"]["flat_case"],
+            "Replace with compact neutral evidence.",
+        )
         self.assertIn("wake_triggers is optional", prompt)
         self.assertIn("NOTHING while flat", prompt)
         self.assertIn("HOLD while positioned", prompt)
