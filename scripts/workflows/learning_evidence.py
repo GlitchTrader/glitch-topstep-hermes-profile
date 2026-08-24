@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from common import read_optional_json
-from parity import debrief_evidence, debrief_prompt_evidence
+from workflows.debrief_evidence import debrief_evidence, debrief_prompt_evidence
 from workflows.learning_journal import stable_id
 
 MAX_PROMPT_CHARS = 320_000

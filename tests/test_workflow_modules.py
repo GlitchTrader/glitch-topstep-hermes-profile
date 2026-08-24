@@ -14,6 +14,7 @@ class WorkflowModuleTests(unittest.TestCase):
             "scripts/workflows/delivery_recovery.py",
             "scripts/workflows/intent_outbox.py",
             "scripts/workflows/gateway_session.py",
+            "scripts/workflows/debrief_evidence.py",
             "scripts/workflows/decision_journal.py",
             "scripts/workflows/cognition_prompt.py",
             "scripts/workflows/wake_triggers.py",
