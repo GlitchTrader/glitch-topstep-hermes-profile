@@ -31,7 +31,7 @@ When `market_universe.candidates` has more than one entry:
 
 - Put the **full** line ledger in `decision_audit.decisive_evidence` exactly as supplied in `required_output_template.decision_audit.decisive_evidence`.
 - Keep every comparison field to one compact evidence-dense sentence; keep the complete `INSTRUMENT_COMPARISON_V1` ledger under **8000** characters (TRIGGER_REVIEW_V1 under **6000**).
-- Include `SELECTION_EV` in the tail; ENTER_* requires `now_ev=POSITIVE`, flat `NOTHING` forbids `now_ev=POSITIVE`.
+- Include `SELECTION_EV` in the tail with `direction=LONG|SHORT` (never `FLAT`/`NONE`/`NA`); ENTER_* requires `now_ev=POSITIVE`; flat `NOTHING` forbids `now_ev=POSITIVE` but still needs that side's counterfactual entry/stop/target numbers.
 - Put continuity in `disconfirming_evidence`: `prior_hypothesis=<CONFIRMED|INVALIDATED|PARTIALLY_CONFIRMED|UNCHANGED>; ...` when `recent_frames` is non-empty.
 - `SELECTION_INSTRUMENT` equals the ranking winner. While flat it may differ from `packet.instrument` when the winner is another eligible candidate; delivery fetches `/packet?contract_id=` for that instrument before POST `/intent`.
 - Do not emit JSON, Markdown fences, or a second comparison format.
