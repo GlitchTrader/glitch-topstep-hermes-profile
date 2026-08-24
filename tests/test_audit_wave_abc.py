@@ -3,17 +3,18 @@
 from __future__ import annotations
 
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
-
-import sys
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from common import append_jsonl, jsonl_contains_sequence  # noqa: E402
 from process_supervisor import run_supervised  # noqa: E402
+import process_supervisor as process_supervisor_module  # noqa: E402
 from prune_state_retention import prune_state_retention  # noqa: E402
 from state_store import ProfileStateStore  # noqa: E402
 
@@ -95,11 +96,20 @@ class AuditWaveProfileTests(unittest.TestCase):
             self.assertEqual(result.get("minute_frames_preserved"), 1)
 
     def test_run_supervised_times_out_and_returns(self) -> None:
-        with self.assertRaises(RuntimeError):
-            run_supervised(
-                [sys.executable, "-c", "import time; time.sleep(5)"],
-                timeout_seconds=1,
-            )
+        import subprocess as sp
+
+        mock_proc = mock.MagicMock()
+        mock_proc.stdin = mock_proc.stdout = mock_proc.stderr = None
+        mock_proc.communicate.side_effect = sp.TimeoutExpired(cmd="cmd", timeout=1)
+        with mock.patch.object(
+            process_supervisor_module.subprocess, "Popen", return_value=mock_proc
+        ):
+            with mock.patch.object(
+                process_supervisor_module, "terminate_process_tree"
+            ) as terminate:
+                with self.assertRaises(RuntimeError):
+                    run_supervised(["ignored"], timeout_seconds=1)
+                terminate.assert_called_once_with(mock_proc)
 
 
 if __name__ == "__main__":

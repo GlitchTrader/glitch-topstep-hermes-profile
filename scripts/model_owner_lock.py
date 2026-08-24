@@ -177,10 +177,8 @@ def acquire_model_owner(
         except FileExistsError:
             current = read_model_owner(lock_path)
             if current is None:
-                try:
-                    lock_path.unlink(missing_ok=True)
-                except OSError:
-                    return False
+                # ponytail: concurrent partial write — retry without unlink (audit C2)
+                time.sleep(0.02)
                 continue
             if not _owner_alive(current):
                 if not _remove_lock_if_owner(lock_path, current):
@@ -208,6 +206,10 @@ def acquire_model_owner(
                         "preempted_pid": current.get("pid"),
                     },
                 )
+                if int(current.get("pid") or 0) == os.getpid():
+                    if not _remove_lock_if_owner(lock_path, current):
+                        return False
+                    continue
                 if not _request_owner_stand_down(state, lock_path, current):
                     publish_model_owner_status(
                         state,

@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 import common as common_module
+from workflows.decision_journal import DecisionJournal
 SPEC = importlib.util.spec_from_file_location("topstep_learning", SCRIPTS / "run-topstep-learning.py")
 MODULE = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
@@ -252,7 +253,7 @@ class LearningTests(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
-            episodes = MODULE.collect_decision_episodes(state_root, supervisor)
+            episodes = DecisionJournal(state_root).collect_decision_episodes(supervisor)
         self.assertEqual(len(episodes), 1)
         self.assertEqual(episodes[0]["evidence_kind"], "flat_nothing")
         self.assertEqual(episodes[0]["action"], "NOTHING")
@@ -554,7 +555,7 @@ class LearningTests(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
-            episodes = MODULE.collect_decision_episodes(state_root, supervisor)
+            episodes = DecisionJournal(state_root).collect_decision_episodes(supervisor)
         self.assertEqual(episodes, [])
 
     def test_collect_decision_episodes_from_decisions_jsonl(self):
@@ -619,7 +620,7 @@ class LearningTests(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
-            episodes = MODULE.collect_decision_episodes(state_root, supervisor)
+            episodes = DecisionJournal(state_root).collect_decision_episodes(supervisor)
         self.assertEqual(len(episodes), 1)
         self.assertEqual(episodes[0]["intent_id"], "intent-from-decisions")
 
