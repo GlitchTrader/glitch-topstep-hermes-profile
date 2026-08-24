@@ -441,7 +441,7 @@ class PacketModelTests(unittest.TestCase):
             packet,
             profile_name="glitch-topstep",
             core_model="gpt-5.6-luna",
-            prompt_version="glitch-topstep-v13",
+            prompt_version="glitch-topstep-v14",
         )
         self.assertEqual(value["structural_levels"]["levels"][0]["price"], 20010)
         self.assertEqual(value["price_delta_relationship"]["summary"], "aligned")

@@ -49,6 +49,10 @@ from scanner_contract import (
     validate_trigger_review_ledger,
 )
 from selection_ev import validate_decisive_selection_ev
+from position_management import (
+    position_management_template,
+    validate_position_management,
+)
 from forecast_metadata import strip_forecast_metadata, validate_forecast_metadata
 from cognition_cycle import recent_cycle_context
 from cycle_empirical import empirical_from_decision, record_cycle_empirical
@@ -85,6 +89,7 @@ from common import (
     read_optional_json,
     request_json,
     sync_gateway_outcomes,
+    sync_gateway_execution_facts,
     bootstrap_profile_state,
     tail_jsonl,
     use_hermes_model_routing,
@@ -638,8 +643,8 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "Before flat NOTHING, state long and short triggers, invalidations, and plausible paths in decision_audit. "
     "At range edges, sweeps, or failed continuation, compare continuation vs reversion; neither is automatic. "
     "Do not manufacture mid-range trades in CHOP; prefer smallest supported quantity when asymmetry is bounded. "
-    "Treat venue exit fills and immediate lifecycle facts as completed trade results for new entry reasoning "
-    "without waiting for the learner's later enriched outcome. "
+    "Treat venue exit fills and immediate lifecycle facts in recent_execution_facts as completed "
+    "trade results for new entry reasoning without waiting for the learner's later enriched outcome. "
     "The gateway independently verifies ProjectX truth, hard capacity, geometry, loss-floor survival, "
     "packet issuance, and order transport; rejection is an attributable episode, not pre-emption. "
     "Return exactly one strict glitch.intent.v3 JSON object with no prose. "
@@ -650,13 +655,16 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "Keep every decision_audit case field (bull_case, bear_case, flat_case, aggressive_case, "
     "conservative_case, change_condition) and reason to one compact evidence-dense sentence; "
     "do not repeat the same fact or veto across fields. "
-    "When market_universe has a single candidate, decisive_evidence must begin with "
+    "When positioned on a single active instrument, write the compact POSITION_MANAGEMENT_V1 template "
+    "in decision_audit.decisive_evidence and replace every placeholder; SELECTION_ACTION must match action. "
+    "Put prior_hypothesis continuity in disconfirming_evidence when recent_frames is non-empty. "
+    "When flat with a single candidate, decisive_evidence must begin with "
     "prior_hypothesis=<CONFIRMED|INVALIDATED|PARTIALLY_CONFIRMED|UNCHANGED> versus the immediately "
     "prior frame when recent_frames is non-empty, then state material deltas since that frame in "
     "compact evidence-dense sentences, and include one SELECTION_EV= line for flat ENTER_* or NOTHING. "
-    "When multiple candidates are present, decisive_evidence must contain only the INSTRUMENT_COMPARISON_V1 "
-    "line ledger including SELECTION_EV; keep every comparison field to one compact evidence-dense sentence, "
-    "avoid repeated "
+    "When multiple candidates are present while flat, decisive_evidence must contain only the "
+    "INSTRUMENT_COMPARISON_V1 line ledger including SELECTION_EV; keep every comparison field to one "
+    "compact evidence-dense sentence, avoid repeated "
     "facts across fields, and keep the complete ledger under 8000 characters; put prior_hypothesis "
     "continuity in disconfirming_evidence instead. "
     "change_condition is an advisory re-evaluation hypothesis, not a rigid execution gate; "
@@ -743,9 +751,12 @@ def build_prompt(
     audit = template.setdefault("decision_audit", {})
     review_mode = trigger_review_mode(invocation_reason, wake_detail)
     multi_candidate = multi_candidate_packet(packet)
+    is_positioned = positioned(packet)
     for field in AUDIT_FIELDS:
         if field == "decisive_evidence":
-            if multi_candidate:
+            if is_positioned and not multi_candidate:
+                audit[field] = position_management_template(packet)
+            elif multi_candidate:
                 audit[field] = comparison_template(packet)
                 if review_mode:
                     audit[field] = audit[field].replace(
@@ -757,7 +768,7 @@ def build_prompt(
                     "Replace. Begin with prior_hypothesis=<CONFIRMED|INVALIDATED|"
                     "PARTIALLY_CONFIRMED|UNCHANGED> then material deltas since prior frame."
                 )
-        elif field == "disconfirming_evidence" and multi_candidate:
+        elif field == "disconfirming_evidence" and (multi_candidate or is_positioned):
             audit[field] = (
                 "Replace. When recent_frames is non-empty, begin with "
                 "prior_hypothesis=<CONFIRMED|INVALIDATED|PARTIALLY_CONFIRMED|UNCHANGED> "
@@ -828,10 +839,30 @@ def build_prompt(
     )
 
 
+def cycle_skills(*, positioned_only: bool = False, trigger_review_only: bool = False) -> str:
+    if positioned_only:
+        return (
+            "topstep-setup-state,topstep-observe-market,topstep-position-management,"
+            "topstep-build-intent"
+        )
+    if trigger_review_only:
+        return (
+            "topstep-setup-state,topstep-observe-market,topstep-assess-risk,"
+            "topstep-form-thesis,topstep-build-intent"
+        )
+    return (
+        "topstep-observe-market,topstep-market-scan,topstep-assess-risk,"
+        "topstep-form-thesis,topstep-build-intent,topstep-position-management"
+    )
+
+
 def invoke_hermes(
     profile: str,
     prompt: str,
     timeout_seconds: int,
+    *,
+    positioned_only: bool = False,
+    trigger_review_only: bool = False,
 ) -> dict[str, Any]:
     executable = shutil.which("hermes")
     if not executable:
@@ -857,9 +888,9 @@ def invoke_hermes(
         "--max-turns",
         "4",
         "--skills",
-        (
-            "topstep-observe-market,topstep-market-scan,topstep-assess-risk,"
-            "topstep-form-thesis,topstep-build-intent"
+        cycle_skills(
+            positioned_only=positioned_only,
+            trigger_review_only=trigger_review_only,
         ),
         "--toolsets",
         "memory",
@@ -1113,11 +1144,14 @@ def validate_intent(
         if require_trigger_review
         else validate_comparison_ledger(decisive, packet, action=action)
     )
-    if comparison is None:
+    is_positioned = positioned(packet)
+    if is_positioned and comparison is None:
+        validate_position_management(decisive, packet, action=str(action or ""))
+    elif comparison is None:
         validate_decisive_selection_ev(
             decisive,
             str(action or ""),
-            positioned=positioned(packet),
+            positioned=is_positioned,
             forecast=intent.get(FORECAST_METADATA_FIELD)
             if isinstance(intent.get(FORECAST_METADATA_FIELD), dict)
             else None,
@@ -1126,7 +1160,7 @@ def validate_intent(
     if frame_context:
         continuity = (
             audit.get("disconfirming_evidence")
-            if multi_candidate_packet(packet)
+            if multi_candidate_packet(packet) or is_positioned
             else decisive
         )
         if not isinstance(continuity, str) or not PRIOR_HYPOTHESIS_RE.search(continuity):
@@ -1267,10 +1301,17 @@ def invoke_valid_intent(
     require_trigger_review: bool = False,
 ) -> tuple[dict[str, Any], int]:
     current_prompt = prompt
+    positioned_only = positioned(packet) and not multi_candidate_packet(packet)
     for repair_count in range(2):
         try:
             intent = normalize_intent(
-                invoke_hermes(profile, current_prompt, timeout_seconds),
+                invoke_hermes(
+                    profile,
+                    current_prompt,
+                    timeout_seconds,
+                    positioned_only=positioned_only,
+                    trigger_review_only=require_trigger_review,
+                ),
                 packet,
             )
             if not require_trigger_review:
@@ -1521,6 +1562,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
 
     state = state_root(root)
     bootstrap_profile_state(state)
+    sync_gateway_execution_facts(state)
 
     packet_status, packet = request_json("/packet", token=token)
     if packet_status != 200:

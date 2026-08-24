@@ -1,10 +1,27 @@
 {
   "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-08-24T16:00:00Z",
+  "updated": "2026-08-24T16:45:00Z",
   "release_target": "paired gateway/profile beta",
   "reconciliation": {
     "date": "2026-08-24",
+    "nt_cognition_p1_p2_2026_08_24": {
+      "status": "implemented_local",
+      "summary": "P1 POSITION_MANAGEMENT_V1 + debrief SELECTION_EV/fill observability + lifecycle execution facts in cycle cognition; P2 72h state retention prune + selective Hermes skills; prompt glitch-topstep-v14 / distribution 0.2.4.",
+      "files": [
+        "scripts/position_management.py",
+        "scripts/prune_state_retention.py",
+        "scripts/execution_facts_context.py",
+        "scripts/selection_ev.py",
+        "scripts/parity.py",
+        "scripts/run-topstep-cycle.py",
+        "scripts/common.py",
+        "scripts/workflows/cognition_prompt.py",
+        "skills/topstep-position-management",
+        "skills/topstep-build-intent",
+        "SOUL.md"
+      ]
+    },
     "nt_cognition_p0_2026_08_24": {
       "status": "implemented_local",
       "summary": "Port NT current-zone EV / SELECTION_EV / learning P0 (bound debrief, quarantine, promotion gate) to profile prompt glitch-topstep-v13 / distribution 0.2.3; gateway operator prompt bumped in lockstep.",

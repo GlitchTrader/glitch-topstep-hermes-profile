@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from distribution_manifest import PROMPT_VERSION
+from selection_ev import fill_observability, selection_ev_arithmetic_audit
 from workflows.delivery_recovery import (
     GATEWAY_COGNITIVE_REJECTION_CODES,
     GATEWAY_SYSTEM_DEFECT_CODES,
@@ -1120,15 +1121,18 @@ def stable_facts_sha256(facts: dict[str, Any]) -> str:
 def debrief_prompt_evidence(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     prompt_rows: list[dict[str, Any]] = []
     for row in rows:
-        prompt_rows.append(
-            {
-                "facts": row["facts"],
-                "facts_sha256": row["facts_sha256"],
-                "entry_decision": row.get("entry_decision"),
-                "market_path": row.get("market_path"),
-                "related_decision_count": len(row.get("related_decisions") or []),
-            }
-        )
+        prompt_row = {
+            "facts": row["facts"],
+            "facts_sha256": row["facts_sha256"],
+            "entry_decision": row.get("entry_decision"),
+            "market_path": row.get("market_path"),
+            "related_decision_count": len(row.get("related_decisions") or []),
+        }
+        if isinstance(row.get("selection_ev_arithmetic"), dict):
+            prompt_row["selection_ev_arithmetic"] = row["selection_ev_arithmetic"]
+        if isinstance(row.get("fill_observability"), dict):
+            prompt_row["fill_observability"] = row["fill_observability"]
+        prompt_rows.append(prompt_row)
     return prompt_rows
 
 
@@ -1456,14 +1460,20 @@ def debrief_evidence(state: Path, outcomes: list[dict[str, Any]]) -> list[dict[s
 
         market_path = collect_market_path(frames_root, entry, exit_time)
 
+        entry_decision = entry_intent if isinstance(entry_intent, dict) else None
         evidence.append(
             {
                 "outcome": outcome,
                 "outcome_execution": outcome_execution_summary(outcome),
-                "entry_decision": entry_intent,
+                "entry_decision": entry_decision,
                 "related_decisions": related_decisions,
                 "delivery_receipt": receipts_by_packet.get(packet_id),
                 "market_path": market_path,
+                "selection_ev_arithmetic": selection_ev_arithmetic_audit(
+                    entry_decision.get("decision_audit") if entry_decision else None,
+                    entry_decision.get("forecast") if entry_decision else None,
+                ),
+                "fill_observability": fill_observability(entry_decision, outcome),
             }
         )
     for row in evidence:

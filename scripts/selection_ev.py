@@ -206,3 +206,170 @@ def validate_decisive_selection_ev(
     if value is None:
         raise ValueError(f"selection_ev_missing:{source}")
     validate_selection_ev(value, action, source=source, forecast=forecast)
+
+
+def selection_ev_arithmetic_audit(
+    decision_audit: Any,
+    forecast: Any = None,
+) -> dict[str, Any]:
+    """Derive EV arithmetic consistency for learning; never alters an intent."""
+    result: dict[str, Any] = {
+        "schema_version": "glitch.topstep.selection_ev_arithmetic.v1",
+        "status": "unavailable",
+        "effect": "audit_only_no_execution_effect",
+        "formula": "(risk_points + friction_points) / (risk_points + reward_points)",
+    }
+    if not isinstance(decision_audit, dict):
+        result["reason"] = "decision_audit_missing"
+        return result
+    value = extract_selection_ev(str(decision_audit.get("decisive_evidence") or ""))
+    if value is None:
+        result["reason"] = "selection_ev_missing"
+        return result
+    fields = _selection_ev_fields(value)
+    risk = _first_unsigned_number(fields.get("risk_points"))
+    reward = _first_unsigned_number(fields.get("reward_points"))
+    friction = _first_unsigned_number(fields.get("friction_points"))
+    declared = _selection_ev_probability(fields.get("breakeven_target_first"))
+    if (
+        risk is None
+        or reward is None
+        or friction is None
+        or declared is None
+        or risk <= 0
+        or reward <= 0
+        or friction < 0
+    ):
+        result["reason"] = "selection_ev_numeric_inputs_unavailable"
+        return result
+    deterministic = (risk + friction) / (risk + reward)
+    error = abs(declared - deterministic)
+    arithmetic_status = "reconciled" if error <= 0.01 else "mismatch"
+    estimated_range = _selection_ev_probability_range(fields.get("estimated_target_first_range"))
+    if estimated_range is None:
+        range_relation = None
+    elif estimated_range[0] > deterministic + 0.01:
+        range_relation = "above_break_even"
+    elif estimated_range[1] < deterministic - 0.01:
+        range_relation = "below_break_even"
+    else:
+        range_relation = "straddles_break_even"
+    target_first_probability = None
+    if (
+        isinstance(forecast, dict)
+        and (
+            str(forecast.get("event") or "").upper().endswith("STOP_BEFORE_PRIMARY_TARGET")
+            or "STOP_BEFORE" in str(forecast.get("event") or "").upper()
+        )
+        and isinstance(forecast.get("probability"), (int, float))
+        and not isinstance(forecast.get("probability"), bool)
+        and 0 <= float(forecast["probability"]) <= 1
+    ):
+        target_first_probability = 1 - float(forecast["probability"])
+    forecast_range_status = "unavailable"
+    if estimated_range is not None and target_first_probability is not None:
+        forecast_range_status = (
+            "reconciled"
+            if estimated_range[0] - 0.01 <= target_first_probability <= estimated_range[1] + 0.01
+            else "mismatch"
+        )
+    declared_now_ev = str(fields.get("now_ev") or "").strip().upper()
+    verdict_match = re.match(r"(?i)^\s*(POSITIVE|NEGATIVE|UNCERTAIN)\b", declared_now_ev)
+    declared_now_ev = verdict_match.group(1).upper() if verdict_match else declared_now_ev
+    expected_now_ev = {
+        "above_break_even": "POSITIVE",
+        "below_break_even": "NEGATIVE",
+        "straddles_break_even": "UNCERTAIN",
+    }.get(range_relation)
+    now_ev_status = (
+        "reconciled"
+        if expected_now_ev is not None and declared_now_ev == expected_now_ev
+        else "mismatch"
+        if expected_now_ev is not None and declared_now_ev
+        else "unavailable"
+    )
+    component_statuses = (arithmetic_status, forecast_range_status, now_ev_status)
+    result.update(
+        {
+            "status": "mismatch" if "mismatch" in component_statuses else "reconciled",
+            "inputs": {
+                "risk_points": risk,
+                "reward_points": reward,
+                "friction_points": friction,
+            },
+            "declared_breakeven_target_first": declared,
+            "deterministic_breakeven_target_first": round(deterministic, 8),
+            "absolute_error_percentage_points": round(error * 100, 4),
+            "tolerance_percentage_points": 1.0,
+            "arithmetic_status": arithmetic_status,
+            "estimated_target_first_range": (
+                {"low": estimated_range[0], "high": estimated_range[1]}
+                if estimated_range is not None
+                else None
+            ),
+            "target_first_probability_from_forecast": (
+                round(target_first_probability, 8)
+                if target_first_probability is not None
+                else None
+            ),
+            "forecast_range_status": forecast_range_status,
+            "range_vs_break_even": range_relation,
+            "declared_now_ev": declared_now_ev or None,
+            "expected_now_ev_from_range": expected_now_ev,
+            "now_ev_status": now_ev_status,
+        }
+    )
+    return result
+
+
+def fill_observability(
+    entry_intent: dict[str, Any] | None,
+    outcome: dict[str, Any],
+) -> dict[str, Any]:
+    """Compare planned SELECTION_EV geometry with realized fill prices (audit only)."""
+    result: dict[str, Any] = {
+        "schema_version": "glitch.topstep.fill_observability.v1",
+        "status": "unavailable",
+        "effect": "audit_only_no_execution_effect",
+    }
+    intent = entry_intent if isinstance(entry_intent, dict) else {}
+    audit = intent.get("decision_audit") if isinstance(intent.get("decision_audit"), dict) else {}
+    value = extract_selection_ev(str(audit.get("decisive_evidence") or ""))
+    planned_entry = planned_stop = planned_target = None
+    if value:
+        fields = _selection_ev_fields(value)
+        planned_entry = _first_unsigned_number(fields.get("entry"))
+        planned_stop = _first_unsigned_number(fields.get("stop"))
+        planned_target = _first_unsigned_number(fields.get("target"))
+    actual_entry = outcome.get("entry_price")
+    actual_exit = outcome.get("exit_price")
+    if not isinstance(actual_entry, (int, float)) or isinstance(actual_entry, bool):
+        result["reason"] = "actual_entry_unavailable"
+        return result
+    if planned_entry is None:
+        result["reason"] = "planned_selection_ev_entry_unavailable"
+        result["actual_entry_price"] = float(actual_entry)
+        result["actual_exit_price"] = (
+            float(actual_exit)
+            if isinstance(actual_exit, (int, float)) and not isinstance(actual_exit, bool)
+            else None
+        )
+        return result
+    entry_slip = float(actual_entry) - planned_entry
+    result.update(
+        {
+            "status": "observed",
+            "planned_entry": planned_entry,
+            "planned_stop": planned_stop,
+            "planned_target": planned_target,
+            "actual_entry_price": float(actual_entry),
+            "actual_exit_price": (
+                float(actual_exit)
+                if isinstance(actual_exit, (int, float)) and not isinstance(actual_exit, bool)
+                else None
+            ),
+            "entry_slip_points": round(entry_slip, 8),
+            "entry_within_one_point": abs(entry_slip) <= 1.0,
+        }
+    )
+    return result
