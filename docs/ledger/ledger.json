@@ -1,7 +1,7 @@
-{
+﻿{
   "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-08-24T19:15:00Z",
+  "updated": "2026-08-24T23:00:00Z",
   "release_target": "paired gateway/profile beta",
   "reconciliation": {
     "date": "2026-08-24",
@@ -80,9 +80,39 @@
       171,
       173,
       175,
-      177
+      177,
+      191,
+      192
     ],
-    "implementation_note": "Paired fixtures through EXEC-01/MULTI (#118). NT waves #159-#162 merged. REAUDIT waves 1-3 (#163-#168) merged 2026-08-21. Data freshness follow-up (#169) merged 2026-08-21 with gateway #215. Continuity gap operator rule (#171) merged 2026-08-21. All REAUDIT acceptance open. Armed promotion blocked.",
+    "implementation_note": "Paired fixtures through EXEC-01/MULTI (#118). NT waves #159-#162 merged. REAUDIT waves 1-3 merged 2026-08-21. Consolidated audit wave A/B/C merged 2026-08-24 (#191); C1 learning decomposition merged (#192). Armed promotion blocked pending PRAC soak and profile fault-injection proofs.",
+    "audit_wave_abc_2026_08_24": {
+      "profile_pr": 191,
+      "profile_commit": "361771b",
+      "profile_c1_pr": 192,
+      "profile_c1_commit": "13e67c7",
+      "gateway_pr": 234,
+      "gateway_commit": "b5f7cfc",
+      "profile_fault_pr": 194,
+      "gateway_ledger_pr": 235,
+      "plan": "glitch-topstep:docs/plans/2026-08-24-consolidated-audit-implementation-plan.md",
+      "status": "partial_merged",
+      "items_touched": [
+        "GTHP-REAUDIT-01",
+        "GTHP-RUNTIME-02",
+        "GTHP-RETENTION-01",
+        "GTHP-AUDIT-04"
+      ],
+      "c1_modules": [
+        "workflows/hermes_invoker.py",
+        "workflows/learning_loops.py",
+        "workflows/learning_journal.py",
+        "workflows/overlay_governance.py",
+        "workflows/learning_evidence.py",
+        "workflows/decision_journal.py",
+        "workflows/debrief_evidence.py"
+      ],
+      "residual": "parity.py session gates and cycle context decomposition"
+    },
     "reaudit_wave_1_2026_08_21": {
       "profile_pr": 163,
       "profile_commit": "097808b",
@@ -204,7 +234,7 @@
     "cognition": "Hermes owns market judgment, direction, timing, quantity, geometry, management, abstention, review, and learning.",
     "worker": "The profile worker schedules explicit invocations and validates identity/schema/finite values/geometry/directives; it does not turn evidence into a hidden strategy.",
     "gateway": "The gateway owns authenticated ProjectX evidence, account and contract identity, factual execution boundaries, native mutation, protection, reconciliation, and receipts.",
-    "objective": "Optimize long-run after-fee expectancy, survival, and realized payout quality. Daily profit and payout progress are Hermes objectives backed by packet evidence—not deterministic Glitch gates, quotas, or fixed risk baselines."
+    "objective": "Optimize long-run after-fee expectancy, survival, and realized payout quality. Daily profit and payout progress are Hermes objectives backed by packet evidenceΓÇönot deterministic Glitch gates, quotas, or fixed risk baselines."
   },
   "history": {
     "previous_schema": "1.0",
@@ -314,7 +344,7 @@
         "Known limitations explicit; no beta-ready claim without operator promotion."
       ],
       "evidence": [
-        "2026-08-03: PRAC armed session NOTHING → ENTER_LONG → HOLD → MOVE_STOP → NOTHING.",
+        "2026-08-03: PRAC armed session NOTHING ΓåÆ ENTER_LONG ΓåÆ HOLD ΓåÆ MOVE_STOP ΓåÆ NOTHING.",
         "docs/evidence/PROFILE-BETA-01-prac-session-2026-08-03.md (PR #34).",
         "Gateway terminal receipts gateway-receipts.jsonl (PR #35).",
         "Issue #24 operator acceptance comment 2026-08-03."
@@ -409,7 +439,7 @@
       "evidence": [
         "2026-08-03: NT vs Topstep learning comparison documented.",
         "2026-08-05: learning worker sync_gateway_outcomes_meta on every run; rejection_class on decision episodes; debrief outcome_execution v1.1; outcome_backed_lessons in direct-cycle ledger context.",
-        "2026-08-05: PRAC acceptance — TS-R3-03 closed; learning_eligible outcomes debriefed into trade-episodes.jsonl.",
+        "2026-08-05: PRAC acceptance ΓÇö TS-R3-03 closed; learning_eligible outcomes debriefed into trade-episodes.jsonl.",
         "docs/specs/GTHP-012.md",
         "tests/test_learning.py"
       ],
@@ -546,7 +576,7 @@
       ],
       "stop_line": "Do not implement v2 guardian profit lock or gateway daily PnL execution gates.",
       "evidence": [
-        "2026-08-05: operator direction — daily profit is strategic objective via cognition, not engine lock.",
+        "2026-08-05: operator direction ΓÇö daily profit is strategic objective via cognition, not engine lock.",
         "docs/specs/GTHP-017.md"
       ],
       "sources": [
@@ -580,7 +610,7 @@
       ],
       "stop_line": "No hidden strategy gate; no learning cron suppression; no skip when positioned.",
       "evidence": [
-        "2026-08-05 PRAC: 16:00-17:00 CDT maintenance — 12x llm_skipped stale_gateway_quote, trade_count_60s=0.",
+        "2026-08-05 PRAC: 16:00-17:00 CDT maintenance ΓÇö 12x llm_skipped stale_gateway_quote, trade_count_60s=0.",
         "2026-07-31: parity.market_quiescent_skip_details; events market_quiescent; GLITCH_TOPSTEP_SKIP_MARKET_QUIESCENT default true.",
         "2026-08-06: gate prefers packet.stream_health when present; reconnect_pending bypass; session.phase in recent_frames; PRICE_CROSS range uses session_high/low and order_flow window.",
         "docs/specs/GTHP-018.md",
@@ -612,7 +642,7 @@
         "Dedup cooldown documented; GTHP-018 quiescence skip respected when flat.",
         "docs/specs/GTHP-019.md and regression tests."
       ],
-      "stop_line": "Triggers schedule invocation only — no pre-baked trade decisions or hidden ENTER veto.",
+      "stop_line": "Triggers schedule invocation only ΓÇö no pre-baked trade decisions or hidden ENTER veto.",
       "evidence": [
         "2026-08-06: PRICE_CROSS + SESSION_PHASE schema; run-wake-trigger-monitor loop; launch-wake-trigger-monitor cron job.",
         "parity evaluate_wake_triggers + cooldown fire_history; condition_change bypasses market_quiescent.",
@@ -707,7 +737,7 @@
         "Bounded cluster tail may appear in direct-cycle ledger when configured.",
         "docs/specs/GTHP-021.md and tests/test_learning.py."
       ],
-      "stop_line": "Similarity clusters inform cognition only — no automatic intent submission or gateway gates.",
+      "stop_line": "Similarity clusters inform cognition only ΓÇö no automatic intent submission or gateway gates.",
       "sources": [
         "scripts/run-topstep-learning.py",
         "scripts/parity.py",
@@ -773,7 +803,7 @@
     },
     {
       "id": "GTHP-022",
-      "title": "Participation breadth — partial timeframe alignment without universal gates",
+      "title": "Participation breadth ΓÇö partial timeframe alignment without universal gates",
       "status": "done",
       "priority": "P1",
       "owner_role": "architect",
@@ -806,7 +836,7 @@
     },
     {
       "id": "GTHP-024",
-      "title": "NT-style flat participation doctrine — failed continuation, range edges, audit checklist",
+      "title": "NT-style flat participation doctrine ΓÇö failed continuation, range edges, audit checklist",
       "status": "done",
       "priority": "P1",
       "owner_role": "architect",
@@ -1076,7 +1106,7 @@
         "scripts/common.py",
         "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/123"
       ],
-      "implementation_note": "Open — wave 1 (#163) improved retain-safe 404 via /intent/status; residual: fsync outbox states, full fault matrix per acceptance."
+      "implementation_note": "Open ΓÇö wave 1 (#163) improved retain-safe 404 via /intent/status; residual: fsync outbox states, full fault matrix per acceptance."
     },
     {
       "id": "GTHP-AUDIT-04",
