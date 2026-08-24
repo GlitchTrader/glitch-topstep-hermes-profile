@@ -24,6 +24,7 @@ Use when `decision_packet.market_universe.candidates` has more than one instrume
 | `PRIOR_TRIGGER_REVIEW` | `NOT_APPLICABLE` when no prior trigger; otherwise review vs prior frame |
 | `ASYMMETRY` | Coarse edge summary; `UNKNOWN` only when evidence is unusable |
 | `TRIGGER_*` | One frozen trigger per candidate (`HELD`, `FAILED`, or `EXPIRED`) |
+| `SELECTION_EV` | Tail field: current-zone EV for the selected action (`now_ev=POSITIVE\|NEGATIVE\|UNCERTAIN`) |
 
 ## Ranking rules (#171)
 
@@ -40,7 +41,8 @@ Use when `decision_packet.market_universe.candidates` has more than one instrume
 - Put the **full** line ledger in `decision_audit.decisive_evidence` exactly as in `required_output_template.decision_audit.decisive_evidence`.
 - Keep every comparison field to one compact evidence-dense sentence; do not repeat the same fact or veto across fields; keep the complete ledger under **8000** characters.
 - Put frame continuity in `disconfirming_evidence` (`prior_hypothesis=...`) when `recent_frames` is non-empty.
-- Close with `RANKING`, `SELECTION_INSTRUMENT`, `SELECTION_ACTION`, and `SELECTION_REASON`.
+- Close with `RANKING`, `SELECTION_INSTRUMENT`, `SELECTION_ACTION`, `SELECTION_EV`, and `SELECTION_REASON`.
+- `SELECTION_EV` must be arithmetically self-consistent: ENTER_* requires `now_ev=POSITIVE`; flat `NOTHING` forbids `now_ev=POSITIVE`.
 - No placeholders (`REPLACE`, `REPLACE_WITH_*`, `...`, `?`), JSON, or Markdown fences.
 - `NOTHING` is allowed only after every instrument block is complete.
 

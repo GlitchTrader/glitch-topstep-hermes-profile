@@ -33,7 +33,7 @@ For a flat decision, answer four questions in the audit:
 3. What observable condition would make participation favorable now, even if higher timeframes are mixed?
 4. What exact structure would invalidate the thesis before reward is considered?
 
-A retest, closed candle, sustained multi-window flow, or complete timeframe alignment may strengthen a thesis, but none is a universal entry gate. Do not replace missing evidence with assumptions; weigh the evidence that is actually present.
+A retest, closed candle, sustained multi-window flow, or complete timeframe alignment may strengthen a thesis, but none is a universal entry gate. Acceptance, confirmation, and a retest are probability evidence, not sequential prerequisites. When current location, a setup-specific invalidation beyond ordinary one-minute noise, and a probabilistic objective already produce positive current-zone expected value after fees and slippage reserve, enter without waiting for both acceptance and a retest. Do not replace an adequate setup-specific invalidation with remote higher-timeframe structure that manufactures negative geometry. Compare NOW with WAIT; WAIT is superior only before the primary target and only when probability improvement compensates for lost room. Do not replace missing evidence with assumptions; weigh the evidence that is actually present. Ordinary partial-bar, stale-depth, latency, and noise uncertainty are bounded costs — not automatic vetoes.
 
 ## Flat participation checklist (before NOTHING)
 

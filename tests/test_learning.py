@@ -35,13 +35,14 @@ class LearningTests(unittest.TestCase):
         self.assertEqual([row["outcome_id"] for row in values], ["ok"])
 
     def test_overlay_is_proposed_by_default(self):
+        evidence_ids = [f"e{i}" for i in range(6)]
         record = {
             "cognitive_change_candidate": {
                 "propose": True,
                 "candidate_id": "candidate",
                 "target": "core_prompt",
                 "instruction": "Prefer exits after repeated failed progress.",
-                "evidence_episode_ids": [f"e{i}" for i in range(6)],
+                "evidence_episode_ids": evidence_ids,
                 "expected_effect": "less rollback",
                 "evaluation_metric": "rollback",
                 "rollback_condition": "worse expectancy",
@@ -49,7 +50,22 @@ class LearningTests(unittest.TestCase):
         }
         with tempfile.TemporaryDirectory() as root, mock.patch.dict(os.environ, {"GLITCH_TOPSTEP_AUTO_ACTIVATE_OVERLAY": "false", "GLITCH_TOPSTEP_OVERLAY_MIN_EPISODES": "6"}, clear=False):
             supervisor = Path(root)
-            MODULE.process_candidate(record, supervisor, [f"e{i}" for i in range(6)])
+            episodes = [
+                {
+                    "episode_id": evidence_id,
+                    "decision_utc": f"2026-08-{17 + (index % 2):02d}T15:00:00Z",
+                    "evidence_context": {
+                        "session_date_et": f"2026-08-{17 + (index % 2):02d}"
+                    },
+                }
+                for index, evidence_id in enumerate(evidence_ids)
+            ]
+            (supervisor / "decision-episodes.jsonl").write_text(
+                "".join(json.dumps(row) + "\n" for row in episodes),
+                encoding="utf-8",
+            )
+            (supervisor / "trade-episodes.jsonl").write_text("", encoding="utf-8")
+            MODULE.process_candidate(record, supervisor, evidence_ids)
             candidates = MODULE.read_jsonl(supervisor / "cognitive-candidates.jsonl")
             self.assertEqual(candidates[0]["status"], "proposed")
             self.assertFalse((supervisor / "active-cognitive-overlay.json").exists())
