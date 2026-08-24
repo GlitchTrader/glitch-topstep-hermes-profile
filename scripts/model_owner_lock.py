@@ -206,6 +206,10 @@ def acquire_model_owner(
                         "preempted_pid": current.get("pid"),
                     },
                 )
+                if int(current.get("pid") or 0) == os.getpid():
+                    if not _remove_lock_if_owner(lock_path, current):
+                        return False
+                    continue
                 if not _request_owner_stand_down(state, lock_path, current):
                     publish_model_owner_status(
                         state,

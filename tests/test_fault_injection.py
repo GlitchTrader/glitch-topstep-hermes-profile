@@ -98,18 +98,13 @@ class ModelOwnerLockFaultTests(unittest.TestCase):
 
             def attempt(owner_kind: str, invocation_id: str) -> None:
                 barrier.wait()
-                won = acquire_model_owner(
-                    state,
-                    owner_kind=owner_kind,  # type: ignore[arg-type]
-                    invocation_id=invocation_id,
-                )
-                results.append(won)
-                if won:
-                    release_model_owner(
+                results.append(
+                    acquire_model_owner(
                         state,
                         owner_kind=owner_kind,  # type: ignore[arg-type]
                         invocation_id=invocation_id,
                     )
+                )
 
             threads = [
                 threading.Thread(target=attempt, args=("direct_cycle", "run-1")),
