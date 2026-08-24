@@ -81,6 +81,89 @@ def _wait_claims_improvement(value: str) -> bool:
     return bool(re.search(r"(?i)\b(?:positive|improv\w*|better|dominates?)\b", value))
 
 
+_NON_DIRECTION = re.compile(
+    r"(?i)^\s*(FLAT|NONE|NA|N/?A|NULL|NOT[_\s-]?APPLICABLE|REPLACE)\b"
+)
+
+
+def _infer_direction_from_geometry(fields: dict[str, str]) -> str | None:
+    """Infer LONG/SHORT from counterfactual geometry when the model wrote FLAT/NA."""
+    entry = _first_unsigned_number(fields.get("entry"))
+    stop = _first_unsigned_number(fields.get("stop"))
+    target = _first_unsigned_number(fields.get("target"))
+    if entry is None or stop is None or entry == stop:
+        return None
+    if stop < entry and (target is None or target >= entry):
+        return "LONG"
+    if stop > entry and (target is None or target <= entry):
+        return "SHORT"
+    if stop < entry:
+        return "LONG"
+    if stop > entry:
+        return "SHORT"
+    return None
+
+
+def normalize_selection_ev_direction(value: str) -> str:
+    """Rewrite FLAT/NONE direction to LONG|SHORT when geometry makes the side obvious.
+
+    ponytail: models often write direction=FLAT on NOTHING; contract requires the
+    counterfactual side. Upgrade path: drop once skills stop emitting FLAT.
+    """
+    if not isinstance(value, str) or not value.strip():
+        return value
+    fields = _selection_ev_fields(value)
+    direction = fields.get("direction", "")
+    if re.match(r"(?i)^\s*(LONG|SHORT)\b", direction):
+        return value
+    if not _NON_DIRECTION.match(direction):
+        return value
+    inferred = _infer_direction_from_geometry(fields)
+    if inferred is None:
+        return value
+    return re.sub(
+        r"(?i)(^|;)\s*direction\s*=\s*[^;]*",
+        lambda match: f"{match.group(1)}direction={inferred}",
+        value,
+        count=1,
+    )
+
+
+def normalize_selection_ev_breakeven(value: str) -> str:
+    """Rewrite breakeven_target_first to the contract formula when risk/reward/friction parse.
+
+    ponytail: models routinely mis-state the break-even fraction; the field is defined as
+    (risk+friction)/(risk+reward). Ceiling: does not invent risk/reward/friction.
+    """
+    if not isinstance(value, str) or not value.strip():
+        return value
+    fields = _selection_ev_fields(value)
+    risk = _first_unsigned_number(fields.get("risk_points"))
+    reward = _first_unsigned_number(fields.get("reward_points"))
+    friction = _first_unsigned_number(fields.get("friction_points"))
+    if (
+        risk is None
+        or risk <= 0
+        or reward is None
+        or reward <= 0
+        or friction is None
+        or friction < 0
+    ):
+        return value
+    computed = (risk + friction) / (risk + reward)
+    if not math.isfinite(computed) or not 0 <= computed <= 1:
+        return value
+    rendered = f"{computed:.4f}".rstrip("0").rstrip(".")
+    if "breakeven_target_first=" not in value.lower():
+        return value
+    return re.sub(
+        r"(?i)(^|;)\s*breakeven_target_first\s*=\s*[^;]*",
+        lambda match: f"{match.group(1)}breakeven_target_first={rendered}",
+        value,
+        count=1,
+    )
+
+
 def validate_selection_ev(
     value: str,
     action: str,
@@ -91,6 +174,7 @@ def validate_selection_ev(
     """Require a self-consistent EV conclusion without choosing the trade in code."""
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"selection_ev_missing:{source}")
+    value = normalize_selection_ev_breakeven(normalize_selection_ev_direction(value))
     fields = _selection_ev_fields(value)
     required = {
         "direction",

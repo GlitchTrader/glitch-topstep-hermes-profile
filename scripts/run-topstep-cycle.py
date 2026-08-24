@@ -667,6 +667,10 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "compact evidence-dense sentence, avoid repeated "
     "facts across fields, and keep the complete ledger under 8000 characters; put prior_hypothesis "
     "continuity in disconfirming_evidence instead. "
+    "SELECTION_EV.direction must be LONG or SHORT (the side whose current-zone EV you assessed), "
+    "never FLAT/NONE/NA; for NOTHING keep that side's counterfactual entry/stop/target with "
+    "now_ev=NEGATIVE or UNCERTAIN and numeric breakeven_target_first plus estimated_target_first_range "
+    "as probabilities (for example 0.30-0.40), not prices. "
     "change_condition is an advisory re-evaluation hypothesis, not a rigid execution gate; "
     "rewrite it when cycle_evidence_delta or prior ledger repetition guidance indicates stale wording. "
     "Action contract: ENTER_LONG and ENTER_SHORT require positive integer quantity, order_type MARKET, "
@@ -1327,14 +1331,30 @@ def invoke_valid_intent(
         except ValueError as error:
             if repair_count:
                 raise
+            error_text = str(error)
+            instruction = (
+                "Regenerate the same current decision as one complete "
+                "strict glitch.intent.v3 object. Preserve current "
+                "identities and requested forced direction."
+            )
+            if "selection_ev_direction_invalid" in error_text:
+                instruction += (
+                    " SELECTION_EV.direction must be LONG or SHORT (the side whose "
+                    "current-zone EV you assessed), never FLAT/NONE/NA. For NOTHING "
+                    "keep that side's counterfactual entry/stop/target with "
+                    "now_ev=NEGATIVE or UNCERTAIN."
+                )
+            if "selection_ev_arithmetic_mismatch" in error_text or "selection_ev_numeric_invalid" in error_text:
+                instruction += (
+                    " SELECTION_EV.breakeven_target_first must equal "
+                    "(risk_points+friction_points)/(risk_points+reward_points) as a "
+                    "0-1 fraction; estimated_target_first_range must be a probability "
+                    "band like 0.30-0.40, never raw prices."
+                )
             current_prompt += "\nSTRICT_OUTPUT_CORRECTION=" + json.dumps(
                 {
-                    "validation_error": str(error)[:240],
-                    "instruction": (
-                        "Regenerate the same current decision as one complete "
-                        "strict glitch.intent.v3 object. Preserve current "
-                        "identities and requested forced direction."
-                    ),
+                    "validation_error": error_text[:240],
+                    "instruction": instruction,
                 },
                 separators=(",", ":"),
             )

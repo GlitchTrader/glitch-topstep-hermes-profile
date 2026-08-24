@@ -47,6 +47,31 @@ class SelectionEvTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "selection_ev_nothing_positive"):
             validate_selection_ev(POSITIVE_LONG, "NOTHING")
 
+    def test_flat_direction_infers_long_from_geometry(self):
+        flat = (
+            "direction=FLAT;entry=20000;stop=19990;target=20030;risk_points=10;reward_points=30;"
+            "friction_points=1;breakeven_target_first=0.275;estimated_target_first_range=0.20-0.25;"
+            "now_ev=NEGATIVE;wait_price=19995;wait_ev=no improvement;decisive_reason=no edge"
+        )
+        validate_selection_ev(flat, "NOTHING")
+
+    def test_rewrites_misstated_breakeven_fraction(self):
+        wrong_be = (
+            "direction=SHORT;entry=29169;stop=29185;target=29159;risk_points=16;reward_points=10;"
+            "friction_points=0.5;breakeven_target_first=0.56;estimated_target_first_range=0.35-0.45;"
+            "now_ev=NEGATIVE;wait_price=29167.5;wait_ev=no improvement;decisive_reason=no edge"
+        )
+        validate_selection_ev(wrong_be, "NOTHING")
+
+    def test_flat_without_geometry_still_invalid(self):
+        flat = (
+            "direction=FLAT;entry=NA;stop=NA;target=NA;risk_points=NA;reward_points=NA;"
+            "friction_points=NA;breakeven_target_first=NA;estimated_target_first_range=NA;"
+            "now_ev=NEGATIVE;wait_price=19995;wait_ev=POSITIVE;decisive_reason=no edge"
+        )
+        with self.assertRaisesRegex(ValueError, "selection_ev_direction_invalid|selection_ev_numeric_invalid"):
+            validate_selection_ev(flat, "NOTHING")
+
     def test_template_includes_selection_ev(self):
         packet = {
             "instrument": "MNQ",
