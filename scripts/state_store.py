@@ -43,6 +43,11 @@ class ProfileStateStore:
             );
             CREATE INDEX IF NOT EXISTS jsonl_export_queue_target_idx
                 ON jsonl_export_queue(target, sequence);
+            CREATE TABLE IF NOT EXISTS frame_index (
+                packet_id TEXT PRIMARY KEY,
+                path TEXT NOT NULL,
+                indexed_utc TEXT NOT NULL
+            );
             """
         )
         self.db.commit()
@@ -50,6 +55,13 @@ class ProfileStateStore:
 
     def close(self) -> None:
         self.db.close()
+
+    @staticmethod
+    def _complete_prefix_bytes(data: bytes) -> tuple[bytes, int]:
+        last_newline = data.rfind(b"\n")
+        if last_newline < 0:
+            return b"", 0
+        return data[: last_newline + 1], last_newline + 1
 
     def sync_decisions_from_jsonl(self, jsonl_path: Path) -> None:
         self._decisions_jsonl = jsonl_path
@@ -67,13 +79,16 @@ class ProfileStateStore:
             chunk = stream.read()
         if not chunk:
             return
+        complete, consumed = self._complete_prefix_bytes(chunk)
+        if not complete:
+            return
         pending: list[str] = []
-        for raw in chunk.decode("utf-8").splitlines():
+        for raw in complete.decode("utf-8").splitlines():
             if raw.strip():
                 pending.append(raw)
         if not pending:
             return
-        new_offset = offset + len(chunk)
+        new_offset = offset + consumed
         with self.db:
             for raw in pending:
                 row = json.loads(raw)
@@ -122,7 +137,9 @@ class ProfileStateStore:
         return inserted
 
     def export_pending_jsonl(self, jsonl_path: Path) -> int:
-        """Drain export queue to JSONL after SQLite commit (GTHP-REAUDIT-01)."""
+        """Drain export queue idempotently — SQLite authority, JSONL projection (GTHP-REAUDIT-01)."""
+        from common import append_jsonl, jsonl_contains_sequence
+
         target = str(jsonl_path)
         rows = self.db.execute(
             """
@@ -134,17 +151,33 @@ class ProfileStateStore:
         ).fetchall()
         if not rows:
             return 0
-        from common import append_jsonl
 
         exported = 0
-        with self.db:
-            for row in rows:
-                append_jsonl(jsonl_path, json.loads(row["payload_json"]))
+        for row in rows:
+            sequence = int(row["sequence"])
+            payload = json.loads(row["payload_json"])
+            if not isinstance(payload, dict):
+                with self.db:
+                    self.db.execute(
+                        "DELETE FROM jsonl_export_queue WHERE sequence = ?",
+                        (sequence,),
+                    )
+                continue
+            export_payload = {**payload, "export_sequence": sequence}
+            if jsonl_contains_sequence(jsonl_path, sequence):
+                with self.db:
+                    self.db.execute(
+                        "DELETE FROM jsonl_export_queue WHERE sequence = ?",
+                        (sequence,),
+                    )
+                continue
+            append_jsonl(jsonl_path, export_payload)
+            with self.db:
                 self.db.execute(
                     "DELETE FROM jsonl_export_queue WHERE sequence = ?",
-                    (row["sequence"],),
+                    (sequence,),
                 )
-                exported += 1
+            exported += 1
         return exported
 
     def export_backlog_count(self, jsonl_path: Path | None = None) -> int:
@@ -154,6 +187,31 @@ class ProfileStateStore:
             (target,),
         ).fetchone()
         return int(row[0]) if row else 0
+
+    def index_frame(self, packet_id: str, path: Path, *, indexed_utc: str) -> None:
+        if not packet_id:
+            return
+        with self.db:
+            self.db.execute(
+                """
+                INSERT INTO frame_index(packet_id, path, indexed_utc)
+                VALUES (?, ?, ?)
+                ON CONFLICT(packet_id) DO UPDATE SET
+                    path = excluded.path,
+                    indexed_utc = excluded.indexed_utc
+                """,
+                (packet_id, str(path), indexed_utc),
+            )
+
+    def frame_path_for_packet(self, packet_id: str) -> Path | None:
+        row = self.db.execute(
+            "SELECT path FROM frame_index WHERE packet_id = ?",
+            (packet_id,),
+        ).fetchone()
+        if not row:
+            return None
+        path = Path(str(row[0]))
+        return path if path.is_file() else None
 
     def _insert_decision(self, row: dict[str, Any]) -> bool:
         payload = json.dumps(row, separators=(",", ":"), ensure_ascii=False)

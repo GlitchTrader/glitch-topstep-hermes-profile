@@ -22,7 +22,15 @@ from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from process_supervisor import run_supervised
 from model_owner_lock import acquire_model_owner, release_model_owner
+from workflows.learning_evidence import (
+    LEARNING_REPAIR_PROMPT_RESERVE_CHARS,
+    MAX_PROMPT_CHARS,
+    bounded_learning_rows,
+    overlay_context,
+    prompt_fits_budget,
+)
 from common import (
     PROFILE_NAME,
     append_jsonl,
@@ -77,8 +85,6 @@ LOOP_SCHEMAS = {
     "weekly": "glitch.topstep.weekly_skill_proposal.v1",
 }
 MAX_DEBRIEF_OUTCOMES = 4
-MAX_PROMPT_CHARS = 320_000
-LEARNING_REPAIR_PROMPT_RESERVE_CHARS = 2_000
 
 
 def stable_id(kind: str, value: str) -> str:
@@ -296,20 +302,6 @@ def cognitive_evidence_ids(supervisor: Path) -> list[str]:
     return [str(row.get("episode_id")) for row in rows if row.get("episode_id")]
 
 
-def bounded_learning_rows(
-    rows: list[dict[str, Any]], max_rows: int, max_chars: int
-) -> list[dict[str, Any]]:
-    selected: list[dict[str, Any]] = []
-    used_chars = 0
-    for row in reversed(rows):
-        row_chars = len(json.dumps(row, separators=(",", ":"), ensure_ascii=False))
-        if len(selected) >= max_rows or used_chars + row_chars > max_chars:
-            break
-        selected.append(row)
-        used_chars += row_chars
-    return list(reversed(selected))
-
-
 def outcomes_path(root: Path) -> Path:
     configured = os.environ.get("GLITCH_TOPSTEP_OUTCOMES_PATH", "").strip()
     return Path(configured).expanduser().resolve() if configured else root / "state" / "outcomes.jsonl"
@@ -369,15 +361,10 @@ def invoke_hermes(profile: str, prompt: str, skills: str, timeout_seconds: int) 
         + ");from hermes_cli.main import main;prompt=sys.stdin.read();"
         "sys.argv=[sys.argv[0]]+" + repr(args) + "+['-q',prompt];main()"
     )
-    completed = subprocess.run(
+    completed = run_supervised(
         [str(python_executable), "-c", wrapper],
-        input=prompt,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        timeout=timeout_seconds,
-        check=False,
+        input_text=prompt,
+        timeout_seconds=timeout_seconds,
         creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0) if sys.platform == "win32" else 0,
     )
     if completed.returncode != 0:
@@ -641,15 +628,9 @@ def fit_debrief_evidence(
             "debrief",
             debrief_prompt_evidence(evidence),
             output_template("debrief", ids),
-            {
-                "current_plan": read_optional_json(supervisor / "current-plan.json"),
-                "current_guidance": read_optional_json(supervisor / "current-guidance.json"),
-                "active_cognitive_overlay": read_optional_json(
-                    supervisor / "active-cognitive-overlay.json"
-                ),
-            },
+            overlay_context(supervisor),
         )
-        if len(prompt) <= MAX_PROMPT_CHARS - LEARNING_REPAIR_PROMPT_RESERVE_CHARS:
+        if prompt_fits_budget(prompt):
             return batch, evidence
         batch.pop()
         evidence.pop()

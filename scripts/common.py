@@ -293,6 +293,10 @@ def bootstrap_profile_state(state: Path) -> dict[str, Any]:
         journal.close()
     meta = sync_gateway_outcomes_meta(state)
     meta["retention"] = prune_state_retention(state)
+    meta["journals"] = {
+        "decisions": journal_metrics(state / "decisions.jsonl"),
+        "events": journal_metrics(state / "events.jsonl"),
+    }
     return meta
 
 
@@ -389,6 +393,19 @@ def write_json_atomic(path: Path, value: Any) -> None:
         temporary.unlink(missing_ok=True)
 
 
+def jsonl_contains_sequence(path: Path, sequence: int, *, tail_bytes: int = 262_144) -> bool:
+    """Idempotent export check — scan recent tail for export_sequence."""
+    if not path.is_file() or sequence <= 0:
+        return False
+    needle = f'"export_sequence":{sequence}'.encode("utf-8")
+    size = path.stat().st_size
+    with path.open("rb") as stream:
+        start = max(0, size - tail_bytes)
+        stream.seek(start)
+        data = stream.read()
+    return needle in data
+
+
 def append_jsonl(path: Path, value: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a", encoding="utf-8", newline="\n") as stream:
@@ -438,6 +455,24 @@ def tail_jsonl(path: Path, count: int, *, tail_bytes: int = 1_048_576) -> list[d
         if isinstance(value, dict):
             result.append(value)
     return result
+
+
+def collect_referenced_packet_ids(state: Path) -> set[str]:
+    """Packet IDs that must survive retention pruning (audit W5 / NT d2b8e9e)."""
+    referenced: set[str] = set()
+    outbox_dir = state / "outbox"
+    if outbox_dir.is_dir():
+        referenced.update(path.stem for path in outbox_dir.glob("*.json"))
+    receipts_dir = state / "receipts"
+    if receipts_dir.is_dir():
+        referenced.update(path.stem for path in receipts_dir.glob("*.json"))
+    delivery_wire = state / "delivery-wire.jsonl"
+    if delivery_wire.is_file():
+        for row in tail_jsonl(delivery_wire, 500):
+            packet_id = str(row.get("packet_id") or "")
+            if packet_id:
+                referenced.add(packet_id)
+    return referenced
 
 
 def rotate_jsonl(

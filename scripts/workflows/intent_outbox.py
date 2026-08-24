@@ -35,7 +35,18 @@ def _minute_frames_dir(state_or_frames_root: Path) -> Path:
     return state_or_frames_root
 
 
-def frame_for_packet_id(state_or_frames_root: Path, packet_id: str) -> dict[str, Any] | None:
+def frame_for_packet_id(
+    state_or_frames_root: Path,
+    packet_id: str,
+    *,
+    store: Any | None = None,
+) -> dict[str, Any] | None:
+    if store is not None:
+        indexed = store.frame_path_for_packet(packet_id)
+        if indexed is not None:
+            frame = read_optional_json(indexed)
+            if isinstance(frame, dict):
+                return frame
     frames_dir = _minute_frames_dir(state_or_frames_root)
     if not frames_dir.is_dir():
         return None
@@ -45,6 +56,10 @@ def frame_for_packet_id(state_or_frames_root: Path, packet_id: str) -> dict[str,
             continue
         packet = frame.get("packet")
         if isinstance(packet, dict) and str(packet.get("packet_id") or "") == packet_id:
+            if store is not None:
+                from common import utc_now
+
+                store.index_frame(packet_id, path, indexed_utc=utc_now())
             return frame
     return None
 
