@@ -56,6 +56,7 @@ from position_management import (
 from forecast_metadata import strip_forecast_metadata, validate_forecast_metadata
 from cognition_cycle import recent_cycle_context
 from cycle_empirical import empirical_from_decision, record_cycle_empirical
+from process_supervisor import run_supervised
 from state_store import ProfileStateStore
 from model_owner_lock import acquire_model_owner, release_model_owner
 from workflows.intent_outbox import (
@@ -913,15 +914,10 @@ def invoke_hermes(
         + repr(cli_args)
         + "+['-q',prompt];main()"
     )
-    completed = subprocess.run(
+    completed = run_supervised(
         [str(python_executable), "-c", wrapper],
-        input=prompt,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        timeout=timeout_seconds,
-        check=False,
+        input_text=prompt,
+        timeout_seconds=timeout_seconds,
         creationflags=(
             getattr(subprocess, "CREATE_NO_WINDOW", 0)
             if sys.platform == "win32"

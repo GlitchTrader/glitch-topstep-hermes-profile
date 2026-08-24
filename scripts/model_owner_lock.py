@@ -107,6 +107,29 @@ def _request_owner_stand_down(
     return not _owner_alive(owner)
 
 
+def _owner_matches(current: dict[str, Any] | None, expected: dict[str, Any]) -> bool:
+    if not isinstance(current, dict):
+        return False
+    for key in ("owner_kind", "invocation_id", "pid", "generation"):
+        if str(current.get(key) or "") != str(expected.get(key) or ""):
+            return False
+    return True
+
+
+def _remove_lock_if_owner(lock_path: Path, expected: dict[str, Any]) -> bool:
+    """Compare-and-rename before unlink — avoids TOCTOU stealing a new owner (audit C2)."""
+    current = read_model_owner(lock_path)
+    if not _owner_matches(current, expected):
+        return False
+    stale_path = lock_path.with_suffix(".lock.stale")
+    try:
+        lock_path.replace(stale_path)
+    except FileNotFoundError:
+        return False
+    stale_path.unlink(missing_ok=True)
+    return True
+
+
 def read_model_owner(lock_path: Path) -> dict[str, Any] | None:
     if not lock_path.is_file():
         return None
@@ -160,9 +183,7 @@ def acquire_model_owner(
                     return False
                 continue
             if not _owner_alive(current):
-                try:
-                    lock_path.unlink(missing_ok=True)
-                except OSError:
+                if not _remove_lock_if_owner(lock_path, current):
                     return False
                 append_jsonl(
                     state / "events.jsonl",
@@ -200,9 +221,7 @@ def acquire_model_owner(
                         },
                     )
                     return False
-                try:
-                    lock_path.unlink(missing_ok=True)
-                except OSError:
+                if not _remove_lock_if_owner(lock_path, current):
                     return False
                 continue
             publish_model_owner_status(
@@ -245,9 +264,7 @@ def release_model_owner(state: Path, *, owner_kind: OwnerKind, invocation_id: st
         or str(current.get("invocation_id") or "") != invocation_id
     ):
         return
-    try:
-        lock_path.unlink(missing_ok=True)
-    except OSError:
+    if not _remove_lock_if_owner(lock_path, current):
         return
     publish_model_owner_status(
         state,
