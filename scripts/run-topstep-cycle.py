@@ -1335,6 +1335,24 @@ def prepare_intent_for_delivery(
             raise ValueError("entry_range_superseded")
         if parse_utc(aligned.get("expires_utc")) < datetime.now(timezone.utc):
             raise ValueError("entry_intent_expired")
+    elif action == "NOTHING":
+        current_scope = (
+            fresh_packet.get("decision_scope")
+            if isinstance(fresh_packet.get("decision_scope"), dict)
+            else {}
+        )
+        if (
+            aligned.get("contract_id") != fresh_packet.get("contract", {}).get("id")
+            or aligned.get("scope_hash") != current_scope.get("scope_hash")
+            or aligned.get("scope_generation") != current_scope.get("generation")
+        ):
+            raise ValueError("scope_superseded_before_delivery")
+        # ponytail: flat abstention has no entry bounds; refresh wire identity when cognition outlasts one packet lease.
+        fresh_packet_id = fresh_packet.get("packet_id")
+        if isinstance(fresh_packet_id, str) and fresh_packet_id:
+            aligned["packet_id"] = fresh_packet_id
+        aligned["snapshot_hash"] = fresh_hash
+        same_packet = True
     elif not same_packet or aligned.get("snapshot_hash") != fresh_hash:
         raise ValueError("packet_superseded_before_delivery")
     aligned["reason"] = truncate_gateway_string(aligned["reason"], GATEWAY_REASON_MAX_LENGTH)

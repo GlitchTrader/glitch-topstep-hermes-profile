@@ -1005,6 +1005,79 @@ class DirectCycleTests(unittest.TestCase):
             aligned = MODULE.prepare_intent_for_delivery(intent(), None)
         self.assertEqual(aligned["snapshot_hash"], "hash-2")
 
+    def test_prepare_intent_for_delivery_refreshes_nothing_v3_packet_identity(self):
+        cognition_packet = packet(5)
+        cognition_packet["decision_scope"] = {
+            "contract_id": "CON",
+            "generation": 1,
+            "scope_hash": "scope-1",
+        }
+        fresh_packet = copy.deepcopy(cognition_packet)
+        fresh_packet["packet_id"] = "packet-6"
+        fresh_packet["market"]["snapshot_hash"] = "hash-2"
+        value = MODULE.normalize_intent(
+            {
+                "action": "NOTHING",
+                "confidence": 0.6,
+                "reason": "Flat while evidence is mixed.",
+                "decision_audit": {
+                    field: "NOTHING" if field == "final_choice" else "Evidence"
+                    for field in MODULE.AUDIT_FIELDS
+                },
+            },
+            cognition_packet,
+        )
+        with mock.patch.object(
+            MODULE,
+            "request_json",
+            side_effect=[(200, fresh_packet), (200, {"schema_version": "other"})],
+        ), mock.patch.object(MODULE, "local_token", return_value="token"), mock.patch.object(
+            MODULE,
+            "packet_is_current",
+            return_value=True,
+        ):
+            aligned = MODULE.prepare_intent_for_delivery(value, None)
+        self.assertEqual(aligned["action"], "NOTHING")
+        self.assertEqual(aligned["packet_id"], "packet-6")
+        self.assertEqual(aligned["snapshot_hash"], "hash-2")
+
+    def test_prepare_intent_for_delivery_rejects_nothing_when_scope_superseded(self):
+        cognition_packet = packet(5)
+        cognition_packet["decision_scope"] = {
+            "contract_id": "CON",
+            "generation": 1,
+            "scope_hash": "scope-1",
+        }
+        fresh_packet = copy.deepcopy(cognition_packet)
+        fresh_packet["decision_scope"] = {
+            "contract_id": "CON",
+            "generation": 2,
+            "scope_hash": "scope-2",
+        }
+        value = MODULE.normalize_intent(
+            {
+                "action": "NOTHING",
+                "confidence": 0.6,
+                "reason": "Flat while evidence is mixed.",
+                "decision_audit": {
+                    field: "NOTHING" if field == "final_choice" else "Evidence"
+                    for field in MODULE.AUDIT_FIELDS
+                },
+            },
+            cognition_packet,
+        )
+        with mock.patch.object(
+            MODULE,
+            "request_json",
+            side_effect=[(200, fresh_packet), (200, {"schema_version": "other"})],
+        ), mock.patch.object(MODULE, "local_token", return_value="token"), mock.patch.object(
+            MODULE,
+            "packet_is_current",
+            return_value=True,
+        ):
+            with self.assertRaisesRegex(ValueError, "scope_superseded_before_delivery"):
+                MODULE.prepare_intent_for_delivery(value, None)
+
     def test_prepare_intent_for_delivery_validates_wake_triggers_before_stripping_them(self):
         value = intent()
         value["decision_audit"]["change_condition"] = (
