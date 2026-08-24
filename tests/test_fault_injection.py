@@ -107,7 +107,7 @@ class ModelOwnerLockFaultTests(unittest.TestCase):
                 )
 
             threads = [
-                threading.Thread(target=attempt, args=("direct_cycle", "run-1")),
+                threading.Thread(target=attempt, args=("learning", "run-1")),
                 threading.Thread(target=attempt, args=("learning", "run-2")),
             ]
             for thread in threads:
