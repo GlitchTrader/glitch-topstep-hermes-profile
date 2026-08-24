@@ -1210,19 +1210,20 @@ class DirectCycleTests(unittest.TestCase):
         posted = request_json.call_args.kwargs["body"]
         self.assertNotIn("decision_scores", posted)
 
-    def test_prepare_intent_for_delivery_truncates_gateway_string_fields(self):
+    def test_prepare_intent_for_delivery_truncates_reason_not_audit(self):
         value = MODULE.normalize_intent(intent(), packet())
         value["reason"] = "r" * 1100
-        value["decision_audit"]["bear_case"] = "x" * (MODULE.GATEWAY_AUDIT_FIELD_MAX_LENGTH + 100)
-        value["decision_audit"]["decisive_evidence"] = "y" * (MODULE.GATEWAY_AUDIT_FIELD_MAX_LENGTH + 86)
+        long_audit = "x" * 8000
+        value["decision_audit"]["bear_case"] = long_audit
+        value["decision_audit"]["decisive_evidence"] = long_audit
         with mock.patch.object(MODULE, "request_json") as request_json:
             request_json.return_value = (200, packet())
             with mock.patch.object(MODULE, "local_token", return_value="test-token"):
                 with mock.patch.object(MODULE, "packet_is_current", return_value=True):
                     delivered = MODULE.prepare_intent_for_delivery(value, None)
         self.assertEqual(len(delivered["reason"]), MODULE.GATEWAY_REASON_MAX_LENGTH)
-        self.assertEqual(len(delivered["decision_audit"]["bear_case"]), MODULE.GATEWAY_AUDIT_FIELD_MAX_LENGTH)
-        self.assertEqual(len(delivered["decision_audit"]["decisive_evidence"]), MODULE.GATEWAY_AUDIT_FIELD_MAX_LENGTH)
+        self.assertEqual(len(delivered["decision_audit"]["bear_case"]), 8000)
+        self.assertEqual(len(delivered["decision_audit"]["decisive_evidence"]), 8000)
 
     def test_invocation_reason_first_packet_without_last_evidence(self):
         with tempfile.TemporaryDirectory() as root:

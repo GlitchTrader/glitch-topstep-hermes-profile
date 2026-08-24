@@ -161,7 +161,6 @@ AUDIT_FIELDS = {
 OPTIONAL_AUDIT_FIELDS = {"decision_scores"}
 FORECAST_METADATA_FIELD = "forecast_metadata"
 GATEWAY_REASON_MAX_LENGTH = 1000
-GATEWAY_AUDIT_FIELD_MAX_LENGTH = 5000
 ACTION_PLACEHOLDER = "<CHOOSE_FROM_supported_actions>"
 CONFIDENCE_PLACEHOLDER = "<0.0-1.0>"
 PRIOR_HYPOTHESIS_RE = re.compile(
@@ -171,7 +170,7 @@ PRIOR_HYPOTHESIS_RE = re.compile(
 
 
 def truncate_gateway_string(value: str, max_length: int) -> str:
-    # ponytail: hard cap aligned with gateway stringField limits
+    # ponytail: reason still capped at gateway stringField(1000); audit has no per-field max (NT parity).
     return value.strip()[:max_length]
 CORE_FIELDS = {
     "schema_version",
@@ -992,14 +991,6 @@ def normalize_intent(
         str(intent.get("reason") or ""),
         GATEWAY_REASON_MAX_LENGTH,
     )
-    audit = intent.get("decision_audit")
-    if isinstance(audit, dict):
-        for field in AUDIT_FIELDS:
-            if isinstance(audit.get(field), str):
-                audit[field] = truncate_gateway_string(
-                    audit[field],
-                    GATEWAY_AUDIT_FIELD_MAX_LENGTH,
-                )
     return intent
 
 
@@ -1356,11 +1347,6 @@ def prepare_intent_for_delivery(
     elif not same_packet or aligned.get("snapshot_hash") != fresh_hash:
         raise ValueError("packet_superseded_before_delivery")
     aligned["reason"] = truncate_gateway_string(aligned["reason"], GATEWAY_REASON_MAX_LENGTH)
-    audit = aligned.get("decision_audit")
-    if isinstance(audit, dict):
-        for field in AUDIT_FIELDS:
-            if isinstance(audit.get(field), str):
-                audit[field] = truncate_gateway_string(audit[field], GATEWAY_AUDIT_FIELD_MAX_LENGTH)
     if same_packet:
         validate_intent(aligned, fresh_packet, directive)
     handoff = parse_selected_candidate_handoff(aligned)
