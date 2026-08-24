@@ -1,10 +1,23 @@
 {
   "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-08-24T16:45:00Z",
+  "updated": "2026-08-24T19:15:00Z",
   "release_target": "paired gateway/profile beta",
   "reconciliation": {
     "date": "2026-08-24",
+    "entry_delivery_drift_v15_2026_08_24": {
+      "status": "implemented_local",
+      "summary": "NT delivery-drift entry band doctrine in SOUL/build-intent/cycle prompt; discard events emit entry_width; prompt glitch-topstep-v15 / distribution 0.2.5. Effort selective deferred.",
+      "files": [
+        "SOUL.md",
+        "skills/topstep-build-intent/SKILL.md",
+        "scripts/run-topstep-cycle.py",
+        "scripts/parity.py",
+        "paired-contract.json",
+        "distribution.yaml",
+        "tests/test_entry_drift_contract.py"
+      ]
+    },
     "nt_cognition_p1_p2_2026_08_24": {
       "status": "implemented_local",
       "summary": "P1 POSITION_MANAGEMENT_V1 + debrief SELECTION_EV/fill observability + lifecycle execution facts in cycle cognition; P2 72h state retention prune + selective Hermes skills; prompt glitch-topstep-v14 / distribution 0.2.4.",
