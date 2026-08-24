@@ -634,11 +634,17 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "Replace template placeholders action and confidence with real values; never emit placeholder strings. "
     "decision_audit must include bull_case, bear_case, flat_case, aggressive_case, conservative_case, "
     "decisive_evidence, disconfirming_evidence, change_condition, and final_choice (matching action). "
+    "Keep every decision_audit case field (bull_case, bear_case, flat_case, aggressive_case, "
+    "conservative_case, change_condition) and reason to one compact evidence-dense sentence; "
+    "do not repeat the same fact or veto across fields. "
     "When market_universe has a single candidate, decisive_evidence must begin with "
     "prior_hypothesis=<CONFIRMED|INVALIDATED|PARTIALLY_CONFIRMED|UNCHANGED> versus the immediately "
-    "prior frame when recent_frames is non-empty, then state material deltas since that frame. "
+    "prior frame when recent_frames is non-empty, then state material deltas since that frame in "
+    "compact evidence-dense sentences. "
     "When multiple candidates are present, decisive_evidence must contain only the INSTRUMENT_COMPARISON_V1 "
-    "line ledger; put prior_hypothesis continuity in disconfirming_evidence instead. "
+    "line ledger; keep every comparison field to one compact evidence-dense sentence, avoid repeated "
+    "facts across fields, and keep the complete ledger under 8000 characters; put prior_hypothesis "
+    "continuity in disconfirming_evidence instead. "
     "change_condition is an advisory re-evaluation hypothesis, not a rigid execution gate; "
     "rewrite it when cycle_evidence_delta or prior ledger repetition guidance indicates stale wording. "
     "Action contract: ENTER_LONG and ENTER_SHORT require positive integer quantity, order_type MARKET, "
@@ -670,6 +676,8 @@ TRIGGER_REVIEW_INSTRUCTION = (
     "Review those frozen conditions first; do not run a fresh full-market scan unless "
     "review evidence requires it. For each INSTRUMENT block set "
     "PRIOR_TRIGGER_REVIEW=HELD|FAILED|EXPIRED followed by a concise evidence clause. "
+    "Keep every field to one compact evidence-dense sentence, avoid repeated facts, and keep "
+    "the complete TRIGGER_REVIEW_V1 ledger under 6000 characters. "
     "At most one open HELD trigger per instrument; close prior paths when FAILED or EXPIRED. "
     "A HELD trigger does not force entry. Preserve unrelated candidate paths unless review "
     "evidence invalidates them. "
@@ -740,8 +748,22 @@ def build_prompt(
             )
         elif field == "final_choice":
             audit[field] = ACTION_PLACEHOLDER
+        elif field == "bull_case":
+            audit[field] = "Replace with compact bullish evidence."
+        elif field == "bear_case":
+            audit[field] = "Replace with compact bearish evidence."
+        elif field == "flat_case":
+            audit[field] = "Replace with compact neutral evidence."
+        elif field == "aggressive_case":
+            audit[field] = "Replace with the compact aggressive alternative."
+        elif field == "conservative_case":
+            audit[field] = "Replace with the compact conservative alternative."
+        elif field == "change_condition":
+            audit[field] = "Replace with one compact reassessment trigger."
+        elif field == "disconfirming_evidence":
+            audit[field] = "Replace with compact contrary evidence."
         else:
-            audit[field] = "Replace"
+            audit[field] = "Replace with one compact evidence-dense sentence."
 
     protection_guidance = protection_status_management_guidance(
         packet_protection_status(packet),

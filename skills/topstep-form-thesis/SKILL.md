@@ -77,4 +77,4 @@ You may attach `decision_scores` as a top-level dict of numeric hypothesis score
 8. `HOLD` and `NOTHING` carry the same burden of proof as every other action. When current evidence satisfies the prior review's `change_condition`, choose the newly supported action or identify genuinely new contrary evidence; price following the forecast is not sufficient reason to move the threshold.
 9. Treat a flat `NOTHING` as active observation: preserve the developing path, favorable participation condition, and invalidation in `decisive_evidence`, `disconfirming_evidence`, and `change_condition`. Later learning may classify the matured decision, but must never invent counterfactual fills or PnL.
 
-Choose `ENTER_LONG`, `ENTER_SHORT`, `HOLD`, `MOVE_STOP`, `MOVE_TP`, `EXIT`, or `NOTHING`. Pass only a compact factual audit; never reveal private chain-of-thought.
+Choose `ENTER_LONG`, `ENTER_SHORT`, `HOLD`, `MOVE_STOP`, `MOVE_TP`, `EXIT`, or `NOTHING`. Pass only a compact factual audit: one evidence-dense sentence per case field (`bull_case`, `bear_case`, `flat_case`, `aggressive_case`, `conservative_case`, `change_condition`, `reason`); never reveal private chain-of-thought.

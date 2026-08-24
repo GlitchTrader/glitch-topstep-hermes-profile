@@ -38,6 +38,7 @@ Use when `decision_packet.market_universe.candidates` has more than one instrume
 ## Output contract
 
 - Put the **full** line ledger in `decision_audit.decisive_evidence` exactly as in `required_output_template.decision_audit.decisive_evidence`.
+- Keep every comparison field to one compact evidence-dense sentence; do not repeat the same fact or veto across fields; keep the complete ledger under **8000** characters.
 - Put frame continuity in `disconfirming_evidence` (`prior_hypothesis=...`) when `recent_frames` is non-empty.
 - Close with `RANKING`, `SELECTION_INSTRUMENT`, `SELECTION_ACTION`, and `SELECTION_REASON`.
 - No placeholders (`REPLACE`, `REPLACE_WITH_*`, `...`, `?`), JSON, or Markdown fences.
