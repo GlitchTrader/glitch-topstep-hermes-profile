@@ -283,6 +283,7 @@ def sync_gateway_outcomes(state: Path) -> int:
 
 def bootstrap_profile_state(state: Path) -> dict[str, Any]:
     """GTHP-REAUDIT-01: index decisions + sync outcomes before cycle/learning work."""
+    from prune_state_retention import prune_state_retention
     from workflows.decision_journal import DecisionJournal
 
     journal = DecisionJournal(state)
@@ -290,7 +291,9 @@ def bootstrap_profile_state(state: Path) -> dict[str, Any]:
         journal.bootstrap(state / "decisions.jsonl")
     finally:
         journal.close()
-    return sync_gateway_outcomes_meta(state)
+    meta = sync_gateway_outcomes_meta(state)
+    meta["retention"] = prune_state_retention(state)
+    return meta
 
 
 def sync_gateway_execution_facts(state: Path) -> dict[str, Any]:

@@ -145,6 +145,28 @@ def packet(
     }
 
 
+def position_management_evidence(action: str, instrument: str = "MNQ") -> str:
+    lines = [
+        "POSITION_MANAGEMENT_V1",
+        f"INSTRUMENT={instrument}",
+        "POSITION_SIDE=LONG 1",
+        "ENTRY_CURRENT_STOP_TARGET=entry=20000;current=20005;stop=19990;target=20030",
+        "MFE_MAE_ROLLBACK=mfe=8;mae=2;rollback=1",
+        "CURRENT_SETUP=continuation after accepted 5m break",
+        "CONTINUATION_EVIDENCE=order flow still lifts offers above VWAP",
+        "REVERSAL_EVIDENCE=no decisive reclaim of broken range",
+        "NOISE_SUPPORTED_PROTECTION_LEVEL=19998 survives 1m noise",
+        "REMAINING_OBJECTIVE=20030 still unconsumed",
+        "HOLD_EV=continuation still compensates giveback",
+        "MOVE_STOP_EV=noise-supported ratchet available",
+        "MOVE_TP_EV=no accepted extension beyond objective",
+        "EXIT_EV=giveback not yet dominating",
+        f"SELECTION_ACTION={action}",
+        "SELECTION_REASON=management choice from current remaining EV",
+    ]
+    return "\n".join(lines)
+
+
 def intent(action: str = "NOTHING", quantity: int = 1) -> dict:
     value = {
         "schema_version": "glitch.intent.v2",
@@ -197,6 +219,8 @@ def intent(action: str = "NOTHING", quantity: int = 1) -> dict:
             "estimated_target_first_range=0.20-0.25;now_ev=NEGATIVE;wait_price=19995;"
             "wait_ev=no improvement;decisive_reason=no current-zone edge"
         )
+    if action in {"HOLD", "MOVE_STOP", "MOVE_TP", "EXIT"}:
+        value["decision_audit"]["decisive_evidence"] = position_management_evidence(action)
     if action == "MOVE_STOP":
         value.update(new_stop_price=19995)
     if action == "MOVE_TP":
@@ -606,6 +630,7 @@ class DirectCycleTests(unittest.TestCase):
     def test_positioned_entry_reaches_gateway_for_factual_handling(self):
         current_packet = packet(positioned=True)
         value = MODULE.normalize_intent(intent("ENTER_LONG"), current_packet)
+        value["decision_audit"]["decisive_evidence"] = position_management_evidence("ENTER_LONG")
         MODULE.validate_intent(value, current_packet)
 
     def test_wire_validation_still_rejects_bad_geometry(self):
@@ -622,8 +647,11 @@ class DirectCycleTests(unittest.TestCase):
                 **intent("HOLD"),
                 "action": "MOVE_STOP",
                 "decision_audit": {
-                    field: "MOVE_STOP" if field == "final_choice" else "Evidence"
-                    for field in MODULE.AUDIT_FIELDS
+                    **{
+                        field: "MOVE_STOP" if field == "final_choice" else "Evidence"
+                        for field in MODULE.AUDIT_FIELDS
+                    },
+                    "decisive_evidence": position_management_evidence("MOVE_STOP"),
                 },
                 "new_stop_price": 19995,
             },
@@ -685,8 +713,11 @@ class DirectCycleTests(unittest.TestCase):
                 **intent("HOLD"),
                 "action": "MOVE_STOP",
                 "decision_audit": {
-                    field: "MOVE_STOP" if field == "final_choice" else "Evidence"
-                    for field in MODULE.AUDIT_FIELDS
+                    **{
+                        field: "MOVE_STOP" if field == "final_choice" else "Evidence"
+                        for field in MODULE.AUDIT_FIELDS
+                    },
+                    "decisive_evidence": position_management_evidence("MOVE_STOP"),
                 },
                 "new_stop_price": 19995,
             },
@@ -738,35 +769,13 @@ class DirectCycleTests(unittest.TestCase):
 
     def test_move_stop_rejected_when_protection_status_pending(self):
         current_packet = self._positioned_protection_packet(protection_status="pending")
-        value = MODULE.normalize_intent(
-            {
-                **intent("HOLD"),
-                "action": "MOVE_STOP",
-                "decision_audit": {
-                    field: "MOVE_STOP" if field == "final_choice" else "Evidence"
-                    for field in MODULE.AUDIT_FIELDS
-                },
-                "new_stop_price": 19995,
-            },
-            current_packet,
-        )
+        value = MODULE.normalize_intent(intent("MOVE_STOP"), current_packet)
         with self.assertRaisesRegex(ValueError, "protection_status_not_confirmed"):
             MODULE.validate_intent(value, current_packet)
 
     def test_move_stop_rejected_when_protection_status_failed(self):
         current_packet = self._positioned_protection_packet(protection_status="failed")
-        value = MODULE.normalize_intent(
-            {
-                **intent("HOLD"),
-                "action": "MOVE_STOP",
-                "decision_audit": {
-                    field: "MOVE_STOP" if field == "final_choice" else "Evidence"
-                    for field in MODULE.AUDIT_FIELDS
-                },
-                "new_stop_price": 19995,
-            },
-            current_packet,
-        )
+        value = MODULE.normalize_intent(intent("MOVE_STOP"), current_packet)
         with self.assertRaisesRegex(ValueError, "protection_status_not_confirmed"):
             MODULE.validate_intent(value, current_packet)
 
@@ -816,6 +825,12 @@ class DirectCycleTests(unittest.TestCase):
         value = MODULE.build_prompt(packet(positioned=True), [], {}, None)
         self.assertIn("MOVE_STOP", value)
         self.assertIn("execution.supported_actions", value)
+        self.assertIn("POSITION_MANAGEMENT_V1", value)
+        envelope = json.loads(value.split("CURRENT_CYCLE=", 1)[1])
+        self.assertIn(
+            "POSITION_MANAGEMENT_V1",
+            envelope["required_output_template"]["decision_audit"]["decisive_evidence"],
+        )
 
     def test_prompt_states_agent_authority(self):
         value = MODULE.build_prompt(packet(state_complete=False), [], {}, None)
@@ -2198,9 +2213,7 @@ class IntentContractMatrixTests(unittest.TestCase):
             ("MOVE_STOP", "new_stop_price", 19995),
             ("MOVE_TP", "new_take_profit", 20030),
         ):
-            body = intent("HOLD")
-            body["action"] = action
-            body["decision_audit"]["final_choice"] = action
+            body = intent(action)
             body[field] = price
             value = MODULE.normalize_intent(body, current)
             MODULE.validate_intent(value, current)

@@ -62,7 +62,7 @@ class FrozenCognitionEvalTests(unittest.TestCase):
         candidate = RUN.build_run(
             frames_dir=FIXTURES / "minute-frames",
             state_root=FIXTURES / "candidate-state",
-            prompt_version="glitch-topstep-v13",
+            prompt_version="glitch-topstep-v14",
         )
         self.assertEqual(baseline["corpus_hash"], candidate["corpus_hash"])
         report = EVAL.compare_runs(baseline, candidate)
