@@ -119,6 +119,10 @@
       "plan": "glitch-topstep:docs/plans/2026-08-25-complete-audit-implementation-plan.md",
       "audit": "glitch-topstep:docs/ledger/audits/2026-08-25-complete-architecture-audit.md",
       "status": "merged",
+      "profile_pr": 197,
+      "profile_commit": "6552c75",
+      "gateway_pr": 240,
+      "gateway_commit": "169eabd",
       "items_touched": [
         "GTHP-REAUDIT-01",
         "GTHP-RUNTIME-02",
