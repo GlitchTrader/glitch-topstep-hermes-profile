@@ -116,6 +116,17 @@ class ExportCrashFaultTests(unittest.TestCase):
 
 
 class ModelOwnerLockFaultTests(unittest.TestCase):
+    def test_terminate_pid_tree_uses_taskkill_on_windows(self) -> None:
+        from process_supervisor import terminate_pid_tree
+
+        with mock.patch("process_supervisor.sys.platform", "win32"):
+            with mock.patch("process_supervisor.subprocess.run") as run:
+                terminate_pid_tree(4242, grace_seconds=0)
+        run.assert_called_once()
+        args = run.call_args[0][0]
+        self.assertEqual(args[:4], ["taskkill", "/F", "/T", "/PID"])
+        self.assertEqual(args[4], "4242")
+
     def test_concurrent_acquire_exactly_one_winner(self) -> None:
         with tempfile.TemporaryDirectory() as root:
             state = Path(root)
