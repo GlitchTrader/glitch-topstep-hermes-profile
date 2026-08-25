@@ -109,9 +109,11 @@
         "workflows/overlay_governance.py",
         "workflows/learning_evidence.py",
         "workflows/decision_journal.py",
-        "workflows/debrief_evidence.py"
+        "workflows/debrief_evidence.py",
+        "workflows/session_gates.py",
+        "workflows/cycle_context.py"
       ],
-      "residual": "parity.py session gates and cycle context decomposition"
+      "residual": null
     },
     "reaudit_wave_1_2026_08_21": {
       "profile_pr": 163,
