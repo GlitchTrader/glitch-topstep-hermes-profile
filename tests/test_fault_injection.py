@@ -29,6 +29,32 @@ from workflows.intent_outbox import (  # noqa: E402
 
 
 class ExportCrashFaultTests(unittest.TestCase):
+    def test_bootstrap_drains_export_queue_after_crash(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp)
+            jsonl = state / "decisions.jsonl"
+            store = ProfileStateStore(state)
+            payload = {"packet_id": "p-boot", "recorded_utc": "2026-08-25T12:00:00Z"}
+            try:
+                with store.db:
+                    store.db.execute(
+                        """
+                        INSERT INTO jsonl_export_queue(target, payload_json, created_utc)
+                        VALUES (?, ?, ?)
+                        """,
+                        (
+                            str(jsonl),
+                            json.dumps(payload, separators=(",", ":")),
+                            "2026-08-25T12:00:00Z",
+                        ),
+                    )
+                self.assertEqual(store.export_backlog_count(jsonl), 1)
+                store.bootstrap_decisions(jsonl)
+                self.assertEqual(store.export_backlog_count(jsonl), 0)
+                self.assertEqual(len(jsonl.read_text(encoding="utf-8").strip().splitlines()), 1)
+            finally:
+                store.close()
+
     def test_reexport_after_crash_between_append_and_dequeue_has_no_duplicates(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             state = Path(tmp)

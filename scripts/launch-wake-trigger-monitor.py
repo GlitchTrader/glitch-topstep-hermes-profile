@@ -19,6 +19,7 @@ from common import (
     utc_now,
     write_json_atomic,
 )
+from model_owner_lock import active_model_owner
 
 
 def lock_is_active(path: Path, stale_seconds: float) -> bool:
@@ -69,6 +70,14 @@ def main() -> int:
     state = state_root(root)
     supervisor = state / "supervisor"
     supervisor.mkdir(parents=True, exist_ok=True)
+    active = active_model_owner(state)
+    if active is not None and str(active.get("owner_kind") or "") == "wake_monitor":
+        print(json.dumps({
+            "launched": False,
+            "reason": "wake_monitor_owner_active",
+            "pid": active.get("pid"),
+        }))
+        return 0
     lock_path = state / "wake-monitor.lock"
     poll_seconds = float(os.environ.get("GLITCH_TOPSTEP_WAKE_POLL_SECONDS", "15"))
     if monitor_already_running(supervisor, lock_path, poll_seconds):

@@ -49,6 +49,7 @@ from common import (
     profile_root,
     read_jsonl,
     read_optional_json,
+    tail_jsonl,
     bootstrap_profile_state,
     sync_gateway_execution_facts,
     utc_now,
@@ -74,7 +75,9 @@ MAX_DEBRIEF_OUTCOMES = 4
 
 
 def cognitive_evidence_ids(supervisor: Path) -> list[str]:
-    rows = read_jsonl(supervisor / "trade-episodes.jsonl") + read_jsonl(supervisor / "decision-episodes.jsonl")
+    rows = tail_jsonl(supervisor / "trade-episodes.jsonl", 500) + tail_jsonl(
+        supervisor / "decision-episodes.jsonl", 500
+    )
     rows.sort(key=lambda row: str(row.get("recorded_utc") or row.get("decision_utc") or ""))
     return [str(row.get("episode_id")) for row in rows if row.get("episode_id")]
 

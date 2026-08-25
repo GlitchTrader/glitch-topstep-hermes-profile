@@ -115,6 +115,25 @@
       ],
       "residual": null
     },
+    "audit_wave_2026_08_25": {
+      "plan": "glitch-topstep:docs/plans/2026-08-25-complete-audit-implementation-plan.md",
+      "audit": "glitch-topstep:docs/ledger/audits/2026-08-25-complete-architecture-audit.md",
+      "status": "merged",
+      "items_touched": [
+        "GTHP-REAUDIT-01",
+        "GTHP-RUNTIME-02",
+        "GTHP-REAUDIT-02",
+        "GTHP-AUDIT-05"
+      ],
+      "deliverables": [
+        "bootstrap export_pending_jsonl",
+        "preemption terminate_pid_tree",
+        "launcher model-owner admission",
+        "learning tail_jsonl",
+        "fault-injection bootstrap proof"
+      ],
+      "residual": "W3 monolith decomposition continuous"
+    },
     "reaudit_wave_1_2026_08_21": {
       "profile_pr": 163,
       "profile_commit": "097808b",

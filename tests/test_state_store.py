@@ -147,6 +147,36 @@ class ProfileStateStoreTests(unittest.TestCase):
             finally:
                 store.close()
 
+    def test_bootstrap_drains_pending_export_queue(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp)
+            jsonl = state / "decisions.jsonl"
+            store = ProfileStateStore(state)
+            try:
+                payload = json.dumps(
+                    {
+                        "packet_id": "p-boot",
+                        "intent_id": "i-boot",
+                        "recorded_utc": "2026-08-21T12:02:00Z",
+                    },
+                    separators=(",", ":"),
+                )
+                with store.db:
+                    store._insert_decision(json.loads(payload))
+                    store.db.execute(
+                        """
+                        INSERT INTO jsonl_export_queue(target, payload_json, created_utc)
+                        VALUES (?, ?, ?)
+                        """,
+                        (str(jsonl), payload, "2026-08-21T12:02:00Z"),
+                    )
+                self.assertEqual(store.export_backlog_count(jsonl), 1)
+                store.bootstrap_decisions(jsonl)
+                self.assertEqual(store.export_backlog_count(jsonl), 0)
+                self.assertTrue(jsonl.is_file())
+            finally:
+                store.close()
+
 
 if __name__ == "__main__":
     unittest.main()
