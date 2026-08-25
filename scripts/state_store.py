@@ -116,6 +116,7 @@ class ProfileStateStore:
 
     def bootstrap_decisions(self, jsonl_path: Path) -> None:
         self.sync_decisions_from_jsonl(jsonl_path)
+        self.export_pending_jsonl(jsonl_path)
 
     def append_decision(self, row: dict[str, Any], *, jsonl_path: Path | None = None) -> bool:
         payload = json.dumps(row, separators=(",", ":"), ensure_ascii=False)

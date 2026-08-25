@@ -65,6 +65,47 @@ def terminate_process_tree(process: subprocess.Popen[str], *, grace_seconds: flo
         process.kill()
 
 
+def terminate_pid_tree(pid: int, *, grace_seconds: float = 5.0) -> None:
+    """Best-effort tree kill when only the root PID is known (preemption path)."""
+    if pid <= 0:
+        return
+    if sys.platform == "win32":
+        subprocess.run(
+            ["taskkill", "/F", "/T", "/PID", str(pid)],
+            capture_output=True,
+            check=False,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        )
+        return
+    parent_pgid: int | None = os.getpgid(os.getpid())
+    child_pgid: int | None = None
+    try:
+        child_pgid = os.getpgid(pid)
+    except (OSError, ProcessLookupError):
+        child_pgid = None
+    try:
+        if child_pgid is not None and parent_pgid is not None and child_pgid != parent_pgid:
+            os.killpg(child_pgid, signal.SIGTERM)
+        else:
+            os.kill(pid, signal.SIGTERM)
+    except (OSError, ProcessLookupError):
+        pass
+    deadline = time.monotonic() + grace_seconds
+    while time.monotonic() < deadline:
+        try:
+            os.kill(pid, 0)
+        except OSError:
+            return
+        time.sleep(0.1)
+    try:
+        if child_pgid is not None and parent_pgid is not None and child_pgid != parent_pgid:
+            os.killpg(child_pgid, signal.SIGKILL)
+        else:
+            os.kill(pid, signal.SIGKILL)
+    except (OSError, ProcessLookupError):
+        pass
+
+
 def run_supervised(
     command: Sequence[str],
     *,

@@ -86,17 +86,16 @@ def _request_owner_stand_down(
     *,
     grace_seconds: float = PREEMPT_GRACE_SECONDS,
 ) -> bool:
-    """Signal a live owner and wait for release before lock preemption (audit C1)."""
+    """Terminate owner process tree before lock preemption (audit 2026-08-25 C4)."""
     pid = int(owner.get("pid") or 0)
     if pid <= 0:
         return True
-    try:
-        os.kill(pid, signal.SIGTERM)
-    except (OSError, SystemError):
-        return not _owner_alive(owner)
+    from process_supervisor import terminate_pid_tree
+
+    terminate_pid_tree(pid, grace_seconds=grace_seconds)
     deadline = time.monotonic() + grace_seconds
     while time.monotonic() < deadline:
-        if not _owner_alive(owner):
+        if not process_is_alive(pid):
             return True
         current = read_model_owner(lock_path)
         if current is None:
@@ -104,7 +103,7 @@ def _request_owner_stand_down(
         if str(current.get("invocation_id") or "") != str(owner.get("invocation_id") or ""):
             return True
         time.sleep(0.2)
-    return not _owner_alive(owner)
+    return not process_is_alive(pid)
 
 
 def _owner_matches(current: dict[str, Any] | None, expected: dict[str, Any]) -> bool:

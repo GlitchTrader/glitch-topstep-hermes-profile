@@ -10,7 +10,8 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from common import PROFILE_NAME, configure_environment
+from common import PROFILE_NAME, configure_environment, state_root
+from model_owner_lock import active_model_owner
 
 
 def lock_is_active(path: Path, stale_seconds: int) -> bool:
@@ -27,7 +28,16 @@ def main() -> int:
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
     root = configure_environment()
-    state = root / "state"
+    state = state_root(root)
+    active = active_model_owner(state)
+    if active is not None and str(active.get("owner_kind") or "") not in {"learning"}:
+        print(json.dumps({
+            "launched": False,
+            "reason": "model_owner_active",
+            "owner_kind": active.get("owner_kind"),
+            "pid": active.get("pid"),
+        }))
+        return 0
     supervisor = state / "supervisor"
     supervisor.mkdir(parents=True, exist_ok=True)
     lock_path = state / "learning-cycle.lock"

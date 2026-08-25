@@ -29,6 +29,32 @@ from workflows.intent_outbox import (  # noqa: E402
 
 
 class ExportCrashFaultTests(unittest.TestCase):
+    def test_bootstrap_drains_export_queue_after_crash(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp)
+            jsonl = state / "decisions.jsonl"
+            store = ProfileStateStore(state)
+            payload = {"packet_id": "p-boot", "recorded_utc": "2026-08-25T12:00:00Z"}
+            try:
+                with store.db:
+                    store.db.execute(
+                        """
+                        INSERT INTO jsonl_export_queue(target, payload_json, created_utc)
+                        VALUES (?, ?, ?)
+                        """,
+                        (
+                            str(jsonl),
+                            json.dumps(payload, separators=(",", ":")),
+                            "2026-08-25T12:00:00Z",
+                        ),
+                    )
+                self.assertEqual(store.export_backlog_count(jsonl), 1)
+                store.bootstrap_decisions(jsonl)
+                self.assertEqual(store.export_backlog_count(jsonl), 0)
+                self.assertEqual(len(jsonl.read_text(encoding="utf-8").strip().splitlines()), 1)
+            finally:
+                store.close()
+
     def test_reexport_after_crash_between_append_and_dequeue_has_no_duplicates(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             state = Path(tmp)
@@ -90,6 +116,17 @@ class ExportCrashFaultTests(unittest.TestCase):
 
 
 class ModelOwnerLockFaultTests(unittest.TestCase):
+    def test_terminate_pid_tree_uses_taskkill_on_windows(self) -> None:
+        from process_supervisor import terminate_pid_tree
+
+        with mock.patch("process_supervisor.sys.platform", "win32"):
+            with mock.patch("process_supervisor.subprocess.run") as run:
+                terminate_pid_tree(4242, grace_seconds=0)
+        run.assert_called_once()
+        args = run.call_args[0][0]
+        self.assertEqual(args[:4], ["taskkill", "/F", "/T", "/PID"])
+        self.assertEqual(args[4], "4242")
+
     def test_concurrent_acquire_exactly_one_winner(self) -> None:
         with tempfile.TemporaryDirectory() as root:
             state = Path(root)
