@@ -1,7 +1,7 @@
 ﻿{
   "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-08-24T23:00:00Z",
+  "updated": "2026-08-25T01:46:34.491Z",
   "release_target": "paired gateway/profile beta",
   "reconciliation": {
     "date": "2026-08-24",
@@ -1316,7 +1316,7 @@
         "https://github.com/GlitchTrader/glitch-topstep/issues/195"
       ],
       "pull_request": 163,
-      "implementation_note": "Wave 1 (#163): GATEWAY_COMMIT required in profile release workflow. Residual: byte-identical pair manifest in both repos, signed attestation, rollback drill proof."
+      "implementation_note": "Wave 1 (#163): GATEWAY_COMMIT required in profile release workflow. Gateway operator sign-off arifreund18 2026-08-25 on paired-release manifest (glitch-topstep TS-REAUDIT-12 closed). Residual: byte-identical pair manifest attestation in profile release artifact."
     },
     {
       "id": "GTHP-REAUDIT-04",
