@@ -7,7 +7,7 @@ from typing import Any
 
 from common import tail_jsonl
 from execution_facts_context import recent_execution_facts_for_cycle
-from parity import compact_cycle_ledger_context, learning_context
+from workflows.cycle_context import compact_cycle_ledger_context, learning_context
 from workflows.decision_journal import DecisionJournal
 
 

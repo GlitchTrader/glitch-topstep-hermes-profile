@@ -23,6 +23,8 @@ class WorkflowModuleTests(unittest.TestCase):
             "scripts/workflows/learning_journal.py",
             "scripts/workflows/learning_evidence.py",
             "scripts/workflows/overlay_governance.py",
+            "scripts/workflows/session_gates.py",
+            "scripts/workflows/cycle_context.py",
         ]
         for relative in required:
             self.assertTrue((ROOT / relative).is_file(), relative)
