@@ -136,7 +136,15 @@
         "learning tail_jsonl",
         "fault-injection bootstrap proof"
       ],
-      "residual": "W3 monolith decomposition continuous"
+      "post_wave_acceptance": {
+        "gateway_evidence": [
+          "glitch-topstep:docs/evidence/PRAC-SOAK-2026-08-25-post-audit-wave.md",
+          "glitch-topstep:docs/evidence/C1-OPERATOR-REVIEW-2026-08-25.md"
+        ],
+        "prac_preflight_6_6": "pass",
+        "c1_operator_review": "pass"
+      },
+      "residual": "W3 monolith decomposition continuous; credentialed soak 72h optional for prolonged autonomous armed"
     },
     "reaudit_wave_1_2026_08_21": {
       "profile_pr": 163,
