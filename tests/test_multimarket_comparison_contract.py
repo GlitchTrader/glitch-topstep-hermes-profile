@@ -59,7 +59,7 @@ def filled_ledger_text(action: str = "NOTHING") -> str:
             ev = (
                 "SELECTION_EV=direction=SHORT;entry=20000;stop=20010;target=19970;"
                 "risk_points=10;reward_points=30;friction_points=1;breakeven_target_first=0.275;"
-                "estimated_target_first_range=0.30-0.40;now_ev=POSITIVE;wait_price=20005;"
+                "estimated_target_first_range=0.30-0.40;now_ev=POSITIVE_ROBUST;wait_price=20005;"
                 "wait_ev=no improvement;decisive_reason=current-zone positive EV"
             )
         text = re.sub(r"(?m)^SELECTION_EV=.*$", ev, text)

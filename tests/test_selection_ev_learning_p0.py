@@ -24,10 +24,10 @@ assert SPEC and SPEC.loader
 SPEC.loader.exec_module(LEARNING)
 
 
-POSITIVE_LONG = (
+POSITIVE_ROBUST_LONG = (
     "direction=LONG;entry=20000;stop=19990;target=20030;risk_points=10;reward_points=30;"
-    "friction_points=1;breakeven_target_first=0.275;estimated_target_first_range=0.30-0.40;"
-    "now_ev=POSITIVE;wait_price=19995;wait_ev=no improvement;decisive_reason=edge"
+    "friction_points=1;breakeven_target_first=0.275;estimated_target_first_range=0.35-0.45;"
+    "now_ev=POSITIVE_ROBUST;wait_price=19995;wait_ev=no improvement;decisive_reason=edge"
 )
 NEGATIVE_LONG = (
     "direction=LONG;entry=20000;stop=19990;target=20030;risk_points=10;reward_points=30;"
@@ -38,14 +38,31 @@ NEGATIVE_LONG = (
 
 class SelectionEvTests(unittest.TestCase):
     def test_entry_requires_positive(self):
-        validate_selection_ev(POSITIVE_LONG, "ENTER_LONG")
+        validate_selection_ev(POSITIVE_ROBUST_LONG, "ENTER_LONG")
         with self.assertRaisesRegex(ValueError, "selection_ev_entry_not_positive"):
             validate_selection_ev(NEGATIVE_LONG, "ENTER_LONG")
 
-    def test_nothing_forbids_positive(self):
+    def test_nothing_forbids_robust_positive(self):
         validate_selection_ev(NEGATIVE_LONG, "NOTHING")
         with self.assertRaisesRegex(ValueError, "selection_ev_nothing_positive"):
-            validate_selection_ev(POSITIVE_LONG, "NOTHING")
+            validate_selection_ev(POSITIVE_ROBUST_LONG, "NOTHING")
+
+    def test_nothing_allows_positive_thin(self):
+        thin = (
+            "direction=LONG;entry=20000;stop=19990;target=20030;risk_points=10;reward_points=30;"
+            "friction_points=1;breakeven_target_first=0.275;estimated_target_first_range=0.28-0.32;"
+            "now_ev=POSITIVE_THIN;wait_price=19995;wait_ev=no improvement;decisive_reason=thin edge"
+        )
+        validate_selection_ev(thin, "NOTHING")
+
+    def test_rejects_legacy_positive_verdict(self):
+        legacy = (
+            "direction=LONG;entry=20000;stop=19990;target=20030;risk_points=10;reward_points=30;"
+            "friction_points=1;breakeven_target_first=0.275;estimated_target_first_range=0.35-0.45;"
+            "now_ev=POSITIVE;wait_price=19995;wait_ev=no improvement;decisive_reason=edge"
+        )
+        with self.assertRaisesRegex(ValueError, "selection_ev_verdict_legacy_positive"):
+            validate_selection_ev(legacy, "ENTER_LONG")
 
     def test_flat_direction_infers_long_from_geometry(self):
         flat = (

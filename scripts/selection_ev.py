@@ -201,11 +201,13 @@ def validate_selection_ev(
     if not verdict_match:
         raise ValueError(f"selection_ev_verdict_invalid:{source}")
     verdict = verdict_match.group(1).upper()
-    positive_verdict = verdict in {"POSITIVE", "POSITIVE_ROBUST", "POSITIVE_THIN"}
+    if verdict == "POSITIVE":
+        raise ValueError(f"selection_ev_verdict_legacy_positive:{source}")
+    positive_verdict = verdict in {"POSITIVE_ROBUST", "POSITIVE_THIN"}
     action_upper = str(action or "").upper()
     if action_upper in {"ENTER_LONG", "ENTER_SHORT"} and not positive_verdict:
         raise ValueError(f"selection_ev_entry_not_positive:{source}")
-    if action_upper == "NOTHING" and positive_verdict:
+    if action_upper == "NOTHING" and verdict in {"POSITIVE", "POSITIVE_ROBUST"}:
         raise ValueError(f"selection_ev_nothing_positive:{source}")
     direction_match = re.match(r"(?i)^\s*(LONG|SHORT)\b", fields["direction"])
     if not direction_match:
@@ -367,13 +369,22 @@ def selection_ev_arithmetic_audit(
             else "mismatch"
         )
     declared_now_ev = str(fields.get("now_ev") or "").strip().upper()
-    verdict_match = re.match(r"(?i)^\s*(POSITIVE|NEGATIVE|UNCERTAIN)\b", declared_now_ev)
+    verdict_match = re.match(
+        r"(?i)^\s*(POSITIVE_ROBUST|POSITIVE_THIN|NEGATIVE|UNCERTAIN)\b",
+        declared_now_ev,
+    )
     declared_now_ev = verdict_match.group(1).upper() if verdict_match else declared_now_ev
-    expected_now_ev = {
-        "above_break_even": "POSITIVE",
-        "below_break_even": "NEGATIVE",
-        "straddles_break_even": "UNCERTAIN",
-    }.get(range_relation)
+    expected_now_ev = None
+    if range_relation == "above_break_even":
+        expected_now_ev = (
+            "POSITIVE_ROBUST"
+            if estimated_range is not None and estimated_range[0] >= deterministic + 0.03
+            else "POSITIVE_THIN"
+        )
+    elif range_relation == "below_break_even":
+        expected_now_ev = "NEGATIVE"
+    elif range_relation == "straddles_break_even":
+        expected_now_ev = "UNCERTAIN"
     now_ev_status = (
         "reconciled"
         if expected_now_ev is not None and declared_now_ev == expected_now_ev
