@@ -47,11 +47,17 @@ from scanner_contract import (
     validate_comparison_ledger,
     validate_selected_candidate_handoff,
     validate_trigger_review_ledger,
+    comparison_text_starts,
 )
 from selection_ev import validate_decisive_selection_ev
 from position_management import (
     position_management_template,
     validate_position_management,
+)
+from entry_delivery import (
+    assert_entry_delivery_allowed,
+    decision_reference_price,
+    evaluate_entry_revalidation,
 )
 from forecast_metadata import strip_forecast_metadata, validate_forecast_metadata
 from cognition_cycle import recent_cycle_context
@@ -659,10 +665,16 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "When positioned on a single active instrument, write the compact POSITION_MANAGEMENT_V1 template "
     "in decision_audit.decisive_evidence and replace every placeholder; SELECTION_ACTION must match action. "
     "Put prior_hypothesis continuity in disconfirming_evidence when recent_frames is non-empty. "
-    "When flat with a single candidate, decisive_evidence must begin with "
-    "prior_hypothesis=<CONFIRMED|INVALIDATED|PARTIALLY_CONFIRMED|UNCHANGED> versus the immediately "
-    "prior frame when recent_frames is non-empty, then state material deltas since that frame in "
-    "compact evidence-dense sentences, and include one SELECTION_EV= line for flat ENTER_* or NOTHING. "
+    "When flat with a single candidate, decisive_evidence must be the complete "
+    "INSTRUMENT_COMPARISON_V1 line ledger for that instrument (see topstep-market-scan), "
+    "including SELECTION_EV with now_ev=POSITIVE_ROBUST|POSITIVE_THIN|NEGATIVE|UNCERTAIN; "
+    "put prior_hypothesis continuity in disconfirming_evidence when recent_frames is non-empty. "
+    "Use packet.entry_band_guidance.suggested_min_width_ticks as advisory minimum band width in ticks, "
+    "not as prices. Reason by evidence families (price structure, momentum, order flow, volatility, "
+    "location, liquidity); derived composite scores summarize inputs and must not count as "
+    "independent confirmation when those inputs are also evaluated directly. "
+    "Continuity hierarchy: current packet is ground truth; prior path ledger states the prior "
+    "hypothesis; cycle_evidence_delta names material change; recent_frames are supplemental only. "
     "When multiple candidates are present while flat, decisive_evidence must contain only the "
     "INSTRUMENT_COMPARISON_V1 line ledger including SELECTION_EV; keep every comparison field to one "
     "compact evidence-dense sentence, avoid repeated "
@@ -670,15 +682,18 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "continuity in disconfirming_evidence instead. "
     "SELECTION_EV.direction must be LONG or SHORT (the side whose current-zone EV you assessed), "
     "never FLAT/NONE/NA; for NOTHING keep that side's counterfactual entry/stop/target with "
-    "now_ev=NEGATIVE or UNCERTAIN and numeric breakeven_target_first plus estimated_target_first_range "
-    "as probabilities (for example 0.30-0.40), not prices. "
+    "now_ev=NEGATIVE or UNCERTAIN or POSITIVE_THIN only when abstaining despite thin edge; "
+    "use POSITIVE_ROBUST when estimated_target_first_range low exceeds breakeven_target_first "
+    "by at least ~0.03 probability; breakeven_target_first=(risk_points+friction_points)/(risk_points+reward_points). "
     "change_condition is an advisory re-evaluation hypothesis, not a rigid execution gate; "
     "rewrite it when cycle_evidence_delta or prior ledger repetition guidance indicates stale wording. "
     "Action contract: ENTER_LONG and ENTER_SHORT require positive integer quantity, order_type MARKET, "
     "absolute stop_loss and take_profit_1, plus entry_price_min/entry_price_max that contain the decision price, "
     "remain strictly between stop and take_profit_1, and stay valid only for this packet, contract, scope generation, and expiry; "
-    "the band is the EV-retaining execution zone (not a one-tick quote): price plausible decision-to-delivery drift once, "
-    "do not absorb multi-minute ordinary movement, and never widen the range merely to defeat revalidation; "
+    "the band is the EV-retaining execution zone (not a one-tick quote or raw bid/ask): price plausible decision-to-delivery drift once, "
+    "cover decision reference (last/mid), do not absorb multi-minute ordinary movement, and never widen the range merely to defeat revalidation; "
+    "state proposed risk in points, ticks, 1m/5m ATR or equivalent noise, and one-contract dollars; "
+    "stop must survive ordinary movement over the intended five-to-ten-bar forecast horizon. "
     "if no non-fragile zone fits, choose NOTHING; omit wake_triggers and management fields. "
     "NOTHING, HOLD, MOVE_STOP, MOVE_TP, and EXIT must omit entry_price_min and entry_price_max. "
     "NOTHING and HOLD omit quantity, order_type, stop_loss, take_profit_1, amendment fields, and exit sizing. "
@@ -773,11 +788,8 @@ def build_prompt(
                         "PRIOR_TRIGGER_REVIEW=HELD: Replace with evidence-based review of the prior frozen trigger.",
                     )
             else:
-                audit[field] = (
-                    "Replace. Begin with prior_hypothesis=<CONFIRMED|INVALIDATED|"
-                    "PARTIALLY_CONFIRMED|UNCHANGED> then material deltas since prior frame."
-                )
-        elif field == "disconfirming_evidence" and (multi_candidate or is_positioned):
+                audit[field] = comparison_template(packet)
+        elif field == "disconfirming_evidence":
             audit[field] = (
                 "Replace. When recent_frames is non-empty, begin with "
                 "prior_hypothesis=<CONFIRMED|INVALIDATED|PARTIALLY_CONFIRMED|UNCHANGED> "
@@ -1045,10 +1057,15 @@ def normalize_intent(
             intent.pop(field, None)
     else:
         market = packet.get("market") if isinstance(packet.get("market"), dict) else {}
-        bid = _number(market.get("bid", market.get("last")), "entry_price_min")
-        ask = _number(market.get("ask", market.get("last")), "entry_price_max")
-        intent.setdefault("entry_price_min", min(bid, ask))
-        intent.setdefault("entry_price_max", max(bid, ask))
+        bid = market.get("bid", market.get("last"))
+        ask = market.get("ask", market.get("last"))
+        try:
+            bid_num = _number(bid, "entry_price_min")
+            ask_num = _number(ask, "entry_price_max")
+            intent.setdefault("entry_price_min", min(bid_num, ask_num))
+            intent.setdefault("entry_price_max", max(bid_num, ask_num))
+        except ValueError:
+            pass
     if action != "MOVE_STOP":
         intent.pop("new_stop_price", None)
     if action != "MOVE_TP":
@@ -1143,11 +1160,11 @@ def validate_intent(
     decisive = audit.get("decisive_evidence")
     if isinstance(decisive, str) and decisive.strip().startswith("Replace"):
         raise ValueError("decision_audit_placeholder_not_replaced")
-    comparison = (
-        validate_trigger_review_ledger(decisive, packet, action=action)
-        if require_trigger_review
-        else validate_comparison_ledger(decisive, packet, action=action)
-    )
+    comparison = None
+    if require_trigger_review:
+        comparison = validate_trigger_review_ledger(decisive, packet, action=action)
+    elif not positioned(packet) and isinstance(decisive, str) and comparison_text_starts(decisive):
+        comparison = validate_comparison_ledger(decisive, packet, action=action)
     is_positioned = positioned(packet)
     if is_positioned and comparison is None:
         validate_position_management(decisive, packet, action=str(action or ""))
@@ -1164,7 +1181,7 @@ def validate_intent(
     if frame_context:
         continuity = (
             audit.get("disconfirming_evidence")
-            if multi_candidate_packet(packet) or is_positioned
+            if multi_candidate_packet(packet) or is_positioned or comparison is not None
             else decisive
         )
         if not isinstance(continuity, str) or not PRIOR_HYPOTHESIS_RE.search(continuity):
@@ -1234,11 +1251,7 @@ def validate_intent(
         stop = _number(intent.get("stop_loss"), "stop_loss")
         target = _number(intent.get("take_profit_1"), "take_profit_1")
         market = packet.get("market", {})
-        reference = market.get("ask") if action == "ENTER_LONG" else market.get("bid")
-        if not isinstance(reference, (int, float)) or reference <= 0:
-            reference = market.get("last")
-        reference = _number(reference, "reference_price")
-
+        reference = decision_reference_price(market)
         if action == "ENTER_LONG" and not stop < reference < target:
             raise ValueError("long_geometry_invalid")
         if action == "ENTER_SHORT" and not target < reference < stop:
@@ -1425,14 +1438,8 @@ def prepare_intent_for_delivery(
         ):
             raise ValueError("entry_scope_superseded")
         market = fresh_packet.get("market") if isinstance(fresh_packet.get("market"), dict) else {}
-        reference = market.get("ask") if action == "ENTER_LONG" else market.get("bid")
-        if not isinstance(reference, (int, float)) or isinstance(reference, bool):
-            reference = market.get("last")
-        current = _number(reference, "delivery_reference_price")
-        low = _number(aligned.get("entry_price_min"), "entry_price_min")
-        high = _number(aligned.get("entry_price_max"), "entry_price_max")
-        if current < low or current > high:
-            raise ValueError("entry_range_superseded")
+        revalidation = assert_entry_delivery_allowed(aligned, market)
+        aligned["entry_revalidation"] = revalidation
         if parse_utc(aligned.get("expires_utc")) < datetime.now(timezone.utc):
             raise ValueError("entry_intent_expired")
     elif action == "NOTHING":
@@ -1465,6 +1472,7 @@ def prepare_intent_for_delivery(
     # Validate the complete decision first, then project the already-valid wire payload.
     aligned.pop("wake_triggers", None)
     aligned.pop("decision_scores", None)
+    aligned.pop("entry_revalidation", None)
     strip_forecast_metadata(aligned)
     return aligned
 

@@ -13,7 +13,7 @@ class EntryDriftContractTests(unittest.TestCase):
         text = (ROOT / "skills" / "topstep-build-intent" / "SKILL.md").read_text(
             encoding="utf-8"
         )
-        self.assertIn("Price plausible decision-to-delivery drift once", text)
+        self.assertIn("price plausible decision-to-delivery drift once", text)
         self.assertIn("not a one-tick quote", text)
         self.assertIn("never widen the range merely to defeat revalidation", text)
 
@@ -25,6 +25,8 @@ class EntryDriftContractTests(unittest.TestCase):
     def test_soul_requires_delivery_drift_in_entry_band(self):
         text = (ROOT / "SOUL.md").read_text(encoding="utf-8")
         self.assertIn("decision-to-delivery drift once", text)
+        self.assertIn("POSITIVE_ROBUST", text)
+        self.assertIn("composite scores", text)
 
 
 if __name__ == "__main__":

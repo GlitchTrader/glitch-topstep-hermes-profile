@@ -56,6 +56,7 @@ from common import (
     write_json_atomic,
 )
 from calibration_metrics import compute_session_metrics
+from decision_regret import summarize_regret
 from parity import (
     PROMPT_VERSION,
     debrief_prompt_evidence,
@@ -302,6 +303,7 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
     result["canonical_outcomes"] = len(outcomes)
     result["episodes"] = len(episodes)
     result["decision_episodes"] = len(decision_episodes)
+    result["decision_regret"] = summarize_regret(state_root / "decision-regret.jsonl")
     return result
 
 
