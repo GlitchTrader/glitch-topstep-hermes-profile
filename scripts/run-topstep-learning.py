@@ -56,7 +56,7 @@ from common import (
     write_json_atomic,
 )
 from calibration_metrics import compute_session_metrics
-from decision_regret import summarize_regret
+from decision_regret import process_pending_regret_evaluations, summarize_regret
 from parity import (
     PROMPT_VERSION,
     debrief_prompt_evidence,
@@ -98,6 +98,7 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
     state = read_optional_json(state_path) or {"schema_version": "glitch.topstep.learning_state.v1"}
     sync_meta = bootstrap_profile_state(state_root)
     execution_facts_meta = sync_gateway_execution_facts(state_root)
+    regret_batch = process_pending_regret_evaluations(state_root)
     outcome_file = outcomes_path(root)
     all_outcomes = canonical_outcomes(outcome_file)
     outcomes = [row for row in all_outcomes if row.get("learning_eligible") is True]
@@ -304,6 +305,7 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
     result["episodes"] = len(episodes)
     result["decision_episodes"] = len(decision_episodes)
     result["decision_regret"] = summarize_regret(state_root / "decision-regret.jsonl")
+    result["decision_regret_batch"] = regret_batch
     return result
 
 

@@ -1,9 +1,13 @@
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-from scripts.outcome_store import OutcomeStore
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+
+from outcome_store import OutcomeStore
 
 
 def revision(sequence: int, outcome_id: str = "o-1", pnl: float = 1.0, rev: int = 1) -> dict:

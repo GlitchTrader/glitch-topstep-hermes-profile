@@ -110,12 +110,12 @@ Then restart the gateway (`Stop-Process` on port 8790 PID, `.\start.ps1`). Patch
 
 `tests/test_compatibility.py` fails on drift between `parity.PROMPT_VERSION`, `distribution_manifest`, and `PROFILE_COMPATIBILITY`.
 
-## Entry band parity (profile 0.2.6 / gateway 0.2.3)
+## Entry band parity (profile 0.2.7 / gateway 0.2.4)
 
 - Gateway publishes `entry_band_guidance` (advisory ticks only) and omits bid/ask from `required_output_template` entry fields.
 - Profile revalidates entries at delivery using decision reference (last/mid), with favorable supersession when price improves but executable geometry remains valid.
-- `SELECTION_EV.now_ev` uses `POSITIVE_ROBUST|POSITIVE_THIN|NEGATIVE|UNCERTAIN`.
-- Learning worker reports `decision_regret` counts from `state/decision-regret.jsonl` (ENTER vs NOTHING accountability).
+- `SELECTION_EV.now_ev` uses `POSITIVE_ROBUST|POSITIVE_THIN|NEGATIVE|UNCERTAIN` only (legacy `POSITIVE` is rejected).
+- Learning worker runs `process_pending_regret_evaluations` each cycle and reports `decision_regret` aggregates from `state/decision-regret.jsonl` (ENTER vs NOTHING, NOW vs WAIT, `now_ev` buckets).
 
 ### Linux / operator preflight
 

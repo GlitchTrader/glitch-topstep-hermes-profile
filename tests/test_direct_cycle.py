@@ -196,7 +196,7 @@ def intent(action: str = "NOTHING", quantity: int = 1) -> dict:
         value["decision_audit"]["decisive_evidence"] = (
             "Evidence\nSELECTION_EV=direction=LONG;entry=20000;stop=19990;target=20020;"
             "risk_points=10;reward_points=20;friction_points=1;breakeven_target_first=0.367;"
-            "estimated_target_first_range=0.40-0.50;now_ev=POSITIVE;wait_price=19995;"
+            "estimated_target_first_range=0.40-0.50;now_ev=POSITIVE_ROBUST;wait_price=19995;"
             "wait_ev=no improvement;decisive_reason=current-zone positive EV"
         )
     if action == "ENTER_SHORT":
@@ -209,7 +209,7 @@ def intent(action: str = "NOTHING", quantity: int = 1) -> dict:
         value["decision_audit"]["decisive_evidence"] = (
             "Evidence\nSELECTION_EV=direction=SHORT;entry=20000;stop=20010;target=19980;"
             "risk_points=10;reward_points=20;friction_points=1;breakeven_target_first=0.367;"
-            "estimated_target_first_range=0.40-0.50;now_ev=POSITIVE;wait_price=20005;"
+            "estimated_target_first_range=0.40-0.50;now_ev=POSITIVE_ROBUST;wait_price=20005;"
             "wait_ev=no improvement;decisive_reason=current-zone positive EV"
         )
     if action == "NOTHING":
@@ -1155,7 +1155,7 @@ class DirectCycleTests(unittest.TestCase):
         self.assertIn("NOTHING while flat", prompt)
         self.assertIn("HOLD while positioned", prompt)
         self.assertNotIn("flat NOTHING or HOLD", prompt)
-        self.assertIn("recent_glitch_ledger as the primary continuity source", prompt)
+        self.assertIn("Continuity authority hierarchy", prompt)
         self.assertIn("never choose HOLD while flat", prompt)
         self.assertIsNone(envelope["cycle_evidence_delta"])
 

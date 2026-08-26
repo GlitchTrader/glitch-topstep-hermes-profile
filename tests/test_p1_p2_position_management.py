@@ -164,8 +164,8 @@ class LearningObservabilityTests(unittest.TestCase):
             "decisive_evidence": (
                 "SELECTION_EV=direction=LONG;entry=20000;stop=19990;target=20030;"
                 "risk_points=10;reward_points=30;friction_points=1;"
-                "breakeven_target_first=0.275;estimated_target_first_range=0.30-0.40;"
-                "now_ev=POSITIVE;wait_price=19995;wait_ev=no;decisive_reason=edge"
+                "breakeven_target_first=0.275;estimated_target_first_range=0.35-0.45;"
+                "now_ev=POSITIVE_ROBUST;wait_price=19995;wait_ev=no;decisive_reason=edge"
             )
         }
         arithmetic = selection_ev_arithmetic_audit(audit)
