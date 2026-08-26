@@ -54,7 +54,7 @@ def filled_ledger_text(action: str = "NOTHING") -> str:
             ev = (
                 "SELECTION_EV=direction=LONG;entry=20000;stop=19990;target=20030;"
                 "risk_points=10;reward_points=30;friction_points=1;breakeven_target_first=0.275;"
-                "estimated_target_first_range=0.30-0.40;now_ev=POSITIVE;wait_price=19995;"
+                "estimated_target_first_range=0.30-0.40;now_ev=POSITIVE_ROBUST;wait_price=19995;"
                 "wait_ev=no improvement;decisive_reason=current-zone positive EV"
             )
         else:

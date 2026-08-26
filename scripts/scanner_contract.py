@@ -16,7 +16,23 @@ LINE_FIELDS = (
     "BEARISH_PATH",
     "NEXT_TRANSITION",
     "PRIOR_TRIGGER_REVIEW",
+    "FIVE_TO_TEN_BAR_FORECAST",
+    "DELTA_PRICE_RESPONSE",
+    "OBJECTIVE_INVALIDATION",
+    "ENTRY_RANGE",
+    "NOISE_AND_GEOMETRY",
+    "DATA_QUALITY",
+    "EXECUTION_UNCERTAINTY",
     "ASYMMETRY",
+)
+NT_LEDGER_LINE_FIELDS = (
+    "FIVE_TO_TEN_BAR_FORECAST",
+    "DELTA_PRICE_RESPONSE",
+    "OBJECTIVE_INVALIDATION",
+    "ENTRY_RANGE",
+    "NOISE_AND_GEOMETRY",
+    "DATA_QUALITY",
+    "EXECUTION_UNCERTAINTY",
 )
 TRIGGER_LINE_PREFIXES = (
     "TRIGGER_ID",
@@ -31,6 +47,14 @@ PRIOR_TRIGGER_REVIEW_PREFIX = re.compile(
 )
 _INSTRUMENT_HEADER = re.compile(r"^INSTRUMENT\s+([A-Za-z0-9._-]+)\s*:\s*$")
 _FIELD_LINE = re.compile(r"^(?P<key>[A-Z_]+)\s*=\s*(?P<value>.+?)\s*$")
+
+
+def comparison_candidate_instruments(packet: dict[str, Any]) -> list[str]:
+    instruments = candidate_instruments(packet)
+    if instruments:
+        return instruments
+    instrument = str(packet.get("instrument") or "").strip().upper()
+    return [instrument] if instrument else []
 
 
 def candidate_instruments(packet: dict[str, Any]) -> list[str]:
@@ -50,7 +74,7 @@ def multi_candidate_packet(packet: dict[str, Any]) -> bool:
 
 
 def comparison_line_template(packet: dict[str, Any]) -> str:
-    instruments = candidate_instruments(packet)
+    instruments = comparison_candidate_instruments(packet)
     lines = [MARKER]
     for instrument in instruments:
         lines.append(f"INSTRUMENT {instrument}:")
@@ -79,7 +103,7 @@ def comparison_template(packet: dict[str, Any]) -> str:
     return comparison_line_template(packet)
 
 
-def _comparison_text_starts(text: str) -> bool:
+def comparison_text_starts(text: str) -> bool:
     stripped = text.lstrip()
     if stripped.startswith(LEGACY_JSON_MARKER):
         raise ValueError("instrument_comparison_legacy_json")
@@ -111,7 +135,7 @@ def parse_comparison_line(
     packet_id: str,
     expires_utc: str | None = None,
 ) -> dict[str, Any]:
-    if not isinstance(text, str) or not _comparison_text_starts(text):
+    if not isinstance(text, str) or not comparison_text_starts(text):
         raise ValueError("instrument_comparison_missing")
 
     lines = [line.strip() for line in text.splitlines()[1:] if line.strip()]
@@ -148,6 +172,13 @@ def parse_comparison_line(
                 "bearish_path": fields.get("BEARISH_PATH", ""),
                 "next_transition": fields.get("NEXT_TRANSITION", ""),
                 "prior_trigger_review": fields.get("PRIOR_TRIGGER_REVIEW", ""),
+                "five_to_ten_bar_forecast": fields.get("FIVE_TO_TEN_BAR_FORECAST", ""),
+                "delta_price_response": fields.get("DELTA_PRICE_RESPONSE", ""),
+                "objective_invalidation": fields.get("OBJECTIVE_INVALIDATION", ""),
+                "entry_range": fields.get("ENTRY_RANGE", ""),
+                "noise_and_geometry": fields.get("NOISE_AND_GEOMETRY", ""),
+                "data_quality": fields.get("DATA_QUALITY", ""),
+                "execution_uncertainty": fields.get("EXECUTION_UNCERTAINTY", ""),
                 "asymmetry": fields.get("ASYMMETRY", ""),
                 "triggers": [trigger],
             })
@@ -193,6 +224,16 @@ def serialize_comparison_line(
         lines.append(
             f"PRIOR_TRIGGER_REVIEW={row.get('prior_trigger_review') or 'NOT_APPLICABLE'}"
         )
+        for field_key, line_key in (
+            ("five_to_ten_bar_forecast", "FIVE_TO_TEN_BAR_FORECAST"),
+            ("delta_price_response", "DELTA_PRICE_RESPONSE"),
+            ("objective_invalidation", "OBJECTIVE_INVALIDATION"),
+            ("entry_range", "ENTRY_RANGE"),
+            ("noise_and_geometry", "NOISE_AND_GEOMETRY"),
+            ("data_quality", "DATA_QUALITY"),
+            ("execution_uncertainty", "EXECUTION_UNCERTAINTY"),
+        ):
+            lines.append(f"{line_key}={row.get(field_key, '')}")
         lines.append(f"ASYMMETRY={row.get('asymmetry', 'UNKNOWN')}")
         trigger = (row.get("triggers") or [{}])[0] if isinstance(row.get("triggers"), list) else {}
         if isinstance(trigger, dict):
@@ -220,7 +261,7 @@ def backfill_constant_comparison_fields(intent: dict[str, Any]) -> None:
     if not isinstance(audit, dict):
         return
     evidence = audit.get("decisive_evidence")
-    if not isinstance(evidence, str) or not _comparison_text_starts(evidence):
+    if not isinstance(evidence, str) or not comparison_text_starts(evidence):
         return
     header = re.compile(r"^INSTRUMENT\s+[A-Za-z0-9._-]+\s*:\s*$", re.IGNORECASE)
     field = re.compile(r"(?i)^PRIOR_TRIGGER_REVIEW\s*=")
@@ -253,7 +294,7 @@ def parse_selected_candidate_handoff(intent: dict[str, Any]) -> dict[str, Any] |
     if not isinstance(audit, dict):
         return None
     evidence = audit.get("decisive_evidence")
-    if not isinstance(evidence, str) or not _comparison_text_starts(evidence):
+    if not isinstance(evidence, str) or not comparison_text_starts(evidence):
         return None
     ledger = parse_comparison_line(
         evidence,
@@ -347,11 +388,12 @@ def validate_comparison_ledger(
     *,
     action: str | None = None,
 ) -> dict[str, Any] | None:
-    expected = candidate_instruments(packet)
-    if len(expected) <= 1:
+    expected = comparison_candidate_instruments(packet)
+    if not expected:
         return None
-    _validate_account_selection(packet, expected)
-    if not isinstance(text, str) or not _comparison_text_starts(text):
+    if len(expected) > 1:
+        _validate_account_selection(packet, expected)
+    if not isinstance(text, str) or not comparison_text_starts(text):
         raise ValueError("instrument_comparison_missing")
 
     value = parse_comparison_line(
@@ -374,6 +416,11 @@ def validate_comparison_ledger(
             field_value = str(row.get(field) or "").strip()
             if not field_value or field_value == "REPLACE" or _placeholder_value(field_value):
                 raise ValueError(f"instrument_candidate_field_invalid:{instrument}:{field}")
+        for line_field in NT_LEDGER_LINE_FIELDS:
+            snake = line_field.lower()
+            field_value = str(row.get(snake) or "").strip()
+            if not field_value or _placeholder_value(field_value):
+                raise ValueError(f"instrument_candidate_field_invalid:{instrument}:{snake}")
         triggers = row.get("triggers")
         if not isinstance(triggers, list) or not triggers:
             raise ValueError("instrument_triggers_invalid")

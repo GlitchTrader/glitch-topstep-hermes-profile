@@ -10,7 +10,7 @@ SELECTION_EV_TEMPLATE = (
     "SELECTION_EV=direction=REPLACE;entry=REPLACE;stop=REPLACE;target=REPLACE;"
     "risk_points=REPLACE;reward_points=REPLACE;friction_points=REPLACE;"
     "breakeven_target_first=REPLACE;estimated_target_first_range=REPLACE;"
-    "now_ev=POSITIVE|NEGATIVE|UNCERTAIN;wait_price=REPLACE;wait_ev=REPLACE;"
+    "now_ev=POSITIVE_ROBUST|POSITIVE_THIN|NEGATIVE|UNCERTAIN;wait_price=REPLACE;wait_ev=REPLACE;"
     "decisive_reason=REPLACE"
 )
 
@@ -194,14 +194,18 @@ def validate_selection_ev(
     missing = sorted(key for key in required if not fields.get(key))
     if missing:
         raise ValueError(f"selection_ev_fields_missing:{source}:{','.join(missing)}")
-    verdict_match = re.match(r"(?i)^\s*(POSITIVE|NEGATIVE|UNCERTAIN)\b", fields["now_ev"])
+    verdict_match = re.match(
+        r"(?i)^\s*(POSITIVE(?:_ROBUST|_THIN)?|NEGATIVE|UNCERTAIN)\b",
+        fields["now_ev"],
+    )
     if not verdict_match:
         raise ValueError(f"selection_ev_verdict_invalid:{source}")
     verdict = verdict_match.group(1).upper()
+    positive_verdict = verdict in {"POSITIVE", "POSITIVE_ROBUST", "POSITIVE_THIN"}
     action_upper = str(action or "").upper()
-    if action_upper in {"ENTER_LONG", "ENTER_SHORT"} and verdict != "POSITIVE":
+    if action_upper in {"ENTER_LONG", "ENTER_SHORT"} and not positive_verdict:
         raise ValueError(f"selection_ev_entry_not_positive:{source}")
-    if action_upper == "NOTHING" and verdict == "POSITIVE":
+    if action_upper == "NOTHING" and positive_verdict:
         raise ValueError(f"selection_ev_nothing_positive:{source}")
     direction_match = re.match(r"(?i)^\s*(LONG|SHORT)\b", fields["direction"])
     if not direction_match:
@@ -261,8 +265,13 @@ def validate_selection_ev(
             if target_first < range_low - 0.02 or target_first > range_high + 0.02:
                 raise ValueError(f"selection_ev_forecast_range_mismatch:{source}")
 
+    if verdict == "POSITIVE_ROBUST" and range_low < computed_breakeven + 0.03:
+        raise ValueError(f"selection_ev_robust_margin_insufficient:{source}")
+    if verdict == "POSITIVE_THIN" and range_low > computed_breakeven + 0.03:
+        raise ValueError(f"selection_ev_thin_margin_excessive:{source}")
+
     if (
-        (verdict == "POSITIVE" and range_high < computed_breakeven - 0.005)
+        (positive_verdict and range_high < computed_breakeven - 0.005)
         or (verdict == "NEGATIVE" and range_low > computed_breakeven + 0.005)
     ):
         raise ValueError(f"selection_ev_verdict_range_mismatch:{source}")
