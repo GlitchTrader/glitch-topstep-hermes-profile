@@ -24,6 +24,7 @@ SUPERSESSION_DELIVERY_ERRORS = frozenset({
     "packet_superseded_before_delivery",
     "entry_intent_expired",
     "entry_scope_superseded",
+    "entry_geometry_invalid_at_latest_price",
     "entry_range_superseded",
 })
 

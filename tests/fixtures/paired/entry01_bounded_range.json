@@ -65,6 +65,39 @@
     "data_quality": { "state_complete": true, "issues": [] },
     "required_output_template": { "schema_version": "glitch.intent.v3", "action": "NOTHING" }
   },
+  "fresh_packet_band_breach_geometry_ok": {
+    "schema_version": "glitch.direct.decision_packet.v2",
+    "packet_id": "entry01-packet",
+    "created_utc": "2099-01-01T16:00:11Z",
+    "expires_utc": "2099-01-01T16:05:00Z",
+    "venue": "projectx",
+    "firm": "topstep",
+    "instrument": "MNQ",
+    "account": { "id": 1, "name": "PRAC", "balance": 50000, "instrument_open_contracts": 0 },
+    "contract": {
+      "id": "CON.MNQ",
+      "symbol_id": "F.US.MNQ",
+      "name": "MNQ",
+      "tick_size": 0.25
+    },
+    "decision_scope": {
+      "scope_hash": "scope-abc",
+      "generation": 3
+    },
+    "market": {
+      "last": 21020.0,
+      "bid": 21019.75,
+      "ask": 21020.25,
+      "snapshot_hash": "entry01-hash-breach-ok"
+    },
+    "execution": {
+      "gateway_mode": "armed",
+      "valid_entry_quantities": [1],
+      "supported_actions": ["NOTHING", "ENTER_LONG", "ENTER_SHORT"]
+    },
+    "data_quality": { "state_complete": true, "issues": [] },
+    "required_output_template": { "schema_version": "glitch.intent.v3", "action": "NOTHING" }
+  },
   "intent_v3_long": {
     "schema_version": "glitch.intent.v3",
     "intent_id": "123e4567-e89b-42d3-a456-426614174000",
