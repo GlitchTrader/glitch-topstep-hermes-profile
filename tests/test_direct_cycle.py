@@ -1371,7 +1371,7 @@ class DirectCycleTests(unittest.TestCase):
             posts: list[dict[str, Any]] = []
             prepare_calls = 0
 
-            def fake_prepare(value, _directive):
+            def fake_prepare(value, _directive, **_kwargs):
                 nonlocal prepare_calls
                 prepare_calls += 1
                 aligned = copy.deepcopy(value)
@@ -1425,7 +1425,7 @@ class DirectCycleTests(unittest.TestCase):
             intent_body["new_stop_price"] = 20000.0
             posts: list[dict[str, Any]] = []
 
-            def fake_prepare(value, _directive):
+            def fake_prepare(value, _directive, **_kwargs):
                 aligned = copy.deepcopy(value)
                 aligned["snapshot_hash"] = "hash-frozen"
                 return aligned

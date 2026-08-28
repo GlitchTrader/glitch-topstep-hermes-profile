@@ -55,9 +55,9 @@ from position_management import (
     validate_position_management,
 )
 from entry_delivery import (
-    assert_entry_delivery_allowed,
     decision_reference_price,
     evaluate_entry_revalidation,
+    record_entry_delivery_revalidation,
 )
 from forecast_metadata import strip_forecast_metadata, validate_forecast_metadata
 from cognition_cycle import recent_cycle_context
@@ -722,10 +722,11 @@ CYCLE_OPERATOR_INSTRUCTION = (
     "change_condition is an advisory re-evaluation hypothesis, not a rigid execution gate; "
     "rewrite it when cycle_evidence_delta or prior ledger repetition guidance indicates stale wording. "
     "Action contract: ENTER_LONG and ENTER_SHORT require positive integer quantity, order_type MARKET, "
-    "absolute stop_loss and take_profit_1, plus entry_price_min/entry_price_max that contain the decision price, "
+    "absolute stop_loss and take_profit_1, plus entry_price_min/entry_price_max as the cognitive EV zone "
+    "(audit and learning; delivery gates executable geometry only), "
     "remain strictly between stop and take_profit_1, and stay valid only for this packet, contract, scope generation, and expiry; "
-    "the band is the EV-retaining execution zone (not a one-tick quote or raw bid/ask): price plausible decision-to-delivery drift once, "
-    "cover decision reference (last/mid), do not absorb multi-minute ordinary movement, and never widen the range merely to defeat revalidation; "
+    "the band is the EV-retaining cognitive zone (not a one-tick quote or raw bid/ask): price plausible decision-to-delivery drift once, "
+    "cover decision reference (last/mid) when possible, do not absorb multi-minute ordinary movement, and never widen the range merely to defeat revalidation; "
     "state proposed risk in points, ticks, 1m/5m ATR or equivalent noise, and one-contract dollars; "
     "stop must survive ordinary movement over the intended five-to-ten-bar forecast horizon. "
     "if no non-fragile zone fits, choose NOTHING; omit wake_triggers and management fields. "
@@ -1426,6 +1427,8 @@ def _selected_instrument_eligible(packet: dict[str, Any], instrument: str) -> bo
 def prepare_intent_for_delivery(
     intent: dict[str, Any],
     directive: dict[str, Any] | None = None,
+    *,
+    state: Path | None = None,
 ) -> dict[str, Any]:
     contract_id = str(intent.get("contract_id") or "").strip()
     instrument = str(intent.get("instrument") or "").strip()
@@ -1471,7 +1474,18 @@ def prepare_intent_for_delivery(
         ):
             raise ValueError("entry_scope_superseded")
         market = fresh_packet.get("market") if isinstance(fresh_packet.get("market"), dict) else {}
-        revalidation = assert_entry_delivery_allowed(aligned, market)
+        revalidation = evaluate_entry_revalidation(aligned, market)
+        packet_id_for_event = str(aligned.get("packet_id") or fresh_packet.get("packet_id") or "")
+        if state is not None and packet_id_for_event:
+            record_entry_delivery_revalidation(
+                state,
+                packet_id_for_event,
+                aligned,
+                revalidation,
+                rejection_code=None if revalidation.get("delivery_allowed") else "entry_geometry_invalid_at_latest_price",
+            )
+        if not revalidation.get("delivery_allowed"):
+            raise ValueError("entry_geometry_invalid_at_latest_price")
         aligned["entry_revalidation"] = revalidation
         if parse_utc(aligned.get("expires_utc")) < datetime.now(timezone.utc):
             raise ValueError("entry_intent_expired")

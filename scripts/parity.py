@@ -361,6 +361,7 @@ def defer_instrument_scope_mismatch(
 ENTRY_GEOMETRY_ERRORS = frozenset({
     "long_geometry_invalid",
     "short_geometry_invalid",
+    "entry_geometry_invalid_at_latest_price",
     "entry_range_superseded",
     "entry_scope_superseded",
     "entry_intent_expired",
@@ -374,12 +375,12 @@ def discard_unexecutable_entry_outbox(
     intent: dict[str, Any],
     error: BaseException,
 ) -> bool:
-    """Discard entry outbox when live quote no longer sits between stop and target.
+    """Discard entry outbox when live executable geometry no longer fits stop/target.
 
     Pending outbox retries validate against the stored decision packet, then
-    prepare_intent_for_delivery re-checks geometry and the frozen range on the
-    fresh quote. Superseded entries are dropped once so the next cycle performs
-    one fresh comparison; the old range is never widened.
+    prepare_intent_for_delivery re-checks executable geometry on the fresh quote.
+    Superseded entries are dropped once so the next cycle performs one fresh
+    comparison; cognitive entry bands are never widened.
     """
     if not intent_is_entry(intent):
         return False

@@ -90,14 +90,14 @@ def deliver_packet_intent(
     directive: dict[str, Any] | None,
     post_intent: Callable[[dict[str, Any]], dict[str, Any]],
     prepare_intent_for_delivery: Callable[
-        [dict[str, Any], dict[str, Any] | None],
+        ...,
         dict[str, Any],
     ],
     fetch_receipt: Callable[[str], dict[str, Any] | None] | None = None,
 ) -> dict[str, Any]:
     wire = load_delivery_wire(state, packet_id)
     if wire is None:
-        wire = prepare_intent_for_delivery(intent, directive)
+        wire = prepare_intent_for_delivery(intent, directive, state=state)
         save_delivery_wire(state, packet_id, wire)
     result = post_intent(wire)
     if is_registered_delivery_conflict(result):

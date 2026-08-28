@@ -50,7 +50,8 @@ In the pending-outbox `except ValueError` around `deliver_intent()`, treat these
 - `packet_superseded_before_delivery`
 - `entry_intent_expired`
 - `entry_scope_superseded`
-- `entry_range_superseded`
+- `entry_geometry_invalid_at_latest_price`
+- `entry_range_superseded` (historical receipts only; new path uses geometry code above)
 
 Today only `discard_unexecutable_entry_outbox()` handles a subset of entry errors.
 

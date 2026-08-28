@@ -168,7 +168,25 @@ class Entry01BoundedRangeDeliveryTests(unittest.TestCase):
         self.assertEqual(aligned["entry_price_max"], 21010.0)
         self.assertEqual(aligned["packet_id"], "entry01-packet")
 
-    def test_outside_range_supersedes_once_and_discards_outbox_for_fresh_comparison(self):
+    def test_band_breach_geometry_ok_allows_delivery(self):
+        fixture = _load("entry01_bounded_range.json")
+        intent = fixture["intent_v3_long"]
+        packet = fixture["fresh_packet_band_breach_geometry_ok"]
+        with mock.patch.object(
+            self.cycle,
+            "request_json",
+            side_effect=[(200, packet), (200, {"schema_version": "other"})],
+        ), mock.patch.object(self.cycle, "validate_intent", return_value=None), mock.patch.object(
+            self.cycle,
+            "local_token",
+            return_value="token",
+        ), mock.patch.object(self.cycle, "packet_is_current", return_value=True):
+            aligned = self.cycle.prepare_intent_for_delivery(intent, None)
+        self.assertEqual(aligned["entry_price_min"], 20990.0)
+        self.assertEqual(aligned["entry_price_max"], 21010.0)
+        self.assertGreater(packet["market"]["ask"], intent["entry_price_max"])
+
+    def test_geometry_invalid_discards_outbox(self):
         fixture = _load("entry01_bounded_range.json")
         intent = fixture["intent_v3_long"]
         packet = fixture["fresh_packet_outside_range"]
@@ -183,7 +201,7 @@ class Entry01BoundedRangeDeliveryTests(unittest.TestCase):
         ):
             with self.assertRaises(ValueError) as raised:
                 self.cycle.prepare_intent_for_delivery(intent, None)
-        self.assertEqual(str(raised.exception), "entry_range_superseded")
+        self.assertEqual(str(raised.exception), "entry_geometry_invalid_at_latest_price")
 
         with tempfile.TemporaryDirectory() as tmp:
             state = Path(tmp)
@@ -198,9 +216,7 @@ class Entry01BoundedRangeDeliveryTests(unittest.TestCase):
             )
             self.assertTrue(discarded)
             self.assertFalse(outbox.exists())
-            # Favorable drift outside the frozen range is not permission to widen.
-            self.assertEqual(intent["entry_price_max"], 21010.0)
-            self.assertGreater(packet["market"]["ask"], intent["entry_price_max"])
+            self.assertGreater(packet["market"]["ask"], intent["take_profit_1"])
 
 
 class Exec01ExecutionFactsFixtures(unittest.TestCase):
