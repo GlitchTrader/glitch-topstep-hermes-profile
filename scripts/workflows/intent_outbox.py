@@ -179,6 +179,28 @@ def gateway_receipt_gate(
             },
         )
         return "retain_unknown"
+    # A bare receipt-not-found is only guaranteed to mean the gateway never saw this intent
+    # (not_seen) on a gateway that carries the TS-REAUDIT-04 fix; a gateway on an older paired
+    # release can 404 a receipt for an intent that is still registered or mid-mutation. Confirm
+    # through the authoritative /intent/status endpoint before ever discarding (TS-REAUDIT-04).
+    delivery_status, delivery_body = _intent_delivery_status(intent_id, token=token)
+    if (
+        delivery_status == 200
+        and isinstance(delivery_body, dict)
+        and delivery_body.get("status") == "not_seen"
+    ):
+        append_jsonl(
+            state / "events.jsonl",
+            {
+                "schema_version": "glitch.topstep.cycle_event.v2",
+                "event": "outbox_discarded_confirmed_not_seen",
+                "recorded_utc": utc_now(),
+                "packet_id": packet_id,
+                "intent_id": intent_id,
+                "http_status": status,
+            },
+        )
+        return "discard"
     append_jsonl(
         state / "events.jsonl",
         {
@@ -188,6 +210,7 @@ def gateway_receipt_gate(
             "packet_id": packet_id,
             "intent_id": intent_id,
             "http_status": status,
+            "delivery_status": delivery_body.get("status") if isinstance(delivery_body, dict) else None,
         },
     )
     return "retain_unknown"
