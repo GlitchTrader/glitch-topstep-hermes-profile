@@ -940,7 +940,7 @@ class DirectCycleTests(unittest.TestCase):
                     return (
                         200,
                         {
-                            "schema_version": "glitch.direct.health.v2",
+                            "schema_version": "glitch.direct.health.v3",
                             "status": "ok",
                             "compatibility": {
                                 "gateway_name": "glitch-topstep",
@@ -1587,7 +1587,7 @@ class DirectCycleTests(unittest.TestCase):
                     return (
                         200,
                         {
-                            "schema_version": "glitch.direct.health.v2",
+                            "schema_version": "glitch.direct.health.v3",
                             "status": "ok",
                             "compatibility": {
                                 "gateway_name": "glitch-topstep",
@@ -1693,7 +1693,7 @@ class DirectCycleTests(unittest.TestCase):
                     return (
                         200,
                         {
-                            "schema_version": "glitch.direct.health.v2",
+                            "schema_version": "glitch.direct.health.v3",
                             "status": "ok",
                             "compatibility": {
                                 "gateway_name": "glitch-topstep",
@@ -2115,7 +2115,7 @@ class DirectCycleTests(unittest.TestCase):
                     return (
                         200,
                         {
-                            "schema_version": "glitch.direct.health.v2",
+                            "schema_version": "glitch.direct.health.v3",
                             "status": "ok",
                             "compatibility": {
                                 "gateway_name": "glitch-topstep",

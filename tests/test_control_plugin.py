@@ -54,7 +54,7 @@ class ControlPluginTests(unittest.TestCase):
 
     def test_status_reports_gateway_compatibility(self):
         compatible_health = {
-            "schema_version": "glitch.direct.health.v2",
+            "schema_version": "glitch.direct.health.v3",
             "status": "ok",
             "trading_mode": "shadow",
             "compatibility": {
@@ -148,7 +148,7 @@ class ControlPluginTests(unittest.TestCase):
 
     def test_trade_blocks_incompatible_gateway(self):
         incompatible_health = {
-            "schema_version": "glitch.direct.health.v2",
+            "schema_version": "glitch.direct.health.v3",
             "status": "ok",
             "trading_mode": "shadow",
         }
