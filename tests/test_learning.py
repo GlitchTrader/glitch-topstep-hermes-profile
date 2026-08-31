@@ -93,7 +93,7 @@ class LearningTests(unittest.TestCase):
     def test_gateway_feed_is_fresh_requires_health_packet_and_quote(self):
         packet = {"data_quality": {"state_complete": True, "quote_age_ms": 100}}
         compatible_health = {
-            "schema_version": "glitch.direct.health.v2",
+            "schema_version": "glitch.direct.health.v3",
             "status": "ok",
             "compatibility": {
                 "gateway_name": "glitch-topstep",
@@ -139,7 +139,7 @@ class LearningTests(unittest.TestCase):
     def test_gateway_feed_is_fresh_fails_on_stale_quote(self):
         packet = {"data_quality": {"state_complete": True, "quote_age_ms": 12000}}
         compatible_health = {
-            "schema_version": "glitch.direct.health.v2",
+            "schema_version": "glitch.direct.health.v3",
             "status": "ok",
             "compatibility": {
                 "gateway_name": "glitch-topstep",

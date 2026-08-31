@@ -191,6 +191,45 @@ class DeliveryAmbiguousFaultTests(unittest.TestCase):
                 gate = gateway_receipt_gate(state, "pkt-1", intent, token="tok")
             self.assertEqual(gate, "retain_unknown")
 
+    def test_gateway_receipt_gate_404_retains_when_status_confirmation_is_ambiguous(self) -> None:
+        # Receipt 404, but the confirming /intent/status call itself fails/errors -- must not
+        # discard on the strength of the receipt 404 alone (TS-REAUDIT-04).
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp)
+            intent = {"intent_id": "i-404-b", "action": "ENTER_LONG"}
+            with mock.patch(
+                "parity.request_json",
+                side_effect=[(404, None), (503, None)],
+            ):
+                gate = gateway_receipt_gate(state, "pkt-1", intent, token="tok")
+            self.assertEqual(gate, "retain_unknown")
+
+    def test_gateway_receipt_gate_discards_only_after_status_confirms_not_seen(self) -> None:
+        # Closes the actual TS-REAUDIT-04 gap: a receipt 404 only becomes safe to discard once
+        # the authoritative /intent/status endpoint independently confirms not_seen.
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp)
+            intent = {"intent_id": "i-404-c", "action": "ENTER_LONG"}
+            with mock.patch(
+                "parity.request_json",
+                side_effect=[(404, None), (200, {"status": "not_seen"})],
+            ):
+                gate = gateway_receipt_gate(state, "pkt-1", intent, token="tok")
+            self.assertEqual(gate, "discard")
+
+    def test_gateway_receipt_gate_retains_when_status_confirms_still_registered(self) -> None:
+        # A receipt 404 whose /intent/status confirmation comes back "registered" (the exact
+        # ambiguity this ticket exists to close) must retain, not discard.
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp)
+            intent = {"intent_id": "i-404-d", "action": "ENTER_LONG"}
+            with mock.patch(
+                "parity.request_json",
+                side_effect=[(404, None), (200, {"status": "registered"})],
+            ):
+                gate = gateway_receipt_gate(state, "pkt-1", intent, token="tok")
+            self.assertEqual(gate, "retain_unknown")
+
     def test_prune_skips_delivery_unknown_outbox(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             state = Path(tmp)

@@ -19,13 +19,13 @@ from paired_contract import CONTRACT as PAIRED_CONTRACT, RUNTIME_INTENT_SCHEMA
 
 
 COMPATIBLE_HEALTH = {
-    "schema_version": "glitch.direct.health.v2",
+    "schema_version": "glitch.direct.health.v3",
     "status": "ok",
     "trading_mode": "shadow",
     "compatibility": {
         "gateway_name": "glitch-topstep",
         "gateway_version": TESTED_GATEWAY_VERSION,
-        "health_schema": "glitch.direct.health.v2",
+        "health_schema": "glitch.direct.health.v3",
         "protocol_revision": "glitch.topstep.paired.v3",
         "intent_schemas": list(PAIRED_CONTRACT["gateway_accepted_intent_schemas"]),
         "decision_packet_schemas": [
