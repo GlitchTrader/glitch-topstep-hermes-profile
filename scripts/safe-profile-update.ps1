@@ -256,6 +256,7 @@ ensure_hermes_distribution_patch.py is missing. Install profile v0.1.13+ first:
   hermes profile install github.com/GlitchTrader/glitch-topstep-hermes-profile --name glitch-topstep --force -y
 "@
     }
+    $env:GLITCH_TOPSTEP_HERMES_DISTRIBUTION_PATCH = '1'
     $output = & $python $patchScript 2>&1 | Out-String
     if ($LASTEXITCODE -ne 0) {
         throw "Could not ensure Hermes distribution patch: $($output.Trim())"

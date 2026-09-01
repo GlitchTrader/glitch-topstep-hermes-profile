@@ -183,6 +183,53 @@ def protection_status_management_guidance(status: str | None) -> str | None:
     )
 
 
+def _infer_packet_side(packet: dict[str, Any]) -> str | None:
+    protection = packet.get("protection") if isinstance(packet.get("protection"), dict) else {}
+    stop = protection.get("stop") if isinstance(protection.get("stop"), dict) else {}
+    target = protection.get("target") if isinstance(protection.get("target"), dict) else {}
+    try:
+        stop_price = float(stop.get("price"))
+        target_price = float(target.get("price"))
+    except (TypeError, ValueError):
+        return None
+    if stop_price < target_price:
+        return "long"
+    if stop_price > target_price:
+        return "short"
+    return None
+
+
+def validate_protective_amendment_geometry(
+    action: str,
+    intent: dict[str, Any],
+    packet: dict[str, Any],
+) -> None:
+    """Profile-side defense only; gateway remains authoritative (IA-260901-HP-04)."""
+    from entry_delivery import decision_reference_price
+
+    market = packet.get("market") if isinstance(packet.get("market"), dict) else {}
+    reference = decision_reference_price(market)
+    side = _infer_packet_side(packet)
+    if action == "MOVE_STOP":
+        stop = float(intent.get("new_stop_price"))
+        if not math.isfinite(stop) or stop <= 0:
+            raise ValueError("new_stop_price_invalid")
+        if side == "long" and stop >= reference:
+            raise ValueError("long_stop_geometry_invalid")
+        if side == "short" and stop <= reference:
+            raise ValueError("short_stop_geometry_invalid")
+        return
+    if action == "MOVE_TP":
+        target_raw = intent.get("new_take_profit", intent.get("take_profit_1"))
+        target = float(target_raw)
+        if not math.isfinite(target) or target <= 0:
+            raise ValueError("move_tp_target_invalid")
+        if side == "long" and target <= reference:
+            raise ValueError("long_target_geometry_invalid")
+        if side == "short" and target >= reference:
+            raise ValueError("short_target_geometry_invalid")
+
+
 def delivery_diagnostic_detail(result: dict[str, Any]) -> dict[str, Any]:
     body = result.get("body") if isinstance(result.get("body"), dict) else {}
     detail: dict[str, Any] = {}

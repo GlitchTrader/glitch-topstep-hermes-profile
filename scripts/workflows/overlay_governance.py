@@ -338,6 +338,10 @@ def persist_hourly(record: dict[str, Any], supervisor: Path, episode_ids: list[s
         "trading_influence": "outcome_backed" if trade_count >= 2 else "observational",
         "trade_episode_count": trade_count,
         "decision_episode_count": decision_count,
+        "governance_stage": "advisory",
+        "evidence_ids": list(episode_ids),
+        "rollback_condition": str(record.get("rollback_condition") or "manual_operator_review"),
+        "rollback_from_stage": "advisory",
         "guidance": record.get("guidance"),
     }
     append_unique(supervisor / "guidance.jsonl", [guidance], "guidance_id")

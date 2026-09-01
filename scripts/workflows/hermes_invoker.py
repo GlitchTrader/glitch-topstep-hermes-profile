@@ -11,6 +11,8 @@ from typing import Any
 from common import extract_single_json_object, hermes_chat_model_cli_args, profile_root
 from process_supervisor import run_supervised
 
+from hermes_toolsets import DEFAULT_HERMES_TOOLSETS
+
 LEARNING_SOURCE = "trading"
 
 
@@ -37,7 +39,7 @@ def invoke_learning_hermes(
             provider_env="GLITCH_TOPSTEP_CORE_PROVIDER",
         ),
         "--max-turns", "8", "--skills", skills,
-        "--toolsets", "memory",
+        "--toolsets", DEFAULT_HERMES_TOOLSETS,
     ]
     wrapper = (
         "import os,sys;from pathlib import Path;"

@@ -202,7 +202,7 @@ def gateway_packet_evidence_is_fresh(packet: dict[str, Any]) -> bool:
 def gateway_feed_is_fresh() -> bool:
     """Gateway /health ok, compatible, and current packet evidence complete and not stale."""
     try:
-        health_status, health = request_json("/health")
+        health_status, health = request_json("/health", token=local_token())
         if health_status != 200 or health.get("status") not in {"ok", "degraded"}:
             return False
         verify_gateway_compatibility(health)

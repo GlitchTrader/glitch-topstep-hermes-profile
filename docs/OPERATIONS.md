@@ -98,15 +98,7 @@ When cutting a profile release paired with a gateway build:
 
 ### Gateway prompt pairing (operator shortcut)
 
-When the profile bumps `prompt_version` (e.g. v0.1.31 → `glitch-topstep-v9`) but the local gateway clone is stale:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File "$env:LOCALAPPDATA\hermes\profiles\glitch-topstep\scripts\sync-glitch-topstep-prompt-v9.ps1" `
-  -GatewayPath C:\Users\arifr\Projects\glitch-topstep `
-  -CreatePr -MergePr
-```
-
-Then restart the gateway (`Stop-Process` on port 8790 PID, `.\start.ps1`). Patch: `patches/glitch-topstep-v9-prompt-version.patch`.
+When the profile bumps `prompt_version` but the local gateway clone is stale, sync `GLITCH_TOPSTEP_PROMPT_VERSION` in the gateway repo to match `PROMPT_VERSION` in this profile (see `scripts/preflight-pairing.py`). Historical `sync-glitch-topstep-prompt-v9.*` scripts remain archived migration aids only — do not treat v9 as the live pairing target.
 
 `tests/test_compatibility.py` fails on drift between `parity.PROMPT_VERSION`, `distribution_manifest`, and `PROFILE_COMPATIBILITY`.
 
@@ -124,11 +116,7 @@ Then restart the gateway (`Stop-Process` on port 8790 PID, `.\start.ps1`). Patch
 python scripts/preflight-pairing.py --gateway-root ~/Projects/glitch-topstep
 ```
 
-Sync a stale local gateway clone to `glitch-topstep-v9`:
-
-```bash
-bash scripts/sync-glitch-topstep-prompt-v9.sh --gateway-path ~/Projects/glitch-topstep
-```
+Use `preflight-pairing.py` to verify gateway/profile prompt pairing before restart.
 
 Apply gateway issue #73 packet/422 changes when the bot cannot push `glitch-topstep` directly:
 

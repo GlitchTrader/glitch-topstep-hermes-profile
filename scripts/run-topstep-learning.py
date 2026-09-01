@@ -22,6 +22,7 @@ from model_owner_lock import acquire_model_owner, release_model_owner
 from workflows.decision_journal import DecisionJournal, is_gateway_cognitive_rejection
 from workflows.learning_evidence import (
     bounded_learning_rows,
+    episode_attributable_for_promotion,
     fit_debrief_evidence,
     outcome_is_reconciled_for_learning,
 )
@@ -124,13 +125,13 @@ def run_once(args: argparse.Namespace, root: Path) -> dict[str, Any]:
             )
     pending = [
         row for row in outcomes
-        if outcome_is_reconciled_for_learning(row)
+        if episode_attributable_for_promotion(row)
         and int(row.get("_feed_revision") or 1) > processed_revisions.get(str(row.get("outcome_id")), 0)
     ]
     pending = sorted(pending, key=lambda row: str(row.get("exit_utc") or ""))[:MAX_DEBRIEF_OUTCOMES]
     quarantined = [
         row for row in outcomes
-        if not outcome_is_reconciled_for_learning(row)
+        if not episode_attributable_for_promotion(row)
         and int(row.get("_feed_revision") or 1) > processed_revisions.get(str(row.get("outcome_id")), 0)
     ]
     now = datetime.now(timezone.utc)
