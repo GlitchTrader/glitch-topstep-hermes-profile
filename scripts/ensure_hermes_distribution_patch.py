@@ -206,6 +206,10 @@ def apply_patch(text: str) -> tuple[str, list[str]]:
 
 
 def ensure_patch(dry_run: bool = False) -> dict[str, object]:
+    if os.environ.get("GLITCH_TOPSTEP_HERMES_DISTRIBUTION_PATCH", "").strip().lower() not in {
+        "1", "true", "yes",
+    }:
+        return {"state": "skipped", "reason": "opt_in_required"}
     target = find_profile_distribution_py()
     original = target.read_text(encoding="utf-8")
     if is_patched(original):

@@ -49,6 +49,8 @@ def compare_runs(baseline: dict[str, Any], candidate: dict[str, Any]) -> dict[st
         "schema_version": "glitch.topstep.cognition_diff.v1",
         "evaluation_only": True,
         "armed_promotion_allowed": False,
+        "rollback_recommended": len(diffs) > max(1, len(base) // 10),
+        "rollback_rule": "deterministic_threshold_changed_frames_gt_10pct",
         "corpus_hash": baseline["corpus_hash"],
         "baseline_prompt_version": baseline["prompt_version"],
         "candidate_prompt_version": candidate["prompt_version"],

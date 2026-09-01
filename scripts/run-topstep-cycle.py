@@ -104,6 +104,8 @@ from common import (
     verify_gateway_compatibility,
     write_json_atomic,
 )
+from hermes_toolsets import DEFAULT_HERMES_TOOLSETS
+from safe_path import safe_path_component_or_digest
 from parity import (
     PROMPT_VERSION,
     active_trade_state,
@@ -129,6 +131,7 @@ from parity import (
     packet_protection_status,
     protection_status_allows_amendment,
     protection_status_management_guidance,
+    validate_protective_amendment_geometry,
     latest_prior_attempt,
     learning_context,
     mark_attempt_from_receipt,
@@ -948,7 +951,7 @@ def invoke_hermes(
             trigger_review_only=trigger_review_only,
         ),
         "--toolsets",
-        "memory",
+        DEFAULT_HERMES_TOOLSETS,
     ]
     wrapper = (
         "import os,sys;from pathlib import Path;"
@@ -1294,6 +1297,7 @@ def validate_intent(
         if not protection_status_allows_amendment(packet_protection_status(packet)):
             raise ValueError("protection_status_not_confirmed")
         _number(intent.get("new_stop_price"), "new_stop_price")
+        validate_protective_amendment_geometry(action, intent, packet)
         validate_target_intent_id(
             intent,
             packet,
@@ -1304,6 +1308,7 @@ def validate_intent(
             raise ValueError("protection_status_not_confirmed")
         target_price = intent.get("new_take_profit", intent.get("take_profit_1"))
         _number(target_price, "move_tp_target_price")
+        validate_protective_amendment_geometry(action, intent, packet)
         validate_target_intent_id(
             intent,
             packet,
@@ -1630,7 +1635,7 @@ def load_model_attempt(path: Path) -> dict[str, Any]:
 
 def run_once(args: argparse.Namespace, root: Path) -> int:
     token = local_token()
-    health_status, health = request_json("/health")
+    health_status, health = request_json("/health", token=token)
     if health_status != 200 or health.get("status") not in {"ok", "degraded"}:
         raise RuntimeError("gateway_health_unavailable")
     verify_gateway_compatibility(health)
@@ -1840,7 +1845,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         raise ValueError("packet_id_missing")
 
     receipt_path = state / "receipts" / f"{packet_id}.json"
-    outbox_path = state / "outbox" / f"{packet_id}.json"
+    outbox_path = state / "outbox" / f"{safe_path_component_or_digest(packet_id)}.json"
     attempt_path = ensure_model_attempt(state, packet_id, reason=reason)
     if receipt_path.is_file():
         receipt = read_json(receipt_path)

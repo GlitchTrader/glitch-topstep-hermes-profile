@@ -53,6 +53,16 @@ def outcome_is_reconciled_for_learning(row: dict[str, Any]) -> bool:
     return bool(has_fills or has_chronology)
 
 
+def episode_attributable_for_promotion(row: dict[str, Any]) -> bool:
+    """Exclude retracted or unattributable episodes from promotion evidence (IA-260901-HP-06)."""
+    if row.get("retracted") is True:
+        return False
+    status = str(row.get("attribution_status") or "").lower()
+    if status in {"retracted", "unattributable"}:
+        return False
+    return outcome_is_reconciled_for_learning(row)
+
+
 def fit_debrief_evidence(
     state_root: Path,
     outcomes: list[dict[str, Any]],

@@ -1,6 +1,8 @@
+import os
 import sys
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
@@ -74,8 +76,9 @@ class HermesDistributionPatchTests(unittest.TestCase):
         original = patch_module.find_profile_distribution_py
         try:
             patch_module.find_profile_distribution_py = lambda: Path("missing.py")
-            with self.assertRaises(FileNotFoundError):
-                patch_module.ensure_patch(dry_run=True)
+            with patch.dict(os.environ, {"GLITCH_TOPSTEP_HERMES_DISTRIBUTION_PATCH": "1"}):
+                with self.assertRaises(FileNotFoundError):
+                    patch_module.ensure_patch(dry_run=True)
         finally:
             patch_module.find_profile_distribution_py = original
 
