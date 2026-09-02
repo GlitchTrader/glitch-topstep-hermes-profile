@@ -63,6 +63,10 @@ def _registry_manifest(registry: dict[str, Any]) -> list[dict[str, Any]]:
     return manifest
 
 
+def _artifact_basename(artifact_path: str) -> str:
+    return Path(str(artifact_path).replace("\\", "/")).name
+
+
 def _load_ensemble_artifacts(runs_dir: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for name in ENSEMBLE_RUN_GLOBS:
@@ -74,9 +78,9 @@ def _load_ensemble_artifacts(runs_dir: Path) -> list[dict[str, Any]]:
             artifact_path = inv.get("artifact_path")
             if not artifact_path:
                 continue
-            path = Path(str(artifact_path))
+            path = Path(str(artifact_path).replace("\\", "/"))
             if not path.is_file():
-                path = runs_dir / path.name
+                path = runs_dir / _artifact_basename(str(artifact_path))
             if path.is_file():
                 doc = read_json(path)
                 if doc.get("schema_version") == "glitch.topstep.minimal_cognitive_replay.v1":

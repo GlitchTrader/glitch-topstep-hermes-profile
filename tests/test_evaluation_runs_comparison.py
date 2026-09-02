@@ -107,6 +107,10 @@ class EvaluationRunsComparisonTests(unittest.TestCase):
 
 
 class EvaluationCostAuditTests(unittest.TestCase):
+    def setUp(self) -> None:
+        if not _HAS_COMPARISON_DEPS:
+            self.skipTest("comparison reporting scripts not in checkout")
+
     def test_audit_flags_unknown_pricing(self) -> None:
         artifacts = _load_artifacts([FIXTURES / "bundle-run-b.json"])
         report = audit_evaluation_costs(artifacts)
