@@ -1,0 +1,42 @@
+{
+  "schema_version": "glitch.topstep.preflight_evaluation_replay.v1",
+  "run_id": "coordination-review-2026-09-02",
+  "ok": true,
+  "checks": [
+    {
+      "id": "production_lane_inactive",
+      "ok": true,
+      "detail": "direct_cycle/repair/wake_monitor must not hold model-owner.lock"
+    },
+    {
+      "id": "evaluation_lease_available",
+      "ok": true,
+      "detail": "no foreign evaluation lease on production state",
+      "blocking_run_id": null
+    },
+    {
+      "id": "scenarios_manifest_present",
+      "ok": true,
+      "detail": "not_required"
+    },
+    {
+      "id": "lease_scripts_synced",
+      "ok": true,
+      "detail": "all_matched=True synced_utc=2026-09-02T16:50:30Z",
+      "manifest_path": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state\\lease-coordination-sync.json"
+    },
+    {
+      "id": "lease_smoke_passed",
+      "ok": true,
+      "detail": "lease smoke ok=True path=lease-smoke-2026-09-02.json",
+      "report_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\lease-smoke-2026-09-02.json",
+      "required": true
+    },
+    {
+      "id": "coordination_contract",
+      "ok": true,
+      "detail": "evaluation_lease.py + cron defer + sync manifest + lease smoke"
+    }
+  ],
+  "production_state": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state"
+}

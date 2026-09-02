@@ -1,0 +1,23 @@
+{
+  "schema_version": "glitch.topstep.evaluation_measurement_ready.v1",
+  "gate_id": "evaluation_measurement_ready",
+  "description": "Evaluation-lane gate only — does not block trading or alter gateway behavior.",
+  "modes": ["preflight", "capture"],
+  "blocking_reasons": [
+    "daily_capture_locked",
+    "gateway_state_incomplete",
+    "bar_1m_partial",
+    "bar_1m_lag",
+    "snapshot_expired",
+    "insufficient_instrument_capacity",
+    "evidence_chain_incomplete",
+    "maintenance_window",
+    "market_not_valid"
+  ],
+  "result_fields": {
+    "ready": "boolean — true only when zero blocking reasons",
+    "mode": "preflight | capture",
+    "blocking_reasons": "unique list of failed check ids",
+    "checks": "array of {id, ok, reason, detail?}"
+  }
+}

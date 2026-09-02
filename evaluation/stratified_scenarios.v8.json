@@ -1,0 +1,39 @@
+{
+  "schema_version": "glitch.topstep.comparable_scenarios.v2",
+  "scenarios_version": "2026-09-02-stratified-v8",
+  "status": "pre_registered_offline",
+  "corpus_root": "tests/fixtures/frozen_corpus/enriched",
+  "profiles": [
+    "baseline-current",
+    "structure"
+  ],
+  "execution_mode": "sequential",
+  "parent_manifest": "evaluation/runs/stratified-cohort-manifest-v8-2026-09-02.json",
+  "notes": [
+    "Sele\u00e7\u00e3o offline v8 \u2014 p\u00f3s-pr\u00f3xima PRAC diversa.",
+    "N\u00e3o reutiliza v6/v7; meta gate \u22655/5 pares thesis_quality."
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-c62a7390",
+      "frame_id": "20260902T172547Z-c62a7390",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_02_v8",
+      "description": "Stratified offline selection; packet"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-86a52bbc",
+      "frame_id": "20260902T172046Z-86a52bbc",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_02_v8",
+      "description": "Stratified offline selection; packet"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-4fdd308c",
+      "frame_id": "20260902T171541Z-4fdd308c",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_02_v8",
+      "description": "Stratified offline selection; packet"
+    }
+  ]
+}

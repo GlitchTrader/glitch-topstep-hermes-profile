@@ -1,0 +1,43 @@
+{
+  "schema_version": "glitch.topstep.scenario_divergence_notes.v1",
+  "run_id": "scenario-live-2026-09-01-r8-contract",
+  "prior_run_id": "scenario-live-2026-09-01-r7-contract",
+  "notes_utc": "2026-09-01T20:30:00Z",
+  "contract_change": "prompt clarified candidate requires long/short + geometry; no_edge for abstention",
+  "scenarios": [
+    {
+      "scenario_id": "SCN-PRAC-TIMEOUT-RECOVERY",
+      "frame_id": "20260901T000528Z-041dc508",
+      "r7_structure": "invalid (candidate+flat+no geometry)",
+      "r8_baseline": "no_edge",
+      "r8_structure": "no_edge",
+      "classification": "contract_fix_effective",
+      "interpretation": "structure no longer violates contract; both profiles abstain on this envelope in r8."
+    },
+    {
+      "scenario_id": "SCN-OPERATOR-MIDSESSION",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "r7_baseline": "candidate",
+      "r7_structure": "no_edge",
+      "r8_baseline": "no_edge",
+      "r8_structure": "no_edge",
+      "classification": "abstention_alignment",
+      "interpretation": "r7 divergence preserved as valid; r8 shows LLM variance toward mutual abstention — not coerced."
+    },
+    {
+      "scenario_id": "SCN-PRAC-DIRECTED-02",
+      "frame_id": "20260831T173427Z-4ac91997",
+      "r7": "comparable_pair true (both candidate)",
+      "r8_baseline": "held",
+      "r8_structure": "no_edge",
+      "classification": "llm_variance",
+      "interpretation": "r7 remains canonical comparable example; r8 shows profile divergence without contract violation."
+    }
+  ],
+  "r8_metrics": {
+    "valid_output_rate": 1.0,
+    "invalid_output_rate": 0.0,
+    "no_edge_rate": 0.833,
+    "comparable_pair_rate": 0.0
+  }
+}

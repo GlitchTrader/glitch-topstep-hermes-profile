@@ -1,0 +1,636 @@
+{
+  "schema_version": "glitch.topstep.directional_gate_corrected_view.v2",
+  "recorded_utc": "2026-09-02T20:46:04.363172Z",
+  "directional_gate_v1": {
+    "preserved": true,
+    "comparable_pairs": 2,
+    "required_min": 5,
+    "note": "Numerador historico imutavel \u2014 esta visao nao recalcula v1"
+  },
+  "classification_rules": [
+    "candidate_unilateral",
+    "insufficient_capacity",
+    "valid_abstention",
+    "data_degradation",
+    "operationally_blocked",
+    "comparable_thesis_pair"
+  ],
+  "rule_chain": [
+    "daily_capture_locked \u2192 operationally_blocked",
+    "not abstention_valid",
+    "not thesis_quality"
+  ],
+  "exclusive_strata_historical_corrected": {
+    "candidate_unilateral": 9,
+    "comparable_thesis_pair": 2,
+    "operationally_blocked": 12,
+    "valid_abstention": 30
+  },
+  "exclusive_strata_limited_session": {
+    "operationally_blocked": 8
+  },
+  "frames": [
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r7-contract",
+      "frame_id": "20260831T173427Z-4ac91997",
+      "classification_v2": "comparable_thesis_pair",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "thesis_quality",
+      "legacy_challenger_category": "thesis_quality",
+      "legacy_comparable_pair": true
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r7-contract",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "classification_v2": "candidate_unilateral",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "thesis_quality",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r7-contract",
+      "frame_id": "20260901T000528Z-041dc508",
+      "classification_v2": "candidate_unilateral",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "thesis_quality",
+      "legacy_challenger_category": "schema_invalid",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260831T173427Z-4ac91997",
+      "classification_v2": "candidate_unilateral",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "not_comparable",
+      "legacy_challenger_category": "thesis_quality",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260901T000528Z-041dc508",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260831T235211Z-cdbf204f",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "not_comparable",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260901T143431Z-534fefd5",
+      "classification_v2": "comparable_thesis_pair",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "thesis_quality",
+      "legacy_challenger_category": "thesis_quality",
+      "legacy_comparable_pair": true
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260901T182843Z-b06d9a93",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260901T150823Z-d7908a55",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260901T150823Z-d7908a55",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260901T000528Z-041dc508",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260831T235211Z-cdbf204f",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260901T143431Z-534fefd5",
+      "classification_v2": "candidate_unilateral",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "thesis_quality",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260901T182843Z-b06d9a93",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260831T233830Z-cbb5cee1",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "not_comparable",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260831T234106Z-a9c3eb80",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "not_comparable",
+      "legacy_challenger_category": "not_comparable",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260901T002738Z-818c9e79",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260901T002738Z-5e80e1ac",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260901T020441Z-9866a0f9",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260831T235211Z-8c371231",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "not_comparable",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260831T235620Z-fd331ad4",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260901T143311Z-a49c317a",
+      "classification_v2": "candidate_unilateral",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "thesis_quality",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260901T145322Z-c776a976",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "frame_id": "20260901T152524Z-24fe8a4d",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "frame_id": "20260901T154226Z-52265102",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "frame_id": "20260901T165456Z-8b20659b",
+      "classification_v2": "candidate_unilateral",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "thesis_quality",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "frame_id": "20260901T174044Z-2cfca7a6",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "frame_id": "20260901T175947Z-a71c2714",
+      "classification_v2": "candidate_unilateral",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "thesis_quality",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "frame_id": "20260901T181807Z-e1ff909a",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "frame_id": "20260901T002742Z-ddd5ffb5",
+      "classification_v2": "candidate_unilateral",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "not_comparable",
+      "legacy_challenger_category": "thesis_quality",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "frame_id": "20260901T002828Z-f5fb2cc7",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T115053Z-b7730ea3",
+      "classification_v2": "operationally_blocked",
+      "daily_capture_locked": true,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T113051Z-cb1139d6",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T022826Z-2e035875",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T022026Z-2a71dbe9",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T021025Z-c88c2945",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T020524Z-aba921ec",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T020023Z-e8df6b82",
+      "classification_v2": "candidate_unilateral",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "thesis_quality",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T015522Z-065ef854",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T112922Z-c30de894",
+      "classification_v2": "valid_abstention",
+      "daily_capture_locked": false,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-02-r15-v7",
+      "frame_id": "20260902T155530Z-4d39411f",
+      "classification_v2": "operationally_blocked",
+      "daily_capture_locked": true,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-02-r15-v7",
+      "frame_id": "20260902T155028Z-8c4e5912",
+      "classification_v2": "operationally_blocked",
+      "daily_capture_locked": true,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-02-r15-v7",
+      "frame_id": "20260902T154529Z-db31fa40",
+      "classification_v2": "operationally_blocked",
+      "daily_capture_locked": true,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-02-r15-v7",
+      "frame_id": "20260902T154027Z-358cec55",
+      "classification_v2": "operationally_blocked",
+      "daily_capture_locked": true,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-02-r16-v8",
+      "frame_id": "20260902T172547Z-c62a7390",
+      "classification_v2": "operationally_blocked",
+      "daily_capture_locked": true,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-02-r16-v8",
+      "frame_id": "20260902T172046Z-86a52bbc",
+      "classification_v2": "operationally_blocked",
+      "daily_capture_locked": true,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-02-r16-v8",
+      "frame_id": "20260902T171541Z-4fdd308c",
+      "classification_v2": "operationally_blocked",
+      "daily_capture_locked": true,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-02-r17-v9",
+      "frame_id": "20260902T183055Z-92f0a8a8",
+      "classification_v2": "operationally_blocked",
+      "daily_capture_locked": true,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-02-r17-v9",
+      "frame_id": "20260902T182055Z-08066af5",
+      "classification_v2": "operationally_blocked",
+      "daily_capture_locked": true,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-02-r17-v9",
+      "frame_id": "20260902T181051Z-ab6e5383",
+      "classification_v2": "operationally_blocked",
+      "daily_capture_locked": true,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "historical_replay",
+      "run_id": "scenario-live-2026-09-02-r17-v9",
+      "frame_id": "20260902T180851Z-c5f24442",
+      "classification_v2": "operationally_blocked",
+      "daily_capture_locked": true,
+      "legacy_baseline_category": "no_edge",
+      "legacy_challenger_category": "no_edge",
+      "legacy_comparable_pair": false
+    },
+    {
+      "scope": "PRAC-LIMITED-2026-09-02",
+      "frame_id": "20260902T193005Z-b5fd08f8",
+      "packet_id": "b5fd08f8-dd0b-499a-9d5a-be05ac247fef",
+      "classification_v2": "operationally_blocked",
+      "daily_capture_locked": true,
+      "production_action": "NOTHING",
+      "capture_degraded": true
+    },
+    {
+      "scope": "PRAC-LIMITED-2026-09-02",
+      "frame_id": "20260902T193505Z-3dd35e83",
+      "packet_id": "3dd35e83-a202-46c9-81dd-9d5ef1f6ff68",
+      "classification_v2": "operationally_blocked",
+      "daily_capture_locked": true,
+      "production_action": "NOTHING",
+      "capture_degraded": true
+    },
+    {
+      "scope": "PRAC-LIMITED-2026-09-02",
+      "frame_id": "20260902T194002Z-0d305fc5",
+      "packet_id": "0d305fc5-24a6-42fe-a137-00c77ae848e6",
+      "classification_v2": "operationally_blocked",
+      "daily_capture_locked": true,
+      "production_action": "NOTHING",
+      "capture_degraded": true
+    },
+    {
+      "scope": "PRAC-LIMITED-2026-09-02",
+      "frame_id": "20260902T194505Z-d7d1b4fb",
+      "packet_id": "d7d1b4fb-ef40-49c4-a502-5c6e793fff59",
+      "classification_v2": "operationally_blocked",
+      "daily_capture_locked": true,
+      "production_action": "NOTHING",
+      "capture_degraded": true
+    },
+    {
+      "scope": "PRAC-LIMITED-2026-09-02",
+      "frame_id": "20260902T195006Z-b7219c00",
+      "packet_id": "b7219c00-7b8e-4d33-a569-a397d39cc757",
+      "classification_v2": "operationally_blocked",
+      "daily_capture_locked": true,
+      "production_action": "NOTHING",
+      "capture_degraded": true
+    },
+    {
+      "scope": "PRAC-LIMITED-2026-09-02",
+      "frame_id": "20260902T195507Z-b071ff79",
+      "packet_id": "b071ff79-a8e4-4dbc-a188-b1fc982eddca",
+      "classification_v2": "operationally_blocked",
+      "daily_capture_locked": true,
+      "production_action": "NOTHING",
+      "capture_degraded": true
+    },
+    {
+      "scope": "PRAC-LIMITED-2026-09-02",
+      "frame_id": "20260902T200007Z-7800e8c3",
+      "packet_id": "7800e8c3-dc4d-440b-aa6a-2433057418a7",
+      "classification_v2": "operationally_blocked",
+      "daily_capture_locked": true,
+      "production_action": "NOTHING",
+      "capture_degraded": true
+    },
+    {
+      "scope": "PRAC-LIMITED-2026-09-02",
+      "frame_id": "20260902T200505Z-ce29fef7",
+      "packet_id": "ce29fef7-3080-490c-aadf-f7934b63e39c",
+      "classification_v2": "operationally_blocked",
+      "daily_capture_locked": true,
+      "production_action": "NOTHING",
+      "capture_degraded": true
+    }
+  ]
+}

@@ -1,0 +1,140 @@
+{
+  "schema_version": "glitch.topstep.frozen_cohort_manifest.v1",
+  "frozen_utc": "2026-09-01T21:00:00Z",
+  "pin_refresh_utc": "2026-09-02T22:10:00Z",
+  "pin_refresh_notes": [
+    "2026-09-02: refreshed registry.json and evaluation_output_contract.v1.json pins post-ensemble v2; collection_queue unchanged.",
+    "2026-09-02: registry pin refresh for offline_parallel_evaluation runner (Trilha A capacity); collection_queue unchanged.",
+    "2026-09-02: registry pin refresh for six-profile evaluation lane v3 (smart-money, indicators, orderflow); collection_queue unchanged."
+  ],
+  "status": "frozen_measurement_phase",
+  "sampling_plan_path": "evaluation/SAMPLING-PLAN-2026-09-01.md",
+  "versions": {
+    "prompt_version": "glitch-topstep-v17.1",
+    "adapter_version": "2026-09-01-v1",
+    "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+    "registry_version": "2026-09-02-v3",
+    "normalization_version": "2026-09-01-post-candidate-flat-rule"
+  },
+  "frozen_file_hashes": {
+    "evaluation/evaluation_output_contract.v1.json": "aec33631e95165437b72d2e9d439dd168d9a61971f8d071510a0b644582309f3",
+    "evaluation/registry.json": "b11062a9818d445aefb57bfc9fff314b19d4fc29043b41c51672378cdb63a68d",
+    "evaluation/sample_quality_gate.v1.json": "df1352877a8e3303100865f4f640796a2f7ec24c128f63a112f48dfb3d60547b",
+    "evaluation/SAMPLING-PLAN-2026-09-01.md": "4456a61f67be4bd13b7ea90dd46ca3279070ce32cc802f0b82346f88fa57d01f",
+    "evaluation/comparable_scenarios.v2.json": "187b9aaf54db35f91e648d8eb758091bdbb64b28a9619bb1886b8e0836cdbedc"
+  },
+  "historical_cohorts": {
+    "runs": ["r7-contract", "r8-contract", "r9-v2"],
+    "bundle_run_ids": [
+      "scenario-live-2026-09-01-r7-contract",
+      "scenario-live-2026-09-01-r8-contract",
+      "scenario-live-2026-09-01-r9-v2"
+    ],
+    "excluded_from_new_collection_population": true,
+    "notes": "r7/r8/r9 são cohort histórico — inventariados para auditoria; não entram na população de nova coleta frozen."
+  },
+  "independence_rules": {
+    "snapshot_hash_dedupe": "Repetir o mesmo snapshot_hash em múltiplos runs conta no máximo 1 evidência independente.",
+    "scenario_tag_distribution": "Preferir scenario_tag distinto entre pares comparáveis contados.",
+    "session_origin_distribution": "scenario_tag distinto OU session/origin distinto (ex.: prac_soak vs operator_minute_frames).",
+    "regime_preference": "Preferencialmente regime distinto quando disponível.",
+    "instrument_preference": "Preferencialmente instrument distinto quando o corpus permitir (v2: MNQ apenas).",
+    "bilateral_pair_requirement": "comparable_pair exige baseline e structure ambos em thesis_quality (candidate/held comparáveis).",
+    "min_independent_pairs": 5
+  },
+  "collection_queue": [
+    {
+      "queue_order": 1,
+      "priority": "target_2",
+      "scenario_id": "SCN-OPERATOR-MIDSESSION",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "envelope_id": "env-8d12d081fc8885a3",
+      "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "operator_minute_frames",
+      "regime": "TREND_DOWN",
+      "instrument": "MNQ",
+      "sampling_target": "operator_minute_frame bilateral thesis_quality",
+      "historical_bilateral_thesis_quality": false
+    },
+    {
+      "queue_order": 2,
+      "priority": "target_2",
+      "scenario_id": "SCN-OPERATOR-AFTERNOON",
+      "frame_id": "20260901T150823Z-d7908a55",
+      "envelope_id": "env-d6b73e4e5dacbc1b",
+      "snapshot_hash": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "operator_minute_frames",
+      "regime": "TREND_DOWN",
+      "instrument": "MNQ",
+      "sampling_target": "operator_minute_frame bilateral thesis_quality",
+      "historical_bilateral_thesis_quality": false
+    },
+    {
+      "queue_order": 3,
+      "priority": "target_3",
+      "scenario_id": "SCN-PRAC-TIMEOUT-RECOVERY",
+      "frame_id": "20260901T000528Z-041dc508",
+      "envelope_id": "env-8d68e765cc68d29e",
+      "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+      "scenario_tag": "timeout",
+      "origin": "prac_soak_2026-08-31",
+      "regime": "TREND_UP",
+      "instrument": "MNQ",
+      "sampling_target": "timeout bilateral thesis_quality",
+      "historical_bilateral_thesis_quality": false
+    },
+    {
+      "queue_order": 4,
+      "priority": "target_4",
+      "scenario_id": "SCN-PRAC-RESTART-BRACKET",
+      "frame_id": "20260831T235211Z-cdbf204f",
+      "envelope_id": "env-b4154b9b398983a4",
+      "snapshot_hash": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+      "scenario_tag": "restart",
+      "origin": "prac_soak_2026-08-31",
+      "regime": "TREND_UP",
+      "instrument": "MNQ",
+      "sampling_target": "restart bilateral thesis_quality",
+      "historical_bilateral_thesis_quality": false
+    },
+    {
+      "queue_order": 5,
+      "priority": "target_5",
+      "scenario_id": "SCN-PRAC-RECONCILIATION",
+      "frame_id": "20260901T143431Z-534fefd5",
+      "envelope_id": "env-1e829c3158feff4d",
+      "snapshot_hash": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+      "scenario_tag": "reconciliation",
+      "origin": "prac_soak_2026-08-31",
+      "regime": "TRANSITION",
+      "instrument": "MNQ",
+      "sampling_target": "reconciliation bilateral thesis_quality",
+      "historical_bilateral_thesis_quality": false
+    },
+    {
+      "queue_order": 6,
+      "priority": "reserve",
+      "scenario_id": "SCN-PRAC-PREFLIGHT",
+      "frame_id": "20260901T182843Z-b06d9a93",
+      "envelope_id": "env-8ffdc3e1a920e0c1",
+      "snapshot_hash": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+      "scenario_tag": "preflight",
+      "origin": "prac_soak_2026-08-31",
+      "regime": "TREND_DOWN",
+      "instrument": "MNQ",
+      "sampling_target": "preflight bilateral thesis_quality (reserva)",
+      "historical_bilateral_thesis_quality": false
+    }
+  ],
+  "excluded_from_queue": [
+    {
+      "scenario_id": "SCN-PRAC-DIRECTED-02",
+      "frame_id": "20260831T173427Z-4ac91997",
+      "envelope_id": "env-7b2ecab988f81446",
+      "scenario_tag": "prac_directed_test",
+      "reason": "target_1 já obtido — par bilateral thesis_quality canônico em r7"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": "glitch.topstep.stratified_cohort_digest.v1",
+  "manifest_schema": "glitch.topstep.stratified_cohort_manifest.v1",
+  "cohort_version": "v6-pre-registered",
+  "envelope_count": 2,
+  "sha256": "0adc4fbb866fc70e90d2cc561e09bf37b95c3d49ff894155d9a7bae9650a9ecb",
+  "envelopes": [
+    {
+      "queue_order": 1,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-56090490",
+      "frame_id": "20260902T152528Z-56090490",
+      "snapshot_hash": "e6cbf6ff7d314de0d09cf642a2741dced52e68c26414f8ce423ada08c47fc10a",
+      "envelope_id": "env-e6cbf6ff7d314de0",
+      "envelope_hash": "4dc95b1a08777e44e4056628450107820563f44bbafa100c1e21c78772fb15fa",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_02_diversity",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 2,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-fedf09de",
+      "frame_id": "20260902T151525Z-fedf09de",
+      "snapshot_hash": "fe43eba3575da7fae5a9f7c9fd24742a661c87c13ccdde365b4e241511dfedbb",
+      "envelope_id": "env-fe43eba3575da7fa",
+      "envelope_hash": "858d150e87758ee8985bb3b9a6de553f2dcc1104286471f9a5e845f0965f9020",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_02_diversity",
+      "capacity_gate_validated": true
+    }
+  ]
+}

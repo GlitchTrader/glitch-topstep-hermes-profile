@@ -1,0 +1,64 @@
+{
+  "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+  "contract_version": "2026-09-01-v1",
+  "status": "approved_for_evaluation_replay",
+  "canonical_state_enum": [
+    "candidate",
+    "held",
+    "no_edge",
+    "data_quality_insufficient",
+    "expired",
+    "timeout",
+    "error"
+  ],
+  "canonical_direction_enum": ["long", "short", "flat", "hold"],
+  "adapter_only_states": ["invalid", "missing_required_evidence"],
+  "approved_state_aliases": {
+    "NO_EDGE": "no_edge",
+    "CANDIDATE": "candidate",
+    "HELD": "held",
+    "HOLD": "held",
+    "DATA_DEGRADED": "data_quality_insufficient",
+    "DEGRADED": "data_quality_insufficient",
+    "EXPIRED": "expired",
+    "TIMEOUT": "timeout",
+    "ERROR": "error"
+  },
+  "approved_direction_aliases": {
+    "LONG": "long",
+    "SHORT": "short",
+    "FLAT": "flat",
+    "HOLD": "hold"
+  },
+  "forbidden_silent_inferences": [
+    "action_NOTHING_to_no_edge",
+    "direction_flat_to_no_edge",
+    "direction_bearish_bullish_to_short_long_without_geometry",
+    "missing_state_defaults"
+  ],
+  "directional_geometry_required_when_state": ["candidate", "held"],
+  "candidate_direction_enum": ["long", "short"],
+  "abstention_states": ["no_edge", "data_quality_insufficient"],
+  "abstention_direction_enum": ["flat", "hold"],
+  "state_direction_rules": {
+    "candidate": {
+      "direction_must_be": ["long", "short"],
+      "requires_entry_stop_geometry": true,
+      "notes": "Use no_edge when abstaining; never candidate with direction flat."
+    },
+    "held": {
+      "direction_must_be": ["long", "short"],
+      "requires_entry_stop_geometry": true
+    },
+    "no_edge": {
+      "direction_typically": ["flat", "hold"],
+      "requires_entry_stop_geometry": false,
+      "notes": "Valid abstention; do not coerce to candidate."
+    }
+  },
+  "notes": [
+    "invalid is adapter output only; LLM must not emit invalid.",
+    "state must be a string token, never a market snapshot object.",
+    "Raw output is always preserved in raw_profile_output."
+  ]
+}

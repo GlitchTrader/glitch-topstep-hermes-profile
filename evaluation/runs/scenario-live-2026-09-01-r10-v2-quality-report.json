@@ -1,0 +1,215 @@
+{
+  "schema_version": "glitch.topstep.evaluation_metrics_report.v1",
+  "run_id": "scenario-live-2026-09-01-r10-v2",
+  "artifact_count": 14,
+  "contract_validity": {
+    "invocation_count": 14,
+    "invalid_count": 0,
+    "invalid_rate": 0.0,
+    "error_code_counts": {},
+    "state_counts": {
+      "data_quality_insufficient": 1,
+      "held": 3,
+      "no_edge": 9,
+      "expired": 1
+    }
+  },
+  "evidence_completeness": {
+    "by_profile": {
+      "baseline-current": {
+        "comparable_count": 7,
+        "not_comparable_count": 0,
+        "completeness_state_counts": {
+          "indicators:partial": 7,
+          "ohlc:partial": 7,
+          "orderflow:available": 7,
+          "quote:available": 7,
+          "risk_context:available": 7,
+          "session:available": 7,
+          "structure:partial": 7
+        },
+        "missing_required_counts": {}
+      },
+      "structure": {
+        "comparable_count": 7,
+        "not_comparable_count": 0,
+        "completeness_state_counts": {
+          "indicators:partial": 7,
+          "ohlc:partial": 7,
+          "quote:available": 7,
+          "risk_context:available": 7,
+          "session:available": 7,
+          "structure:partial": 7
+        },
+        "missing_required_counts": {}
+      }
+    }
+  },
+  "comparability": {
+    "comparable_count": 14,
+    "not_comparable_count": 0,
+    "comparable_rate": 1.0
+  },
+  "cognitive_divergence": {
+    "frame_count": 7,
+    "comparable_pair_count": 1,
+    "direction_delta_count": 0,
+    "thesis_delta_count": 1,
+    "direction_deltas": [],
+    "thesis_deltas": [
+      {
+        "frame_id": "534fefd5",
+        "scenario_id": null,
+        "thesis_delta": true
+      }
+    ]
+  },
+  "stability": {
+    "groups_with_multiple_reruns": 0,
+    "agreements": [],
+    "placeholder": "no_intra_profile_reruns; invoke run-intra-profile-repeatability.py for stability data"
+  },
+  "cost_latency": {
+    "p50_ms": 12679.5,
+    "p95_ms": 22219.0,
+    "session_cost_usd_max": 0.159548,
+    "cost_gate_failures": 0,
+    "cost_basis_counts": {
+      "estimated_tokens": 14
+    }
+  },
+  "evidence_availability": {
+    "baseline-current": {
+      "not_comparable": 2,
+      "no_edge": 4,
+      "thesis_quality": 1
+    },
+    "structure": {
+      "thesis_quality": 2,
+      "no_edge": 5
+    }
+  },
+  "baseline_comparison": {
+    "frame_comparisons": [
+      {
+        "frame_id": "041dc508",
+        "baseline_profile_id": "baseline-current",
+        "challenger_profile_id": "structure",
+        "baseline_category": "no_edge",
+        "challenger_category": "no_edge",
+        "comparable_pair": false,
+        "direction_delta": null,
+        "thesis_delta": null,
+        "notes": [
+          "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+          "not_comparable preserves audit direction without thesis-quality comparison."
+        ]
+      },
+      {
+        "frame_id": "4ac91997",
+        "baseline_profile_id": "baseline-current",
+        "challenger_profile_id": "structure",
+        "baseline_category": "not_comparable",
+        "challenger_category": "thesis_quality",
+        "comparable_pair": false,
+        "direction_delta": null,
+        "thesis_delta": null,
+        "notes": [
+          "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+          "not_comparable preserves audit direction without thesis-quality comparison."
+        ]
+      },
+      {
+        "frame_id": "534fefd5",
+        "baseline_profile_id": "baseline-current",
+        "challenger_profile_id": "structure",
+        "baseline_category": "thesis_quality",
+        "challenger_category": "thesis_quality",
+        "comparable_pair": true,
+        "direction_delta": null,
+        "thesis_delta": true,
+        "notes": [
+          "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+          "not_comparable preserves audit direction without thesis-quality comparison."
+        ]
+      },
+      {
+        "frame_id": "b06d9a93",
+        "baseline_profile_id": "baseline-current",
+        "challenger_profile_id": "structure",
+        "baseline_category": "no_edge",
+        "challenger_category": "no_edge",
+        "comparable_pair": false,
+        "direction_delta": null,
+        "thesis_delta": null,
+        "notes": [
+          "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+          "not_comparable preserves audit direction without thesis-quality comparison."
+        ]
+      },
+      {
+        "frame_id": "bb50bbe9",
+        "baseline_profile_id": "baseline-current",
+        "challenger_profile_id": "structure",
+        "baseline_category": "no_edge",
+        "challenger_category": "no_edge",
+        "comparable_pair": false,
+        "direction_delta": null,
+        "thesis_delta": null,
+        "notes": [
+          "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+          "not_comparable preserves audit direction without thesis-quality comparison."
+        ]
+      },
+      {
+        "frame_id": "cdbf204f",
+        "baseline_profile_id": "baseline-current",
+        "challenger_profile_id": "structure",
+        "baseline_category": "not_comparable",
+        "challenger_category": "no_edge",
+        "comparable_pair": false,
+        "direction_delta": null,
+        "thesis_delta": null,
+        "notes": [
+          "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+          "not_comparable preserves audit direction without thesis-quality comparison."
+        ]
+      },
+      {
+        "frame_id": "d7908a55",
+        "baseline_profile_id": "baseline-current",
+        "challenger_profile_id": "structure",
+        "baseline_category": "no_edge",
+        "challenger_category": "no_edge",
+        "comparable_pair": false,
+        "direction_delta": null,
+        "thesis_delta": null,
+        "notes": [
+          "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+          "not_comparable preserves audit direction without thesis-quality comparison."
+        ]
+      }
+    ],
+    "comparable_pair_count": 1,
+    "comparable_pair_rate": 0.14285714285714285
+  },
+  "intra_profile_stability": {
+    "groups_with_multiple_reruns": 0,
+    "agreements": []
+  },
+  "decision_correlation": {
+    "pairwise_direction_agreement": [
+      {
+        "profile_a": "baseline-current",
+        "profile_b": "structure",
+        "frames_compared": 7,
+        "direction_match_rate": 0.8571428571428571,
+        "diagnostic_only": true
+      }
+    ]
+  },
+  "notes": [
+    "decision_correlation is diagnostic_only; does not gate promotion in v1.",
+    "stability.placeholder set when no intra-profile reruns exist."
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "schema_version": "glitch.topstep.evaluation_measurement_ready.v1",
+  "gate": "evaluation_measurement_ready",
+  "recorded_utc": "2026-09-02T21:02:22.988742Z",
+  "mode": "capture",
+  "ready": false,
+  "blocking_reasons": [
+    "bar_1m_lag",
+    "daily_capture_locked",
+    "evidence_chain_incomplete"
+  ],
+  "checks": [
+    {
+      "id": "maintenance_window",
+      "ok": true,
+      "reason": "no_maintenance_signal"
+    },
+    {
+      "id": "market_not_valid",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "id": "daily_capture_locked",
+      "ok": false,
+      "reason": "execution_daily_capture_locked"
+    },
+    {
+      "id": "bar_1m_partial",
+      "ok": true,
+      "reason": "bar_complete_or_absent"
+    },
+    {
+      "id": "bar_1m_lag",
+      "ok": false,
+      "reason": "lag_over_120000ms"
+    },
+    {
+      "id": "gateway_state_incomplete",
+      "ok": true,
+      "reason": "packet_state_complete"
+    },
+    {
+      "id": "snapshot_expired",
+      "ok": true,
+      "reason": "within_intent_expiry"
+    },
+    {
+      "id": "insufficient_instrument_capacity",
+      "ok": true,
+      "reason": "capacity_gate"
+    },
+    {
+      "id": "evidence_chain_incomplete",
+      "ok": false,
+      "reason": "missing:decision,receipt"
+    }
+  ]
+}

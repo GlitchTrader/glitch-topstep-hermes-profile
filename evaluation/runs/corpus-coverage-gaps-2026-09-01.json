@@ -1,0 +1,436 @@
+{
+  "schema_version": "glitch.topstep.corpus_coverage_gaps.v1",
+  "generated_utc": "2026-09-01T23:54:28.463291Z",
+  "source_bundles": [
+    "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract.json",
+    "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2.json",
+    "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2.json"
+  ],
+  "quality_gate_reference": "evaluation\\sample_quality_gate.v1.json",
+  "min_comparable_pairs_threshold": 5,
+  "global_summary": {
+    "invocation_count": 32,
+    "frame_comparison_count": 16,
+    "valid_comparable_pairs": 2,
+    "candidate_candidate_pairs": 2,
+    "candidate_no_edge_pairs": 2,
+    "partial_evidence_count": 96,
+    "snapshot_hash_duplicate_count": 32,
+    "unique_snapshot_hashes": 7,
+    "repeated_snapshot_hashes": 7,
+    "recommendation": "more_collection"
+  },
+  "bundle_summaries": [
+    {
+      "run_id": "scenario-live-2026-09-01-r7-contract",
+      "bundle_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract.json",
+      "invocation_count": 6,
+      "frame_comparison_count": 3,
+      "valid_comparable_pairs": 1,
+      "candidate_candidate_pairs": 1,
+      "candidate_no_edge_pairs": 1,
+      "partial_evidence_count": 18,
+      "snapshot_hash_duplicate_count": 0,
+      "unique_snapshot_hashes": 0,
+      "repeated_snapshot_hashes": 0,
+      "recommendation": "more_collection"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "bundle_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2.json",
+      "invocation_count": 14,
+      "frame_comparison_count": 7,
+      "valid_comparable_pairs": 1,
+      "candidate_candidate_pairs": 1,
+      "candidate_no_edge_pairs": 0,
+      "partial_evidence_count": 42,
+      "snapshot_hash_duplicate_count": 0,
+      "unique_snapshot_hashes": 0,
+      "repeated_snapshot_hashes": 0,
+      "recommendation": "more_collection"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "bundle_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2.json",
+      "invocation_count": 12,
+      "frame_comparison_count": 6,
+      "valid_comparable_pairs": 0,
+      "candidate_candidate_pairs": 0,
+      "candidate_no_edge_pairs": 1,
+      "partial_evidence_count": 36,
+      "snapshot_hash_duplicate_count": 0,
+      "unique_snapshot_hashes": 0,
+      "repeated_snapshot_hashes": 0,
+      "recommendation": "more_collection"
+    }
+  ],
+  "by_scenario_tag": {
+    "operator_minute_frame": {
+      "invocation_count": 10,
+      "frame_comparison_count": 5,
+      "valid_comparable_pairs": 0,
+      "candidate_candidate_pairs": 0,
+      "candidate_no_edge_pairs": 1,
+      "partial_evidence_count": 30,
+      "snapshot_hash_duplicate_count": 32,
+      "unique_snapshot_hashes": 7,
+      "repeated_snapshot_hashes": 7,
+      "recommendation": "more_collection"
+    },
+    "prac_directed_test": {
+      "invocation_count": 4,
+      "frame_comparison_count": 2,
+      "valid_comparable_pairs": 1,
+      "candidate_candidate_pairs": 1,
+      "candidate_no_edge_pairs": 0,
+      "partial_evidence_count": 12,
+      "snapshot_hash_duplicate_count": 32,
+      "unique_snapshot_hashes": 7,
+      "repeated_snapshot_hashes": 7,
+      "recommendation": "more_collection"
+    },
+    "preflight": {
+      "invocation_count": 4,
+      "frame_comparison_count": 2,
+      "valid_comparable_pairs": 0,
+      "candidate_candidate_pairs": 0,
+      "candidate_no_edge_pairs": 0,
+      "partial_evidence_count": 12,
+      "snapshot_hash_duplicate_count": 32,
+      "unique_snapshot_hashes": 7,
+      "repeated_snapshot_hashes": 7,
+      "recommendation": "more_collection"
+    },
+    "reconciliation": {
+      "invocation_count": 4,
+      "frame_comparison_count": 2,
+      "valid_comparable_pairs": 1,
+      "candidate_candidate_pairs": 1,
+      "candidate_no_edge_pairs": 1,
+      "partial_evidence_count": 12,
+      "snapshot_hash_duplicate_count": 32,
+      "unique_snapshot_hashes": 7,
+      "repeated_snapshot_hashes": 7,
+      "recommendation": "more_collection"
+    },
+    "restart": {
+      "invocation_count": 4,
+      "frame_comparison_count": 2,
+      "valid_comparable_pairs": 0,
+      "candidate_candidate_pairs": 0,
+      "candidate_no_edge_pairs": 0,
+      "partial_evidence_count": 12,
+      "snapshot_hash_duplicate_count": 32,
+      "unique_snapshot_hashes": 7,
+      "repeated_snapshot_hashes": 7,
+      "recommendation": "more_collection"
+    },
+    "timeout": {
+      "invocation_count": 6,
+      "frame_comparison_count": 3,
+      "valid_comparable_pairs": 0,
+      "candidate_candidate_pairs": 0,
+      "candidate_no_edge_pairs": 0,
+      "partial_evidence_count": 18,
+      "snapshot_hash_duplicate_count": 32,
+      "unique_snapshot_hashes": 7,
+      "repeated_snapshot_hashes": 7,
+      "recommendation": "more_collection"
+    }
+  },
+  "by_instrument": {
+    "MNQ": {
+      "invocation_count": 32,
+      "frame_comparison_count": 16,
+      "valid_comparable_pairs": 2,
+      "candidate_candidate_pairs": 2,
+      "candidate_no_edge_pairs": 2,
+      "partial_evidence_count": 96,
+      "snapshot_hash_duplicate_count": 32,
+      "unique_snapshot_hashes": 7,
+      "repeated_snapshot_hashes": 7,
+      "recommendation": "more_collection"
+    }
+  },
+  "by_regime": {
+    "CHOP": {
+      "invocation_count": 4,
+      "frame_comparison_count": 2,
+      "valid_comparable_pairs": 1,
+      "candidate_candidate_pairs": 1,
+      "candidate_no_edge_pairs": 0,
+      "partial_evidence_count": 12,
+      "snapshot_hash_duplicate_count": 32,
+      "unique_snapshot_hashes": 7,
+      "repeated_snapshot_hashes": 7,
+      "recommendation": "more_collection"
+    },
+    "TRANSITION": {
+      "invocation_count": 4,
+      "frame_comparison_count": 2,
+      "valid_comparable_pairs": 1,
+      "candidate_candidate_pairs": 1,
+      "candidate_no_edge_pairs": 1,
+      "partial_evidence_count": 12,
+      "snapshot_hash_duplicate_count": 32,
+      "unique_snapshot_hashes": 7,
+      "repeated_snapshot_hashes": 7,
+      "recommendation": "more_collection"
+    },
+    "TREND_DOWN": {
+      "invocation_count": 14,
+      "frame_comparison_count": 7,
+      "valid_comparable_pairs": 0,
+      "candidate_candidate_pairs": 0,
+      "candidate_no_edge_pairs": 1,
+      "partial_evidence_count": 42,
+      "snapshot_hash_duplicate_count": 32,
+      "unique_snapshot_hashes": 7,
+      "repeated_snapshot_hashes": 7,
+      "recommendation": "more_collection"
+    },
+    "TREND_UP": {
+      "invocation_count": 10,
+      "frame_comparison_count": 5,
+      "valid_comparable_pairs": 0,
+      "candidate_candidate_pairs": 0,
+      "candidate_no_edge_pairs": 0,
+      "partial_evidence_count": 30,
+      "snapshot_hash_duplicate_count": 32,
+      "unique_snapshot_hashes": 7,
+      "repeated_snapshot_hashes": 7,
+      "recommendation": "more_collection"
+    }
+  },
+  "regime_available": true,
+  "snapshot_hash_duplicates": [
+    {
+      "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+      "invocation_count": 6
+    },
+    {
+      "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+      "invocation_count": 6
+    },
+    {
+      "snapshot_hash": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+      "invocation_count": 4
+    },
+    {
+      "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+      "invocation_count": 4
+    },
+    {
+      "snapshot_hash": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+      "invocation_count": 4
+    },
+    {
+      "snapshot_hash": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+      "invocation_count": 4
+    },
+    {
+      "snapshot_hash": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+      "invocation_count": 4
+    }
+  ],
+  "frames": [
+    {
+      "run_id": "scenario-live-2026-09-01-r7-contract",
+      "frame_id": "20260831T173427Z-4ac91997",
+      "scenario_id": "SCN-PRAC-DIRECTED-02",
+      "scenario_tag": "prac_directed_test",
+      "instrument": "MNQ",
+      "regime": "CHOP",
+      "baseline_category": "thesis_quality",
+      "challenger_category": "thesis_quality",
+      "comparable_pair": true,
+      "pair_type": "candidate_candidate"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r7-contract",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "scenario_id": "SCN-OPERATOR-MIDSESSION",
+      "scenario_tag": "operator_minute_frame",
+      "instrument": "MNQ",
+      "regime": "TREND_DOWN",
+      "baseline_category": "thesis_quality",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "pair_type": "candidate_no_edge"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r7-contract",
+      "frame_id": "20260901T000528Z-041dc508",
+      "scenario_id": "SCN-PRAC-TIMEOUT-RECOVERY",
+      "scenario_tag": "timeout",
+      "instrument": "MNQ",
+      "regime": "TREND_UP",
+      "baseline_category": "thesis_quality",
+      "challenger_category": "schema_invalid",
+      "comparable_pair": false,
+      "pair_type": null
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260831T173427Z-4ac91997",
+      "scenario_id": "SCN-PRAC-DIRECTED-02",
+      "scenario_tag": "prac_directed_test",
+      "instrument": "MNQ",
+      "regime": "CHOP",
+      "baseline_category": "not_comparable",
+      "challenger_category": "thesis_quality",
+      "comparable_pair": false,
+      "pair_type": null
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "scenario_id": "SCN-OPERATOR-MIDSESSION",
+      "scenario_tag": "operator_minute_frame",
+      "instrument": "MNQ",
+      "regime": "TREND_DOWN",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "pair_type": null
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260901T000528Z-041dc508",
+      "scenario_id": "SCN-PRAC-TIMEOUT-RECOVERY",
+      "scenario_tag": "timeout",
+      "instrument": "MNQ",
+      "regime": "TREND_UP",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "pair_type": null
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260831T235211Z-cdbf204f",
+      "scenario_id": "SCN-PRAC-RESTART-BRACKET",
+      "scenario_tag": "restart",
+      "instrument": "MNQ",
+      "regime": "TREND_UP",
+      "baseline_category": "not_comparable",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "pair_type": null
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260901T143431Z-534fefd5",
+      "scenario_id": "SCN-PRAC-RECONCILIATION",
+      "scenario_tag": "reconciliation",
+      "instrument": "MNQ",
+      "regime": "TRANSITION",
+      "baseline_category": "thesis_quality",
+      "challenger_category": "thesis_quality",
+      "comparable_pair": true,
+      "pair_type": "candidate_candidate"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260901T182843Z-b06d9a93",
+      "scenario_id": "SCN-PRAC-PREFLIGHT",
+      "scenario_tag": "preflight",
+      "instrument": "MNQ",
+      "regime": "TREND_DOWN",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "pair_type": null
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260901T150823Z-d7908a55",
+      "scenario_id": "SCN-OPERATOR-AFTERNOON",
+      "scenario_tag": "operator_minute_frame",
+      "instrument": "MNQ",
+      "regime": "TREND_DOWN",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "pair_type": null
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "scenario_id": "SCN-OPERATOR-MIDSESSION",
+      "scenario_tag": "operator_minute_frame",
+      "instrument": "MNQ",
+      "regime": "TREND_DOWN",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "pair_type": null
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260901T150823Z-d7908a55",
+      "scenario_id": "SCN-OPERATOR-AFTERNOON",
+      "scenario_tag": "operator_minute_frame",
+      "instrument": "MNQ",
+      "regime": "TREND_DOWN",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "pair_type": null
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260901T000528Z-041dc508",
+      "scenario_id": "SCN-PRAC-TIMEOUT-RECOVERY",
+      "scenario_tag": "timeout",
+      "instrument": "MNQ",
+      "regime": "TREND_UP",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "pair_type": null
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260831T235211Z-cdbf204f",
+      "scenario_id": "SCN-PRAC-RESTART-BRACKET",
+      "scenario_tag": "restart",
+      "instrument": "MNQ",
+      "regime": "TREND_UP",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "pair_type": null
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260901T143431Z-534fefd5",
+      "scenario_id": "SCN-PRAC-RECONCILIATION",
+      "scenario_tag": "reconciliation",
+      "instrument": "MNQ",
+      "regime": "TRANSITION",
+      "baseline_category": "no_edge",
+      "challenger_category": "thesis_quality",
+      "comparable_pair": false,
+      "pair_type": "candidate_no_edge"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260901T182843Z-b06d9a93",
+      "scenario_id": "SCN-PRAC-PREFLIGHT",
+      "scenario_tag": "preflight",
+      "instrument": "MNQ",
+      "regime": "TREND_DOWN",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "pair_type": null
+    }
+  ],
+  "notes": [
+    "Aggregates r7+r8+r9 offline replay bundles; no new Hermes invocations.",
+    "valid_comparable_pairs requires bilateral thesis_quality (candidate/held).",
+    "regime dimension uses detect_regime(packet) when packet.regime absent.",
+    "recommendation more_collection when below min_comparable_pairs or zero candidate_candidate pairs."
+  ]
+}

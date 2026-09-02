@@ -1,0 +1,42 @@
+{
+  "schema_version": "glitch.topstep.stratified_cohort_digest.v1",
+  "manifest_schema": "glitch.topstep.stratified_cohort_manifest.v1",
+  "cohort_version": "v8-pre-registered",
+  "envelope_count": 3,
+  "sha256": "b4e9289b3a0a57b3a158f8de21fc11cadb1993e1d1d6c678faaade340e043cba",
+  "envelopes": [
+    {
+      "queue_order": 1,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-c62a7390",
+      "frame_id": "20260902T172547Z-c62a7390",
+      "snapshot_hash": "2d581eea30511bd9b25b6c273647a6e40f97349c4cf7f0d022275daab0944a6a",
+      "envelope_id": "env-2d581eea30511bd9",
+      "envelope_hash": "4c909cfa242f1315f3a724de3ea19b82b6d39f6b6cd87ddeb1f9be299dfd6371",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_02_v8",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 2,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-86a52bbc",
+      "frame_id": "20260902T172046Z-86a52bbc",
+      "snapshot_hash": "7218421555d4daf9be51d24fc8ebfedf8fd11edd49975b0db7f15ecc0c499fff",
+      "envelope_id": "env-7218421555d4daf9",
+      "envelope_hash": "b6163cc482284148530ca0072a03cfa887f83f43e0e06618ef6f2b2ccc941d90",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_02_v8",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 3,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-4fdd308c",
+      "frame_id": "20260902T171541Z-4fdd308c",
+      "snapshot_hash": "5329e8096338d3cff0d891ee719162f3648a774c0afe386701e269388fd37cc3",
+      "envelope_id": "env-5329e8096338d3cf",
+      "envelope_hash": "ac40eceb0ea0f12b2a0e518ee574cee6e6f3a35886c4c43b0e979bf095db9e8d",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_02_v8",
+      "capacity_gate_validated": true
+    }
+  ]
+}

@@ -1,0 +1,151 @@
+{
+  "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+  "auth_mode": "oauth",
+  "credentials_present": true,
+  "production_lane_was_active": false,
+  "operational_artifacts_unchanged": true,
+  "bundle_status": "completed",
+  "invocation_count": 18,
+  "expected_invocations": 18,
+  "all_cost_gates_passed": true,
+  "session_cost_usd": 0.203388,
+  "scenario_comparisons": [
+    {
+      "frame_id": "20260831T233830Z-cbb5cee1",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "no_edge",
+      "challenger_category": "not_comparable",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-cbb5cee1"
+    },
+    {
+      "frame_id": "20260831T234106Z-a9c3eb80",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "not_comparable",
+      "challenger_category": "not_comparable",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-a9c3eb80"
+    },
+    {
+      "frame_id": "20260901T002738Z-818c9e79",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-818c9e79"
+    },
+    {
+      "frame_id": "20260901T002738Z-5e80e1ac",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-STRAT-RECONCILIATION-5e80e1ac"
+    },
+    {
+      "frame_id": "20260901T020441Z-9866a0f9",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-STRAT-RECONCILIATION-9866a0f9"
+    },
+    {
+      "frame_id": "20260831T235211Z-8c371231",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "not_comparable",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-STRAT-RESTART-8c371231"
+    },
+    {
+      "frame_id": "20260831T235620Z-fd331ad4",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-STRAT-RESTART-fd331ad4"
+    },
+    {
+      "frame_id": "20260901T143311Z-a49c317a",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "no_edge",
+      "challenger_category": "thesis_quality",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-a49c317a"
+    },
+    {
+      "frame_id": "20260901T145322Z-c776a976",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-c776a976"
+    }
+  ],
+  "quality_report_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-v2-quality-report.json",
+  "bundle_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-v2.json"
+}

@@ -1,0 +1,95 @@
+{
+  "schema_version": "glitch.topstep.prac_evidence_chain_manifest.v1",
+  "exported_utc": "2026-09-02T20:06:51.136402Z",
+  "scenario_tag": "prac_limited",
+  "chains": [
+    {
+      "packet_id": "b5fd08f8-dd0b-499a-9d5a-be05ac247fef",
+      "market_snapshot_hash": "2157c91874e31e627c0e45940542e34d2e17637141d6655bd5516539329efc04",
+      "intent_id": "04d05df9-ca39-514c-b023-08dd55ce46c4",
+      "decision_recorded_utc": "2026-09-02T19:31:43.974672Z",
+      "action": "NOTHING",
+      "receipt_recorded_utc": "2026-09-02T19:31:44.531793Z",
+      "scenario_tag": "prac_limited",
+      "directed_test_id": null,
+      "join_status": "NOTHING"
+    },
+    {
+      "packet_id": "3dd35e83-a202-46c9-81dd-9d5ef1f6ff68",
+      "market_snapshot_hash": "8bb17040e5c45c6bd72a14c18a834fa29c962eb204ea250c18864a9519ea5617",
+      "intent_id": "dc06bbaf-091c-58ef-bcbe-9365e19b60ee",
+      "decision_recorded_utc": "2026-09-02T19:36:25.893218Z",
+      "action": "NOTHING",
+      "receipt_recorded_utc": "2026-09-02T19:36:26.335738Z",
+      "scenario_tag": "prac_limited",
+      "directed_test_id": null,
+      "join_status": "NOTHING"
+    },
+    {
+      "packet_id": "0d305fc5-24a6-42fe-a137-00c77ae848e6",
+      "market_snapshot_hash": "5c6ae6859c0ff5436580798bf64c5eae7b3baa8fee3878a9c625e834d12fc962",
+      "intent_id": "3a1c869c-62f9-5837-9ef5-35259cad9321",
+      "decision_recorded_utc": "2026-09-02T19:41:24.650541Z",
+      "action": "NOTHING",
+      "receipt_recorded_utc": "2026-09-02T19:41:25.431206Z",
+      "scenario_tag": "prac_limited",
+      "directed_test_id": null,
+      "join_status": "NOTHING"
+    },
+    {
+      "packet_id": "d7d1b4fb-ef40-49c4-a502-5c6e793fff59",
+      "market_snapshot_hash": "ab13b33dc98b4a8d793ff61daffee29cbec93f781ffafb0dc5a14bf344f95130",
+      "intent_id": "27e4e0a1-f3cb-5037-aba8-6ded4e5add7f",
+      "decision_recorded_utc": "2026-09-02T19:46:25.862520Z",
+      "action": "NOTHING",
+      "receipt_recorded_utc": "2026-09-02T19:46:26.190578Z",
+      "scenario_tag": "prac_limited",
+      "directed_test_id": null,
+      "join_status": "NOTHING"
+    },
+    {
+      "packet_id": "b7219c00-7b8e-4d33-a569-a397d39cc757",
+      "market_snapshot_hash": "b3014dca8b63d0dc1b1a12c93f504c3a25587a58d4768f960d7e9fd80e4b00d7",
+      "intent_id": "1a46de7d-68e2-551c-bd91-6838778ebab8",
+      "decision_recorded_utc": "2026-09-02T19:51:20.147656Z",
+      "action": "NOTHING",
+      "receipt_recorded_utc": "2026-09-02T19:51:20.538222Z",
+      "scenario_tag": "prac_limited",
+      "directed_test_id": null,
+      "join_status": "NOTHING"
+    },
+    {
+      "packet_id": "b071ff79-a8e4-4dbc-a188-b1fc982eddca",
+      "market_snapshot_hash": "c7f6f6e814bab822976411c2267e63dc238ff700a26d3903fea3ff64d54d7bc4",
+      "intent_id": "08d84d1c-437c-51b4-9450-1a2a69b52c93",
+      "decision_recorded_utc": "2026-09-02T19:56:14.258503Z",
+      "action": "NOTHING",
+      "receipt_recorded_utc": "2026-09-02T19:56:16.986470Z",
+      "scenario_tag": "prac_limited",
+      "directed_test_id": null,
+      "join_status": "NOTHING"
+    },
+    {
+      "packet_id": "7800e8c3-dc4d-440b-aa6a-2433057418a7",
+      "market_snapshot_hash": "0437b984991052ee95825b932eea388698524bc4a17a7b4bfd39e0b13f04237d",
+      "intent_id": "dbbc29e1-1de1-5eb1-9cd2-80e43e8ba038",
+      "decision_recorded_utc": "2026-09-02T20:02:27.381199Z",
+      "action": "NOTHING",
+      "receipt_recorded_utc": "2026-09-02T20:02:28.407942Z",
+      "scenario_tag": "prac_limited",
+      "directed_test_id": null,
+      "join_status": "NOTHING"
+    },
+    {
+      "packet_id": "ce29fef7-3080-490c-aadf-f7934b63e39c",
+      "market_snapshot_hash": "eb1c990b60629bc411425fb854d61d7ca0f0bb307aa020f81a3c85b8a377b06d",
+      "intent_id": "498d1be5-a1dc-5987-a055-fb73379a9f08",
+      "decision_recorded_utc": "2026-09-02T20:06:28.214770Z",
+      "action": "NOTHING",
+      "receipt_recorded_utc": "2026-09-02T20:06:29.537559Z",
+      "scenario_tag": "prac_limited",
+      "directed_test_id": null,
+      "join_status": "NOTHING"
+    }
+  ]
+}

@@ -1,0 +1,707 @@
+{
+  "schema_version": "glitch.topstep.ensemble_run.v1",
+  "evaluation_only": true,
+  "armed_promotion_allowed": false,
+  "run_id": "a535bb6e-60ff-49a5-8ed5-76dd5c074a8f",
+  "runner_version": "2026-09-01-v2-sequential-offline",
+  "corpus_hash": "526e0a6aeaf2c6d6de946b548397b450a2b653fb7cc90f80649b027ef2dde443",
+  "profile_ids": [
+    "baseline-current",
+    "structure",
+    "adversarial-risk"
+  ],
+  "registry_manifest": [
+    {
+      "profile_id": "baseline-current",
+      "profile_version": "1.0.0",
+      "profile_kind": "baseline",
+      "prompt_version": "glitch-topstep-v17.1",
+      "skills": [
+        "topstep-observe-market",
+        "topstep-market-scan",
+        "topstep-assess-risk",
+        "topstep-form-thesis",
+        "topstep-build-intent",
+        "topstep-position-management"
+      ],
+      "enabled": true
+    },
+    {
+      "profile_id": "structure",
+      "profile_version": "1.0.0",
+      "profile_kind": "directional",
+      "prompt_version": "glitch-topstep-v17.1",
+      "skills": [
+        "topstep-observe-market",
+        "topstep-setup-state",
+        "topstep-form-thesis",
+        "topstep-build-intent"
+      ],
+      "enabled": true
+    },
+    {
+      "profile_id": "adversarial-risk",
+      "profile_version": "1.0.0",
+      "profile_kind": "reviewer",
+      "prompt_version": "glitch-topstep-v17.1",
+      "skills": [
+        "topstep-assess-risk",
+        "topstep-form-thesis"
+      ],
+      "enabled": true
+    }
+  ],
+  "matrix_version": "2026-09-01-v2",
+  "registry_version": "2026-09-01-v2",
+  "config_version": "2026-09-01-v2",
+  "aggregator_rules_version": "2026-09-01-v2",
+  "mapping_version": "2026-09-01-v1",
+  "profile_comparisons": [
+    {
+      "frame_id": "20260820T1200Z",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "missing_required_evidence",
+      "challenger_category": "missing_required_evidence",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ]
+    },
+    {
+      "frame_id": "20260820T1201Z",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "missing_required_evidence",
+      "challenger_category": "missing_required_evidence",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ]
+    }
+  ],
+  "frame_results": [
+    {
+      "frame_id": "20260820T1200Z",
+      "sealed_snapshot_hash": "e3d8905356316096e95289df936942a956379e960ef1db53e121e318a63b67a7",
+      "envelope": {
+        "schema_version": "glitch.topstep.evaluation_envelope.v1",
+        "envelope_id": "env-e3d8905356316096",
+        "snapshot_id": "20260820T1200Z",
+        "snapshot_hash": "e3d8905356316096e95289df936942a956379e960ef1db53e121e318a63b67a7",
+        "reference_utc": "2026-08-20T12:00:00Z",
+        "valid_until_utc": "2026-08-20T12:00:35Z",
+        "instrument": "MNQ",
+        "contract": {
+          "id": "CON.MNQ.202609",
+          "name": "MNQ",
+          "symbol_id": "MNQ",
+          "tick_size": 0.25,
+          "tick_value": 0.5,
+          "active_contract": true
+        },
+        "packet_schema_version": "glitch.direct.decision_packet.v2",
+        "packet": {
+          "schema_version": "glitch.direct.decision_packet.v2",
+          "packet_id": "20260820T1200Z",
+          "created_utc": "2026-08-20T12:00:00Z",
+          "instrument": "MNQ",
+          "account": {
+            "name": "PRAC",
+            "instrument_open_contracts": 0
+          },
+          "contract": {
+            "id": "CON.MNQ.202609",
+            "name": "MNQ",
+            "symbol_id": "MNQ",
+            "tick_size": 0.25,
+            "tick_value": 0.5,
+            "active_contract": true
+          },
+          "market": {
+            "last": 20000.0,
+            "bid": 19999.0,
+            "ask": 20001.0,
+            "high": 20010.0,
+            "low": 19990.0,
+            "quote_timestamp": "2026-08-20T12:00:00Z"
+          },
+          "data_quality": {
+            "state_complete": true,
+            "issues": [],
+            "optional_issues": []
+          },
+          "policy": {
+            "account_stage": "PRAC"
+          }
+        },
+        "completeness": {
+          "ohlc": "missing_required",
+          "quote": "available",
+          "structure": "missing_required",
+          "session": "partial",
+          "orderflow": "missing_required",
+          "indicators": "missing_required",
+          "risk_context": "available"
+        },
+        "source_refs": {
+          "frame_id": "20260820T1200Z",
+          "corpus_ref": "tests\\fixtures\\frozen_corpus\\minute-frames",
+          "mapping_version": "2026-09-01-v1"
+        }
+      },
+      "envelope_hash": "5799472c16d7a631c9a091c03113b94526dc644ed3e4fa2b110db42f1056c374",
+      "capacity_gates": [
+        {
+          "profile_id": "baseline-current",
+          "completeness_used": {
+            "indicators": "missing_required",
+            "ohlc": "missing_required",
+            "orderflow": "missing_required",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "partial",
+            "structure": "missing_required"
+          },
+          "missing_required": [
+            "ohlc"
+          ],
+          "stale_or_inconsistent": [],
+          "comparable": false,
+          "allows_directional_evaluation": false
+        },
+        {
+          "profile_id": "structure",
+          "completeness_used": {
+            "indicators": "missing_required",
+            "ohlc": "missing_required",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "partial",
+            "structure": "missing_required"
+          },
+          "missing_required": [
+            "ohlc",
+            "structure"
+          ],
+          "stale_or_inconsistent": [],
+          "comparable": false,
+          "allows_directional_evaluation": false
+        },
+        {
+          "profile_id": "adversarial-risk",
+          "completeness_used": {
+            "ohlc": "missing_required",
+            "orderflow": "missing_required",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "partial",
+            "structure": "missing_required"
+          },
+          "missing_required": [
+            "ohlc"
+          ],
+          "stale_or_inconsistent": [],
+          "comparable": false,
+          "allows_directional_evaluation": false
+        }
+      ],
+      "candidates": [
+        {
+          "profile_id": "baseline-current",
+          "prompt_version": "glitch-topstep-v17.1",
+          "skills": [
+            "topstep-observe-market",
+            "topstep-market-scan",
+            "topstep-assess-risk",
+            "topstep-form-thesis",
+            "topstep-build-intent",
+            "topstep-position-management"
+          ],
+          "raw_profile_output": {
+            "state": "no_edge",
+            "direction": "flat",
+            "thesis": "Baseline reference abstains on thin fixture packet.",
+            "latency_ms": 1
+          },
+          "normalized": {
+            "schema_version": "glitch.topstep.normalized_candidate.v1",
+            "run_id": "a535bb6e-60ff-49a5-8ed5-76dd5c074a8f",
+            "profile_id": "baseline-current",
+            "profile_version": "1.0.0",
+            "invocation_id": "ef7232ac-dcec-4638-a9fc-be2d76075c70",
+            "envelope_id": "env-e3d8905356316096",
+            "envelope_hash": "5799472c16d7a631c9a091c03113b94526dc644ed3e4fa2b110db42f1056c374",
+            "state": "missing_required_evidence",
+            "comparability": "not_comparable",
+            "profile_declared_state": "no_edge",
+            "profile_declared_direction": "flat",
+            "capacity_gate_reason": "missing_required",
+            "instrument": "MNQ",
+            "direction": "flat",
+            "thesis": "Baseline reference abstains on thin fixture packet.",
+            "evidence_refs": [],
+            "entry": null,
+            "entry_range": null,
+            "stop": null,
+            "target": null,
+            "target_absence_reason": null,
+            "horizon_bars": null,
+            "invalidation": null,
+            "uncertainties": [
+              "ohlc"
+            ],
+            "forecast": null,
+            "completeness_used": {
+              "indicators": "missing_required",
+              "ohlc": "missing_required",
+              "orderflow": "missing_required",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "partial",
+              "structure": "missing_required"
+            },
+            "raw_status": null,
+            "error_code": null,
+            "started_utc": "2026-09-01T18:15:22.721424Z",
+            "finished_utc": "2026-09-01T18:15:22.721424Z",
+            "latency_ms": 1
+          }
+        },
+        {
+          "profile_id": "structure",
+          "prompt_version": "glitch-topstep-v17.1",
+          "skills": [
+            "topstep-observe-market",
+            "topstep-setup-state",
+            "topstep-form-thesis",
+            "topstep-build-intent"
+          ],
+          "raw_profile_output": {
+            "state": "no_edge",
+            "direction": "flat",
+            "thesis": "Structure incomplete on minimal fixture; no directional edge.",
+            "latency_ms": 1
+          },
+          "normalized": {
+            "schema_version": "glitch.topstep.normalized_candidate.v1",
+            "run_id": "a535bb6e-60ff-49a5-8ed5-76dd5c074a8f",
+            "profile_id": "structure",
+            "profile_version": "1.0.0",
+            "invocation_id": "4a456ff8-8e02-41ee-b99c-9caa41251f8b",
+            "envelope_id": "env-e3d8905356316096",
+            "envelope_hash": "5799472c16d7a631c9a091c03113b94526dc644ed3e4fa2b110db42f1056c374",
+            "state": "missing_required_evidence",
+            "comparability": "not_comparable",
+            "profile_declared_state": "no_edge",
+            "profile_declared_direction": "flat",
+            "capacity_gate_reason": "missing_required",
+            "instrument": "MNQ",
+            "direction": "flat",
+            "thesis": "Structure incomplete on minimal fixture; no directional edge.",
+            "evidence_refs": [],
+            "entry": null,
+            "entry_range": null,
+            "stop": null,
+            "target": null,
+            "target_absence_reason": null,
+            "horizon_bars": null,
+            "invalidation": null,
+            "uncertainties": [
+              "ohlc",
+              "structure"
+            ],
+            "forecast": null,
+            "completeness_used": {
+              "indicators": "missing_required",
+              "ohlc": "missing_required",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "partial",
+              "structure": "missing_required"
+            },
+            "raw_status": null,
+            "error_code": null,
+            "started_utc": "2026-09-01T18:15:22.721424Z",
+            "finished_utc": "2026-09-01T18:15:22.721424Z",
+            "latency_ms": 1
+          }
+        },
+        {
+          "profile_id": "adversarial-risk",
+          "prompt_version": "glitch-topstep-v17.1",
+          "skills": [
+            "topstep-assess-risk",
+            "topstep-form-thesis"
+          ],
+          "raw_profile_output": {
+            "state": "no_edge",
+            "direction": "flat",
+            "thesis": "No contestable directional candidate on frame.",
+            "latency_ms": 1
+          },
+          "normalized": {
+            "schema_version": "glitch.topstep.normalized_candidate.v1",
+            "run_id": "a535bb6e-60ff-49a5-8ed5-76dd5c074a8f",
+            "profile_id": "adversarial-risk",
+            "profile_version": "1.0.0",
+            "invocation_id": "359e538b-7d03-4094-9a49-ae497183972d",
+            "envelope_id": "env-e3d8905356316096",
+            "envelope_hash": "5799472c16d7a631c9a091c03113b94526dc644ed3e4fa2b110db42f1056c374",
+            "state": "missing_required_evidence",
+            "comparability": "not_comparable",
+            "profile_declared_state": "no_edge",
+            "profile_declared_direction": "flat",
+            "capacity_gate_reason": "missing_required",
+            "instrument": "MNQ",
+            "direction": "flat",
+            "thesis": "No contestable directional candidate on frame.",
+            "evidence_refs": [],
+            "entry": null,
+            "entry_range": null,
+            "stop": null,
+            "target": null,
+            "target_absence_reason": null,
+            "horizon_bars": null,
+            "invalidation": null,
+            "uncertainties": [
+              "ohlc"
+            ],
+            "forecast": null,
+            "completeness_used": {
+              "ohlc": "missing_required",
+              "orderflow": "missing_required",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "partial",
+              "structure": "missing_required"
+            },
+            "raw_status": null,
+            "error_code": null,
+            "started_utc": "2026-09-01T18:15:22.722421Z",
+            "finished_utc": "2026-09-01T18:15:22.722421Z",
+            "latency_ms": 1
+          }
+        }
+      ]
+    },
+    {
+      "frame_id": "20260820T1201Z",
+      "sealed_snapshot_hash": "1545fbe44615e07db3cbf6748477b643ab79925ebf40525072913555e0af2f56",
+      "envelope": {
+        "schema_version": "glitch.topstep.evaluation_envelope.v1",
+        "envelope_id": "env-1545fbe44615e07d",
+        "snapshot_id": "20260820T1201Z",
+        "snapshot_hash": "1545fbe44615e07db3cbf6748477b643ab79925ebf40525072913555e0af2f56",
+        "reference_utc": "2026-08-20T12:01:00Z",
+        "valid_until_utc": "2026-08-20T12:01:35Z",
+        "instrument": "MNQ",
+        "contract": {
+          "id": "CON.MNQ.202609",
+          "name": "MNQ",
+          "symbol_id": "MNQ",
+          "tick_size": 0.25,
+          "tick_value": 0.5,
+          "active_contract": true
+        },
+        "packet_schema_version": "glitch.direct.decision_packet.v2",
+        "packet": {
+          "schema_version": "glitch.direct.decision_packet.v2",
+          "packet_id": "20260820T1201Z",
+          "created_utc": "2026-08-20T12:01:00Z",
+          "instrument": "MNQ",
+          "account": {
+            "name": "PRAC",
+            "instrument_open_contracts": 0
+          },
+          "contract": {
+            "id": "CON.MNQ.202609",
+            "name": "MNQ",
+            "symbol_id": "MNQ",
+            "tick_size": 0.25,
+            "tick_value": 0.5,
+            "active_contract": true
+          },
+          "market": {
+            "last": 20020.0,
+            "bid": 20019.0,
+            "ask": 20021.0,
+            "high": 20030.0,
+            "low": 20010.0,
+            "quote_timestamp": "2026-08-20T12:01:00Z"
+          },
+          "data_quality": {
+            "state_complete": true,
+            "issues": [],
+            "optional_issues": []
+          },
+          "policy": {
+            "account_stage": "PRAC"
+          }
+        },
+        "completeness": {
+          "ohlc": "missing_required",
+          "quote": "available",
+          "structure": "missing_required",
+          "session": "partial",
+          "orderflow": "missing_required",
+          "indicators": "missing_required",
+          "risk_context": "available"
+        },
+        "source_refs": {
+          "frame_id": "20260820T1201Z",
+          "corpus_ref": "tests\\fixtures\\frozen_corpus\\minute-frames",
+          "mapping_version": "2026-09-01-v1"
+        }
+      },
+      "envelope_hash": "1a799a464bafdcbecc020b3f5de0c103f6f4f0ac3e2390dc8741b24dfe4fd3db",
+      "capacity_gates": [
+        {
+          "profile_id": "baseline-current",
+          "completeness_used": {
+            "indicators": "missing_required",
+            "ohlc": "missing_required",
+            "orderflow": "missing_required",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "partial",
+            "structure": "missing_required"
+          },
+          "missing_required": [
+            "ohlc"
+          ],
+          "stale_or_inconsistent": [],
+          "comparable": false,
+          "allows_directional_evaluation": false
+        },
+        {
+          "profile_id": "structure",
+          "completeness_used": {
+            "indicators": "missing_required",
+            "ohlc": "missing_required",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "partial",
+            "structure": "missing_required"
+          },
+          "missing_required": [
+            "ohlc",
+            "structure"
+          ],
+          "stale_or_inconsistent": [],
+          "comparable": false,
+          "allows_directional_evaluation": false
+        },
+        {
+          "profile_id": "adversarial-risk",
+          "completeness_used": {
+            "ohlc": "missing_required",
+            "orderflow": "missing_required",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "partial",
+            "structure": "missing_required"
+          },
+          "missing_required": [
+            "ohlc"
+          ],
+          "stale_or_inconsistent": [],
+          "comparable": false,
+          "allows_directional_evaluation": false
+        }
+      ],
+      "candidates": [
+        {
+          "profile_id": "baseline-current",
+          "prompt_version": "glitch-topstep-v17.1",
+          "skills": [
+            "topstep-observe-market",
+            "topstep-market-scan",
+            "topstep-assess-risk",
+            "topstep-form-thesis",
+            "topstep-build-intent",
+            "topstep-position-management"
+          ],
+          "raw_profile_output": {
+            "state": "candidate",
+            "direction": "long",
+            "thesis": "Baseline agrees with archived ENTER_LONG.",
+            "entry": 20020.0,
+            "stop": 20010.0,
+            "target": 20035.0,
+            "horizon_bars": 8,
+            "latency_ms": 2
+          },
+          "normalized": {
+            "schema_version": "glitch.topstep.normalized_candidate.v1",
+            "run_id": "a535bb6e-60ff-49a5-8ed5-76dd5c074a8f",
+            "profile_id": "baseline-current",
+            "profile_version": "1.0.0",
+            "invocation_id": "66ec1ede-450d-456c-a6f3-7d9f64626f98",
+            "envelope_id": "env-1545fbe44615e07d",
+            "envelope_hash": "1a799a464bafdcbecc020b3f5de0c103f6f4f0ac3e2390dc8741b24dfe4fd3db",
+            "state": "missing_required_evidence",
+            "comparability": "not_comparable",
+            "profile_declared_state": "candidate",
+            "profile_declared_direction": "long",
+            "capacity_gate_reason": "missing_required",
+            "instrument": "MNQ",
+            "direction": "long",
+            "thesis": "Baseline agrees with archived ENTER_LONG.",
+            "evidence_refs": [],
+            "entry": 20020.0,
+            "entry_range": null,
+            "stop": 20010.0,
+            "target": 20035.0,
+            "target_absence_reason": null,
+            "horizon_bars": 8,
+            "invalidation": null,
+            "uncertainties": [
+              "ohlc"
+            ],
+            "forecast": null,
+            "completeness_used": {
+              "indicators": "missing_required",
+              "ohlc": "missing_required",
+              "orderflow": "missing_required",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "partial",
+              "structure": "missing_required"
+            },
+            "raw_status": null,
+            "error_code": null,
+            "started_utc": "2026-09-01T18:15:22.722421Z",
+            "finished_utc": "2026-09-01T18:15:22.722421Z",
+            "latency_ms": 2
+          }
+        },
+        {
+          "profile_id": "structure",
+          "prompt_version": "glitch-topstep-v17.1",
+          "skills": [
+            "topstep-observe-market",
+            "topstep-setup-state",
+            "topstep-form-thesis",
+            "topstep-build-intent"
+          ],
+          "raw_profile_output": {
+            "state": "held",
+            "direction": "long",
+            "thesis": "Pullback toward prior high with activation pending.",
+            "entry": 20001.0,
+            "stop": 19992.0,
+            "target": 20030.0,
+            "horizon_bars": 8,
+            "latency_ms": 2
+          },
+          "normalized": {
+            "schema_version": "glitch.topstep.normalized_candidate.v1",
+            "run_id": "a535bb6e-60ff-49a5-8ed5-76dd5c074a8f",
+            "profile_id": "structure",
+            "profile_version": "1.0.0",
+            "invocation_id": "f4c217ac-10e7-4cac-af7c-eefc44c135cb",
+            "envelope_id": "env-1545fbe44615e07d",
+            "envelope_hash": "1a799a464bafdcbecc020b3f5de0c103f6f4f0ac3e2390dc8741b24dfe4fd3db",
+            "state": "missing_required_evidence",
+            "comparability": "not_comparable",
+            "profile_declared_state": "held",
+            "profile_declared_direction": "long",
+            "capacity_gate_reason": "missing_required",
+            "instrument": "MNQ",
+            "direction": "long",
+            "thesis": "Pullback toward prior high with activation pending.",
+            "evidence_refs": [],
+            "entry": 20001.0,
+            "entry_range": null,
+            "stop": 19992.0,
+            "target": 20030.0,
+            "target_absence_reason": null,
+            "horizon_bars": 8,
+            "invalidation": null,
+            "uncertainties": [
+              "ohlc",
+              "structure"
+            ],
+            "forecast": null,
+            "completeness_used": {
+              "indicators": "missing_required",
+              "ohlc": "missing_required",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "partial",
+              "structure": "missing_required"
+            },
+            "raw_status": null,
+            "error_code": null,
+            "started_utc": "2026-09-01T18:15:22.723418Z",
+            "finished_utc": "2026-09-01T18:15:22.723418Z",
+            "latency_ms": 2
+          }
+        },
+        {
+          "profile_id": "adversarial-risk",
+          "prompt_version": "glitch-topstep-v17.1",
+          "skills": [
+            "topstep-assess-risk",
+            "topstep-form-thesis"
+          ],
+          "raw_profile_output": {
+            "state": "no_edge",
+            "direction": "flat",
+            "thesis": "Adversarial reviewer finds no objective elimination on this frame.",
+            "latency_ms": 2
+          },
+          "normalized": {
+            "schema_version": "glitch.topstep.normalized_candidate.v1",
+            "run_id": "a535bb6e-60ff-49a5-8ed5-76dd5c074a8f",
+            "profile_id": "adversarial-risk",
+            "profile_version": "1.0.0",
+            "invocation_id": "cdc64a94-1a90-4523-8c1c-481a43213cbb",
+            "envelope_id": "env-1545fbe44615e07d",
+            "envelope_hash": "1a799a464bafdcbecc020b3f5de0c103f6f4f0ac3e2390dc8741b24dfe4fd3db",
+            "state": "missing_required_evidence",
+            "comparability": "not_comparable",
+            "profile_declared_state": "no_edge",
+            "profile_declared_direction": "flat",
+            "capacity_gate_reason": "missing_required",
+            "instrument": "MNQ",
+            "direction": "flat",
+            "thesis": "Adversarial reviewer finds no objective elimination on this frame.",
+            "evidence_refs": [],
+            "entry": null,
+            "entry_range": null,
+            "stop": null,
+            "target": null,
+            "target_absence_reason": null,
+            "horizon_bars": null,
+            "invalidation": null,
+            "uncertainties": [
+              "ohlc"
+            ],
+            "forecast": null,
+            "completeness_used": {
+              "ohlc": "missing_required",
+              "orderflow": "missing_required",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "partial",
+              "structure": "missing_required"
+            },
+            "raw_status": null,
+            "error_code": null,
+            "started_utc": "2026-09-01T18:15:22.723418Z",
+            "finished_utc": "2026-09-01T18:15:22.723418Z",
+            "latency_ms": 2
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "run_id": "scenario-live-2026-09-02-r15-v7",
+  "auth_mode": "oauth",
+  "credentials_present": true,
+  "production_lane_was_active": false,
+  "operational_artifacts_unchanged": true,
+  "bundle_status": "completed",
+  "invocation_count": 8,
+  "expected_invocations": 8,
+  "all_cost_gates_passed": true,
+  "session_cost_usd": 0.090658,
+  "scenario_comparisons": [
+    {
+      "frame_id": "20260902T155530Z-4d39411f",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-4d39411f"
+    },
+    {
+      "frame_id": "20260902T155028Z-8c4e5912",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-8c4e5912"
+    },
+    {
+      "frame_id": "20260902T154529Z-db31fa40",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-db31fa40"
+    },
+    {
+      "frame_id": "20260902T154027Z-358cec55",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-358cec55"
+    }
+  ],
+  "quality_report_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-02-r15-v7-quality-report.json",
+  "bundle_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-02-r15-v7.json"
+}

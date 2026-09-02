@@ -1,0 +1,23 @@
+{
+  "schema_version": "glitch.topstep.evaluation_profile_kit.v1",
+  "profile_id": "smart-money",
+  "profile_version": "1.0.0",
+  "profile_kind": "directional",
+  "role": "challenger",
+  "prompt_version": "glitch-topstep-v17.1",
+  "execution_authority": false,
+  "evaluation_enabled": true,
+  "required_sources": ["ohlc", "quote", "structure", "session"],
+  "optional_sources": ["orderflow", "risk_context", "indicators"],
+  "forbidden_inference": [
+    "pattern names as directional proof",
+    "execution authority or intent submission"
+  ],
+  "tools": [
+    { "name": "structural_levels", "version": "1" },
+    { "name": "setup_state", "version": "1" }
+  ],
+  "completeness_states": ["available", "partial", "stale", "inconsistent", "missing_required", "not_applicable"],
+  "raw_output_schema": "glitch.topstep.profile_raw_output.v1",
+  "normalized_output_schema": "glitch.topstep.normalized_candidate.v1"
+}

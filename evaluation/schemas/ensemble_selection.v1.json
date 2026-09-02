@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "glitch.topstep.ensemble_selection.v1",
+  "title": "Ensemble selection outcome",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "envelope_id",
+    "envelope_hash",
+    "aggregator_version",
+    "outcome",
+    "candidates_considered",
+    "objections",
+    "decision_trace",
+    "evaluation_only",
+    "armed_promotion_allowed"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "glitch.topstep.ensemble_selection.v1"
+    },
+    "run_id": { "type": "string" },
+    "envelope_id": { "type": "string" },
+    "envelope_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "aggregator_version": { "type": "string" },
+    "outcome": {
+      "type": "string",
+      "enum": ["selected", "no_selection", "classified_failure"]
+    },
+    "selected_profile_id": { "type": ["string", "null"] },
+    "selected_candidate": {
+      "oneOf": [
+        { "$ref": "#/$defs/normalized_candidate_ref" },
+        { "type": "null" }
+      ]
+    },
+    "candidates_considered": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "objections": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/adversarial_objection" }
+    },
+    "decision_trace": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "failure_class": { "type": ["string", "null"] },
+    "evaluation_only": { "const": true },
+    "armed_promotion_allowed": { "const": false }
+  },
+  "$defs": {
+    "normalized_candidate_ref": {
+      "type": "object",
+      "required": ["profile_id", "invocation_id", "state"],
+      "properties": {
+        "profile_id": { "type": "string" },
+        "invocation_id": { "type": "string" },
+        "state": { "type": "string" }
+      }
+    },
+    "adversarial_objection": {
+      "type": "object",
+      "required": ["objection_id", "target_profile_id", "severity", "risk_code", "summary"],
+      "properties": {
+        "objection_id": { "type": "string" },
+        "target_profile_id": { "type": "string" },
+        "severity": {
+          "type": "string",
+          "enum": ["info", "warning", "critical"]
+        },
+        "risk_code": { "type": "string" },
+        "summary": { "type": "string" },
+        "evidence_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "eliminates_candidate": { "type": "boolean" }
+      }
+    }
+  }
+}

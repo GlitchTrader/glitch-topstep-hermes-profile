@@ -1,0 +1,217 @@
+{
+  "schema_version": "glitch.topstep.prac_decision_export_inventory.v1",
+  "inventory_version": "2026-09-01",
+  "generated_utc": "2026-09-01T19:00:00Z",
+  "session_id": "PRAC-SOAK-2026-08-31",
+  "session_window_utc": {
+    "directed_tests_primary": "2026-08-31T17:00:00Z",
+    "soak_abort_restart": "2026-09-01T14:22:00Z",
+    "soak_t0_restart": "2026-09-01T17:57:08Z",
+    "audit_window_used": "2026-08-31T00:00:00Z/2026-09-01T23:59:59Z"
+  },
+  "corpus_reference": {
+    "manifest": "tests/fixtures/frozen_corpus/enriched/manifest.json",
+    "prac_packet_ids": 19,
+    "operator_packet_ids": 15
+  },
+  "join_chain_required": [
+    "decisions.jsonl contemporâneo",
+    "packet_id",
+    "market.snapshot_hash",
+    "intent.snapshot_hash",
+    "geometry",
+    "receipt"
+  ],
+  "classification_labels": [
+    "exact_cognitive_decision",
+    "NOTHING",
+    "spontaneous_ENTER",
+    "directed_test_intent",
+    "missing_snapshot",
+    "snapshot_mismatch",
+    "decision_without_frame"
+  ],
+  "verdict": {
+    "contemporary_decisions_export_found": false,
+    "prac_packet_id_overlap_any_source": 0,
+    "prac_test_intent_overlap_any_source": 0,
+    "candidate_eligible_possible_from_inventory": false,
+    "recommended_next_phase": "OwnerKind=evaluation controlled replay (new phase; not runner improvisation)",
+    "historical_evaluation_status": "insufficient"
+  },
+  "sources": [
+    {
+      "id": "operator-decisions-live",
+      "path": "%LOCALAPPDATA%/hermes/profiles/glitch-topstep/state/decisions.jsonl",
+      "kind": "decisions.jsonl",
+      "session_contemporaneous": "partial",
+      "recorded_utc_range": ["2026-08-24T17:27:50Z", "2026-09-01T18:47:04Z"],
+      "row_count": 656,
+      "in_session_window": 134,
+      "prac_packet_id_overlap": 0,
+      "prac_test_intent_overlap": 0,
+      "has_snapshot_hash": true,
+      "has_full_intent_geometry": true,
+      "join_chain_usable": "partial",
+      "notes": "Jornal vivo pós epoch-reset 2026-08-24. Cobre a janela PRAC mas nenhum packet_id do corpus PRAC."
+    },
+    {
+      "id": "operator-decisions-sqlite",
+      "path": "%LOCALAPPDATA%/hermes/profiles/glitch-topstep/state/profile-state.sqlite#decisions",
+      "kind": "sqlite_mirror",
+      "session_contemporaneous": "partial",
+      "row_count": 656,
+      "prac_packet_id_overlap": 0,
+      "join_chain_usable": false,
+      "notes": "Espelho indexado de decisions.jsonl; não é export separado."
+    },
+    {
+      "id": "epoch-archive-20260824",
+      "path": "%LOCALAPPDATA%/hermes/profiles/glitch-topstep/state/epoch-archive-20260824-132216/decisions.jsonl",
+      "kind": "decisions.jsonl",
+      "session_contemporaneous": false,
+      "recorded_utc_range": ["2026-08-21T00:00:00Z", "2026-08-24T17:22:16Z"],
+      "row_count": 449,
+      "prac_packet_id_overlap": 0,
+      "join_chain_usable": false,
+      "notes": "Arquivado no epoch-reset 2026-08-24; anterior à sessão PRAC-08-31."
+    },
+    {
+      "id": "prac-evidence-intent-receipts",
+      "path": "glitch-topstep/docs/evidence/PRAC-SOAK-2026-08-31/intent-receipts.jsonl",
+      "kind": "receipts",
+      "session_contemporaneous": true,
+      "row_count": 4,
+      "has_packet_id": false,
+      "has_snapshot_hash": false,
+      "prac_test_intent_overlap": 2,
+      "join_chain_usable": false,
+      "classification_if_used": ["prac_directed_execution", "receipt_without_snapshot"],
+      "notes": "Prova execução dirigida; geometria em test-01 summary. Sem vínculo a packet do corpus."
+    },
+    {
+      "id": "operator-receipts-live",
+      "path": "%LOCALAPPDATA%/hermes/profiles/glitch-topstep/state/receipts.jsonl",
+      "kind": "receipts",
+      "session_contemporaneous": "partial",
+      "row_count": 542,
+      "prac_packet_id_overlap": 0,
+      "operator_corpus_packet_overlap": 3,
+      "has_packet_id": true,
+      "join_chain_usable": "partial",
+      "notes": "3 frames operador no corpus; todos com decisão NOTHING correspondente."
+    },
+    {
+      "id": "prac-embedded-intents",
+      "path": "glitch-topstep/docs/evidence/PRAC-SOAK-2026-08-31/*.json (walk glitch.intent.v3)",
+      "kind": "embedded_intent_in_gateway_snapshots",
+      "session_contemporaneous": true,
+      "prac_packet_id_overlap": 19,
+      "snapshot_hash_verified_against_corpus": 19,
+      "real_intent_id": false,
+      "join_chain_usable": false,
+      "classification_if_used": ["intent_only_match", "prac_directed_execution"],
+      "notes": "intent_id=GENERATE_UUID; snapshot bate 19/19. Não é decisions.jsonl."
+    },
+    {
+      "id": "prac-test-summaries",
+      "path": "glitch-topstep/docs/evidence/PRAC-SOAK-2026-08-31/test-*.json",
+      "kind": "directed_test_summary",
+      "session_contemporaneous": true,
+      "test_intent_ids": 4,
+      "has_geometry_submitted": true,
+      "in_decisions_jsonl": false,
+      "join_chain_usable": false,
+      "classification_if_used": ["directed_test_intent", "prac_directed_execution"],
+      "notes": "Geometria submetida (ex. test-01); não passou pelo journal de decisões."
+    },
+    {
+      "id": "cycle-empirical-live",
+      "path": "%LOCALAPPDATA%/hermes/profiles/glitch-topstep/state/cycle-empirical.jsonl",
+      "kind": "cycle_telemetry",
+      "session_contemporaneous": true,
+      "in_session_window": 249,
+      "prac_packet_id_overlap": 0,
+      "actions_in_window": {"NOTHING": 247, "ENTER_LONG": 1, "ENTER_SHORT": 1},
+      "has_snapshot_hash": false,
+      "join_chain_usable": false,
+      "notes": "Tem packet_id+action mas não intent completo nem snapshot_hash."
+    },
+    {
+      "id": "execution-facts-live",
+      "path": "%LOCALAPPDATA%/hermes/profiles/glitch-topstep/state/execution-facts.jsonl",
+      "kind": "lifecycle_facts",
+      "session_contemporaneous": "partial",
+      "has_packet_id": false,
+      "has_snapshot_hash": false,
+      "join_chain_usable": false,
+      "notes": "intent_id + action; sem packet_id/snapshot para join."
+    },
+    {
+      "id": "prac-execution-facts-evidence",
+      "path": "glitch-topstep/docs/evidence/PRAC-SOAK-2026-08-31/execution-facts.jsonl",
+      "kind": "lifecycle_facts",
+      "session_contemporaneous": true,
+      "row_count": 0,
+      "join_chain_usable": false,
+      "notes": "Arquivo vazio no pacote de evidência."
+    },
+    {
+      "id": "operator-attempts",
+      "path": "%LOCALAPPDATA%/hermes/profiles/glitch-topstep/state/attempts/",
+      "kind": "attempt_artifacts",
+      "session_contemporaneous": "partial",
+      "file_count": 716,
+      "prac_packet_id_overlap": 0,
+      "join_chain_usable": false
+    },
+    {
+      "id": "profile-beta-2026-08-03",
+      "path": "glitch-topstep-hermes-profile/docs/evidence/PROFILE-BETA-01-prac-session-2026-08-03.decisions.jsonl",
+      "kind": "decisions.jsonl",
+      "session_contemporaneous": false,
+      "join_chain_usable": false,
+      "notes": "Sessão diferente; não aplicável."
+    },
+    {
+      "id": "frozen-corpus-fixtures",
+      "path": "tests/fixtures/frozen_corpus/*/decisions.jsonl",
+      "kind": "synthetic_fixture",
+      "session_contemporaneous": false,
+      "join_chain_usable": false,
+      "notes": "2 frames thin para CI; não evidência PRAC."
+    }
+  ],
+  "missing_exports": [
+    {
+      "expected": "decisions.jsonl export arquivado em docs/evidence/PRAC-SOAK-2026-08-31/",
+      "status": "not_found",
+      "impact": "Nenhum packet_id PRAC no journal operador"
+    },
+    {
+      "expected": "epoch-archive posterior a 2026-08-31",
+      "status": "not_found",
+      "impact": "Único archive é 20260824 (pré-sessão)"
+    },
+    {
+      "expected": "decisions.jsonl com intent_id dos testes dirigidos (4 ids)",
+      "status": "not_found",
+      "impact": "Testes submeteram intents fora do journal cognitivo normal"
+    }
+  ],
+  "root_cause_hypothesis": [
+    "Packets PRAC foram capturados de snapshots gateway (/health, testes dirigidos).",
+    "decisions.jsonl registra ciclos do scheduler Hermes com packet_ids distintos.",
+    "Testes dirigidos não geraram linhas em decisions.jsonl para os intent_id documentados.",
+    "Não houve export/snapshot do journal no momento da sessão para o pacote de evidência."
+  ],
+  "gates_unchanged": {
+    "integridade_offline": "PASS",
+    "capacidade_corpus": "PASS 27/34",
+    "qualidade_cognitiva": "PENDING",
+    "agregador_executavel": "BLOCKED",
+    "paralelismo": "BLOCKED",
+    "shadow_ao_vivo": "BLOCKED",
+    "promocao": "BLOCKED"
+  }
+}

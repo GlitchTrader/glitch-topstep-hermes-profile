@@ -1,0 +1,107 @@
+{
+  "schema_version": "glitch.topstep.profile_registry_audit.v1",
+  "generated_utc": "2026-09-01T20:23:46.634580Z",
+  "registry_version": "2026-09-01-v2",
+  "registry_path": "evaluation/registry.json",
+  "output_contract_ref": "evaluation/evaluation_output_contract.v1.json",
+  "output_contract_version": "2026-09-01-v1",
+  "valid": true,
+  "issues": [],
+  "checks": {
+    "promotion_status_blocked": true,
+    "execution_mode_offline_sequential": true,
+    "evaluation_only": true,
+    "output_contract_exists": true,
+    "capability_matrix_version_aligned": true,
+    "all_skills_on_disk": true,
+    "prompt_version_documented": true,
+    "enabled_profiles": [
+      "baseline-current",
+      "structure",
+      "adversarial-risk"
+    ],
+    "ensemble_manifest_compatible": true
+  },
+  "registry_manifest": [
+    {
+      "profile_id": "baseline-current",
+      "profile_version": "1.0.0",
+      "profile_kind": "baseline",
+      "prompt_version": "glitch-topstep-v17.1",
+      "skills": [
+        "topstep-observe-market",
+        "topstep-market-scan",
+        "topstep-assess-risk",
+        "topstep-form-thesis",
+        "topstep-build-intent",
+        "topstep-position-management"
+      ],
+      "enabled": true
+    },
+    {
+      "profile_id": "structure",
+      "profile_version": "1.0.0",
+      "profile_kind": "directional",
+      "prompt_version": "glitch-topstep-v17.1",
+      "skills": [
+        "topstep-observe-market",
+        "topstep-setup-state",
+        "topstep-form-thesis",
+        "topstep-build-intent"
+      ],
+      "enabled": true
+    },
+    {
+      "profile_id": "adversarial-risk",
+      "profile_version": "1.0.0",
+      "profile_kind": "reviewer",
+      "prompt_version": "glitch-topstep-v17.1",
+      "skills": [
+        "topstep-assess-risk",
+        "topstep-form-thesis"
+      ],
+      "enabled": true
+    }
+  ],
+  "registry_manifest_keys": [
+    "enabled",
+    "profile_id",
+    "profile_kind",
+    "profile_version",
+    "prompt_version",
+    "skills"
+  ],
+  "profiles": [
+    {
+      "profile_id": "baseline-current",
+      "enabled": true,
+      "prompt_version": "glitch-topstep-v17.1",
+      "skills_count": 6,
+      "skills_on_disk": true,
+      "evidence_requirements_ref": "evaluation/capability-matrix.json#profiles.baseline-current",
+      "capability_matrix_resolves": true
+    },
+    {
+      "profile_id": "structure",
+      "enabled": true,
+      "prompt_version": "glitch-topstep-v17.1",
+      "skills_count": 4,
+      "skills_on_disk": true,
+      "evidence_requirements_ref": "evaluation/capability-matrix.json#profiles.structure",
+      "capability_matrix_resolves": true
+    },
+    {
+      "profile_id": "adversarial-risk",
+      "enabled": true,
+      "prompt_version": "glitch-topstep-v17.1",
+      "skills_count": 2,
+      "skills_on_disk": true,
+      "evidence_requirements_ref": "evaluation/capability-matrix.json#profiles.adversarial-risk",
+      "capability_matrix_resolves": true
+    }
+  ],
+  "ensemble_compatibility": {
+    "artifact_count": 26,
+    "mismatches": []
+  }
+}

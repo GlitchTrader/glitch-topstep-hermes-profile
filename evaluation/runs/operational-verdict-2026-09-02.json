@@ -1,0 +1,46 @@
+{
+  "schema_version": "glitch.topstep.operational_verdict.v1",
+  "recorded_utc": "2026-09-02T20:46:57.570844Z",
+  "directional_gate_v1": {
+    "preserved": true,
+    "comparable_pairs": 2,
+    "required_min": 5
+  },
+  "limited_session_corrected": {
+    "operationally_blocked": 8
+  },
+  "diagnostically_evaluable_frames": 0,
+  "verdict": {
+    "directional_evaluation": "close_directional_evaluation",
+    "hypothesis_for_conditional_collection": "operational_block_and_degradation_dominate",
+    "execute_r18": false,
+    "auto_prac": false,
+    "aggregator": "blocked",
+    "ensemble_viability": "ensemble_inviable_with_current_data"
+  },
+  "integrity": {
+    "recorded_utc": "2026-09-02T20:46:04.420852Z",
+    "git_diff_check": {
+      "ok": true,
+      "exit_code": 0
+    },
+    "unittest": {
+      "ok": true,
+      "exit_code": 0
+    },
+    "npm_check": {
+      "ok": true,
+      "exit_code": 0
+    },
+    "registry": {
+      "next_authorized_run_id": null,
+      "reruns_blocked": true,
+      "promotion_use_allowed": false,
+      "aggregator": "blocked",
+      "parallelism": "blocked",
+      "shadow": "blocked"
+    },
+    "all_ok": true
+  },
+  "next_authorized_run_id": null
+}

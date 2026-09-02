@@ -1,0 +1,34 @@
+{
+  "schema_version": "glitch.topstep.r14_canonical_artifacts_index.v1",
+  "run_id": "scenario-live-2026-09-02-r14-v5.1",
+  "cohort_version": "v5.1-pre-registered",
+  "cohort_digest_sha256": "11a45e8f5810ce1376ee45e286a6cd7ff1cad86967a649a93606e5feb0e4c941",
+  "executed_utc": "2026-09-02T15:00:00Z",
+  "authorized_by": "Ari",
+  "status": "canonical_execution_complete",
+  "gate_post_execution": {
+    "comparable_pairs": 2,
+    "required_min": 5,
+    "insufficient_sample": true,
+    "new_pairs_from_r14": 0
+  },
+  "collection_policy": "STOP_RERUNS",
+  "bundle": "evaluation/runs/scenario-live-2026-09-02-r14-v5.1.json",
+  "reports": {
+    "post_execution": "evaluation/reviews/R14-POST-EXECUTION-REPORT-2026-09-02.md",
+    "checklist": "evaluation/runs/scenario-live-2026-09-02-r14-v5.1-checklist.json",
+    "corpus_validation": "evaluation/runs/scenario-live-2026-09-02-r14-v5.1-corpus-validation.json",
+    "quality": "evaluation/runs/scenario-live-2026-09-02-r14-v5.1-quality-report.json",
+    "diversity": "evaluation/runs/scenario-live-2026-09-02-r14-v5.1-diversity-metrics.json",
+    "gate_aggregated": "evaluation/runs/sample-quality-gate-result-2026-09-02.json",
+    "quality_aggregated": "evaluation/runs/evaluation-quality-report-2026-09-02.json"
+  },
+  "cohort": {
+    "manifest": "evaluation/runs/stratified-cohort-manifest-v5.1-2026-09-02.json",
+    "digest": "evaluation/runs/stratified-cohort-digest-v5.1-2026-09-02.json",
+    "scenarios": "evaluation/stratified_scenarios.v5.1.json"
+  },
+  "invocation_count": 18,
+  "invalid_count": 0,
+  "session_cost_usd": 0.202966
+}

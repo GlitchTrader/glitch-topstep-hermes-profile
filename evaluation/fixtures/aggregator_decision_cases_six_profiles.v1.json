@@ -1,0 +1,228 @@
+{
+  "schema_version": "glitch.topstep.aggregator_decision_cases_six_profiles.v1",
+  "rules_version": "2026-09-01-v2",
+  "profile_registry": [
+    "baseline-current",
+    "structure",
+    "adversarial-risk",
+    "smart-money",
+    "indicators",
+    "orderflow"
+  ],
+  "cases": [
+    {
+      "case_id": "SIX-NO-EDGE-01",
+      "description": "Seis perfis unanimous no_edge — no_selection.",
+      "inputs": {
+        "envelope_id": "env-six-abstain",
+        "snapshot_hash": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "instrument": "MNQ",
+        "profiles": [
+          {"profile_id": "baseline-current", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "structure", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "adversarial-risk", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "smart-money", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "indicators", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "orderflow", "normalized_state": "no_edge", "direction": "flat"}
+        ],
+        "objections": []
+      },
+      "expected": {
+        "result": "no_selection",
+        "decision_code": "ENSEMBLE_UNANIMOUS_ABSTENTION"
+      }
+    },
+    {
+      "case_id": "SIX-SINGLE-CAND-01",
+      "description": "Um único candidato entre abstinências.",
+      "inputs": {
+        "envelope_id": "env-six-single",
+        "snapshot_hash": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+        "instrument": "MNQ",
+        "profiles": [
+          {"profile_id": "baseline-current", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "structure", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "evidence_score": 40},
+          {"profile_id": "adversarial-risk", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "smart-money", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "indicators", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "orderflow", "normalized_state": "no_edge", "direction": "flat"}
+        ],
+        "objections": []
+      },
+      "expected": {
+        "result": "no_selection",
+        "decision_code": "ENSEMBLE_CATEGORY_DIVERGENCE"
+      }
+    },
+    {
+      "case_id": "SIX-EQUIV-01",
+      "description": "Dois candidatos equivalentes; desempate por evidence_score.",
+      "inputs": {
+        "envelope_id": "env-six-equiv",
+        "snapshot_hash": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+        "instrument": "MNQ",
+        "profiles": [
+          {"profile_id": "baseline-current", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "evidence_score": 50},
+          {"profile_id": "structure", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "evidence_score": 30},
+          {"profile_id": "adversarial-risk", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "smart-money", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "indicators", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "orderflow", "normalized_state": "no_edge", "direction": "flat"}
+        ],
+        "objections": []
+      },
+      "expected": {
+        "result": "no_selection",
+        "decision_code": "ENSEMBLE_CATEGORY_DIVERGENCE"
+      }
+    },
+    {
+      "case_id": "SIX-OPP-01",
+      "description": "Candidatos opostos long vs short.",
+      "inputs": {
+        "envelope_id": "env-six-opp",
+        "snapshot_hash": "d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4",
+        "instrument": "MNQ",
+        "profiles": [
+          {"profile_id": "baseline-current", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "evidence_score": 40},
+          {"profile_id": "structure", "normalized_state": "candidate", "category": "thesis_quality", "direction": "short", "entry": 100.0, "stop": 101.0, "target": 98.0, "evidence_score": 45},
+          {"profile_id": "adversarial-risk", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "smart-money", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "indicators", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "orderflow", "normalized_state": "no_edge", "direction": "flat"}
+        ],
+        "objections": []
+      },
+      "expected": {
+        "result": "no_selection",
+        "decision_code": "ENSEMBLE_CATEGORY_DIVERGENCE"
+      }
+    },
+    {
+      "case_id": "SIX-MISSING-CAP-01",
+      "description": "Perfil sem capacidade (missing_required_evidence) não entra no pool.",
+      "inputs": {
+        "envelope_id": "env-six-missing",
+        "snapshot_hash": "e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5",
+        "instrument": "MNQ",
+        "profiles": [
+          {"profile_id": "baseline-current", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "structure", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "adversarial-risk", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "smart-money", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "indicators", "normalized_state": "missing_required_evidence", "direction": "flat"},
+          {"profile_id": "orderflow", "normalized_state": "missing_required_evidence", "direction": "flat"}
+        ],
+        "objections": []
+      },
+      "expected": {
+        "result": "no_selection",
+        "decision_code": "INSUFFICIENT_ENSEMBLE_AGREEMENT"
+      }
+    },
+    {
+      "case_id": "SIX-TIMEOUT-01",
+      "description": "Múltiplos perfis timeout — classified_failure.",
+      "inputs": {
+        "envelope_id": "env-six-timeout",
+        "snapshot_hash": "f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6",
+        "instrument": "MNQ",
+        "process": {"ensemble_timeout": true},
+        "profiles": [
+          {"profile_id": "baseline-current", "normalized_state": "timeout"},
+          {"profile_id": "structure", "normalized_state": "timeout"},
+          {"profile_id": "adversarial-risk", "normalized_state": "timeout"},
+          {"profile_id": "smart-money", "normalized_state": "timeout"},
+          {"profile_id": "indicators", "normalized_state": "timeout"},
+          {"profile_id": "orderflow", "normalized_state": "timeout"}
+        ],
+        "objections": []
+      },
+      "expected": {
+        "result": "classified_failure",
+        "decision_code": "ENSEMBLE_TIMEOUT"
+      }
+    },
+    {
+      "case_id": "SIX-ADV-CRIT-01",
+      "description": "Adversarial crítico com regra objetiva elimina candidato.",
+      "inputs": {
+        "envelope_id": "env-six-adv",
+        "snapshot_hash": "1717171717171717171717171717171717171717171717171717171717171717",
+        "instrument": "MNQ",
+        "profiles": [
+          {"profile_id": "baseline-current", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 101.0, "target": 102.0, "evidence_score": 40},
+          {"profile_id": "structure", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "adversarial-risk", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "smart-money", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "indicators", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "orderflow", "normalized_state": "no_edge", "direction": "flat"}
+        ],
+        "objections": [
+          {
+            "severity": "critical",
+            "risk_code": "invalid_stop_geometry",
+            "objective_rule_match": true,
+            "target_profile_id": "baseline-current",
+            "eliminates_candidate": true
+          }
+        ]
+      },
+      "expected": {
+        "result": "no_selection",
+        "decision_code": "ENSEMBLE_CATEGORY_DIVERGENCE"
+      }
+    },
+    {
+      "case_id": "SIX-MISSING-PROFILE-01",
+      "description": "Perfil ausente do registry não gera seleção falsa.",
+      "inputs": {
+        "envelope_id": "env-six-missing-profile",
+        "snapshot_hash": "2828282828282828282828282828282828282828282828282828282828282828",
+        "instrument": "MNQ",
+        "registry_required_profiles": [
+          "baseline-current",
+          "structure",
+          "adversarial-risk",
+          "smart-money",
+          "indicators",
+          "orderflow"
+        ],
+        "profiles": [
+          {"profile_id": "baseline-current", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "structure", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "adversarial-risk", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "smart-money", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "indicators", "normalized_state": "no_edge", "direction": "flat"}
+        ],
+        "objections": []
+      },
+      "expected": {
+        "result": "classified_failure",
+        "decision_code": "PROFILE_MISSING"
+      }
+    },
+    {
+      "case_id": "SIX-FAIL-SNAPSHOT-01",
+      "description": "Divergência de envelope_hash — classified_failure.",
+      "inputs": {
+        "envelope_id": "env-six-snap",
+        "snapshot_hash": "3939393939393939393939393939393939393939393939393939393939393939",
+        "instrument": "MNQ",
+        "profiles": [
+          {"profile_id": "baseline-current", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "envelope_hash": "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"},
+          {"profile_id": "structure", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "adversarial-risk", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "smart-money", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "indicators", "normalized_state": "no_edge", "direction": "flat"},
+          {"profile_id": "orderflow", "normalized_state": "no_edge", "direction": "flat"}
+        ],
+        "objections": []
+      },
+      "expected": {
+        "result": "classified_failure",
+        "decision_code": "SNAPSHOT_DIVERGENCE"
+      }
+    }
+  ]
+}

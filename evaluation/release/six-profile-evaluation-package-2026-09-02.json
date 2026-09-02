@@ -1,0 +1,75 @@
+{
+  "schema_version": "glitch.topstep.six_profile_evaluation_package.v1",
+  "package_id": "test-package",
+  "generated_utc": "2026-09-02T22:21:18.656851Z",
+  "profile_count": 6,
+  "profile_ids": [
+    "baseline-current",
+    "structure",
+    "adversarial-risk",
+    "smart-money",
+    "indicators",
+    "orderflow"
+  ],
+  "versions": {
+    "registry_version": "2026-09-02-v3",
+    "capability_matrix_version": "2026-09-02-v3",
+    "config_version": "2026-09-02-v3",
+    "aggregator_rules_version": "2026-09-01-v2",
+    "prompt_versions": [
+      "glitch-topstep-v17.1"
+    ]
+  },
+  "safety_flags": {
+    "execution_authority_false_all": true,
+    "evaluation_enabled_all": true,
+    "production_parallelism": "blocked",
+    "promotion_use_allowed": false,
+    "shadow_live_execution_authorized": false,
+    "intents_sent": 0,
+    "orders_sent": 0,
+    "writes_operacionais": 0
+  },
+  "git_commits": {
+    "profile_repo": "2c12f57b92584e51e9e9179efc1430a11cd8a275",
+    "gateway_repo": "959d32abd8cde176d9cb74ea9954589db4968941"
+  },
+  "paired_contract": {
+    "gateway_version": "0.2.5",
+    "profile_version": "0.2.8",
+    "prompt_version": "glitch-topstep-v17.1",
+    "protocol_revision": "glitch.topstep.paired.v3"
+  },
+  "file_hashes": {
+    "evaluation/registry.json": "b11062a9818d445aefb57bfc9fff314b19d4fc29043b41c51672378cdb63a68d",
+    "evaluation/capability-matrix.json": "7e4be060f4906ac268ec91546fdd17fcb0f90ac8c8dc2a9ec5e80d9f1c6414c0",
+    "evaluation/ensemble_config.json": "010893330c347b3bdedb87058a5dd24bbd008aea80d3fe30c26572630e57e7dd",
+    "evaluation/aggregator_rules.v1.json": "2e5b0c4acafcfa49514cca0784e522e974fb76602af08f0d0f7a5b7125d3346b",
+    "evaluation/evaluation_output_contract.v1.json": "aec33631e95165437b72d2e9d439dd168d9a61971f8d071510a0b644582309f3",
+    "evaluation/packet_envelope_mapping.v1.json": "608320b4b85421cf739c21eeb74d94772effeae66dad4e8d7b44bbcedc3563fa",
+    "evaluation/shadow-live-run-config.v1.json": "74cd16b6ae30ed5926a0ecb122929da0d2b6556e2ee61a7f3c2c3656c8484ecd",
+    "evaluation/shadow-live-scenarios.v1.json": "a5027dd1cf21b4321cb9cb68c325867612a5a34b7400f91f408eca3e7a347183",
+    "evaluation/profiles/smart-money.v1.json": "fd45e768ae6be5525ffc419f208fe3bd56ba1450b9e9c83364578e2e2bb979ee",
+    "evaluation/profiles/indicators.v1.json": "7fff20f43dba772b11ba2f6f50f2a0ab935dfe829842caf74eb6167a76ce8906",
+    "evaluation/profiles/orderflow.v1.json": "0342c56c8d4c0a2fc627a33fc7ea2a218f6797152d40e95a5b2ad84dcb3613d3",
+    "scripts/shadow-preflight.py": "85371764a1c5287de395f6d5b13062d37f6b38b420fac08b5109f2724f75eaba",
+    "scripts/shadow-observe-offline.py": "6d8406768e83aab0844b5f378e6d3f98a12735cd57d41ef2e063d3f859ad7519",
+    "scripts/shadow-observe-live.py": "90aa482164dfbf22cb61d9bbd75a3680f5ff32a10a7b4cdf7fd093980b436ea9",
+    "scripts/shadow_observation.py": "6bd0722e42c9303fc05673a30bf5523c01cd4e98b8813da925e538a57ce6cffa",
+    "scripts/run-parallel-ensemble-evaluation.py": "505214012551d7285c907e17680012a89020d4a5afd5a0c0b64d460a3faf4233",
+    "scripts/ensemble_aggregator.py": "4310515789ad6aba604e8bf9b49066ff3597c65bdbf80190dad8d09c2dda13f3",
+    "scripts/ensemble_parallel_runner.py": "6c5d9e1869e953e08469031bb1ca0e062f8939b2732829633b3a603d438700cc",
+    "scripts/evaluation-measurement-ready.py": "6941151ff6eec48c61d39c3adc752190cb4e109b7f97a184412892c4db389f35",
+    "scripts/build-evaluation-release-package.py": "fe18ab6b8815f96d03a08386f5d56a3be68fe04fed9aa6e7784d896b09c5cefe",
+    "scripts/report-shadow-metrics.py": "d7d4ef10d5005967fa654ea89bce3d841d0b92be4b7f6653af4974f5e46fd3cc",
+    "scripts/audit-shadow-isolation.py": "c92bce28c2b68dfc8e367854b26dc9de07f22d4a10e8ed348e35b79d336923df",
+    "scripts/run-shadow-phase7-validation.py": "8798b59084ccf8113f5cbc81506234b262283f983befc039e74ef4f4248c415e",
+    "evaluation/schemas/evaluation_envelope.v1.json": "0aaecb0895e79f7d4ba1d28efc103efda608a13915ad1863648947044e420f0d",
+    "evaluation/schemas/normalized_candidate.v1.json": "6cafb13a9449c0e135b4af7127ea89e7104af229c165d5f4b2ba6cc5183858a3",
+    "evaluation/schemas/ensemble_selection.v1.json": "02a2349400d844c47816258dd1ae1110ffcc7299a1b393ef45431ef7b8ebde61",
+    "evaluation/schemas/shadow_observation.v1.json": "8285ee9281e0b2b213f2b5ed15b4d72883ca824719da5a7daaeece250b05eb4e",
+    "evaluation/schemas/shadow_preflight.v1.json": "2fba4d75aa4f856f825ef0e05c9f534c87551689cce3468ad846582e3f362f89"
+  },
+  "missing_files": [],
+  "valid": true
+}

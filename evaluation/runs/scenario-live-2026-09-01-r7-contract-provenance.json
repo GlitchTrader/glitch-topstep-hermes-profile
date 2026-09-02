@@ -1,0 +1,67 @@
+{
+  "schema_version": "glitch.topstep.evaluation_run_provenance.v1",
+  "run_id": "scenario-live-2026-09-01-r7-contract",
+  "recorded_utc": "2026-09-01T23:34:39.544219Z",
+  "normalization_context": {
+    "adapter_version": "2026-09-01-v1",
+    "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+    "prompt_versions": [
+      "glitch-topstep-v17.1"
+    ],
+    "registry_version": "2026-09-01-v2",
+    "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+    "aggregator_rules_version": "2026-09-01-v2",
+    "normalization_version": "2026-09-01-post-candidate-flat-rule"
+  },
+  "artifact_count": 6,
+  "historical_drift_count": 3,
+  "known_historical_drift_artifacts": [
+    "scenario-live-2026-09-01-r7-contract-baseline-current-20260901T000528Z-041dc508.json",
+    "scenario-live-2026-09-01-r7-contract-baseline-current-20260901T134026Z-bb50bbe9.json",
+    "scenario-live-2026-09-01-r7-contract-structure-20260901T000528Z-041dc508.json"
+  ],
+  "artifacts": [
+    {
+      "artifact_path": "evaluation\\runs\\scenario-live-2026-09-01-r7-contract-baseline-current-20260831T173427Z-4ac91997.json",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null
+    },
+    {
+      "artifact_path": "evaluation\\runs\\scenario-live-2026-09-01-r7-contract-baseline-current-20260901T000528Z-041dc508.json",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": false,
+      "stored_normalization_version": "historical_normalization_version",
+      "drift_reason": "candidate_flat_pre_guard_stored_as_candidate"
+    },
+    {
+      "artifact_path": "evaluation\\runs\\scenario-live-2026-09-01-r7-contract-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": false,
+      "stored_normalization_version": "historical_normalization_version",
+      "drift_reason": "candidate_flat_pre_guard_stored_as_candidate"
+    },
+    {
+      "artifact_path": "evaluation\\runs\\scenario-live-2026-09-01-r7-contract-structure-20260831T173427Z-4ac91997.json",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null
+    },
+    {
+      "artifact_path": "evaluation\\runs\\scenario-live-2026-09-01-r7-contract-structure-20260901T000528Z-041dc508.json",
+      "profile_id": "structure",
+      "matches_stored_normalized": false,
+      "stored_normalization_version": "historical_normalization_version",
+      "drift_reason": "candidate_flat_pre_guard_stored_as_candidate"
+    },
+    {
+      "artifact_path": "evaluation\\runs\\scenario-live-2026-09-01-r7-contract-structure-20260901T134026Z-bb50bbe9.json",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "schema_version": "glitch.topstep.prac_corpus_ingest.v1",
+  "ingested_utc": "2026-09-02T02:45:59.037395Z",
+  "session_id": "PRAC-SOAK-2026-09-01",
+  "origin": "prac_soak_2026_09_01",
+  "temporal_window": {
+    "since_utc": "2026-09-02T01:25:00Z",
+    "until_utc": null
+  },
+  "chain_complete": true,
+  "evidence_archive_dir": "evaluation/runs/prac-evidence-archive/PRAC-SOAK-2026-09-01",
+  "archived_files": {
+    "session-finalize.json": {
+      "path": "evaluation/runs/prac-evidence-archive/PRAC-SOAK-2026-09-01/session-finalize.json",
+      "sha256": "8e331d34edc9bb5140004ab9019d405162dec753322120ee0ca38ee7695d12fa",
+      "bytes": 1268
+    },
+    "evidence-chain-manifest.json": {
+      "path": "evaluation/runs/prac-evidence-archive/PRAC-SOAK-2026-09-01/evidence-chain-manifest.json",
+      "sha256": "253312a92cfc920f487ced01fc0e2219480defb8998fbc2ceae3f36d08a71235",
+      "bytes": 4600
+    },
+    "decisions.jsonl": {
+      "path": "evaluation/runs/prac-evidence-archive/PRAC-SOAK-2026-09-01/decisions.jsonl",
+      "sha256": "c483bf7a81bb600411970d6baff23306b1f858c88f3fb77cf9e98ee1684230e7",
+      "bytes": 100971
+    },
+    "receipts.jsonl": {
+      "path": "evaluation/runs/prac-evidence-archive/PRAC-SOAK-2026-09-01/receipts.jsonl",
+      "sha256": "6b62461b9ff0d35edd9ef1cfda75d2f87b65692fc94313ae3a510955f80c646f",
+      "bytes": 4761
+    },
+    "validation-report.json": {
+      "path": "evaluation/runs/prac-evidence-archive/PRAC-SOAK-2026-09-01/validation-report.json",
+      "sha256": "63627e2efa747b71f2febc60d0bda6fb43fb6f4838b35c4876b5a5a10066886b",
+      "bytes": 485
+    }
+  },
+  "evidence_chain_manifest_sha256": "253312a92cfc920f487ced01fc0e2219480defb8998fbc2ceae3f36d08a71235",
+  "directed_tests": [
+    {
+      "test_id": 6,
+      "file": "test-06-restart-bracket.json",
+      "classification": "prac_directed_execution"
+    },
+    {
+      "test_id": 7,
+      "file": "test-07-intent-delivery.json",
+      "classification": "prac_directed_execution"
+    },
+    {
+      "test_id": 8,
+      "file": "test-08-timeout-mutation.json",
+      "classification": "prac_directed_execution"
+    }
+  ],
+  "spontaneous_chain_rows": 9,
+  "frames_added": 11,
+  "frames_excluded": 1,
+  "corpus_manifest_path": "tests/fixtures/frozen_corpus/enriched/manifest.json",
+  "notes": [
+    "Directed frames never promoted to spontaneous thesis candidates.",
+    "NOTHING spontaneous rows keep offline no_edge fixtures for non-baseline profiles.",
+    "chain_complete proves operational chain only \u2014 not cognitive thesis quality."
+  ]
+}

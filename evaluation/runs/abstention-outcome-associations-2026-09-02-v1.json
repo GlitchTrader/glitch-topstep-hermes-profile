@@ -1,0 +1,1675 @@
+{
+  "schema_version": "glitch.topstep.abstention_outcome_association.v1",
+  "recorded_utc": "2026-09-02T19:21:28.290105Z",
+  "classification": {
+    "track": "abstention_outcome_diagnostic",
+    "diagnostic_only": true,
+    "promotion_use_allowed": false
+  },
+  "horizon_minutes": 15,
+  "association_count": 85,
+  "posterior_data_available_count": 47,
+  "associations": [
+    {
+      "run_id": "scenario-live-2026-09-01-r7-contract",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260901T000528Z-041dc508",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "timeout",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260901T000528Z-041dc508",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "timeout",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260831T235211Z-cdbf204f",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "restart",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 3,
+        "reference_price": 29511.0,
+        "mfe_long": 5.75,
+        "mae_long": 9.25,
+        "mfe_short": 9.25,
+        "mae_short": 5.75,
+        "first_touch": "down",
+        "adverse_excursion_max": 9.25,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 14.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260901T182843Z-b06d9a93",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "preflight",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260901T182843Z-b06d9a93",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "preflight",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260901T150823Z-d7908a55",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "frame_id": "20260901T150823Z-d7908a55",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": null,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": null,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260901T150823Z-d7908a55",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": null,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260901T150823Z-d7908a55",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": null,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260901T000528Z-041dc508",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "timeout",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": null,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260901T000528Z-041dc508",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "timeout",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": null,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260831T235211Z-cdbf204f",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "restart",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": null,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 3,
+        "reference_price": 29511.0,
+        "mfe_long": 5.75,
+        "mae_long": 9.25,
+        "mfe_short": 9.25,
+        "mae_short": 5.75,
+        "first_touch": "down",
+        "adverse_excursion_max": 9.25,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 14.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260831T235211Z-cdbf204f",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "restart",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": null,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 3,
+        "reference_price": 29511.0,
+        "mfe_long": 5.75,
+        "mae_long": 9.25,
+        "mfe_short": 9.25,
+        "mae_short": 5.75,
+        "first_touch": "down",
+        "adverse_excursion_max": 9.25,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 14.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260901T143431Z-534fefd5",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "reconciliation",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": null,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260901T182843Z-b06d9a93",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "preflight",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": null,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "frame_id": "20260901T182843Z-b06d9a93",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "preflight",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": null,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260831T233830Z-cbb5cee1",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "prac_directed_test",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 3,
+        "reference_price": 29508.0,
+        "mfe_long": 3.0,
+        "mae_long": 6.75,
+        "mfe_short": 6.75,
+        "mae_short": 3.0,
+        "first_touch": "down",
+        "adverse_excursion_max": 6.75,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 15.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260901T002738Z-818c9e79",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "prac_directed_test",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 2,
+        "reference_price": 29507.0,
+        "mfe_long": -2.25,
+        "mae_long": 3.0,
+        "mfe_short": 3.0,
+        "mae_short": -2.25,
+        "first_touch": "down",
+        "adverse_excursion_max": 3.0,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 21.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260901T002738Z-818c9e79",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "prac_directed_test",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 2,
+        "reference_price": 29507.0,
+        "mfe_long": -2.25,
+        "mae_long": 3.0,
+        "mfe_short": 3.0,
+        "mae_short": -2.25,
+        "first_touch": "down",
+        "adverse_excursion_max": 3.0,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 21.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260901T002738Z-5e80e1ac",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "reconciliation",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 3,
+        "reference_price": 29507.25,
+        "mfe_long": -0.25,
+        "mae_long": 3.25,
+        "mfe_short": 3.25,
+        "mae_short": -0.25,
+        "first_touch": "down",
+        "adverse_excursion_max": 3.25,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 14.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260901T002738Z-5e80e1ac",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "reconciliation",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 3,
+        "reference_price": 29507.25,
+        "mfe_long": -0.25,
+        "mae_long": 3.25,
+        "mfe_short": 3.25,
+        "mae_short": -0.25,
+        "first_touch": "down",
+        "adverse_excursion_max": 3.25,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 14.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260901T020441Z-9866a0f9",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "reconciliation",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 4,
+        "reference_price": 29500.25,
+        "mfe_long": -0.875,
+        "mae_long": 14.0,
+        "mfe_short": 14.0,
+        "mae_short": -0.875,
+        "first_touch": "down",
+        "adverse_excursion_max": 14.0,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 59.5,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260901T020441Z-9866a0f9",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "reconciliation",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 4,
+        "reference_price": 29500.25,
+        "mfe_long": -0.875,
+        "mae_long": 14.0,
+        "mfe_short": 14.0,
+        "mae_short": -0.875,
+        "first_touch": "down",
+        "adverse_excursion_max": 14.0,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 59.5,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260831T235211Z-8c371231",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "restart",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 2,
+        "reference_price": 29511.0,
+        "mfe_long": 5.75,
+        "mae_long": 9.25,
+        "mfe_short": 9.25,
+        "mae_short": 5.75,
+        "first_touch": "down",
+        "adverse_excursion_max": 9.25,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 14.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260831T235620Z-fd331ad4",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "restart",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 1,
+        "reference_price": 29501.75,
+        "mfe_long": 15.0,
+        "mae_long": -15.0,
+        "mfe_short": -15.0,
+        "mae_short": 15.0,
+        "first_touch": "up",
+        "adverse_excursion_max": 15.0,
+        "contrafactual_direction": "long",
+        "contrafactual_edge_ticks": 120.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260831T235620Z-fd331ad4",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "restart",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 1,
+        "reference_price": 29501.75,
+        "mfe_long": 15.0,
+        "mae_long": -15.0,
+        "mfe_short": -15.0,
+        "mae_short": 15.0,
+        "first_touch": "up",
+        "adverse_excursion_max": 15.0,
+        "contrafactual_direction": "long",
+        "contrafactual_edge_ticks": 120.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260901T143311Z-a49c317a",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 1,
+        "reference_price": 29205.25,
+        "mfe_long": 4.75,
+        "mae_long": -4.75,
+        "mfe_short": -4.75,
+        "mae_short": 4.75,
+        "first_touch": "up",
+        "adverse_excursion_max": 4.75,
+        "contrafactual_direction": "long",
+        "contrafactual_edge_ticks": 38.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260901T145322Z-c776a976",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "frame_id": "20260901T145322Z-c776a976",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "frame_id": "20260901T152524Z-24fe8a4d",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "frame_id": "20260901T152524Z-24fe8a4d",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "frame_id": "20260901T154226Z-52265102",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "frame_id": "20260901T154226Z-52265102",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "frame_id": "20260901T165456Z-8b20659b",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "frame_id": "20260901T174044Z-2cfca7a6",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "frame_id": "20260901T174044Z-2cfca7a6",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "frame_id": "20260901T175947Z-a71c2714",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "frame_id": "20260901T181807Z-e1ff909a",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 1,
+        "reference_price": 29110.875,
+        "mfe_long": -23.125,
+        "mae_long": 23.125,
+        "mfe_short": 23.125,
+        "mae_short": -23.125,
+        "first_touch": "down",
+        "adverse_excursion_max": 23.125,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 185.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "frame_id": "20260901T181807Z-e1ff909a",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 1,
+        "reference_price": 29110.875,
+        "mfe_long": -23.125,
+        "mae_long": 23.125,
+        "mfe_short": 23.125,
+        "mae_short": -23.125,
+        "first_touch": "down",
+        "adverse_excursion_max": 23.125,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 185.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "frame_id": "20260901T002828Z-f5fb2cc7",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "prac_directed_test",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "frame_id": "20260901T002828Z-f5fb2cc7",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "prac_directed_test",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T115053Z-b7730ea3",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T115053Z-b7730ea3",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T113051Z-cb1139d6",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 2,
+        "reference_price": 29028.75,
+        "mfe_long": 7.75,
+        "mae_long": -1.25,
+        "mfe_short": -1.25,
+        "mae_short": 7.75,
+        "first_touch": "up",
+        "adverse_excursion_max": 7.75,
+        "contrafactual_direction": "long",
+        "contrafactual_edge_ticks": 36.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T113051Z-cb1139d6",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 2,
+        "reference_price": 29028.75,
+        "mfe_long": 7.75,
+        "mae_long": -1.25,
+        "mfe_short": -1.25,
+        "mae_short": 7.75,
+        "first_touch": "up",
+        "adverse_excursion_max": 7.75,
+        "contrafactual_direction": "long",
+        "contrafactual_edge_ticks": 36.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T022826Z-2e035875",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 1,
+        "reference_price": 29091.0,
+        "mfe_long": -19.5,
+        "mae_long": 19.5,
+        "mfe_short": 19.5,
+        "mae_short": -19.5,
+        "first_touch": "down",
+        "adverse_excursion_max": 19.5,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 156.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T022826Z-2e035875",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 1,
+        "reference_price": 29091.0,
+        "mfe_long": -19.5,
+        "mae_long": 19.5,
+        "mfe_short": 19.5,
+        "mae_short": -19.5,
+        "first_touch": "down",
+        "adverse_excursion_max": 19.5,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 156.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T022026Z-2a71dbe9",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 1,
+        "reference_price": 29091.5,
+        "mfe_long": -0.5,
+        "mae_long": 0.5,
+        "mfe_short": 0.5,
+        "mae_short": -0.5,
+        "first_touch": "down",
+        "adverse_excursion_max": 0.5,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 4.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T022026Z-2a71dbe9",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 1,
+        "reference_price": 29091.5,
+        "mfe_long": -0.5,
+        "mae_long": 0.5,
+        "mfe_short": 0.5,
+        "mae_short": -0.5,
+        "first_touch": "down",
+        "adverse_excursion_max": 0.5,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 4.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T021025Z-c88c2945",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 1,
+        "reference_price": 29051.75,
+        "mfe_long": 39.75,
+        "mae_long": -39.75,
+        "mfe_short": -39.75,
+        "mae_short": 39.75,
+        "first_touch": "up",
+        "adverse_excursion_max": 39.75,
+        "contrafactual_direction": "long",
+        "contrafactual_edge_ticks": 318.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T021025Z-c88c2945",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 1,
+        "reference_price": 29051.75,
+        "mfe_long": 39.75,
+        "mae_long": -39.75,
+        "mfe_short": -39.75,
+        "mae_short": 39.75,
+        "first_touch": "up",
+        "adverse_excursion_max": 39.75,
+        "contrafactual_direction": "long",
+        "contrafactual_edge_ticks": 318.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T020524Z-aba921ec",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 1,
+        "reference_price": 29053.0,
+        "mfe_long": -1.25,
+        "mae_long": 1.25,
+        "mfe_short": 1.25,
+        "mae_short": -1.25,
+        "first_touch": "down",
+        "adverse_excursion_max": 1.25,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 10.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T020524Z-aba921ec",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 1,
+        "reference_price": 29053.0,
+        "mfe_long": -1.25,
+        "mae_long": 1.25,
+        "mfe_short": 1.25,
+        "mae_short": -1.25,
+        "first_touch": "down",
+        "adverse_excursion_max": 1.25,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 10.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T020023Z-e8df6b82",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 2,
+        "reference_price": 29069.75,
+        "mfe_long": -16.75,
+        "mae_long": 18.0,
+        "mfe_short": 18.0,
+        "mae_short": -16.75,
+        "first_touch": "down",
+        "adverse_excursion_max": 18.0,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 139.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T015522Z-065ef854",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 2,
+        "reference_price": 29065.0,
+        "mfe_long": 4.75,
+        "mae_long": 12.0,
+        "mfe_short": 12.0,
+        "mae_short": 4.75,
+        "first_touch": "up",
+        "adverse_excursion_max": 12.0,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 29.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T015522Z-065ef854",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 2,
+        "reference_price": 29065.0,
+        "mfe_long": 4.75,
+        "mae_long": 12.0,
+        "mfe_short": 12.0,
+        "mae_short": 4.75,
+        "first_touch": "up",
+        "adverse_excursion_max": 12.0,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 29.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T112922Z-c30de894",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "restart",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 2,
+        "reference_price": 29022.75,
+        "mfe_long": 13.75,
+        "mae_long": -6.0,
+        "mfe_short": -6.0,
+        "mae_short": 13.75,
+        "first_touch": "up",
+        "adverse_excursion_max": 13.75,
+        "contrafactual_direction": "long",
+        "contrafactual_edge_ticks": 79.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "frame_id": "20260902T112922Z-c30de894",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "restart",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 2,
+        "reference_price": 29022.75,
+        "mfe_long": 13.75,
+        "mae_long": -6.0,
+        "mfe_short": -6.0,
+        "mae_short": 13.75,
+        "first_touch": "up",
+        "adverse_excursion_max": 13.75,
+        "contrafactual_direction": "long",
+        "contrafactual_edge_ticks": 79.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r15-v7",
+      "frame_id": "20260902T155530Z-4d39411f",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r15-v7",
+      "frame_id": "20260902T155530Z-4d39411f",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r15-v7",
+      "frame_id": "20260902T155028Z-8c4e5912",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 1,
+        "reference_price": 29142.25,
+        "mfe_long": 9.0,
+        "mae_long": -9.0,
+        "mfe_short": -9.0,
+        "mae_short": 9.0,
+        "first_touch": "up",
+        "adverse_excursion_max": 9.0,
+        "contrafactual_direction": "long",
+        "contrafactual_edge_ticks": 72.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r15-v7",
+      "frame_id": "20260902T155028Z-8c4e5912",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 1,
+        "reference_price": 29142.25,
+        "mfe_long": 9.0,
+        "mae_long": -9.0,
+        "mfe_short": -9.0,
+        "mae_short": 9.0,
+        "first_touch": "up",
+        "adverse_excursion_max": 9.0,
+        "contrafactual_direction": "long",
+        "contrafactual_edge_ticks": 72.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r15-v7",
+      "frame_id": "20260902T154529Z-db31fa40",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 2,
+        "reference_price": 29166.25,
+        "mfe_long": -15.0,
+        "mae_long": 24.0,
+        "mfe_short": 24.0,
+        "mae_short": -15.0,
+        "first_touch": "down",
+        "adverse_excursion_max": 24.0,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 156.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r15-v7",
+      "frame_id": "20260902T154529Z-db31fa40",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 2,
+        "reference_price": 29166.25,
+        "mfe_long": -15.0,
+        "mae_long": 24.0,
+        "mfe_short": 24.0,
+        "mae_short": -15.0,
+        "first_touch": "down",
+        "adverse_excursion_max": 24.0,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 156.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r15-v7",
+      "frame_id": "20260902T154027Z-358cec55",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 2,
+        "reference_price": 29183.75,
+        "mfe_long": -17.5,
+        "mae_long": 41.5,
+        "mfe_short": 41.5,
+        "mae_short": -17.5,
+        "first_touch": "down",
+        "adverse_excursion_max": 41.5,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 236.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r15-v7",
+      "frame_id": "20260902T154027Z-358cec55",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 2,
+        "reference_price": 29183.75,
+        "mfe_long": -17.5,
+        "mae_long": 41.5,
+        "mfe_short": 41.5,
+        "mae_short": -17.5,
+        "first_touch": "down",
+        "adverse_excursion_max": 41.5,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 236.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r16-v8",
+      "frame_id": "20260902T172547Z-c62a7390",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r16-v8",
+      "frame_id": "20260902T172547Z-c62a7390",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r16-v8",
+      "frame_id": "20260902T172046Z-86a52bbc",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 1,
+        "reference_price": 29133.5,
+        "mfe_long": 14.25,
+        "mae_long": -14.25,
+        "mfe_short": -14.25,
+        "mae_short": 14.25,
+        "first_touch": "up",
+        "adverse_excursion_max": 14.25,
+        "contrafactual_direction": "long",
+        "contrafactual_edge_ticks": 114.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r16-v8",
+      "frame_id": "20260902T172046Z-86a52bbc",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 1,
+        "reference_price": 29133.5,
+        "mfe_long": 14.25,
+        "mae_long": -14.25,
+        "mfe_short": -14.25,
+        "mae_short": 14.25,
+        "first_touch": "up",
+        "adverse_excursion_max": 14.25,
+        "contrafactual_direction": "long",
+        "contrafactual_edge_ticks": 114.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r16-v8",
+      "frame_id": "20260902T171541Z-4fdd308c",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 2,
+        "reference_price": 29143.5,
+        "mfe_long": 4.25,
+        "mae_long": 10.0,
+        "mfe_short": 10.0,
+        "mae_short": 4.25,
+        "first_touch": "down",
+        "adverse_excursion_max": 10.0,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 23.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r16-v8",
+      "frame_id": "20260902T171541Z-4fdd308c",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 2,
+        "reference_price": 29143.5,
+        "mfe_long": 4.25,
+        "mae_long": 10.0,
+        "mfe_short": 10.0,
+        "mae_short": 4.25,
+        "first_touch": "down",
+        "adverse_excursion_max": 10.0,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 23.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r17-v9",
+      "frame_id": "20260902T183055Z-92f0a8a8",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r17-v9",
+      "frame_id": "20260902T183055Z-92f0a8a8",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": false,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 0
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r17-v9",
+      "frame_id": "20260902T182055Z-08066af5",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 2,
+        "reference_price": 29171.875,
+        "mfe_long": -0.625,
+        "mae_long": 2.125,
+        "mfe_short": 2.125,
+        "mae_short": -0.625,
+        "first_touch": "down",
+        "adverse_excursion_max": 2.125,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 11.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r17-v9",
+      "frame_id": "20260902T182055Z-08066af5",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 2,
+        "reference_price": 29171.875,
+        "mfe_long": -0.625,
+        "mae_long": 2.125,
+        "mfe_short": 2.125,
+        "mae_short": -0.625,
+        "first_touch": "down",
+        "adverse_excursion_max": 2.125,
+        "contrafactual_direction": "short",
+        "contrafactual_edge_ticks": 11.0,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r17-v9",
+      "frame_id": "20260902T181051Z-ab6e5383",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 3,
+        "reference_price": 29152.125,
+        "mfe_long": 19.75,
+        "mae_long": 7.875,
+        "mfe_short": 7.875,
+        "mae_short": 19.75,
+        "first_touch": "down",
+        "adverse_excursion_max": 19.75,
+        "contrafactual_direction": "long",
+        "contrafactual_edge_ticks": 47.5,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r17-v9",
+      "frame_id": "20260902T181051Z-ab6e5383",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 3,
+        "reference_price": 29152.125,
+        "mfe_long": 19.75,
+        "mae_long": 7.875,
+        "mfe_short": 7.875,
+        "mae_short": 19.75,
+        "first_touch": "down",
+        "adverse_excursion_max": 19.75,
+        "contrafactual_direction": "long",
+        "contrafactual_edge_ticks": 47.5,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r17-v9",
+      "frame_id": "20260902T180851Z-c5f24442",
+      "profile_id": "baseline-current",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 3,
+        "reference_price": 29148.0,
+        "mfe_long": 23.875,
+        "mae_long": 3.75,
+        "mfe_short": 3.75,
+        "mae_short": 23.875,
+        "first_touch": "up",
+        "adverse_excursion_max": 23.875,
+        "contrafactual_direction": "long",
+        "contrafactual_edge_ticks": 80.5,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r17-v9",
+      "frame_id": "20260902T180851Z-c5f24442",
+      "profile_id": "structure",
+      "normalized_state": "no_edge",
+      "scenario_tag": "operator_minute_frame",
+      "evidence_completeness_tier": "unknown",
+      "capacity_gate_comparable": true,
+      "posterior": {
+        "posterior_data_available": true,
+        "horizon_minutes": 15,
+        "posterior_frame_count": 3,
+        "reference_price": 29148.0,
+        "mfe_long": 23.875,
+        "mae_long": 3.75,
+        "mfe_short": 3.75,
+        "mae_short": 23.875,
+        "first_touch": "up",
+        "adverse_excursion_max": 23.875,
+        "contrafactual_direction": "long",
+        "contrafactual_edge_ticks": 80.5,
+        "note": "diagnostic_excursion_not_labeled_correctness"
+      }
+    }
+  ],
+  "disclaimer": "Not labeled correctness; requires approved outcome definition before promotion use."
+}

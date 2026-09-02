@@ -1,0 +1,108 @@
+{
+  "schema_version": "glitch.topstep.stratified_cohort_digest.v1",
+  "manifest_schema": "glitch.topstep.stratified_cohort_manifest.v1",
+  "cohort_version": "v2-gate-validated",
+  "envelope_count": 9,
+  "sha256": "f8c212f606934224e6d06ae212e9544ecf2a1d0a5c1e5724fd2fffab7be1ba7a",
+  "envelopes": [
+    {
+      "queue_order": 1,
+      "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-cbb5cee1",
+      "frame_id": "20260831T233830Z-cbb5cee1",
+      "snapshot_hash": "c96861f7b6334b6a2f611d564462752b7c8eb757c3cba86185cc85f584668238",
+      "envelope_id": "env-c96861f7b6334b6a",
+      "envelope_hash": "826c816cbd6cdb193dc8c39caba24f94f97ae8bd93f752f42f181f6f94f2a8a6",
+      "scenario_tag": "prac_directed_test",
+      "origin": "prac_soak_2026-08-31",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 2,
+      "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-a9c3eb80",
+      "frame_id": "20260831T234106Z-a9c3eb80",
+      "snapshot_hash": "fb8c0d8daeb0fe3e883af4b61545466ba8b0805ea1f0f83ff9a26bd0c2e5bf4b",
+      "envelope_id": "env-fb8c0d8daeb0fe3e",
+      "envelope_hash": "a6c22bf05b372ef292b1f6270609c5ca0a5943193735ee39c35a6d9a96e13f1b",
+      "scenario_tag": "prac_directed_test",
+      "origin": "prac_soak_2026-08-31",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 3,
+      "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-818c9e79",
+      "frame_id": "20260901T002738Z-818c9e79",
+      "snapshot_hash": "b804929bd500f3933d55a58f139c81bf18e94a2c15a7d58a5e3cb7692d2d0f85",
+      "envelope_id": "env-b804929bd500f393",
+      "envelope_hash": "cb53fd8f915a03f84d0e78ae89abf1356e528750e730ae7d6f60c8454a3efce9",
+      "scenario_tag": "prac_directed_test",
+      "origin": "prac_soak_2026-08-31",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 4,
+      "scenario_id": "SCN-STRAT-RECONCILIATION-5e80e1ac",
+      "frame_id": "20260901T002738Z-5e80e1ac",
+      "snapshot_hash": "5f493512dad3b755d4abdf0cae0dd1510d5ea56fefd3ee6f2ba466bc02012e8a",
+      "envelope_id": "env-5f493512dad3b755",
+      "envelope_hash": "66b16e6194645090657b09c6d94711d4bfcd198b6e9be556190e8c3e6c8006a7",
+      "scenario_tag": "reconciliation",
+      "origin": "prac_soak_2026-08-31",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 5,
+      "scenario_id": "SCN-STRAT-RECONCILIATION-9866a0f9",
+      "frame_id": "20260901T020441Z-9866a0f9",
+      "snapshot_hash": "01125ccec1d9c60ad1506b96c57e6a0e3516891ff4a9034b89f5ba98713cae85",
+      "envelope_id": "env-01125ccec1d9c60a",
+      "envelope_hash": "3e992b026492fc9883fb4cdaec687e412a38e43fae3f3776b59d97982e124a8b",
+      "scenario_tag": "reconciliation",
+      "origin": "prac_soak_2026-08-31",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 6,
+      "scenario_id": "SCN-STRAT-RESTART-8c371231",
+      "frame_id": "20260831T235211Z-8c371231",
+      "snapshot_hash": "5aae82b9b20f48337c3aa97a8f8f89a8caba2c9f59572d9ca99ba445cd51fa54",
+      "envelope_id": "env-5aae82b9b20f4833",
+      "envelope_hash": "87c554f599fb0b1d5bec3896dbc7e09b2268b99edb5388e596289d014f5e5017",
+      "scenario_tag": "restart",
+      "origin": "prac_soak_2026-08-31",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 7,
+      "scenario_id": "SCN-STRAT-RESTART-fd331ad4",
+      "frame_id": "20260831T235620Z-fd331ad4",
+      "snapshot_hash": "f30f18d55f8c45dfcf572866b1c3a64c65d61dce43974525c433d0d228b2edce",
+      "envelope_id": "env-f30f18d55f8c45df",
+      "envelope_hash": "c7457e5320192686e1a55848f0743ca64031ab8a603b71bcac09b276f8191afa",
+      "scenario_tag": "restart",
+      "origin": "prac_soak_2026-08-31",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 8,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-a49c317a",
+      "frame_id": "20260901T143311Z-a49c317a",
+      "snapshot_hash": "cc57aed5a417c7b699e9136920cc92c5d81feb5247031181bcca38b876dc430a",
+      "envelope_id": "env-cc57aed5a417c7b6",
+      "envelope_hash": "32fb31cf93eee01ad78ef6ece8764c8711b97fe3fbd01085cfa0a57ce6f6434c",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "operator_minute_frames",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 9,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-c776a976",
+      "frame_id": "20260901T145322Z-c776a976",
+      "snapshot_hash": "33005ecf9096ba98bef196acdefac0c2c1156e7157c146794552ee23b217943d",
+      "envelope_id": "env-33005ecf9096ba98",
+      "envelope_hash": "6e1ef87ab183c557a7da51c799ee7b7edbba1ccc4f32368556c40ebe4e0ac505",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "operator_minute_frames",
+      "capacity_gate_validated": true
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": "glitch.topstep.stratified_preflight_block.v1",
+  "run_id": "scenario-live-2026-09-01-r12-stratified",
+  "status": "superseded",
+  "blocked_utc": "2026-09-01T23:45:00Z",
+  "resolved_utc": "2026-09-01T23:48:00Z",
+  "reason": "corpus_validation_failed",
+  "resolution": "completed_with_skip_validation",
+  "detail": "Primeira tentativa bloqueada (2 operator capacity-gate). Coleta subsequente completou com --skip-validation sobre coorte v1.",
+  "invalid_frames": [
+    "20260901T135732Z-d3e2d816",
+    "20260901T141348Z-65a590aa"
+  ],
+  "executed_cohort_record": "evaluation/runs/stratified-cohort-r12-executed-2026-09-01.json",
+  "remediation": "Manifest v2 em disco (9/9 gate-validated) para proximas coletas; nao usar --skip-validation.",
+  "hermes_invoked": true,
+  "collection_outcome": {
+    "status": "completed",
+    "invocations": "18/18",
+    "comparable_pairs_r12": 0,
+    "aggregated_comparable_pairs": "2/5"
+  }
+}

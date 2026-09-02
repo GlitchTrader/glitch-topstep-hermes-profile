@@ -1,0 +1,100 @@
+{
+  "schema_version": "glitch.topstep.trail_a_multi_envelope_run_config.v1",
+  "status": "authorized_evaluation_lane_only",
+  "authorized_run_id": "trail-a-multi-envelope-2026-09-02",
+  "evaluation_only": true,
+  "production_parallelism": false,
+  "promotion_gate": false,
+  "manifest_ref": "evaluation/trail-a-multi-envelope-manifest.v1.json",
+  "authorization_ref": "evaluation/reviews/TRAIL-A-MULTI-ENVELOPE-AUTHORIZATION.md",
+  "profiles": [
+    "baseline-current",
+    "structure",
+    "adversarial-risk"
+  ],
+  "envelopes": [
+    {
+      "scenario_id": "SCN-TRAIL-A-MULTI-01",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "frame_path": "tests/fixtures/frozen_corpus/enriched/minute-frames/20260901T134026Z-bb50bbe9.json",
+      "frame_sha256": "df2e01375530a12aaebd60ae3e7af67ad15e970c5b5e14307c2f7fb1b7121170",
+      "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+      "envelope_hash": "5419bea167862a440dc2f9c516a88725dcd687d8e81d4bac0df4ad43307f679c",
+      "envelope_id": "env-8d12d081fc8885a3",
+      "validity_seconds": 35
+    },
+    {
+      "scenario_id": "SCN-TRAIL-A-MULTI-02",
+      "frame_id": "20260820T1200Z",
+      "frame_path": "tests/fixtures/frozen_corpus/minute-frames/20260820T1200Z.json",
+      "frame_sha256": "c2b3b7715e338ace9a22c7a004c65906d2fa111cb865329203f7f878aa0b3613",
+      "snapshot_hash": "e3d8905356316096e95289df936942a956379e960ef1db53e121e318a63b67a7",
+      "envelope_hash": "5799472c16d7a631c9a091c03113b94526dc644ed3e4fa2b110db42f1056c374",
+      "envelope_id": "env-e3d8905356316096",
+      "validity_seconds": 35
+    },
+    {
+      "scenario_id": "SCN-TRAIL-A-MULTI-03",
+      "frame_id": "20260820T1201Z",
+      "frame_path": "tests/fixtures/frozen_corpus/minute-frames/20260820T1201Z.json",
+      "frame_sha256": "9a939d6b119378330311a842fb37a81b9ba04ade478eb3e841a7768d0a01c346",
+      "snapshot_hash": "1545fbe44615e07db3cbf6748477b643ab79925ebf40525072913555e0af2f56",
+      "envelope_hash": "1a799a464bafdcbecc020b3f5de0c103f6f4f0ac3e2390dc8741b24dfe4fd3db",
+      "envelope_id": "env-1545fbe44615e07d",
+      "validity_seconds": 35
+    }
+  ],
+  "versions": {
+    "registry_version": "2026-09-01-v2",
+    "config_version": "2026-09-01-v2",
+    "aggregator_rules_version": "2026-09-01-v2",
+    "matrix_version": "2026-09-01-v2",
+    "normalized_candidate_schema": "glitch.topstep.normalized_candidate.v1",
+    "minimal_replay_schema": "glitch.topstep.minimal_cognitive_replay.v1",
+    "adapter_version": "2026-09-01-v1",
+    "model": "gpt-5.6-luna",
+    "provider": "openai-codex"
+  },
+  "isolation": {
+    "owner_kind": "evaluation",
+    "hermes_home_profile": "glitch-topstep-evaluation",
+    "hermes_home_env": "EVALUATION_HERMES_HOME",
+    "state_root_pattern": "evaluation/state/{run_id}-{profile_id}",
+    "production_paths_forbidden": [
+      "state/outbox",
+      "state/receipts",
+      "state/decisions.jsonl",
+      "state/profile-state.sqlite"
+    ]
+  },
+  "budget": {
+    "max_parallel_slots": 2,
+    "max_cost_usd_per_session": 2.5,
+    "per_profile_timeout_ms": 35000,
+    "total_timeout_ms": 180000,
+    "aggregation_budget_ms": 10000,
+    "validity_seconds": 35
+  },
+  "output": {
+    "runs_dir": "evaluation/runs",
+    "bundle_suffix": ".json",
+    "per_profile_artifact_pattern": "{run_id}-{profile_id}-{frame_id}.json",
+    "aggregator_offline": true
+  },
+  "blocked": [
+    "gateway_operational",
+    "outbox",
+    "intents",
+    "production_receipts",
+    "production_sqlite",
+    "shadow",
+    "paper",
+    "canary",
+    "promotion",
+    "dynamic_routing",
+    "automatic_retry",
+    "prac",
+    "start_ps1",
+    "cron_pause"
+  ]
+}

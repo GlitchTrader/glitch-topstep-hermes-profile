@@ -1,0 +1,73 @@
+{
+  "schema_version": "glitch.topstep.prac_corpus_ingest.v1",
+  "ingested_utc": "2026-09-02T20:07:27.237861Z",
+  "session_id": "PRAC-LIMITED-2026-09-02",
+  "origin": "prac_limited_2026_09_02",
+  "temporal_window": {
+    "since_utc": "2026-09-02T19:31:43.974672Z",
+    "until_utc": null
+  },
+  "chain_complete": true,
+  "operator_frames_dir": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state\\minute-frames",
+  "operator_frames_dir_status": "found",
+  "evidence_archive_dir": "evaluation/runs/prac-evidence-archive/PRAC-LIMITED-2026-09-02",
+  "archived_files": {
+    "session-finalize.json": {
+      "path": "evaluation/runs/prac-evidence-archive/PRAC-LIMITED-2026-09-02/session-finalize.json",
+      "sha256": "8f36d498168270274ecab1a075a11edb220abb5575cf3096230eaad9e04b3396",
+      "bytes": 1300
+    },
+    "evidence-chain-manifest.json": {
+      "path": "evaluation/runs/prac-evidence-archive/PRAC-LIMITED-2026-09-02/evidence-chain-manifest.json",
+      "sha256": "4c43a2132e1b4b13c29e4ef3fa68e3589d9082c5233d9b91bfc5a75f6da8ad13",
+      "bytes": 4109
+    },
+    "decisions.jsonl": {
+      "path": "evaluation/runs/prac-evidence-archive/PRAC-LIMITED-2026-09-02/decisions.jsonl",
+      "sha256": "df76e44da004a8951f0dd0c6b5f7e2bacbf0813d11728228ad5a59e01d0f61d1",
+      "bytes": 89052
+    },
+    "receipts.jsonl": {
+      "path": "evaluation/runs/prac-evidence-archive/PRAC-LIMITED-2026-09-02/receipts.jsonl",
+      "sha256": "9f5f6a72e197b3cc59de46bb645d73ac2e508a19b2696ef0559d97c34c9cb536",
+      "bytes": 4232
+    },
+    "validation-report.json": {
+      "path": "evaluation/runs/prac-evidence-archive/PRAC-LIMITED-2026-09-02/validation-report.json",
+      "sha256": "afe99a01c20b369e2cfe0d626ffb1ab004a898e73021dcf7aeedb11bb06cc1e8",
+      "bytes": 488
+    }
+  },
+  "evidence_chain_manifest_sha256": "4c43a2132e1b4b13c29e4ef3fa68e3589d9082c5233d9b91bfc5a75f6da8ad13",
+  "directed_tests": [
+    {
+      "test_id": 6,
+      "file": "test-06-restart-bracket.json",
+      "classification": "prac_directed_execution"
+    },
+    {
+      "test_id": 7,
+      "file": "test-07-intent-delivery.json",
+      "classification": "prac_directed_execution"
+    },
+    {
+      "test_id": 8,
+      "file": "test-08-timeout-mutation.json",
+      "classification": "prac_directed_execution"
+    }
+  ],
+  "spontaneous_chain_rows": 8,
+  "frames_added": 8,
+  "frames_excluded": 3,
+  "exclusion_breakdown": {
+    "directed_test_missing": 3
+  },
+  "ingest_outcome_class": "frames_added",
+  "ingest_note": "frames_added counts new corpus entries only; excluded minute_frame_not_found_for_chain means operator minute-frames were not found (check state/minute-frames path).",
+  "corpus_manifest_path": "tests/fixtures/frozen_corpus/enriched/manifest.json",
+  "notes": [
+    "Directed frames never promoted to spontaneous thesis candidates.",
+    "NOTHING spontaneous rows keep offline no_edge fixtures for non-baseline profiles.",
+    "chain_complete proves operational chain only \u2014 not cognitive thesis quality."
+  ]
+}

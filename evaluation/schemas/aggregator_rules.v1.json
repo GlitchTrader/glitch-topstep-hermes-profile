@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "glitch.topstep.aggregator_rules.v1",
+  "title": "Aggregator rules document",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "rules_version",
+    "status",
+    "outputs",
+    "candidate_equivalence",
+    "adversarial_severity",
+    "critical_normalization",
+    "objective_elimination_rules",
+    "tiebreak_order",
+    "decision_table_four_agree_adversarial_rejects",
+    "failure_classes"
+  ],
+  "properties": {
+    "schema_version": { "const": "glitch.topstep.aggregator_rules.v1" },
+    "rules_version": { "type": "string" },
+    "status": { "type": "string" },
+    "outputs": { "type": "object" },
+    "candidate_equivalence": { "type": "object" },
+    "adversarial_severity": { "type": "object" },
+    "critical_normalization": { "type": "object" },
+    "objective_elimination_rules": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "tiebreak_order": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "decision_table_four_agree_adversarial_rejects": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "failure_classes": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

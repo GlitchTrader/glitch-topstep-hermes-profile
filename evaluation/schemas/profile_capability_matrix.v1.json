@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "glitch.topstep.profile_capability_matrix.v1",
+  "title": "Profile capability matrix",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "matrix_version",
+    "common_context",
+    "source_catalog",
+    "profiles"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "glitch.topstep.profile_capability_matrix.v1"
+    },
+    "matrix_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "common_context": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "source_catalog": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["description", "packet_paths"],
+        "properties": {
+          "description": { "type": "string" },
+          "packet_paths": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "profiles": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "profile_id",
+          "description",
+          "skills",
+          "required_sources",
+          "optional_sources",
+          "forbidden_inference",
+          "comparability_notes"
+        ],
+        "properties": {
+          "profile_id": { "type": "string" },
+          "description": { "type": "string" },
+          "skills": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "required_sources": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "optional_sources": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "forbidden_inference": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "comparability_notes": { "type": "string" }
+        }
+      }
+    }
+  }
+}

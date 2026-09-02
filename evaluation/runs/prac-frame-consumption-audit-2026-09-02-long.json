@@ -1,0 +1,81 @@
+{
+  "schema_version": "glitch.topstep.prac_frame_consumption_audit.v1",
+  "audited_utc": "2026-09-02T15:57:55.292059Z",
+  "chain_manifest": "C:\\Users\\arifr\\Projects\\glitch-topstep\\docs\\evidence\\PRAC-SOAK-2026-09-02-long\\evidence-chain-manifest.json",
+  "operator_frames_dir": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state\\minute-frames",
+  "frame_count": 4,
+  "eligible_new_count": 4,
+  "interpretation": {
+    "frames_added_zero_means": "Not necessarily already_in_corpus \u2014 check exclusion_reason and minute_frame_on_disk. minute_frame_not_found_for_chain indicates wrong operator-frames path or missing export order.",
+    "already_in_corpus_vs_consumed": "in_corpus_entries=true without cohort/replay hits = corpus present but not consumed. consumed_by_cohorts/replays non-empty = already_consumed."
+  },
+  "frames": [
+    {
+      "packet_id": "358cec55-5c3e-4df6-b851-1560806b8de0",
+      "frame_id": "20260902T154027Z-358cec55",
+      "snapshot_hash": "932dff16483120219127758edceed9c65c7d75c455e2637bd54f93ea2773bc78",
+      "snapshot_hash_matches_corpus": false,
+      "in_corpus_entries": true,
+      "in_corpus_excluded": false,
+      "exclusion_reason": null,
+      "minute_frame_on_disk": true,
+      "chain_classification": "spontaneous_cognitive",
+      "consumed_by_cohorts": [],
+      "consumed_by_replays": [],
+      "capacity_gate_pass": true,
+      "prac_archive_preserved": true,
+      "classification": "novo_elegivel"
+    },
+    {
+      "packet_id": "db31fa40-e6ba-4c75-8f81-a9d8ac41ea25",
+      "frame_id": "20260902T154529Z-db31fa40",
+      "snapshot_hash": "c6373da7a7743072304caee27e495a3baa2c2f516f6b0b9de0d232b20d6edf4e",
+      "snapshot_hash_matches_corpus": false,
+      "in_corpus_entries": true,
+      "in_corpus_excluded": false,
+      "exclusion_reason": null,
+      "minute_frame_on_disk": true,
+      "chain_classification": "spontaneous_cognitive",
+      "consumed_by_cohorts": [],
+      "consumed_by_replays": [],
+      "capacity_gate_pass": true,
+      "prac_archive_preserved": true,
+      "classification": "novo_elegivel"
+    },
+    {
+      "packet_id": "8c4e5912-f9b0-487f-94be-98b99d02a90d",
+      "frame_id": "20260902T155028Z-8c4e5912",
+      "snapshot_hash": "001bc34f604771bbe3abb900f37cb466621732ea2d07bf9ed20a5b68ba761482",
+      "snapshot_hash_matches_corpus": false,
+      "in_corpus_entries": true,
+      "in_corpus_excluded": false,
+      "exclusion_reason": null,
+      "minute_frame_on_disk": true,
+      "chain_classification": "spontaneous_cognitive",
+      "consumed_by_cohorts": [],
+      "consumed_by_replays": [],
+      "capacity_gate_pass": true,
+      "prac_archive_preserved": true,
+      "classification": "novo_elegivel"
+    },
+    {
+      "packet_id": "4d39411f-9e77-4d51-abb0-02139af4be08",
+      "frame_id": "20260902T155530Z-4d39411f",
+      "snapshot_hash": "287d7edb764955aed4211c529b770fd63a88b07e07aeb38bb10b170f436f06f2",
+      "snapshot_hash_matches_corpus": false,
+      "in_corpus_entries": true,
+      "in_corpus_excluded": false,
+      "exclusion_reason": null,
+      "minute_frame_on_disk": true,
+      "chain_classification": "spontaneous_cognitive",
+      "consumed_by_cohorts": [],
+      "consumed_by_replays": [],
+      "capacity_gate_pass": true,
+      "prac_archive_preserved": true,
+      "classification": "novo_elegivel"
+    }
+  ],
+  "summary_by_classification": {
+    "novo_elegivel": 4
+  }
+}

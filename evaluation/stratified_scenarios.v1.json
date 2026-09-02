@@ -1,0 +1,81 @@
+{
+  "schema_version": "glitch.topstep.comparable_scenarios.v2",
+  "scenarios_version": "2026-09-01-stratified-v2",
+  "status": "pre_registered_offline",
+  "corpus_root": "tests/fixtures/frozen_corpus/enriched",
+  "profiles": [
+    "baseline-current",
+    "structure"
+  ],
+  "execution_mode": "sequential",
+  "parent_manifest": "evaluation/runs/stratified-cohort-manifest-2026-09-01.json",
+  "notes": [
+    "Sele\u00e7\u00e3o offline antes de invoca\u00e7\u00e3o Hermes \u2014 sem vi\u00e9s de resultado do perfil.",
+    "Frames da fila frozen r10/r11 exclu\u00eddos."
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-cbb5cee1",
+      "frame_id": "20260831T233830Z-cbb5cee1",
+      "scenario_tag": "prac_directed_test",
+      "origin": "prac_soak_2026-08-31",
+      "description": "Stratified offline selection; packet"
+    },
+    {
+      "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-a9c3eb80",
+      "frame_id": "20260831T234106Z-a9c3eb80",
+      "scenario_tag": "prac_directed_test",
+      "origin": "prac_soak_2026-08-31",
+      "description": "Stratified offline selection; packet"
+    },
+    {
+      "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-818c9e79",
+      "frame_id": "20260901T002738Z-818c9e79",
+      "scenario_tag": "prac_directed_test",
+      "origin": "prac_soak_2026-08-31",
+      "description": "Stratified offline selection; pre_flatten.snapshot.packet"
+    },
+    {
+      "scenario_id": "SCN-STRAT-RECONCILIATION-5e80e1ac",
+      "frame_id": "20260901T002738Z-5e80e1ac",
+      "scenario_tag": "reconciliation",
+      "origin": "prac_soak_2026-08-31",
+      "description": "Stratified offline selection; recovery_clear.post.packet"
+    },
+    {
+      "scenario_id": "SCN-STRAT-RECONCILIATION-9866a0f9",
+      "frame_id": "20260901T020441Z-9866a0f9",
+      "scenario_tag": "reconciliation",
+      "origin": "prac_soak_2026-08-31",
+      "description": "Stratified offline selection; recovery_clear.post.packet"
+    },
+    {
+      "scenario_id": "SCN-STRAT-RESTART-8c371231",
+      "frame_id": "20260831T235211Z-8c371231",
+      "scenario_tag": "restart",
+      "origin": "prac_soak_2026-08-31",
+      "description": "Stratified offline selection; baseline.packet"
+    },
+    {
+      "scenario_id": "SCN-STRAT-RESTART-fd331ad4",
+      "frame_id": "20260831T235620Z-fd331ad4",
+      "scenario_tag": "restart",
+      "origin": "prac_soak_2026-08-31",
+      "description": "Stratified offline selection; post_recovery.packet"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-a49c317a",
+      "frame_id": "20260901T143311Z-a49c317a",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "operator_minute_frames",
+      "description": "Stratified offline selection; minute_frame.packet"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-c776a976",
+      "frame_id": "20260901T145322Z-c776a976",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "operator_minute_frames",
+      "description": "Stratified offline selection; minute_frame.packet"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "schema_version": "glitch.topstep.trail_a_parallel_live_run.v1",
+  "status": "failed",
+  "reason": "profile_error:structure:cannot enter context: <_contextvars.Context object at 0x0000028BFE76CE80> is already entered"
+}

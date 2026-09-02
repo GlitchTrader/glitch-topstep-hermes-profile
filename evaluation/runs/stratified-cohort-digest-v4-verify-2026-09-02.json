@@ -1,0 +1,64 @@
+{
+  "schema_version": "glitch.topstep.stratified_cohort_digest.v1",
+  "manifest_schema": "glitch.topstep.stratified_cohort_manifest.v1",
+  "cohort_version": "v4-pre-registered",
+  "envelope_count": 5,
+  "sha256": "7b858bd3482eb15fd42982fb4a0e585b4501a928736fb9365eea88a692dfc209",
+  "envelopes": [
+    {
+      "queue_order": 1,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-59375017",
+      "frame_id": "20260902T014320Z-59375017",
+      "snapshot_hash": "bda092d39bbc1ffcb19b1cc700c6bce47095c1b4ad72296477c20494f16ecc9c",
+      "envelope_id": "env-bda092d39bbc1ffc",
+      "envelope_hash": "8fd1a6f06b2920b6c3e729b4c4e2ed8146c07269736daf8580566c9bf3d5e5f6",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_01",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 2,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-4bd5490f",
+      "frame_id": "20260902T015020Z-4bd5490f",
+      "snapshot_hash": "d279715e171fb9c9f756ed221e8b2cb2c2a28e6957b4b704c158fa29c186a979",
+      "envelope_id": "env-d279715e171fb9c9",
+      "envelope_hash": "f00f88d23664268efeee5ef34d4a494080d053680670b832b704a7e8c3e910e4",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_01",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 3,
+      "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-6e53152d",
+      "frame_id": "20260901T020441Z-6e53152d",
+      "snapshot_hash": "0d39ca89f8f81a62d71c9dfb9f3e96e9b2d066707f4aa8d07d52581d763cb3b7",
+      "envelope_id": "env-0d39ca89f8f81a62",
+      "envelope_hash": "56a525ba4d723754cfc788fc0d9037e5fe55afb3385e9e51e55f20da2b1bd7fb",
+      "scenario_tag": "prac_directed_test",
+      "origin": "prac_soak_2026-08-31",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 4,
+      "scenario_id": "SCN-STRAT-RESTART-7278cb75",
+      "frame_id": "20260902T012336Z-7278cb75",
+      "snapshot_hash": "a83e360e02b6e4e5fed8f61931ee5052c5f3d59eacfb109bc23d47c1ab9810b2",
+      "envelope_id": "env-a83e360e02b6e4e5",
+      "envelope_hash": "8c7b6712b3c8a8be62189c2139c90bc981ebf6adc0c8fa86d3bbc22b719dde36",
+      "scenario_tag": "restart",
+      "origin": "prac_soak_2026_09_01",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 5,
+      "scenario_id": "SCN-STRAT-TIMEOUT-46ba8be0",
+      "frame_id": "20260902T013720Z-46ba8be0",
+      "snapshot_hash": "c6f42933beddf28f1de35cc0ca1ef00bb3357bfc3b25733d637a40ac2d435170",
+      "envelope_id": "env-c6f42933beddf28f",
+      "envelope_hash": "a9102431f5ed22821f2e441ba051fe1866f92b8595f26de740ac6390a90011d7",
+      "scenario_tag": "timeout",
+      "origin": "prac_soak_2026_09_01",
+      "capacity_gate_validated": true
+    }
+  ]
+}

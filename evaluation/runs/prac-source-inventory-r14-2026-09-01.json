@@ -1,0 +1,236 @@
+{
+  "schema_version": "glitch.topstep.prac_source_inventory_r14.v1",
+  "generated_utc": "2026-09-02T01:01:24.955415Z",
+  "gateway_root": "C:\\Users\\arifr\\Projects\\glitch-topstep",
+  "corpus": {
+    "total_entries": 34,
+    "used_frame_count": 26,
+    "unused_complete_by_tag": {
+      "reconciliation": 0,
+      "restart": 1,
+      "timeout": 0,
+      "preflight": 0,
+      "prac_directed_test": 4,
+      "operator_minute_frame": 3
+    },
+    "unused_complete_total": 8,
+    "exhausted_tags": [
+      "reconciliation",
+      "timeout",
+      "preflight"
+    ],
+    "r14_priority_tags_missing": [
+      "reconciliation",
+      "timeout"
+    ]
+  },
+  "prac_sessions": [
+    {
+      "session_id": "PRAC-SOAK-2026-08-21",
+      "path": "docs/evidence/PRAC-SOAK-2026-08-21",
+      "raw_capture_count": 0,
+      "packet_snapshot_count": 0,
+      "has_evidence_chain_export": false,
+      "has_decisions_jsonl": false,
+      "has_receipts_jsonl": false,
+      "has_intent_receipts_jsonl": false,
+      "chain_level": "none",
+      "r14_eligible": false,
+      "raw_files": []
+    },
+    {
+      "session_id": "PRAC-SOAK-2026-08-25-post-audit-wave",
+      "path": "docs/evidence/PRAC-SOAK-2026-08-25-post-audit-wave",
+      "raw_capture_count": 0,
+      "packet_snapshot_count": 0,
+      "has_evidence_chain_export": false,
+      "has_decisions_jsonl": false,
+      "has_receipts_jsonl": false,
+      "has_intent_receipts_jsonl": false,
+      "chain_level": "none",
+      "r14_eligible": false,
+      "raw_files": []
+    },
+    {
+      "session_id": "PRAC-SOAK-2026-08-31",
+      "path": "docs/evidence/PRAC-SOAK-2026-08-31",
+      "raw_capture_count": 15,
+      "packet_snapshot_count": 7,
+      "has_evidence_chain_export": false,
+      "has_decisions_jsonl": false,
+      "has_receipts_jsonl": false,
+      "has_intent_receipts_jsonl": true,
+      "chain_level": "intent_receipt_partial",
+      "r14_eligible": false,
+      "raw_files": [
+        {
+          "path": "docs/evidence/PRAC-SOAK-2026-08-31/soak-abort-pre-restart-raw.json",
+          "has_packet_v2": true,
+          "parse_ok": true,
+          "packet_id": "a46b4da0-fbdc-4817-8060-1612816ae260",
+          "snapshot_hash": "8caacdd7af675c5c43858d0e1bf14b07e8f0aac05c0fc715911a0b125aba9789",
+          "instrument": "MNQ",
+          "scenario_tag": null,
+          "chain_level": "packet_snapshot"
+        },
+        {
+          "path": "docs/evidence/PRAC-SOAK-2026-08-31/test-02-partial-close-retry-raw.json",
+          "has_packet_v2": false,
+          "parse_ok": false,
+          "packet_id": null,
+          "snapshot_hash": null,
+          "instrument": null,
+          "scenario_tag": null,
+          "chain_level": "no_packet"
+        },
+        {
+          "path": "docs/evidence/PRAC-SOAK-2026-08-31/test-02-post-audit-remediation-raw.json",
+          "has_packet_v2": true,
+          "parse_ok": true,
+          "packet_id": "534fefd5-a504-4ed4-a711-e7f8a029d4db",
+          "snapshot_hash": "55687ea960c8fa0e843c9c342d6b54ff92ddbeae2f4fe8b8c649cbbbfab25a5b",
+          "instrument": "MNQ",
+          "scenario_tag": null,
+          "chain_level": "packet_snapshot"
+        },
+        {
+          "path": "docs/evidence/PRAC-SOAK-2026-08-31/test-03-status8-raw.json",
+          "has_packet_v2": false,
+          "parse_ok": false,
+          "packet_id": null,
+          "snapshot_hash": null,
+          "instrument": null,
+          "scenario_tag": null,
+          "chain_level": "no_packet"
+        },
+        {
+          "path": "docs/evidence/PRAC-SOAK-2026-08-31/test-04-baseline-raw.json",
+          "has_packet_v2": true,
+          "parse_ok": true,
+          "packet_id": "cbb5cee1-9ab9-478d-8ea5-6c2c434c07ea",
+          "snapshot_hash": "ba8ab6194948825d5f1b4221b8a194ef214e868c8b50d52244d51eb137dde35a",
+          "instrument": "MNQ",
+          "scenario_tag": null,
+          "chain_level": "packet_snapshot"
+        },
+        {
+          "path": "docs/evidence/PRAC-SOAK-2026-08-31/test-04-final-raw.json",
+          "has_packet_v2": true,
+          "parse_ok": true,
+          "packet_id": "a9c3eb80-f05a-4041-958b-21781f35c5a0",
+          "snapshot_hash": "b523baf232b513bc96b7b455415b46977169c024ae4dd8e184e649554068d663",
+          "instrument": "MNQ",
+          "scenario_tag": null,
+          "chain_level": "packet_snapshot"
+        },
+        {
+          "path": "C:\\Users\\arifr\\Projects\\glitch-topstep\\docs\\evidence\\PRAC-SOAK-2026-08-31\\test-04-poll-raw.json",
+          "has_packet_v2": true,
+          "parse_ok": false
+        },
+        {
+          "path": "docs/evidence/PRAC-SOAK-2026-08-31/test-05-signalr-recovery-raw.json",
+          "has_packet_v2": false,
+          "parse_ok": false,
+          "packet_id": null,
+          "snapshot_hash": null,
+          "instrument": null,
+          "scenario_tag": null,
+          "chain_level": "no_packet"
+        },
+        {
+          "path": "docs/evidence/PRAC-SOAK-2026-08-31/test-02-partial-close-retry-raw.json",
+          "has_packet_v2": false,
+          "parse_ok": false,
+          "packet_id": null,
+          "snapshot_hash": null,
+          "instrument": null,
+          "scenario_tag": null,
+          "chain_level": "no_packet"
+        },
+        {
+          "path": "docs/evidence/PRAC-SOAK-2026-08-31/test-02-post-audit-remediation-raw.json",
+          "has_packet_v2": true,
+          "parse_ok": true,
+          "packet_id": "534fefd5-a504-4ed4-a711-e7f8a029d4db",
+          "snapshot_hash": "55687ea960c8fa0e843c9c342d6b54ff92ddbeae2f4fe8b8c649cbbbfab25a5b",
+          "instrument": "MNQ",
+          "scenario_tag": null,
+          "chain_level": "packet_snapshot"
+        },
+        {
+          "path": "docs/evidence/PRAC-SOAK-2026-08-31/test-03-status8-raw.json",
+          "has_packet_v2": false,
+          "parse_ok": false,
+          "packet_id": null,
+          "snapshot_hash": null,
+          "instrument": null,
+          "scenario_tag": null,
+          "chain_level": "no_packet"
+        },
+        {
+          "path": "docs/evidence/PRAC-SOAK-2026-08-31/test-04-baseline-raw.json",
+          "has_packet_v2": true,
+          "parse_ok": true,
+          "packet_id": "cbb5cee1-9ab9-478d-8ea5-6c2c434c07ea",
+          "snapshot_hash": "ba8ab6194948825d5f1b4221b8a194ef214e868c8b50d52244d51eb137dde35a",
+          "instrument": "MNQ",
+          "scenario_tag": null,
+          "chain_level": "packet_snapshot"
+        },
+        {
+          "path": "docs/evidence/PRAC-SOAK-2026-08-31/test-04-final-raw.json",
+          "has_packet_v2": true,
+          "parse_ok": true,
+          "packet_id": "a9c3eb80-f05a-4041-958b-21781f35c5a0",
+          "snapshot_hash": "b523baf232b513bc96b7b455415b46977169c024ae4dd8e184e649554068d663",
+          "instrument": "MNQ",
+          "scenario_tag": null,
+          "chain_level": "packet_snapshot"
+        },
+        {
+          "path": "C:\\Users\\arifr\\Projects\\glitch-topstep\\docs\\evidence\\PRAC-SOAK-2026-08-31\\test-04-poll-raw.json",
+          "has_packet_v2": true,
+          "parse_ok": false
+        },
+        {
+          "path": "docs/evidence/PRAC-SOAK-2026-08-31/test-05-signalr-recovery-raw.json",
+          "has_packet_v2": false,
+          "parse_ok": false,
+          "packet_id": null,
+          "snapshot_hash": null,
+          "instrument": null,
+          "scenario_tag": null,
+          "chain_level": "no_packet"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "session_count": 3,
+    "full_chain_export_sessions": 0,
+    "corpus_unused_complete": 8,
+    "r14_blocker": "needs_new_prac_soak_with_export",
+    "priority_capture_tags": [
+      "reconciliation",
+      "restart",
+      "timeout"
+    ],
+    "priority_instruments": [
+      "MNQ",
+      "MES",
+      "MGC"
+    ]
+  },
+  "r14_sequence": [
+    "novo soak/export PRAC com export-prac-evidence-chain.py",
+    "validate-prac-evidence-chain.py exit 0",
+    "build-enriched-corpus.py ingest",
+    "inventory-unused-cohort-frames.py",
+    "build-stratified-cohort.py --cohort-version v4",
+    "verify-stratified-cohort.py",
+    "digest + registry authorization",
+    "replay sequencial r14",
+    "QC + re-gate"
+  ]
+}

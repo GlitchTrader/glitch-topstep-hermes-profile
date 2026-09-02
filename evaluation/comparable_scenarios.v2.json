@@ -1,0 +1,65 @@
+{
+  "schema_version": "glitch.topstep.comparable_scenarios.v2",
+  "scenarios_version": "2026-09-01-v2",
+  "status": "approved_for_sequential_replay",
+  "corpus_root": "tests/fixtures/frozen_corpus/enriched",
+  "profiles": ["baseline-current", "structure"],
+  "execution_mode": "sequential",
+  "notes": [
+    "v2 expands v1 with 4 additional frames; v1 scenarios retained unchanged.",
+    "Selection criteria: manifest quality=complete; completeness.market_observation and structural_levels true; capacity_gate.comparable for baseline-current and structure; exclude frames with state_complete=false or missing OHLC/structure.",
+    "Prefer scenario_tag diversity (restart, reconciliation, preflight, operator) over duplicate procedural tags.",
+    "thesis_quality comparison requires live cognitive replay; thin fixtures excluded."
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "SCN-PRAC-DIRECTED-02",
+      "frame_id": "20260831T173427Z-4ac91997",
+      "scenario_tag": "prac_directed_test",
+      "origin": "prac_soak_2026-08-31",
+      "description": "PRAC directed test-02 partial close retry; full packet with market_observation and structural_levels"
+    },
+    {
+      "scenario_id": "SCN-OPERATOR-MIDSESSION",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "operator_minute_frames",
+      "description": "Sanitized operator production frame; order_flow and structure present"
+    },
+    {
+      "scenario_id": "SCN-PRAC-TIMEOUT-RECOVERY",
+      "frame_id": "20260901T000528Z-041dc508",
+      "scenario_tag": "timeout",
+      "origin": "prac_soak_2026-08-31",
+      "description": "Post-timeout recovery packet; procedural scenario distinct from directed tests"
+    },
+    {
+      "scenario_id": "SCN-PRAC-RESTART-BRACKET",
+      "frame_id": "20260831T235211Z-cdbf204f",
+      "scenario_tag": "restart",
+      "origin": "prac_soak_2026-08-31",
+      "description": "Pre-flatten snapshot from test-06 restart bracket; full OHLC and structure"
+    },
+    {
+      "scenario_id": "SCN-PRAC-RECONCILIATION",
+      "frame_id": "20260901T143431Z-534fefd5",
+      "scenario_tag": "reconciliation",
+      "origin": "prac_soak_2026-08-31",
+      "description": "Post-audit remediation reconciliation frame; distinct from directed tests"
+    },
+    {
+      "scenario_id": "SCN-PRAC-PREFLIGHT",
+      "frame_id": "20260901T182843Z-b06d9a93",
+      "scenario_tag": "preflight",
+      "origin": "prac_soak_2026-08-31",
+      "description": "Session preflight packet; earliest complete frame in soak evidence"
+    },
+    {
+      "scenario_id": "SCN-OPERATOR-AFTERNOON",
+      "frame_id": "20260901T150823Z-d7908a55",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "operator_minute_frames",
+      "description": "Operator minute frame mid-afternoon; diversifies time-of-day vs SCN-OPERATOR-MIDSESSION"
+    }
+  ]
+}

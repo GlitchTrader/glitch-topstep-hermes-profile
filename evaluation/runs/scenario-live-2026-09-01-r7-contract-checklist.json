@@ -1,0 +1,60 @@
+{
+  "run_id": "scenario-live-2026-09-01-r7-contract",
+  "credentials_present": true,
+  "production_lane_was_active": false,
+  "operational_artifacts_unchanged": true,
+  "bundle_status": "completed",
+  "invocation_count": 6,
+  "expected_invocations": 6,
+  "all_cost_gates_passed": true,
+  "session_cost_usd": 0.007681,
+  "scenario_comparisons": [
+    {
+      "frame_id": "20260831T173427Z-4ac91997",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "thesis_quality",
+      "challenger_category": "thesis_quality",
+      "comparable_pair": true,
+      "direction_delta": null,
+      "thesis_delta": true,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-PRAC-DIRECTED-02"
+    },
+    {
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "thesis_quality",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-OPERATOR-MIDSESSION"
+    },
+    {
+      "frame_id": "20260901T000528Z-041dc508",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "thesis_quality",
+      "challenger_category": "schema_invalid",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-PRAC-TIMEOUT-RECOVERY"
+    }
+  ],
+  "quality_report_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-quality-report.json",
+  "bundle_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract.json"
+}

@@ -1,0 +1,52 @@
+{
+  "schema_version": "glitch.topstep.scenario_divergence_notes.v1",
+  "run_id": "scenario-live-2026-09-01-r7-contract",
+  "notes_utc": "2026-09-01T20:15:00Z",
+  "scenarios": [
+    {
+      "scenario_id": "SCN-PRAC-DIRECTED-02",
+      "frame_id": "20260831T173427Z-4ac91997",
+      "comparable_pair": true,
+      "classification": "diversity_observable",
+      "summary": "baseline and structure both candidate with same direction; thesis_delta true.",
+      "action": "none"
+    },
+    {
+      "scenario_id": "SCN-OPERATOR-MIDSESSION",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "comparable_pair": false,
+      "classification": "legitimate_abstention_vs_candidate",
+      "baseline": {
+        "state": "candidate",
+        "direction": "flat",
+        "thesis_summary": "transitional state; provided entry/stop/target geometry"
+      },
+      "structure": {
+        "state": "no_edge",
+        "direction": "flat",
+        "thesis_summary": "low volatility, lack of clear directional momentum"
+      },
+      "interpretation": "structure no_edge is valid abstention — do not coerce to candidate. Real profile divergence on same envelope.",
+      "action": "document_only"
+    },
+    {
+      "scenario_id": "SCN-PRAC-TIMEOUT-RECOVERY",
+      "frame_id": "20260901T000528Z-041dc508",
+      "comparable_pair": false,
+      "classification": "contract_violation_structure",
+      "baseline": {
+        "state": "candidate",
+        "direction": "flat",
+        "has_geometry": true
+      },
+      "structure": {
+        "state": "candidate",
+        "direction": "flat",
+        "has_geometry": false,
+        "error_code": "directional_without_geometry"
+      },
+      "root_cause": "LLM returned state=candidate with direction=flat and null entry/stop — contract violation, not envelope issue.",
+      "action": "prompt_contract_clarification_r8"
+    }
+  ]
+}

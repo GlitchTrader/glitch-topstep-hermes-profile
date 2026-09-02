@@ -1,0 +1,63 @@
+{
+  "schema_version": "glitch.topstep.packet_envelope_mapping.v1",
+  "mapping_version": "2026-09-01-v1",
+  "accepted_packet_schema_versions": [
+    "glitch.direct.decision_packet.v2"
+  ],
+  "unknown_packet_schema_policy": "reject_envelope_build",
+  "snapshot_hash_input": "packet_canonical_subset",
+  "envelope_hash_input": "envelope_metadata_without_raw_packet",
+  "copied_packet_fields": [
+    "schema_version",
+    "packet_id",
+    "created_utc",
+    "expires_utc",
+    "instrument",
+    "venue",
+    "firm",
+    "decision_scope",
+    "account_selection",
+    "account",
+    "contract",
+    "market",
+    "market_observation",
+    "order_flow",
+    "structural_levels",
+    "price_delta_relationship",
+    "market_alignment",
+    "data_quality",
+    "policy",
+    "protection",
+    "regime",
+    "daily_capture",
+    "supported_actions"
+  ],
+  "normalized_contract_fields": [
+    "id",
+    "name",
+    "description",
+    "symbol_id",
+    "tick_size",
+    "tick_value",
+    "active_contract"
+  ],
+  "derived_envelope_fields": [
+    "completeness",
+    "valid_until_utc"
+  ],
+  "prohibited_packet_fields": [
+    "mutation_lease",
+    "execution_authority",
+    "armed_promotion"
+  ],
+  "field_rules": {
+    "instrument": "uppercase_trim",
+    "contract": "subset_of_normalized_contract_fields",
+    "packet_schema_version": "must_match_accepted_or_reject"
+  },
+  "notes": [
+    "Evaluation copies read-only packet evidence; it never grants execution authority.",
+    "snapshot_hash is SHA-256 of canonical JSON of packet_canonical_subset only.",
+    "envelope_hash excludes the raw packet body to allow completeness recomputation audit."
+  ]
+}

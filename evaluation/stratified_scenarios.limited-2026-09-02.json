@@ -1,0 +1,74 @@
+{
+  "schema_version": "glitch.topstep.comparable_scenarios.v2",
+  "scenarios_version": "2026-09-02-stratified-v9",
+  "status": "pre_registered_offline",
+  "corpus_root": "tests/fixtures/frozen_corpus/enriched",
+  "profiles": [
+    "baseline-current",
+    "structure"
+  ],
+  "execution_mode": "sequential",
+  "parent_manifest": "evaluation/runs/stratified-cohort-manifest-limited-2026-09-02.json",
+  "notes": [
+    "Sele\u00e7\u00e3o offline v9 \u2014 p\u00f3s-PRAC diversa.",
+    "Exclui v2\u2013v8; diversidade real obrigat\u00f3ria na captura."
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-ce29fef7",
+      "frame_id": "20260902T200505Z-ce29fef7",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_limited_2026_09_02",
+      "description": "Stratified offline selection; packet"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-7800e8c3",
+      "frame_id": "20260902T200007Z-7800e8c3",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_limited_2026_09_02",
+      "description": "Stratified offline selection; packet"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-b071ff79",
+      "frame_id": "20260902T195507Z-b071ff79",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_limited_2026_09_02",
+      "description": "Stratified offline selection; packet"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-b7219c00",
+      "frame_id": "20260902T195006Z-b7219c00",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_limited_2026_09_02",
+      "description": "Stratified offline selection; packet"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-d7d1b4fb",
+      "frame_id": "20260902T194505Z-d7d1b4fb",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_limited_2026_09_02",
+      "description": "Stratified offline selection; packet"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-0d305fc5",
+      "frame_id": "20260902T194002Z-0d305fc5",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_limited_2026_09_02",
+      "description": "Stratified offline selection; packet"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-3dd35e83",
+      "frame_id": "20260902T193505Z-3dd35e83",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_limited_2026_09_02",
+      "description": "Stratified offline selection; packet"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-b5fd08f8",
+      "frame_id": "20260902T193005Z-b5fd08f8",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_limited_2026_09_02",
+      "description": "Stratified offline selection; packet"
+    }
+  ]
+}

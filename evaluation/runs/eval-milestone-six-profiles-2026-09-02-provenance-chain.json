@@ -1,0 +1,10 @@
+{
+  "schema_version": "glitch.topstep.evaluation_provenance_chain_audit.v1",
+  "generated_utc": "2026-09-02T22:12:41.398993Z",
+  "run_id": "148d7913-87a4-4987-a47c-f1e57cfcc557",
+  "verdict": "PASS",
+  "issues": [],
+  "rows": [],
+  "complete_rows": 0,
+  "total_rows": 0
+}

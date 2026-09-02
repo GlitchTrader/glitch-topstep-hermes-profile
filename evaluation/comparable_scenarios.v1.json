@@ -1,0 +1,35 @@
+{
+  "schema_version": "glitch.topstep.comparable_scenarios.v1",
+  "scenarios_version": "2026-09-01-v1",
+  "status": "approved_for_sequential_replay",
+  "corpus_root": "tests/fixtures/frozen_corpus/enriched",
+  "profiles": ["baseline-current", "structure"],
+  "execution_mode": "sequential",
+  "notes": [
+    "Enriched frames with OHLC and structural_levels; capacity gate expected to pass.",
+    "thesis_quality comparison requires live cognitive replay; thin fixtures excluded."
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "SCN-PRAC-DIRECTED-02",
+      "frame_id": "20260831T173427Z-4ac91997",
+      "scenario_tag": "prac_directed_test",
+      "origin": "prac_soak_2026-08-31",
+      "description": "PRAC directed test-02 partial close retry; full packet with market_observation and structural_levels"
+    },
+    {
+      "scenario_id": "SCN-OPERATOR-MIDSESSION",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "operator_minute_frames",
+      "description": "Sanitized operator production frame; order_flow and structure present"
+    },
+    {
+      "scenario_id": "SCN-PRAC-TIMEOUT-RECOVERY",
+      "frame_id": "20260901T000528Z-041dc508",
+      "scenario_tag": "timeout",
+      "origin": "prac_soak_2026-08-31",
+      "description": "Post-timeout recovery packet; procedural scenario distinct from directed tests"
+    }
+  ]
+}

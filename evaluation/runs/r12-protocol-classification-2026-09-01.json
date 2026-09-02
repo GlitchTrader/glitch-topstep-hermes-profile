@@ -1,0 +1,17 @@
+{
+  "schema_version": "glitch.topstep.run_protocol_classification.v1",
+  "run_id": "scenario-live-2026-09-01-r12-stratified",
+  "classified_utc": "2026-09-01T23:55:00Z",
+  "provenance_integrity": "PASS",
+  "protocol_conformance": "CONDITIONAL",
+  "promotion_eligible": false,
+  "canonical_evidence": false,
+  "reasons": [
+    "executed_cohort_v1_manifest_on_disk_v2",
+    "corpus_validation_bypassed_via_skip_validation",
+    "operator_frames_capacity_gate_not_comparable_in_v1"
+  ],
+  "audit_ref": "evaluation/runs/stratified-cohort-v1-v2-audit-2026-09-01.json",
+  "verdict": "rerun_required_v2",
+  "gate_aggregation": "excluded_until_v2_conformant_replay"
+}

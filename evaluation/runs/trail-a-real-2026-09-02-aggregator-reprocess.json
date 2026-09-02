@@ -1,0 +1,34 @@
+{
+  "schema_version": "glitch.topstep.trail_a_real_aggregator_reprocess.v1",
+  "generated_utc": "2026-09-02T21:55:53.795670Z",
+  "run_id": "trail-a-real-2026-09-02",
+  "source_bundle": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\trail-a-real-2026-09-02.json",
+  "original_selection": {
+    "outcome": "classified_failure",
+    "decision_code": "SNAPSHOT_DIVERGENCE"
+  },
+  "root_cause": {
+    "preflight_envelope_hash": "5419bea167862a440dc2f9c516a88725dcd687d8e81d4bac0df4ad43307f679c",
+    "live_candidate_envelope_hash": "6d122b4849e61a1aaa581f98c364289886eb034db78cfe137a38010e5189b8b5",
+    "canonical_sealed_envelope_hash": "5419bea167862a440dc2f9c516a88725dcd687d8e81d4bac0df4ad43307f679c",
+    "validity_seconds_canonical": 35,
+    "note": "cognitive replay used default validity_seconds=300 before seal wiring fix"
+  },
+  "reprocessed": {
+    "with_pinned_preflight_hash": {
+      "outcome": "classified_failure",
+      "decision_code": "SNAPSHOT_DIVERGENCE"
+    },
+    "with_live_candidate_hash": {
+      "outcome": "no_selection",
+      "decision_code": "ENSEMBLE_UNANIMOUS_ABSTENTION"
+    },
+    "with_canonical_sealed_hash": {
+      "outcome": "classified_failure",
+      "decision_code": "SNAPSHOT_DIVERGENCE"
+    }
+  },
+  "verdict": "PASS",
+  "aggregator_offline_real": "CONDITIONAL",
+  "promotion_gate": false
+}

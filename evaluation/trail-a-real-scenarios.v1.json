@@ -1,0 +1,21 @@
+{
+  "schema_version": "glitch.topstep.trail_a_real_scenarios.v1",
+  "run_kind": "trail_a_first_real_controlled",
+  "corpus_root": "tests/fixtures/frozen_corpus/enriched",
+  "profiles": [
+    "baseline-current",
+    "structure",
+    "adversarial-risk"
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "SCN-TRAIL-A-REAL-01",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "scenario_tag": "operator_minute_frame",
+      "envelope_id": "env-8d12d081fc8885a3",
+      "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+      "envelope_hash": "5419bea167862a440dc2f9c516a88725dcd687d8e81d4bac0df4ad43307f679c",
+      "frame_sha256": "df2e01375530a12aaebd60ae3e7af67ad15e970c5b5e14307c2f7fb1b7121170"
+    }
+  ]
+}

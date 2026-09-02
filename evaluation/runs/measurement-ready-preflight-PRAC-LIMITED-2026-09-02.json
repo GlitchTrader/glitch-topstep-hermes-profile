@@ -1,0 +1,25 @@
+{
+  "schema_version": "glitch.topstep.evaluation_measurement_ready.v1",
+  "gate": "evaluation_measurement_ready",
+  "recorded_utc": "2026-09-02T21:02:11.280336Z",
+  "mode": "preflight",
+  "ready": true,
+  "blocking_reasons": [],
+  "checks": [
+    {
+      "id": "maintenance_window",
+      "ok": true,
+      "reason": "no_maintenance_signal"
+    },
+    {
+      "id": "market_not_valid",
+      "ok": true,
+      "reason": "ok"
+    },
+    {
+      "id": "gateway_state_incomplete",
+      "ok": true,
+      "reason": "health_state_complete"
+    }
+  ]
+}

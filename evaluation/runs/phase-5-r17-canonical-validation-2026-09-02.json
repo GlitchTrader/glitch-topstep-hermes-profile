@@ -1,0 +1,58 @@
+{
+  "schema_version": "glitch.topstep.phase5_r17_canonical_validation.v1",
+  "checks": [
+    {
+      "check": "r17_canonical_index_exists",
+      "ok": true
+    },
+    {
+      "check": "qc_checklist_exists",
+      "ok": true
+    },
+    {
+      "check": "provenance_review_exists",
+      "ok": true
+    },
+    {
+      "check": "digest_pin",
+      "ok": true
+    },
+    {
+      "check": "provenance_all_snapshot_match",
+      "ok": true
+    },
+    {
+      "check": "provenance_all_envelope_match",
+      "ok": true
+    },
+    {
+      "check": "cohort_drift_false",
+      "ok": true
+    },
+    {
+      "check": "stop_reruns_v9",
+      "ok": true
+    },
+    {
+      "check": "next_authorized_run_id_null",
+      "ok": true
+    },
+    {
+      "check": "r17_execution_complete",
+      "ok": true
+    },
+    {
+      "check": "gate_after_replay_2_5",
+      "ok": true
+    },
+    {
+      "check": "collection_policy_stop",
+      "ok": true
+    },
+    {
+      "check": "v9_in_stop_cohorts",
+      "ok": true
+    }
+  ],
+  "all_ok": true
+}

@@ -1,0 +1,541 @@
+{
+  "schema_version": "glitch.topstep.phase5_run_consolidation.v1",
+  "recorded_utc": "2026-09-02T19:04:32.625925Z",
+  "runs": [
+    {
+      "run_label": "r7",
+      "run_id": "scenario-live-2026-09-01-r7-contract",
+      "invocation_count": 6,
+      "invalid_count": 0,
+      "frame_count": 3,
+      "comparable_pair_count": 1,
+      "no_edge_by_profile": {
+        "baseline-current": 0,
+        "structure": 1
+      },
+      "candidate_by_profile": {
+        "baseline-current": 3,
+        "structure": 1
+      },
+      "missing_required_by_profile": {
+        "baseline-current": 0,
+        "structure": 0
+      },
+      "state_by_profile": {
+        "baseline-current": {
+          "candidate": 3
+        },
+        "structure": {
+          "candidate": 1,
+          "no_edge": 1,
+          "invalid": 1
+        }
+      },
+      "divergence_count": 2,
+      "thesis_delta_count": null,
+      "window_hours_utc": [
+        "00Z",
+        "13Z",
+        "17Z"
+      ],
+      "session_cost_usd": 0.007681,
+      "latency_p50_ms": 6187.0,
+      "latency_p95_ms": 7250.0,
+      "instruments_in_run": {
+        "MNQ": 6
+      }
+    },
+    {
+      "run_label": "r10",
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "invocation_count": 14,
+      "invalid_count": 0,
+      "frame_count": 7,
+      "comparable_pair_count": 1,
+      "no_edge_by_profile": {
+        "baseline-current": 4,
+        "structure": 5
+      },
+      "candidate_by_profile": {
+        "baseline-current": 0,
+        "structure": 0
+      },
+      "missing_required_by_profile": {
+        "baseline-current": 0,
+        "structure": 0
+      },
+      "state_by_profile": {
+        "baseline-current": {
+          "data_quality_insufficient": 1,
+          "no_edge": 4,
+          "expired": 1,
+          "held": 1
+        },
+        "structure": {
+          "held": 2,
+          "no_edge": 5
+        }
+      },
+      "divergence_count": 2,
+      "thesis_delta_count": 1,
+      "window_hours_utc": [
+        "00Z",
+        "13Z",
+        "14Z",
+        "15Z",
+        "17Z",
+        "18Z",
+        "23Z"
+      ],
+      "session_cost_usd": 0.159548,
+      "latency_p50_ms": 12679.5,
+      "latency_p95_ms": 22219.0,
+      "instruments_in_run": {
+        "MNQ": 14
+      }
+    },
+    {
+      "run_label": "r11",
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "invocation_count": 12,
+      "invalid_count": 0,
+      "frame_count": 6,
+      "comparable_pair_count": 0,
+      "no_edge_by_profile": {
+        "baseline-current": 6,
+        "structure": 5
+      },
+      "candidate_by_profile": {
+        "baseline-current": 0,
+        "structure": 0
+      },
+      "missing_required_by_profile": {
+        "baseline-current": 0,
+        "structure": 0
+      },
+      "state_by_profile": {
+        "baseline-current": {
+          "no_edge": 6
+        },
+        "structure": {
+          "no_edge": 5,
+          "held": 1
+        }
+      },
+      "divergence_count": 1,
+      "thesis_delta_count": 0,
+      "window_hours_utc": [
+        "00Z",
+        "13Z",
+        "14Z",
+        "15Z",
+        "18Z",
+        "23Z"
+      ],
+      "session_cost_usd": 0.135218,
+      "latency_p50_ms": 13578.0,
+      "latency_p95_ms": 15827.0,
+      "instruments_in_run": {
+        "MNQ": 12
+      }
+    },
+    {
+      "run_label": "r12-v2",
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "invocation_count": 18,
+      "invalid_count": 0,
+      "frame_count": 9,
+      "comparable_pair_count": 0,
+      "no_edge_by_profile": {
+        "baseline-current": 7,
+        "structure": 6
+      },
+      "candidate_by_profile": {
+        "baseline-current": 0,
+        "structure": 0
+      },
+      "missing_required_by_profile": {
+        "baseline-current": 0,
+        "structure": 0
+      },
+      "state_by_profile": {
+        "baseline-current": {
+          "no_edge": 7,
+          "data_quality_insufficient": 1,
+          "expired": 1
+        },
+        "structure": {
+          "data_quality_insufficient": 2,
+          "no_edge": 6,
+          "held": 1
+        }
+      },
+      "divergence_count": 3,
+      "thesis_delta_count": 0,
+      "window_hours_utc": [
+        "00Z",
+        "02Z",
+        "14Z",
+        "23Z"
+      ],
+      "session_cost_usd": 0.203388,
+      "latency_p50_ms": 11038.0,
+      "latency_p95_ms": 15219.0,
+      "instruments_in_run": {
+        "MNQ": 18
+      }
+    },
+    {
+      "run_label": "r13-v3",
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "invocation_count": 16,
+      "invalid_count": 0,
+      "frame_count": 8,
+      "comparable_pair_count": 0,
+      "no_edge_by_profile": {
+        "baseline-current": 5,
+        "structure": 7
+      },
+      "candidate_by_profile": {
+        "baseline-current": 2,
+        "structure": 0
+      },
+      "missing_required_by_profile": {
+        "baseline-current": 0,
+        "structure": 0
+      },
+      "state_by_profile": {
+        "baseline-current": {
+          "no_edge": 5,
+          "candidate": 2,
+          "data_quality_insufficient": 1
+        },
+        "structure": {
+          "no_edge": 7,
+          "held": 1
+        }
+      },
+      "divergence_count": 3,
+      "thesis_delta_count": 0,
+      "window_hours_utc": [
+        "00Z",
+        "15Z",
+        "16Z",
+        "17Z",
+        "18Z"
+      ],
+      "session_cost_usd": 0.18065,
+      "latency_p50_ms": 12358.5,
+      "latency_p95_ms": 14389.0,
+      "instruments_in_run": {
+        "MNQ": 16
+      }
+    },
+    {
+      "run_label": "r14",
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "invocation_count": 18,
+      "invalid_count": 0,
+      "frame_count": 9,
+      "comparable_pair_count": 0,
+      "no_edge_by_profile": {
+        "baseline-current": 9,
+        "structure": 8
+      },
+      "candidate_by_profile": {
+        "baseline-current": 0,
+        "structure": 1
+      },
+      "missing_required_by_profile": {
+        "baseline-current": 0,
+        "structure": 0
+      },
+      "state_by_profile": {
+        "baseline-current": {
+          "no_edge": 9
+        },
+        "structure": {
+          "no_edge": 8,
+          "candidate": 1
+        }
+      },
+      "divergence_count": 1,
+      "thesis_delta_count": 0,
+      "window_hours_utc": [
+        "01Z",
+        "02Z",
+        "11Z"
+      ],
+      "session_cost_usd": 0.202966,
+      "latency_p50_ms": 11679.0,
+      "latency_p95_ms": 16422.0,
+      "instruments_in_run": {
+        "MNQ": 18
+      }
+    },
+    {
+      "run_label": "r15",
+      "run_id": "scenario-live-2026-09-02-r15-v7",
+      "invocation_count": 8,
+      "invalid_count": 0,
+      "frame_count": 4,
+      "comparable_pair_count": 0,
+      "no_edge_by_profile": {
+        "baseline-current": 4,
+        "structure": 4
+      },
+      "candidate_by_profile": {
+        "baseline-current": 0,
+        "structure": 0
+      },
+      "missing_required_by_profile": {
+        "baseline-current": 0,
+        "structure": 0
+      },
+      "state_by_profile": {
+        "baseline-current": {
+          "no_edge": 4
+        },
+        "structure": {
+          "no_edge": 4
+        }
+      },
+      "divergence_count": 0,
+      "thesis_delta_count": 0,
+      "window_hours_utc": [
+        "15Z"
+      ],
+      "session_cost_usd": 0.090658,
+      "latency_p50_ms": 12522.5,
+      "latency_p95_ms": 15594.0,
+      "instruments_in_run": {
+        "MNQ": 8
+      }
+    },
+    {
+      "run_label": "r16",
+      "run_id": "scenario-live-2026-09-02-r16-v8",
+      "invocation_count": 6,
+      "invalid_count": 0,
+      "frame_count": 3,
+      "comparable_pair_count": 0,
+      "no_edge_by_profile": {
+        "baseline-current": 3,
+        "structure": 3
+      },
+      "candidate_by_profile": {
+        "baseline-current": 0,
+        "structure": 0
+      },
+      "missing_required_by_profile": {
+        "baseline-current": 0,
+        "structure": 0
+      },
+      "state_by_profile": {
+        "baseline-current": {
+          "no_edge": 3
+        },
+        "structure": {
+          "no_edge": 3
+        }
+      },
+      "divergence_count": 0,
+      "thesis_delta_count": 0,
+      "window_hours_utc": [
+        "17Z"
+      ],
+      "session_cost_usd": 0.06705,
+      "latency_p50_ms": 11975.5,
+      "latency_p95_ms": 14094.0,
+      "instruments_in_run": {
+        "MNQ": 6
+      }
+    },
+    {
+      "run_label": "r17",
+      "run_id": "scenario-live-2026-09-02-r17-v9",
+      "invocation_count": 8,
+      "invalid_count": 0,
+      "frame_count": 4,
+      "comparable_pair_count": 0,
+      "no_edge_by_profile": {
+        "baseline-current": 4,
+        "structure": 4
+      },
+      "candidate_by_profile": {
+        "baseline-current": 0,
+        "structure": 0
+      },
+      "missing_required_by_profile": {
+        "baseline-current": 0,
+        "structure": 0
+      },
+      "state_by_profile": {
+        "baseline-current": {
+          "no_edge": 4
+        },
+        "structure": {
+          "no_edge": 4
+        }
+      },
+      "divergence_count": 0,
+      "thesis_delta_count": 0,
+      "window_hours_utc": [
+        "18Z"
+      ],
+      "session_cost_usd": 0.08949,
+      "latency_p50_ms": 11507.5,
+      "latency_p95_ms": 14781.0,
+      "instruments_in_run": {
+        "MNQ": 8
+      }
+    }
+  ],
+  "aggregated": {
+    "run_count": 9,
+    "invocation_count": 106,
+    "comparable_pair_count": 2,
+    "bilateral_pairs_detail": [
+      {
+        "run": "r7",
+        "frame_id": "20260831T173427Z-4ac91997",
+        "baseline_category": "thesis_quality",
+        "challenger_category": "thesis_quality",
+        "direction_delta": null,
+        "thesis_delta": true
+      },
+      {
+        "run": "r10",
+        "frame_id": "20260901T143431Z-534fefd5",
+        "baseline_category": "thesis_quality",
+        "challenger_category": "thesis_quality",
+        "direction_delta": null,
+        "thesis_delta": true
+      }
+    ],
+    "no_edge_by_profile": {
+      "structure": 43,
+      "baseline-current": 42
+    },
+    "candidate_by_profile": {
+      "baseline-current": 5,
+      "structure": 2
+    },
+    "missing_required_by_profile": {},
+    "divergence_frames": [
+      {
+        "run": "r7",
+        "frame_id": "20260901T134026Z-bb50bbe9",
+        "baseline_category": "thesis_quality",
+        "challenger_category": "no_edge",
+        "direction_delta": null,
+        "thesis_delta": null
+      },
+      {
+        "run": "r7",
+        "frame_id": "20260901T000528Z-041dc508",
+        "baseline_category": "thesis_quality",
+        "challenger_category": "schema_invalid",
+        "direction_delta": null,
+        "thesis_delta": null
+      },
+      {
+        "run": "r10",
+        "frame_id": "20260831T173427Z-4ac91997",
+        "baseline_category": "not_comparable",
+        "challenger_category": "thesis_quality",
+        "direction_delta": null,
+        "thesis_delta": null
+      },
+      {
+        "run": "r10",
+        "frame_id": "20260831T235211Z-cdbf204f",
+        "baseline_category": "not_comparable",
+        "challenger_category": "no_edge",
+        "direction_delta": null,
+        "thesis_delta": null
+      },
+      {
+        "run": "r11",
+        "frame_id": "20260901T143431Z-534fefd5",
+        "baseline_category": "no_edge",
+        "challenger_category": "thesis_quality",
+        "direction_delta": null,
+        "thesis_delta": null
+      },
+      {
+        "run": "r12-v2",
+        "frame_id": "20260831T233830Z-cbb5cee1",
+        "baseline_category": "no_edge",
+        "challenger_category": "not_comparable",
+        "direction_delta": null,
+        "thesis_delta": null
+      },
+      {
+        "run": "r12-v2",
+        "frame_id": "20260831T235211Z-8c371231",
+        "baseline_category": "not_comparable",
+        "challenger_category": "no_edge",
+        "direction_delta": null,
+        "thesis_delta": null
+      },
+      {
+        "run": "r12-v2",
+        "frame_id": "20260901T143311Z-a49c317a",
+        "baseline_category": "no_edge",
+        "challenger_category": "thesis_quality",
+        "direction_delta": null,
+        "thesis_delta": null
+      },
+      {
+        "run": "r13-v3",
+        "frame_id": "20260901T165456Z-8b20659b",
+        "baseline_category": "thesis_quality",
+        "challenger_category": "no_edge",
+        "direction_delta": null,
+        "thesis_delta": null
+      },
+      {
+        "run": "r13-v3",
+        "frame_id": "20260901T175947Z-a71c2714",
+        "baseline_category": "thesis_quality",
+        "challenger_category": "no_edge",
+        "direction_delta": null,
+        "thesis_delta": null
+      },
+      {
+        "run": "r13-v3",
+        "frame_id": "20260901T002742Z-ddd5ffb5",
+        "baseline_category": "not_comparable",
+        "challenger_category": "thesis_quality",
+        "direction_delta": null,
+        "thesis_delta": null
+      },
+      {
+        "run": "r14",
+        "frame_id": "20260902T020023Z-e8df6b82",
+        "baseline_category": "no_edge",
+        "challenger_category": "thesis_quality",
+        "direction_delta": null,
+        "thesis_delta": null
+      }
+    ],
+    "instrument_counts": {
+      "MNQ": 106
+    },
+    "scenario_tag_counts": {
+      "prac_directed_test": 14,
+      "operator_minute_frame": 64,
+      "timeout": 6,
+      "restart": 10,
+      "reconciliation": 8,
+      "preflight": 4
+    },
+    "completeness_top": {},
+    "total_cost_usd": 1.001431,
+    "latency_p50_ms": 11812,
+    "latency_p95_ms": 17063,
+    "latency_count": 106,
+    "frames_per_valid_pair": 26.5
+  }
+}

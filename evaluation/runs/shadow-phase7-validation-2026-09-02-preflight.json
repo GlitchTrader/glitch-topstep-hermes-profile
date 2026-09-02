@@ -1,0 +1,156 @@
+{
+  "schema_version": "glitch.topstep.shadow_preflight.v1",
+  "generated_utc": "2026-09-02T22:19:49.967857Z",
+  "run_id": "shadow-phase7-validation-2026-09-02",
+  "shadow_live_execution_authorized": false,
+  "gateway_started": false,
+  "hermes_started": false,
+  "ready": false,
+  "status": "shadow_not_ready:market_not_valid",
+  "blocking_reasons": [
+    "market_not_valid"
+  ],
+  "checks": [
+    {
+      "id": "measurement_ready",
+      "ok": false,
+      "detail": {
+        "schema_version": "glitch.topstep.evaluation_measurement_ready.v1",
+        "gate": "evaluation_measurement_ready",
+        "recorded_utc": "2026-09-02T22:19:49.915411Z",
+        "mode": "preflight",
+        "ready": false,
+        "blocking_reasons": [
+          "market_not_valid"
+        ],
+        "checks": [
+          {
+            "id": "maintenance_window",
+            "ok": true,
+            "reason": "no_maintenance_signal"
+          },
+          {
+            "id": "market_not_valid",
+            "ok": false,
+            "reason": "no_packet_or_health"
+          }
+        ]
+      }
+    },
+    {
+      "id": "evaluation_replay_coordination",
+      "ok": true,
+      "detail": {
+        "schema_version": "glitch.topstep.preflight_evaluation_replay.v1",
+        "run_id": "shadow-phase7-validation-2026-09-02",
+        "ok": true,
+        "checks": [
+          {
+            "id": "production_lane_inactive",
+            "ok": true,
+            "detail": "lane idle, or LIVE_VALIDATED lease defers cron while replay holds lease",
+            "lane_active": false,
+            "coordination_live_validated": true
+          },
+          {
+            "id": "evaluation_lease_available",
+            "ok": true,
+            "detail": "no foreign evaluation lease on production state",
+            "blocking_run_id": null
+          },
+          {
+            "id": "scenarios_manifest_present",
+            "ok": true,
+            "detail": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\shadow-live-scenarios.v1.json"
+          },
+          {
+            "id": "lease_scripts_synced",
+            "ok": true,
+            "detail": "all_matched=True synced_utc=2026-09-02T17:35:35Z",
+            "manifest_path": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state\\lease-coordination-sync.json"
+          },
+          {
+            "id": "lease_smoke_passed",
+            "ok": true,
+            "detail": "lease smoke ok=True path=lease-smoke-v8-preflight.json",
+            "report_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\lease-smoke-v8-preflight.json",
+            "required": true
+          },
+          {
+            "id": "coordination_contract",
+            "ok": true,
+            "detail": "evaluation_lease.py + cron defer + sync manifest + lease smoke"
+          }
+        ],
+        "production_state": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state"
+      }
+    },
+    {
+      "id": "lease_available",
+      "ok": true,
+      "detail": "no_foreign_lease"
+    },
+    {
+      "id": "cron_defer",
+      "ok": true,
+      "detail": {
+        "lane_active": false,
+        "coordination_ok": true
+      }
+    },
+    {
+      "id": "hermes_home_isolated",
+      "ok": true,
+      "detail": {
+        "evaluation": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+        "production": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep"
+      }
+    },
+    {
+      "id": "evaluation_credentials",
+      "ok": true,
+      "detail": {
+        "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+        "error": null
+      }
+    },
+    {
+      "id": "production_paths_protected",
+      "ok": true
+    },
+    {
+      "id": "execution_authority_false_all",
+      "ok": true,
+      "detail": [
+        "baseline-current",
+        "structure",
+        "adversarial-risk",
+        "smart-money",
+        "indicators",
+        "orderflow"
+      ]
+    },
+    {
+      "id": "cost_budget_known",
+      "ok": true,
+      "detail": 2.5
+    },
+    {
+      "id": "production_parallelism_blocked",
+      "ok": true,
+      "detail": "proposed_operator_approval"
+    },
+    {
+      "id": "promotion_use_allowed_false",
+      "ok": true,
+      "detail": "blocked"
+    },
+    {
+      "id": "release_package_pins",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "promotion_use_allowed": false,
+  "production_parallelism": "blocked"
+}

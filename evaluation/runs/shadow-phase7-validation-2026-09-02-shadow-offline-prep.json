@@ -1,0 +1,284 @@
+{
+  "schema_version": "glitch.topstep.shadow_live_session.v1",
+  "generated_utc": "2026-09-02T22:19:49.904256Z",
+  "run_id": "shadow-phase7-validation-2026-09-02-offline",
+  "status": "offline_prep_complete",
+  "observation": {
+    "schema_version": "glitch.topstep.shadow_observation.v1",
+    "generated_utc": "2026-09-02T22:19:49.904256Z",
+    "run_id": "shadow-phase7-validation-2026-09-02-offline",
+    "evaluation_only": true,
+    "shadow_live": false,
+    "profile_source": "fixtures",
+    "intents_sent": 0,
+    "orders_sent": 0,
+    "writes_operacionais": 0,
+    "gateway_touched": false,
+    "envelope": {
+      "envelope_id": "env-e3d8905356316096",
+      "snapshot_hash": "e3d8905356316096e95289df936942a956379e960ef1db53e121e318a63b67a7",
+      "envelope_hash": "5799472c16d7a631c9a091c03113b94526dc644ed3e4fa2b110db42f1056c374",
+      "snapshot_age_ms": 1160389904,
+      "completeness": {
+        "ohlc": "missing_required",
+        "quote": "available",
+        "structure": "missing_required",
+        "session": "partial",
+        "orderflow": "missing_required",
+        "indicators": "missing_required",
+        "risk_context": "available"
+      }
+    },
+    "profile_decisions": [
+      {
+        "profile_id": "adversarial-risk",
+        "invocation_id": "b185eb5c-fb73-496b-acf9-bced69aae5b9",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable",
+        "capacity_gate_reason": "missing_required",
+        "completeness_used": {
+          "ohlc": "missing_required",
+          "orderflow": "missing_required",
+          "quote": "available",
+          "risk_context": "available",
+          "session": "partial",
+          "structure": "missing_required"
+        },
+        "latency_ms": 1,
+        "cost_usd": 0.01,
+        "is_baseline": false
+      },
+      {
+        "profile_id": "baseline-current",
+        "invocation_id": "416ef4fa-2902-4432-9951-690545424101",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable",
+        "capacity_gate_reason": "missing_required",
+        "completeness_used": {
+          "indicators": "missing_required",
+          "ohlc": "missing_required",
+          "orderflow": "missing_required",
+          "quote": "available",
+          "risk_context": "available",
+          "session": "partial",
+          "structure": "missing_required"
+        },
+        "latency_ms": 1,
+        "cost_usd": 0.01,
+        "is_baseline": true
+      },
+      {
+        "profile_id": "indicators",
+        "invocation_id": "e6dede71-b18e-457a-9cf1-ec850e173759",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable",
+        "capacity_gate_reason": "missing_required",
+        "completeness_used": {
+          "indicators": "missing_required",
+          "ohlc": "missing_required",
+          "quote": "available",
+          "risk_context": "available",
+          "session": "partial",
+          "structure": "missing_required"
+        },
+        "latency_ms": 1,
+        "cost_usd": 0.01,
+        "is_baseline": false
+      },
+      {
+        "profile_id": "orderflow",
+        "invocation_id": "70f5711e-c953-490e-a568-7e45034c4cd6",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable",
+        "capacity_gate_reason": "missing_required",
+        "completeness_used": {
+          "ohlc": "missing_required",
+          "orderflow": "missing_required",
+          "quote": "available",
+          "risk_context": "available",
+          "session": "partial",
+          "structure": "missing_required"
+        },
+        "latency_ms": 1,
+        "cost_usd": 0.01,
+        "is_baseline": false
+      },
+      {
+        "profile_id": "smart-money",
+        "invocation_id": "ad5a3eb6-5514-436c-878d-e5f868630b20",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable",
+        "capacity_gate_reason": "missing_required",
+        "completeness_used": {
+          "indicators": "missing_required",
+          "ohlc": "missing_required",
+          "orderflow": "missing_required",
+          "quote": "available",
+          "risk_context": "available",
+          "session": "partial",
+          "structure": "missing_required"
+        },
+        "latency_ms": 1,
+        "cost_usd": 0.01,
+        "is_baseline": false
+      },
+      {
+        "profile_id": "structure",
+        "invocation_id": "a48c61eb-d6d0-4d2f-9070-20fcc0c29849",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable",
+        "capacity_gate_reason": "missing_required",
+        "completeness_used": {
+          "indicators": "missing_required",
+          "ohlc": "missing_required",
+          "quote": "available",
+          "risk_context": "available",
+          "session": "partial",
+          "structure": "missing_required"
+        },
+        "latency_ms": 1,
+        "cost_usd": 0.01,
+        "is_baseline": false
+      }
+    ],
+    "candidates": [
+      {
+        "profile_id": "adversarial-risk",
+        "invocation_id": "b185eb5c-fb73-496b-acf9-bced69aae5b9",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable"
+      },
+      {
+        "profile_id": "baseline-current",
+        "invocation_id": "416ef4fa-2902-4432-9951-690545424101",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable"
+      },
+      {
+        "profile_id": "indicators",
+        "invocation_id": "e6dede71-b18e-457a-9cf1-ec850e173759",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable"
+      },
+      {
+        "profile_id": "orderflow",
+        "invocation_id": "70f5711e-c953-490e-a568-7e45034c4cd6",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable"
+      },
+      {
+        "profile_id": "smart-money",
+        "invocation_id": "ad5a3eb6-5514-436c-878d-e5f868630b20",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable"
+      },
+      {
+        "profile_id": "structure",
+        "invocation_id": "a48c61eb-d6d0-4d2f-9070-20fcc0c29849",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable"
+      }
+    ],
+    "aggregator_selection": {
+      "outcome": "no_selection",
+      "decision_code": "INSUFFICIENT_ENSEMBLE_AGREEMENT",
+      "selected_profile_id": null,
+      "decision_trace": [
+        "MISSING_REQUIRED_EVIDENCE",
+        "MISSING_REQUIRED_EVIDENCE",
+        "MISSING_REQUIRED_EVIDENCE",
+        "MISSING_REQUIRED_EVIDENCE",
+        "MISSING_REQUIRED_EVIDENCE",
+        "MISSING_REQUIRED_EVIDENCE",
+        "INSUFFICIENT_ENSEMBLE_AGREEMENT"
+      ],
+      "no_selection_reason": "INSUFFICIENT_ENSEMBLE_AGREEMENT"
+    },
+    "baseline_comparison": {
+      "baseline_profile_id": "baseline-current",
+      "baseline_state": "missing_required_evidence",
+      "baseline_direction": "flat",
+      "matches_global_selection": false
+    },
+    "counterfactual": {
+      "non_selected_candidates": [],
+      "diagnostic_only": true
+    },
+    "cost_usd": 0.06,
+    "latency_ms_total": 6,
+    "divergences": [],
+    "isolation_audit": [
+      {
+        "profile_id": "adversarial-risk",
+        "invocation_id": "78d9c8f3-4379-46ba-8804-b0654dc4f4dd",
+        "work_dir": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\parallel_slots\\shadow-phase7-validation-2026-09-02-offline\\adversarial-risk\\20260820T1200Z\\56883fc6-cb82-43f4-9e57-13d821d8119e",
+        "hermes_home_isolated": true,
+        "profile_outside_evaluation_home": false,
+        "error": null,
+        "cancelled": false
+      },
+      {
+        "profile_id": "baseline-current",
+        "invocation_id": "298c5e3b-b540-40b9-b55a-8c003cf8470a",
+        "work_dir": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\parallel_slots\\shadow-phase7-validation-2026-09-02-offline\\baseline-current\\20260820T1200Z\\88b63d15-ebcb-4945-b692-3ff3f32b0a45",
+        "hermes_home_isolated": true,
+        "profile_outside_evaluation_home": false,
+        "error": null,
+        "cancelled": false
+      },
+      {
+        "profile_id": "indicators",
+        "invocation_id": "a352e2d3-d327-4860-aab5-2564b64b2e95",
+        "work_dir": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\parallel_slots\\shadow-phase7-validation-2026-09-02-offline\\indicators\\20260820T1200Z\\17f1f3e8-5404-4620-ab41-b0010693c625",
+        "hermes_home_isolated": true,
+        "profile_outside_evaluation_home": false,
+        "error": null,
+        "cancelled": false
+      },
+      {
+        "profile_id": "orderflow",
+        "invocation_id": "2a33001b-0dfc-4fdc-93eb-516065fc7c8b",
+        "work_dir": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\parallel_slots\\shadow-phase7-validation-2026-09-02-offline\\orderflow\\20260820T1200Z\\34446691-f5b2-4a17-a3fa-b426606b7a48",
+        "hermes_home_isolated": true,
+        "profile_outside_evaluation_home": false,
+        "error": null,
+        "cancelled": false
+      },
+      {
+        "profile_id": "smart-money",
+        "invocation_id": "2b0a1a3c-5255-49df-9f95-e5f04a62c803",
+        "work_dir": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\parallel_slots\\shadow-phase7-validation-2026-09-02-offline\\smart-money\\20260820T1200Z\\25087e41-b87b-40d9-9438-a3ee8e49262e",
+        "hermes_home_isolated": true,
+        "profile_outside_evaluation_home": false,
+        "error": null,
+        "cancelled": false
+      },
+      {
+        "profile_id": "structure",
+        "invocation_id": "13e4ee8d-ba6a-464c-a173-f1ed5f53221b",
+        "work_dir": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\parallel_slots\\shadow-phase7-validation-2026-09-02-offline\\structure\\20260820T1200Z\\17d6920e-fbb1-4da9-b38f-4c9a73c80de1",
+        "hermes_home_isolated": true,
+        "profile_outside_evaluation_home": false,
+        "error": null,
+        "cancelled": false
+      }
+    ],
+    "isolation_failures": []
+  },
+  "shadow_live": false,
+  "intents_sent": 0,
+  "orders_sent": 0,
+  "writes_operacionais": 0
+}

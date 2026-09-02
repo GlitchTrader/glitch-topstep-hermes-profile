@@ -1,0 +1,213 @@
+{
+  "schema_version": "glitch.topstep.scenario_live_replay.v1",
+  "run_id": "scenario-live-2026-09-02-r15-v7",
+  "status": "completed",
+  "scenarios_file": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\stratified_scenarios.v7.json",
+  "profiles": [
+    "baseline-current",
+    "structure"
+  ],
+  "scenario_count": 4,
+  "sequential": true,
+  "aggregator_used": false,
+  "invalid_invocations": [],
+  "invalid_count": 0,
+  "validation_report_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-02-r15-v7-corpus-validation.json",
+  "invocations": [
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-4d39411f",
+      "scenario_tag": "operator_minute_frame",
+      "run_id": "scenario-live-2026-09-02-r15-v7-baseline-current-20260902T155530Z-4d39411f",
+      "frame_id": "20260902T155530Z-4d39411f",
+      "profile_id": "baseline-current",
+      "status": "completed",
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-02-r15-v7-baseline-current-20260902T155530Z-4d39411f.json",
+      "cost_basis": "estimated_tokens",
+      "estimated_cost_usd": 0.011719,
+      "cost_gate_passed": true,
+      "normalized_state": "no_edge",
+      "normalized_comparability": "comparable",
+      "adapter_error_code": null,
+      "capacity_gate_comparable": true
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-4d39411f",
+      "scenario_tag": "operator_minute_frame",
+      "run_id": "scenario-live-2026-09-02-r15-v7-structure-20260902T155530Z-4d39411f",
+      "frame_id": "20260902T155530Z-4d39411f",
+      "profile_id": "structure",
+      "status": "completed",
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-02-r15-v7-structure-20260902T155530Z-4d39411f.json",
+      "cost_basis": "estimated_tokens",
+      "estimated_cost_usd": 0.011199,
+      "cost_gate_passed": true,
+      "normalized_state": "no_edge",
+      "normalized_comparability": "comparable",
+      "adapter_error_code": null,
+      "capacity_gate_comparable": true
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-8c4e5912",
+      "scenario_tag": "operator_minute_frame",
+      "run_id": "scenario-live-2026-09-02-r15-v7-baseline-current-20260902T155028Z-8c4e5912",
+      "frame_id": "20260902T155028Z-8c4e5912",
+      "profile_id": "baseline-current",
+      "status": "completed",
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-02-r15-v7-baseline-current-20260902T155028Z-8c4e5912.json",
+      "cost_basis": "estimated_tokens",
+      "estimated_cost_usd": 0.010862,
+      "cost_gate_passed": true,
+      "normalized_state": "no_edge",
+      "normalized_comparability": "comparable",
+      "adapter_error_code": null,
+      "capacity_gate_comparable": true
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-8c4e5912",
+      "scenario_tag": "operator_minute_frame",
+      "run_id": "scenario-live-2026-09-02-r15-v7-structure-20260902T155028Z-8c4e5912",
+      "frame_id": "20260902T155028Z-8c4e5912",
+      "profile_id": "structure",
+      "status": "completed",
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-02-r15-v7-structure-20260902T155028Z-8c4e5912.json",
+      "cost_basis": "estimated_tokens",
+      "estimated_cost_usd": 0.011202,
+      "cost_gate_passed": true,
+      "normalized_state": "no_edge",
+      "normalized_comparability": "comparable",
+      "adapter_error_code": null,
+      "capacity_gate_comparable": true
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-db31fa40",
+      "scenario_tag": "operator_minute_frame",
+      "run_id": "scenario-live-2026-09-02-r15-v7-baseline-current-20260902T154529Z-db31fa40",
+      "frame_id": "20260902T154529Z-db31fa40",
+      "profile_id": "baseline-current",
+      "status": "completed",
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-02-r15-v7-baseline-current-20260902T154529Z-db31fa40.json",
+      "cost_basis": "estimated_tokens",
+      "estimated_cost_usd": 0.011818,
+      "cost_gate_passed": true,
+      "normalized_state": "no_edge",
+      "normalized_comparability": "comparable",
+      "adapter_error_code": null,
+      "capacity_gate_comparable": true
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-db31fa40",
+      "scenario_tag": "operator_minute_frame",
+      "run_id": "scenario-live-2026-09-02-r15-v7-structure-20260902T154529Z-db31fa40",
+      "frame_id": "20260902T154529Z-db31fa40",
+      "profile_id": "structure",
+      "status": "completed",
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-02-r15-v7-structure-20260902T154529Z-db31fa40.json",
+      "cost_basis": "estimated_tokens",
+      "estimated_cost_usd": 0.011318,
+      "cost_gate_passed": true,
+      "normalized_state": "no_edge",
+      "normalized_comparability": "comparable",
+      "adapter_error_code": null,
+      "capacity_gate_comparable": true
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-358cec55",
+      "scenario_tag": "operator_minute_frame",
+      "run_id": "scenario-live-2026-09-02-r15-v7-baseline-current-20260902T154027Z-358cec55",
+      "frame_id": "20260902T154027Z-358cec55",
+      "profile_id": "baseline-current",
+      "status": "completed",
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-02-r15-v7-baseline-current-20260902T154027Z-358cec55.json",
+      "cost_basis": "estimated_tokens",
+      "estimated_cost_usd": 0.01121,
+      "cost_gate_passed": true,
+      "normalized_state": "no_edge",
+      "normalized_comparability": "comparable",
+      "adapter_error_code": null,
+      "capacity_gate_comparable": true
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-358cec55",
+      "scenario_tag": "operator_minute_frame",
+      "run_id": "scenario-live-2026-09-02-r15-v7-structure-20260902T154027Z-358cec55",
+      "frame_id": "20260902T154027Z-358cec55",
+      "profile_id": "structure",
+      "status": "completed",
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-02-r15-v7-structure-20260902T154027Z-358cec55.json",
+      "cost_basis": "estimated_tokens",
+      "estimated_cost_usd": 0.01133,
+      "cost_gate_passed": true,
+      "normalized_state": "no_edge",
+      "normalized_comparability": "comparable",
+      "adapter_error_code": null,
+      "capacity_gate_comparable": true
+    }
+  ],
+  "scenario_comparisons": [
+    {
+      "frame_id": "20260902T155530Z-4d39411f",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-4d39411f"
+    },
+    {
+      "frame_id": "20260902T155028Z-8c4e5912",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-8c4e5912"
+    },
+    {
+      "frame_id": "20260902T154529Z-db31fa40",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-db31fa40"
+    },
+    {
+      "frame_id": "20260902T154027Z-358cec55",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-358cec55"
+    }
+  ],
+  "session_cost_usd": 0.090658,
+  "all_cost_gates_passed": true,
+  "production_paths_untouched": true,
+  "quality_report_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-02-r15-v7-quality-report.json",
+  "diversity_metrics_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-02-r15-v7-diversity-metrics.json"
+}

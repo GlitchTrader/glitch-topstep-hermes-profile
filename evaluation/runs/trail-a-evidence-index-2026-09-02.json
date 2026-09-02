@@ -1,0 +1,30 @@
+{
+  "schema_version": "glitch.topstep.trail_a_evidence_index.v1",
+  "generated_utc": "2026-09-02T22:05:00Z",
+  "trail_a_complete": "PASS",
+  "gate": {
+    "parallel_evaluation_real": "PASS",
+    "aggregator_offline_real": "PASS",
+    "parallel_evaluation_acceptance": "PASS"
+  },
+  "canonical_run": "trail-a-multi-envelope-2026-09-02",
+  "artifacts": {
+    "bundle": "evaluation/runs/trail-a-multi-envelope-2026-09-02.json",
+    "preflight": "evaluation/runs/trail-a-multi-envelope-preflight-2026-09-02.json",
+    "post_audit": "evaluation/runs/trail-a-multi-envelope-2026-09-02-post-audit.json",
+    "manifest": "evaluation/trail-a-multi-envelope-manifest.v1.json",
+    "authorization": "evaluation/reviews/TRAIL-A-MULTI-ENVELOPE-AUTHORIZATION.md",
+    "incident_single_envelope": "evaluation/runs/trail-a-real-2026-09-02-envelope-identity-incident.json",
+    "phase_7_prep": "evaluation/reviews/PHASE-7-SHADOW-ONLY-PREP-2026-09-02.md"
+  },
+  "metrics_summary": {
+    "envelopes": 3,
+    "invocations": 9,
+    "session_cost_usd": 0.04604,
+    "total_latency_ms": 129901,
+    "aggregator_outcomes": {
+      "no_selection": 3
+    }
+  },
+  "promotion_gate": false
+}

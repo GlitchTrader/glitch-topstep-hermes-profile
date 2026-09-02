@@ -1,0 +1,126 @@
+{
+  "schema_version": "glitch.topstep.dual_profile_live_replay.v1",
+  "run_id": "dual-live-2026-09-01-r5",
+  "status": "completed",
+  "profiles": [
+    "baseline-current",
+    "structure"
+  ],
+  "frames": [
+    "20260820T1200Z",
+    "20260820T1201Z"
+  ],
+  "sequential": true,
+  "aggregator_used": false,
+  "invocations": [
+    {
+      "run_id": "dual-live-2026-09-01-r5-baseline-current-20260820T1200Z",
+      "frame_id": "20260820T1200Z",
+      "profile_id": "baseline-current",
+      "status": "completed",
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\dual-live-2026-09-01-r5-baseline-current-20260820T1200Z.json",
+      "cost_basis": "estimated_tokens",
+      "estimated_cost_usd": 0.000115,
+      "provider_reported_cost_usd": null,
+      "cost_gate_passed": true,
+      "classification": {
+        "thesis_quality": "not_evaluated_on_thin_fixture",
+        "missing_required_evidence": true,
+        "not_comparable": true
+      },
+      "normalized_state": "missing_required_evidence",
+      "normalized_comparability": "not_comparable"
+    },
+    {
+      "run_id": "dual-live-2026-09-01-r5-structure-20260820T1200Z",
+      "frame_id": "20260820T1200Z",
+      "profile_id": "structure",
+      "status": "completed",
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\dual-live-2026-09-01-r5-structure-20260820T1200Z.json",
+      "cost_basis": "estimated_tokens",
+      "estimated_cost_usd": 0.000118,
+      "provider_reported_cost_usd": null,
+      "cost_gate_passed": true,
+      "classification": {
+        "thesis_quality": "not_evaluated_on_thin_fixture",
+        "missing_required_evidence": true,
+        "not_comparable": true
+      },
+      "normalized_state": "missing_required_evidence",
+      "normalized_comparability": "not_comparable"
+    },
+    {
+      "run_id": "dual-live-2026-09-01-r5-baseline-current-20260820T1201Z",
+      "frame_id": "20260820T1201Z",
+      "profile_id": "baseline-current",
+      "status": "completed",
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\dual-live-2026-09-01-r5-baseline-current-20260820T1201Z.json",
+      "cost_basis": "estimated_tokens",
+      "estimated_cost_usd": 0.000216,
+      "provider_reported_cost_usd": null,
+      "cost_gate_passed": true,
+      "classification": {
+        "thesis_quality": "not_evaluated_on_thin_fixture",
+        "missing_required_evidence": true,
+        "not_comparable": true
+      },
+      "normalized_state": "missing_required_evidence",
+      "normalized_comparability": "not_comparable"
+    },
+    {
+      "run_id": "dual-live-2026-09-01-r5-structure-20260820T1201Z",
+      "frame_id": "20260820T1201Z",
+      "profile_id": "structure",
+      "status": "completed",
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\dual-live-2026-09-01-r5-structure-20260820T1201Z.json",
+      "cost_basis": "estimated_tokens",
+      "estimated_cost_usd": 0.00016,
+      "provider_reported_cost_usd": null,
+      "cost_gate_passed": true,
+      "classification": {
+        "thesis_quality": "not_evaluated_on_thin_fixture",
+        "missing_required_evidence": true,
+        "not_comparable": true
+      },
+      "normalized_state": "missing_required_evidence",
+      "normalized_comparability": "not_comparable"
+    }
+  ],
+  "frame_comparisons": [
+    {
+      "frame_id": "20260820T1200Z",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "missing_required_evidence",
+      "challenger_category": "missing_required_evidence",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ]
+    },
+    {
+      "frame_id": "20260820T1201Z",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "missing_required_evidence",
+      "challenger_category": "missing_required_evidence",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ]
+    }
+  ],
+  "session_cost_usd": 0.000609,
+  "all_cost_gates_passed": true,
+  "production_paths_untouched": true,
+  "notes": [
+    "Structural comparison only; thesis_quality not evaluated on thin fixtures.",
+    "Cost is estimated_tokens unless provider reports usage/cost."
+  ]
+}

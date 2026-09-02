@@ -1,0 +1,85 @@
+{
+  "schema_version": "glitch.topstep.capture_evaluability.v1",
+  "recorded_utc": "2026-09-02T20:46:04.417283Z",
+  "session_id": "PRAC-LIMITED-2026-09-02",
+  "summary": {
+    "total_frames": 8,
+    "diagnostically_evaluable": 0,
+    "operationally_blocked": 8,
+    "data_degradation_capture": 8
+  },
+  "frames": [
+    {
+      "frame_id": "20260902T193005Z-b5fd08f8",
+      "gateway_degraded_at_decision": false,
+      "bar_partial_or_lag": true,
+      "classification_v2": "operationally_blocked",
+      "diagnostically_evaluable": false,
+      "may_participate_in_abstention_diagnostic": false,
+      "elevated_to_no_edge": false
+    },
+    {
+      "frame_id": "20260902T193505Z-3dd35e83",
+      "gateway_degraded_at_decision": false,
+      "bar_partial_or_lag": true,
+      "classification_v2": "operationally_blocked",
+      "diagnostically_evaluable": false,
+      "may_participate_in_abstention_diagnostic": false,
+      "elevated_to_no_edge": false
+    },
+    {
+      "frame_id": "20260902T194002Z-0d305fc5",
+      "gateway_degraded_at_decision": false,
+      "bar_partial_or_lag": true,
+      "classification_v2": "operationally_blocked",
+      "diagnostically_evaluable": false,
+      "may_participate_in_abstention_diagnostic": false,
+      "elevated_to_no_edge": false
+    },
+    {
+      "frame_id": "20260902T194505Z-d7d1b4fb",
+      "gateway_degraded_at_decision": true,
+      "bar_partial_or_lag": true,
+      "classification_v2": "operationally_blocked",
+      "diagnostically_evaluable": false,
+      "may_participate_in_abstention_diagnostic": false,
+      "elevated_to_no_edge": false
+    },
+    {
+      "frame_id": "20260902T195006Z-b7219c00",
+      "gateway_degraded_at_decision": true,
+      "bar_partial_or_lag": true,
+      "classification_v2": "operationally_blocked",
+      "diagnostically_evaluable": false,
+      "may_participate_in_abstention_diagnostic": false,
+      "elevated_to_no_edge": false
+    },
+    {
+      "frame_id": "20260902T195507Z-b071ff79",
+      "gateway_degraded_at_decision": false,
+      "bar_partial_or_lag": true,
+      "classification_v2": "operationally_blocked",
+      "diagnostically_evaluable": false,
+      "may_participate_in_abstention_diagnostic": false,
+      "elevated_to_no_edge": false
+    },
+    {
+      "frame_id": "20260902T200007Z-7800e8c3",
+      "gateway_degraded_at_decision": true,
+      "bar_partial_or_lag": true,
+      "classification_v2": "operationally_blocked",
+      "diagnostically_evaluable": false,
+      "may_participate_in_abstention_diagnostic": false,
+      "elevated_to_no_edge": false
+    },
+    {
+      "frame_id": "20260902T200505Z-ce29fef7",
+      "gateway_degraded_at_decision": false,
+      "bar_partial_or_lag": true,
+      "classification_v2": "operationally_blocked",
+      "diagnostically_evaluable": false,
+      "may_participate_in_abstention_diagnostic": false,
+      "elevated_to_no_edge": false
+    }
+  ]
+}

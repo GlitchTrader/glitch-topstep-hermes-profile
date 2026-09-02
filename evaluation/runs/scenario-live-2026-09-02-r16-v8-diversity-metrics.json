@@ -1,0 +1,93 @@
+{
+  "schema_version": "glitch.topstep.evaluation_diversity_metrics.v1",
+  "run_id": "scenario-live-2026-09-02-r16-v8",
+  "invocation_count": 6,
+  "valid_output_rate": 1.0,
+  "no_edge_rate": 1.0,
+  "invalid_output_rate": 0.0,
+  "comparable_pair_count": 0,
+  "comparable_pair_rate": 0.0,
+  "direction_divergence_count": 0,
+  "thesis_divergence_count": 0,
+  "scenarios": [
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-4fdd308c",
+      "frame_id": "20260902T171541Z-4fdd308c",
+      "invocations": 2,
+      "valid_output_rate": 1.0,
+      "no_edge_rate": 1.0,
+      "invalid_outputs": 0,
+      "profiles": {
+        "baseline-current": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        },
+        "structure": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        }
+      },
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-86a52bbc",
+      "frame_id": "20260902T172046Z-86a52bbc",
+      "invocations": 2,
+      "valid_output_rate": 1.0,
+      "no_edge_rate": 1.0,
+      "invalid_outputs": 0,
+      "profiles": {
+        "baseline-current": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        },
+        "structure": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        }
+      },
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-c62a7390",
+      "frame_id": "20260902T172547Z-c62a7390",
+      "invocations": 2,
+      "valid_output_rate": 1.0,
+      "no_edge_rate": 1.0,
+      "invalid_outputs": 0,
+      "profiles": {
+        "baseline-current": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        },
+        "structure": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        }
+      },
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge"
+    }
+  ],
+  "notes": [
+    "no_edge is a valid cognitive outcome, not a contract failure.",
+    "invalid indicates contract violation; investigate, do not coerce."
+  ]
+}

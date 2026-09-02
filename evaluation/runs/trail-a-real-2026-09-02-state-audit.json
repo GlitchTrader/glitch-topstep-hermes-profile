@@ -1,0 +1,49 @@
+{
+  "schema_version": "glitch.topstep.trail_a_real_artifact_audit.v1",
+  "run_id": "trail-a-real-2026-09-02",
+  "verdict": "PASS",
+  "issues": [],
+  "profile_checks": [
+    {
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-trail-a-real-2026-09-02-baseline-current-20260901T134026Z-bb50bbe9",
+      "has_raw": true,
+      "has_normalized": true,
+      "latency_ms": 14969,
+      "cost_usd": 0.011292,
+      "model": null,
+      "provider": null,
+      "prompt_version": null
+    },
+    {
+      "profile_id": "structure",
+      "invocation_id": "eval-trail-a-real-2026-09-02-structure-20260901T134026Z-bb50bbe9",
+      "has_raw": true,
+      "has_normalized": true,
+      "latency_ms": 15766,
+      "cost_usd": 0.011162,
+      "model": null,
+      "provider": null,
+      "prompt_version": null
+    },
+    {
+      "profile_id": "adversarial-risk",
+      "invocation_id": "eval-trail-a-real-2026-09-02-adversarial-risk-20260901T134026Z-bb50bbe9",
+      "has_raw": true,
+      "has_normalized": true,
+      "latency_ms": 12109,
+      "cost_usd": 0.011402,
+      "model": null,
+      "provider": null,
+      "prompt_version": null
+    }
+  ],
+  "aggregator_selection": {
+    "outcome": "classified_failure",
+    "decision_code": "SNAPSHOT_DIVERGENCE",
+    "selected_profile_id": null
+  },
+  "session_cost_usd": 0.033856,
+  "lease_released": true,
+  "promotion_gate": false
+}

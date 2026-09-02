@@ -1,0 +1,15 @@
+{
+  "schema_version": "glitch.topstep.evaluation_milestone_six_profiles.v1",
+  "generated_utc": "2026-09-02T22:12:41.398993Z",
+  "run_id": "eval-milestone-six-profiles-2026-09-02",
+  "verdict": "PASS",
+  "profile_count": 6,
+  "artifacts": {
+    "ensemble": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\eval-milestone-six-profiles-2026-09-02-six-profile-ensemble.json",
+    "shadow_offline": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\eval-milestone-six-profiles-2026-09-02-shadow-offline.json",
+    "stability": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\eval-milestone-six-profiles-2026-09-02-stability-report.json",
+    "provenance": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\eval-milestone-six-profiles-2026-09-02-provenance-chain.json"
+  },
+  "shadow_live": false,
+  "promotion_gate": false
+}

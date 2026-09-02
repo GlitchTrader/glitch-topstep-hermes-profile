@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "glitch.topstep.ensemble_config.v1",
+  "title": "Ensemble configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "config_version",
+    "status",
+    "budget",
+    "timeout_policy",
+    "promotion_thresholds",
+    "promotion_threshold_semantics",
+    "rollback"
+  ],
+  "properties": {
+    "schema_version": { "const": "glitch.topstep.ensemble_config.v1" },
+    "config_version": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["proposed_operator_approval", "approved", "disabled"]
+    },
+    "budget": { "$ref": "#/$defs/budget" },
+    "timeout_policy": { "$ref": "#/$defs/timeout_policy" },
+    "promotion_thresholds": { "type": "object" },
+    "promotion_threshold_semantics": { "type": "object" },
+    "rollback": { "type": "object" }
+  },
+  "$defs": {
+    "budget": {
+      "type": "object",
+      "required": [
+        "max_calls_per_snapshot",
+        "max_calls_per_session",
+        "max_cost_usd_per_session",
+        "total_latency_budget_ms",
+        "per_profile_timeout_ms",
+        "total_timeout_ms",
+        "aggregation_budget_ms",
+        "max_parallel_slots",
+        "max_replays_per_profile",
+        "max_process_memory_mb"
+      ],
+      "properties": {
+        "max_calls_per_snapshot": { "type": "integer", "minimum": 1 },
+        "max_calls_per_session": { "type": "integer", "minimum": 1 },
+        "max_cost_usd_per_session": { "type": "number", "minimum": 0 },
+        "total_latency_budget_ms": { "type": "integer", "minimum": 1 },
+        "per_profile_timeout_ms": { "type": "integer", "minimum": 1 },
+        "total_timeout_ms": { "type": "integer", "minimum": 1 },
+        "aggregation_budget_ms": { "type": "integer", "minimum": 0 },
+        "max_parallel_slots": { "type": "integer", "minimum": 1 },
+        "max_replays_per_profile": { "type": "integer", "minimum": 0 },
+        "max_process_memory_mb": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "timeout_policy": {
+      "type": "object",
+      "required": ["mode", "on_global_timeout", "record_state"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["sequential_global_cap"]
+        },
+        "on_global_timeout": {
+          "type": "string",
+          "enum": ["cancel_remaining_profiles"]
+        },
+        "record_state": { "const": "timeout" }
+      }
+    }
+  }
+}

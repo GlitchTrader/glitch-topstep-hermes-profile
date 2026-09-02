@@ -1,0 +1,108 @@
+{
+  "schema_version": "glitch.topstep.stratified_cohort_digest.v1",
+  "manifest_schema": "glitch.topstep.stratified_cohort_manifest.v1",
+  "cohort_version": "v5.1-pre-registered",
+  "envelope_count": 9,
+  "sha256": "11a45e8f5810ce1376ee45e286a6cd7ff1cad86967a649a93606e5feb0e4c941",
+  "envelopes": [
+    {
+      "queue_order": 1,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-b7730ea3",
+      "frame_id": "20260902T115053Z-b7730ea3",
+      "snapshot_hash": "335c917750ac90e746df298e276e40b4b7198f1a4ee17826a8593fc7d02ba454",
+      "envelope_id": "env-335c917750ac90e7",
+      "envelope_hash": "19836f6bcf61ef13a54f44011360eb8079758c6ce17280bb52218e601810608f",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_02",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 2,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-cb1139d6",
+      "frame_id": "20260902T113051Z-cb1139d6",
+      "snapshot_hash": "77020602c512dfb169c39cf6a4759fdb992a006eb489fec0dc3d537efca53749",
+      "envelope_id": "env-77020602c512dfb1",
+      "envelope_hash": "779b0b65da4dd902d368fb59b51038a19a277c2f775d3f9683b39cf6d78c5181",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_02",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 3,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-2e035875",
+      "frame_id": "20260902T022826Z-2e035875",
+      "snapshot_hash": "9631de822346d6bd0a044e59e6d5671c29298b8f503a9969ccde452b64657b02",
+      "envelope_id": "env-9631de822346d6bd",
+      "envelope_hash": "1ac6cb832b6d0e182bd43c769c5e11a8a673c3ee870abefaf6b7cc26bb97cde2",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_01",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 4,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-2a71dbe9",
+      "frame_id": "20260902T022026Z-2a71dbe9",
+      "snapshot_hash": "a6275f34cd07f4955ee79b48e38b0b24792e6d6b113f7be0775d8a5aee8ac214",
+      "envelope_id": "env-a6275f34cd07f495",
+      "envelope_hash": "099e2d73dee2697323b3f18bad9c7aa66252cbb4bd220773ce2eedfac29608da",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_01",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 5,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-c88c2945",
+      "frame_id": "20260902T021025Z-c88c2945",
+      "snapshot_hash": "701350a2b170602a8475d1ba5906a24a7fcad2e25a7822af9490130d63eba24a",
+      "envelope_id": "env-701350a2b170602a",
+      "envelope_hash": "aab77fde5bdd2e100e8674ab1c854ea0e193436899281339a88472d511b8f3b3",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_01",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 6,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-aba921ec",
+      "frame_id": "20260902T020524Z-aba921ec",
+      "snapshot_hash": "f855a41c7da2f574cd0b10942ae3117417cd0c9cc78183c72fb138282f75c083",
+      "envelope_id": "env-f855a41c7da2f574",
+      "envelope_hash": "5cc8c44886d54b63f4c2904696e4e53001a7f5753fe6cf6f9e3e2176279474d8",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_01",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 7,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-e8df6b82",
+      "frame_id": "20260902T020023Z-e8df6b82",
+      "snapshot_hash": "f9d94baa92c287117f5b2e3e575ed5c6ac392875e1c056ac271609989c02983d",
+      "envelope_id": "env-f9d94baa92c28711",
+      "envelope_hash": "cfeb3c4696f07b3d430f9ca6b3c6b7cc8bbbd9acf4f3629e9c218c05f411176f",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_01",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 8,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-065ef854",
+      "frame_id": "20260902T015522Z-065ef854",
+      "snapshot_hash": "839af26360272d7aa6c4353290f5846d1a5a70aa1a932bfb10afe3450355580a",
+      "envelope_id": "env-839af26360272d7a",
+      "envelope_hash": "2019cfdaae82e86a3fdf515df12a451957edb4cadbe68e22f40058d66b1fd0eb",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_01",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 9,
+      "scenario_id": "SCN-STRAT-RESTART-c30de894",
+      "frame_id": "20260902T112922Z-c30de894",
+      "snapshot_hash": "bce139207b49c0d0fb30850386bc4c98309d689187ec6887d56d16222ae6c9fa",
+      "envelope_id": "env-bce139207b49c0d0",
+      "envelope_hash": "25f831a5ce7fa9586e1e61fa7edbe5e36165e00582c3adfa94fced6330918feb",
+      "scenario_tag": "restart",
+      "origin": "prac_soak_2026_09_02",
+      "capacity_gate_validated": true
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "schema_version": "glitch.topstep.trail_a_real_run_config.v1",
+  "status": "awaiting_human_authorization",
+  "run_id_template": "trail-a-real-2026-09-02",
+  "evaluation_only": true,
+  "production_parallelism": false,
+  "promotion_gate": false,
+  "envelope": {
+    "scenario_id": "SCN-TRAIL-A-REAL-01",
+    "frame_id": "20260901T134026Z-bb50bbe9",
+    "frame_path": "tests/fixtures/frozen_corpus/enriched/minute-frames/20260901T134026Z-bb50bbe9.json",
+    "frame_sha256": "df2e01375530a12aaebd60ae3e7af67ad15e970c5b5e14307c2f7fb1b7121170",
+    "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+    "envelope_hash": "5419bea167862a440dc2f9c516a88725dcd687d8e81d4bac0df4ad43307f679c",
+    "envelope_id": "env-8d12d081fc8885a3",
+    "validity_seconds": 35
+  },
+  "profiles": [
+    {
+      "profile_id": "baseline-current",
+      "prompt_version": "glitch-topstep-v17.1",
+      "invocation_id_template": "eval-{run_id}-baseline-current"
+    },
+    {
+      "profile_id": "structure",
+      "prompt_version": "glitch-topstep-v17.1",
+      "invocation_id_template": "eval-{run_id}-structure"
+    },
+    {
+      "profile_id": "adversarial-risk",
+      "prompt_version": "glitch-topstep-v17.1",
+      "invocation_id_template": "eval-{run_id}-adversarial-risk"
+    }
+  ],
+  "versions": {
+    "registry_version": "2026-09-01-v2",
+    "config_version": "2026-09-01-v2",
+    "aggregator_rules_version": "2026-09-01-v2",
+    "matrix_version": "2026-09-01-v2",
+    "normalized_candidate_schema": "glitch.topstep.normalized_candidate.v1",
+    "minimal_replay_schema": "glitch.topstep.minimal_cognitive_replay.v1",
+    "adapter_version": "2026-09-01-v1",
+    "model": "gpt-5.6-luna",
+    "provider": "openai-codex"
+  },
+  "isolation": {
+    "owner_kind": "evaluation",
+    "hermes_home_profile": "glitch-topstep-evaluation",
+    "hermes_home_env": "EVALUATION_HERMES_HOME",
+    "state_root_pattern": "evaluation/state/{run_id}-{profile_id}",
+    "production_paths_forbidden": [
+      "state/outbox",
+      "state/receipts",
+      "state/decisions.jsonl",
+      "state/profile-state.sqlite"
+    ]
+  },
+  "budget": {
+    "max_parallel_slots": 2,
+    "max_cost_usd_per_session": 2.5,
+    "per_profile_timeout_ms": 35000,
+    "total_timeout_ms": 120000,
+    "aggregation_budget_ms": 10000
+  },
+  "output": {
+    "runs_dir": "evaluation/runs",
+    "bundle_suffix": ".json",
+    "per_profile_artifact_pattern": "{run_id}-{profile_id}-{frame_id}.json",
+    "aggregator_offline": true
+  },
+  "blocked": [
+    "gateway_operational",
+    "outbox",
+    "intents",
+    "production_receipts",
+    "production_sqlite",
+    "shadow",
+    "paper",
+    "canary",
+    "promotion",
+    "dynamic_routing",
+    "automatic_retry"
+  ]
+}

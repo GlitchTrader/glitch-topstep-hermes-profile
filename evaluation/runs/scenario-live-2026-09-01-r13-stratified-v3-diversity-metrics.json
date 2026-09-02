@@ -1,0 +1,218 @@
+{
+  "schema_version": "glitch.topstep.evaluation_diversity_metrics.v1",
+  "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+  "invocation_count": 16,
+  "valid_output_rate": 1.0,
+  "no_edge_rate": 0.75,
+  "invalid_output_rate": 0.0,
+  "comparable_pair_count": 0,
+  "comparable_pair_rate": 0.0,
+  "direction_divergence_count": 0,
+  "thesis_divergence_count": 0,
+  "scenarios": [
+    {
+      "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-ddd5ffb5",
+      "frame_id": "20260901T002742Z-ddd5ffb5",
+      "invocations": 2,
+      "valid_output_rate": 1.0,
+      "no_edge_rate": 0.0,
+      "invalid_outputs": 0,
+      "profiles": {
+        "baseline-current": {
+          "state_counts": {
+            "data_quality_insufficient": 1
+          }
+        },
+        "structure": {
+          "state_counts": {
+            "held": 1
+          }
+        }
+      },
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "baseline_category": "not_comparable",
+      "challenger_category": "thesis_quality"
+    },
+    {
+      "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-f5fb2cc7",
+      "frame_id": "20260901T002828Z-f5fb2cc7",
+      "invocations": 2,
+      "valid_output_rate": 1.0,
+      "no_edge_rate": 1.0,
+      "invalid_outputs": 0,
+      "profiles": {
+        "baseline-current": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        },
+        "structure": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        }
+      },
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-24fe8a4d",
+      "frame_id": "20260901T152524Z-24fe8a4d",
+      "invocations": 2,
+      "valid_output_rate": 1.0,
+      "no_edge_rate": 1.0,
+      "invalid_outputs": 0,
+      "profiles": {
+        "baseline-current": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        },
+        "structure": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        }
+      },
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-52265102",
+      "frame_id": "20260901T154226Z-52265102",
+      "invocations": 2,
+      "valid_output_rate": 1.0,
+      "no_edge_rate": 1.0,
+      "invalid_outputs": 0,
+      "profiles": {
+        "baseline-current": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        },
+        "structure": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        }
+      },
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-8b20659b",
+      "frame_id": "20260901T165456Z-8b20659b",
+      "invocations": 2,
+      "valid_output_rate": 1.0,
+      "no_edge_rate": 0.5,
+      "invalid_outputs": 0,
+      "profiles": {
+        "baseline-current": {
+          "state_counts": {
+            "candidate": 1
+          }
+        },
+        "structure": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        }
+      },
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "baseline_category": "thesis_quality",
+      "challenger_category": "no_edge"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-2cfca7a6",
+      "frame_id": "20260901T174044Z-2cfca7a6",
+      "invocations": 2,
+      "valid_output_rate": 1.0,
+      "no_edge_rate": 1.0,
+      "invalid_outputs": 0,
+      "profiles": {
+        "baseline-current": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        },
+        "structure": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        }
+      },
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-a71c2714",
+      "frame_id": "20260901T175947Z-a71c2714",
+      "invocations": 2,
+      "valid_output_rate": 1.0,
+      "no_edge_rate": 0.5,
+      "invalid_outputs": 0,
+      "profiles": {
+        "baseline-current": {
+          "state_counts": {
+            "candidate": 1
+          }
+        },
+        "structure": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        }
+      },
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "baseline_category": "thesis_quality",
+      "challenger_category": "no_edge"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-e1ff909a",
+      "frame_id": "20260901T181807Z-e1ff909a",
+      "invocations": 2,
+      "valid_output_rate": 1.0,
+      "no_edge_rate": 1.0,
+      "invalid_outputs": 0,
+      "profiles": {
+        "baseline-current": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        },
+        "structure": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        }
+      },
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge"
+    }
+  ],
+  "notes": [
+    "no_edge is a valid cognitive outcome, not a contract failure.",
+    "invalid indicates contract violation; investigate, do not coerce."
+  ]
+}

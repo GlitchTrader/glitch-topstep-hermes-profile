@@ -1,0 +1,6 @@
+{
+  "state": "no_edge",
+  "direction": "flat",
+  "thesis": "Liquidity sweep absent; no displacement edge on thin frame.",
+  "latency_ms": 1
+}

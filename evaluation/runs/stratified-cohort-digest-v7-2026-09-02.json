@@ -1,0 +1,53 @@
+{
+  "schema_version": "glitch.topstep.stratified_cohort_digest.v1",
+  "manifest_schema": "glitch.topstep.stratified_cohort_manifest.v1",
+  "cohort_version": "v7-pre-registered",
+  "envelope_count": 4,
+  "sha256": "1020808345f1c2c7087cfe5eeedc1b6c33e1d8d1d2cd5d8adaa94d546205778f",
+  "envelopes": [
+    {
+      "queue_order": 1,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-4d39411f",
+      "frame_id": "20260902T155530Z-4d39411f",
+      "snapshot_hash": "04f49708157926e4c4504cb40f73aa54bae9bc8b88108e0c3e02230cefa46895",
+      "envelope_id": "env-04f49708157926e4",
+      "envelope_hash": "5d88400d51fc5057ed8db82a97612d100e178c3ab7e11bda2af93115926cb96a",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_02_long",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 2,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-8c4e5912",
+      "frame_id": "20260902T155028Z-8c4e5912",
+      "snapshot_hash": "642ad737ef8a4420923e92a497ef3e128bb006522b3cc89ef28f470fbdde9367",
+      "envelope_id": "env-642ad737ef8a4420",
+      "envelope_hash": "b06266ce4c3a0ac6621b99ae535384fcc774609ce6f6b30e68a9c966af8e4972",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_02_long",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 3,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-db31fa40",
+      "frame_id": "20260902T154529Z-db31fa40",
+      "snapshot_hash": "cdacdb4c49dffbb82ceec2cd1e54a2b894b0d12bf3aff894425e0fe6a595ee9c",
+      "envelope_id": "env-cdacdb4c49dffbb8",
+      "envelope_hash": "03bcd1b77103e4673ec94be3dd5f363bf649adef18f0c68028ba0125dc671aeb",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_02_long",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 4,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-358cec55",
+      "frame_id": "20260902T154027Z-358cec55",
+      "snapshot_hash": "cd054bdd570306e13a37fbc250a0093a207e23f029ae63a3d9f9d9229b5c7df9",
+      "envelope_id": "env-cd054bdd570306e1",
+      "envelope_hash": "eb916bda8bf241f2882cd910b2e6ac615219c5ec21e3eb5956446a1bff57b0a2",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_02_long",
+      "capacity_gate_validated": true
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "schema_version": "glitch.topstep.prac_evidence_chain_manifest.v1",
+  "exported_utc": "2026-09-02T15:57:44.428238Z",
+  "scenario_tag": "prac_session",
+  "chains": [
+    {
+      "packet_id": "358cec55-5c3e-4df6-b851-1560806b8de0",
+      "market_snapshot_hash": "932dff16483120219127758edceed9c65c7d75c455e2637bd54f93ea2773bc78",
+      "intent_id": "96890c9e-8d0b-5884-8eed-7e6e2336e0dc",
+      "decision_recorded_utc": "2026-09-02T15:41:46.817238Z",
+      "action": "NOTHING",
+      "receipt_recorded_utc": "2026-09-02T15:41:48.512352Z",
+      "scenario_tag": "prac_session",
+      "directed_test_id": null,
+      "join_status": "NOTHING"
+    },
+    {
+      "packet_id": "db31fa40-e6ba-4c75-8f81-a9d8ac41ea25",
+      "market_snapshot_hash": "c6373da7a7743072304caee27e495a3baa2c2f516f6b0b9de0d232b20d6edf4e",
+      "intent_id": "654e7e9b-249c-5baa-90ab-6aea74efa2b9",
+      "decision_recorded_utc": "2026-09-02T15:46:47.540440Z",
+      "action": "NOTHING",
+      "receipt_recorded_utc": "2026-09-02T15:46:48.440537Z",
+      "scenario_tag": "prac_session",
+      "directed_test_id": null,
+      "join_status": "NOTHING"
+    },
+    {
+      "packet_id": "8c4e5912-f9b0-487f-94be-98b99d02a90d",
+      "market_snapshot_hash": "001bc34f604771bbe3abb900f37cb466621732ea2d07bf9ed20a5b68ba761482",
+      "intent_id": "2ede5631-3156-5db8-9275-00beb77eff31",
+      "decision_recorded_utc": "2026-09-02T15:52:49.735724Z",
+      "action": "NOTHING",
+      "receipt_recorded_utc": "2026-09-02T15:52:50.367958Z",
+      "scenario_tag": "prac_session",
+      "directed_test_id": null,
+      "join_status": "NOTHING"
+    },
+    {
+      "packet_id": "4d39411f-9e77-4d51-abb0-02139af4be08",
+      "market_snapshot_hash": "287d7edb764955aed4211c529b770fd63a88b07e07aeb38bb10b170f436f06f2",
+      "intent_id": "581f4057-6e9d-5fdf-9c1c-76a27c0a8951",
+      "decision_recorded_utc": "2026-09-02T15:56:50.773300Z",
+      "action": "NOTHING",
+      "receipt_recorded_utc": "2026-09-02T15:56:51.244051Z",
+      "scenario_tag": "prac_session",
+      "directed_test_id": null,
+      "join_status": "NOTHING"
+    }
+  ]
+}

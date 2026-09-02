@@ -1,0 +1,270 @@
+{
+  "schema_version": "glitch.topstep.aggregator_fixture_review.v1",
+  "reviewed_utc": "2026-09-01T23:40:50.482687Z",
+  "fixtures_path": "evaluation\\fixtures\\aggregator_decision_cases.v1.json",
+  "spec_reference": "evaluation\\AGGREGATOR-RULES-SPEC.md",
+  "rules_version": "2026-09-01-v2",
+  "executor_status": "BLOCKED",
+  "case_count": 12,
+  "passed": true,
+  "structure_issues": [],
+  "cases": [
+    {
+      "case_id": "AGG-EQUIV-01",
+      "scenario_tags": [
+        "equivalence",
+        "thesis_quality",
+        "evidence_score"
+      ],
+      "expected_result": "selected",
+      "expected_decision_code": "EVIDENCE_SCORE_WIN",
+      "spec_result": "selected",
+      "spec_decision_code": "EVIDENCE_SCORE_WIN",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "AGG-DIR-OPP-01",
+      "scenario_tags": [
+        "direction_conflict",
+        "opposite_direction"
+      ],
+      "expected_result": "no_selection",
+      "expected_decision_code": "DIRECTION_CONFLICT",
+      "spec_result": "no_selection",
+      "spec_decision_code": "DIRECTION_CONFLICT",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "AGG-THESIS-QUAL-01",
+      "scenario_tags": [
+        "thesis_quality",
+        "thesis_delta",
+        "equivalence"
+      ],
+      "expected_result": "selected",
+      "expected_decision_code": "PREFER_BASELINE_ON_TIE",
+      "spec_result": "selected",
+      "spec_decision_code": "PREFER_BASELINE_ON_TIE",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "AGG-CAT-DIV-01",
+      "scenario_tags": [
+        "category_divergence",
+        "no_edge_vs_candidate"
+      ],
+      "expected_result": "no_selection",
+      "expected_decision_code": "ENSEMBLE_CATEGORY_DIVERGENCE",
+      "spec_result": "no_selection",
+      "spec_decision_code": "ENSEMBLE_CATEGORY_DIVERGENCE",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "AGG-MISS-EVID-01",
+      "scenario_tags": [
+        "missing_required_evidence",
+        "insufficient_agreement"
+      ],
+      "expected_result": "no_selection",
+      "expected_decision_code": "INSUFFICIENT_ENSEMBLE_AGREEMENT",
+      "spec_result": "no_selection",
+      "spec_decision_code": "INSUFFICIENT_ENSEMBLE_AGREEMENT",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "AGG-ADV-CRIT-OBJ-01",
+      "scenario_tags": [
+        "adversarial",
+        "critical_objective"
+      ],
+      "expected_result": "no_selection",
+      "expected_decision_code": "ADVERSARIAL_CRITICAL_OBJECTIVE_ELIMINATION",
+      "spec_result": "no_selection",
+      "spec_decision_code": "ADVERSARIAL_CRITICAL_OBJECTIVE_ELIMINATION",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "AGG-ADV-CRIT-NORULE-01",
+      "scenario_tags": [
+        "adversarial",
+        "critical_downgraded"
+      ],
+      "expected_result": "selected",
+      "expected_decision_code": "ADVERSARIAL_CRITICAL_DOWNGRADED",
+      "spec_result": "selected",
+      "spec_decision_code": "ADVERSARIAL_CRITICAL_DOWNGRADED",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "AGG-TIE-BASELINE-01",
+      "scenario_tags": [
+        "tie",
+        "prefer_baseline_on_tie"
+      ],
+      "expected_result": "selected",
+      "expected_decision_code": "PREFER_BASELINE_ON_TIE",
+      "spec_result": "selected",
+      "spec_decision_code": "PREFER_BASELINE_ON_TIE",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "AGG-TIMEOUT-01",
+      "scenario_tags": [
+        "timeout",
+        "classified_failure"
+      ],
+      "expected_result": "classified_failure",
+      "expected_decision_code": "ENSEMBLE_TIMEOUT",
+      "spec_result": "classified_failure",
+      "spec_decision_code": "ENSEMBLE_TIMEOUT",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "AGG-PROFILE-MISSING-01",
+      "scenario_tags": [
+        "profile_missing",
+        "classified_failure"
+      ],
+      "expected_result": "classified_failure",
+      "expected_decision_code": "PROFILE_MISSING",
+      "spec_result": "classified_failure",
+      "spec_decision_code": "PROFILE_MISSING",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "AGG-INSUFFICIENT-01",
+      "scenario_tags": [
+        "insufficient_agreement",
+        "schema_invalid"
+      ],
+      "expected_result": "no_selection",
+      "expected_decision_code": "INSUFFICIENT_ENSEMBLE_AGREEMENT",
+      "spec_result": "no_selection",
+      "spec_decision_code": "INSUFFICIENT_ENSEMBLE_AGREEMENT",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "AGG-UNANIMOUS-ABSTAIN-01",
+      "scenario_tags": [
+        "no_edge",
+        "unanimous_abstention"
+      ],
+      "expected_result": "no_selection",
+      "expected_decision_code": "ENSEMBLE_UNANIMOUS_ABSTENTION",
+      "spec_result": "no_selection",
+      "spec_decision_code": "ENSEMBLE_UNANIMOUS_ABSTENTION",
+      "passed": true,
+      "mismatches": []
+    }
+  ],
+  "r9_state_cross_check": {
+    "bundle_path": "evaluation\\runs\\scenario-live-2026-09-01-r9-v2.json",
+    "run_id": "scenario-live-2026-09-01-r9-v2",
+    "available": true,
+    "scenario_count": 7,
+    "comparable_pair_count": 0,
+    "unanimous_abstention_count": 5,
+    "category_divergence_count": 2,
+    "passed": true,
+    "issues": [],
+    "scenarios": [
+      {
+        "scenario_id": "SCN-PRAC-DIRECTED-02",
+        "frame_id": "20260831T173427Z-4ac91997",
+        "baseline_category": "no_edge",
+        "challenger_category": "thesis_quality",
+        "comparable_pair": false,
+        "spec_result": "no_selection",
+        "spec_decision_code": "ENSEMBLE_CATEGORY_DIVERGENCE",
+        "spec_note": "candidate vs no_edge never merges",
+        "no_selection_not_nothing": true
+      },
+      {
+        "scenario_id": "SCN-OPERATOR-MIDSESSION",
+        "frame_id": "20260901T134026Z-bb50bbe9",
+        "baseline_category": "no_edge",
+        "challenger_category": "no_edge",
+        "comparable_pair": false,
+        "spec_result": "no_selection",
+        "spec_decision_code": "ENSEMBLE_UNANIMOUS_ABSTENTION",
+        "spec_note": "unanimous abstention; not NOTHING operational action",
+        "no_selection_not_nothing": true
+      },
+      {
+        "scenario_id": "SCN-PRAC-TIMEOUT-RECOVERY",
+        "frame_id": "20260901T000528Z-041dc508",
+        "baseline_category": "no_edge",
+        "challenger_category": "no_edge",
+        "comparable_pair": false,
+        "spec_result": "no_selection",
+        "spec_decision_code": "ENSEMBLE_UNANIMOUS_ABSTENTION",
+        "spec_note": "unanimous abstention; not NOTHING operational action",
+        "no_selection_not_nothing": true
+      },
+      {
+        "scenario_id": "SCN-PRAC-RESTART-BRACKET",
+        "frame_id": "20260831T235211Z-cdbf204f",
+        "baseline_category": "no_edge",
+        "challenger_category": "no_edge",
+        "comparable_pair": false,
+        "spec_result": "no_selection",
+        "spec_decision_code": "ENSEMBLE_UNANIMOUS_ABSTENTION",
+        "spec_note": "unanimous abstention; not NOTHING operational action",
+        "no_selection_not_nothing": true
+      },
+      {
+        "scenario_id": "SCN-PRAC-RECONCILIATION",
+        "frame_id": "20260901T143431Z-534fefd5",
+        "baseline_category": "no_edge",
+        "challenger_category": "thesis_quality",
+        "comparable_pair": false,
+        "spec_result": "no_selection",
+        "spec_decision_code": "ENSEMBLE_CATEGORY_DIVERGENCE",
+        "spec_note": "candidate vs no_edge never merges",
+        "no_selection_not_nothing": true
+      },
+      {
+        "scenario_id": "SCN-PRAC-PREFLIGHT",
+        "frame_id": "20260901T182843Z-b06d9a93",
+        "baseline_category": "no_edge",
+        "challenger_category": "no_edge",
+        "comparable_pair": false,
+        "spec_result": "no_selection",
+        "spec_decision_code": "ENSEMBLE_UNANIMOUS_ABSTENTION",
+        "spec_note": "unanimous abstention; not NOTHING operational action",
+        "no_selection_not_nothing": true
+      },
+      {
+        "scenario_id": "SCN-OPERATOR-AFTERNOON",
+        "frame_id": "20260901T150823Z-d7908a55",
+        "baseline_category": "no_edge",
+        "challenger_category": "no_edge",
+        "comparable_pair": false,
+        "spec_result": "no_selection",
+        "spec_decision_code": "ENSEMBLE_UNANIMOUS_ABSTENTION",
+        "spec_note": "unanimous abstention; not NOTHING operational action",
+        "no_selection_not_nothing": true
+      }
+    ],
+    "notes": [
+      "Cross-check uses r9 normalized categories only; executor remains BLOCKED.",
+      "no_selection outcomes must not be conflated with per-profile NOTHING action."
+    ]
+  },
+  "notes": [
+    "Spec-review only — no aggregator executor invoked.",
+    "Validates fixture expected outcomes against AGGREGATOR-RULES-SPEC.md mapping.",
+    "r9_state_cross_check maps normalized categories to normative aggregator outputs."
+  ]
+}

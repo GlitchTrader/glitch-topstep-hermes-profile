@@ -1,0 +1,243 @@
+{
+  "schema_version": "glitch.topstep.evaluation_diversity_metrics.v1",
+  "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+  "invocation_count": 18,
+  "valid_output_rate": 1.0,
+  "no_edge_rate": 0.7222222222222222,
+  "invalid_output_rate": 0.0,
+  "comparable_pair_count": 0,
+  "comparable_pair_rate": 0.0,
+  "direction_divergence_count": 0,
+  "thesis_divergence_count": 0,
+  "scenarios": [
+    {
+      "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-cbb5cee1",
+      "frame_id": "20260831T233830Z-cbb5cee1",
+      "invocations": 2,
+      "valid_output_rate": 1.0,
+      "no_edge_rate": 0.5,
+      "invalid_outputs": 0,
+      "profiles": {
+        "baseline-current": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        },
+        "structure": {
+          "state_counts": {
+            "data_quality_insufficient": 1
+          }
+        }
+      },
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "baseline_category": "no_edge",
+      "challenger_category": "not_comparable"
+    },
+    {
+      "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-a9c3eb80",
+      "frame_id": "20260831T234106Z-a9c3eb80",
+      "invocations": 2,
+      "valid_output_rate": 1.0,
+      "no_edge_rate": 0.0,
+      "invalid_outputs": 0,
+      "profiles": {
+        "baseline-current": {
+          "state_counts": {
+            "data_quality_insufficient": 1
+          }
+        },
+        "structure": {
+          "state_counts": {
+            "data_quality_insufficient": 1
+          }
+        }
+      },
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "baseline_category": "not_comparable",
+      "challenger_category": "not_comparable"
+    },
+    {
+      "scenario_id": "SCN-STRAT-RESTART-8c371231",
+      "frame_id": "20260831T235211Z-8c371231",
+      "invocations": 2,
+      "valid_output_rate": 1.0,
+      "no_edge_rate": 0.5,
+      "invalid_outputs": 0,
+      "profiles": {
+        "baseline-current": {
+          "state_counts": {
+            "expired": 1
+          }
+        },
+        "structure": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        }
+      },
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "baseline_category": "not_comparable",
+      "challenger_category": "no_edge"
+    },
+    {
+      "scenario_id": "SCN-STRAT-RESTART-fd331ad4",
+      "frame_id": "20260831T235620Z-fd331ad4",
+      "invocations": 2,
+      "valid_output_rate": 1.0,
+      "no_edge_rate": 1.0,
+      "invalid_outputs": 0,
+      "profiles": {
+        "baseline-current": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        },
+        "structure": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        }
+      },
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge"
+    },
+    {
+      "scenario_id": "SCN-STRAT-RECONCILIATION-5e80e1ac",
+      "frame_id": "20260901T002738Z-5e80e1ac",
+      "invocations": 2,
+      "valid_output_rate": 1.0,
+      "no_edge_rate": 1.0,
+      "invalid_outputs": 0,
+      "profiles": {
+        "baseline-current": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        },
+        "structure": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        }
+      },
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge"
+    },
+    {
+      "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-818c9e79",
+      "frame_id": "20260901T002738Z-818c9e79",
+      "invocations": 2,
+      "valid_output_rate": 1.0,
+      "no_edge_rate": 1.0,
+      "invalid_outputs": 0,
+      "profiles": {
+        "baseline-current": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        },
+        "structure": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        }
+      },
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge"
+    },
+    {
+      "scenario_id": "SCN-STRAT-RECONCILIATION-9866a0f9",
+      "frame_id": "20260901T020441Z-9866a0f9",
+      "invocations": 2,
+      "valid_output_rate": 1.0,
+      "no_edge_rate": 1.0,
+      "invalid_outputs": 0,
+      "profiles": {
+        "baseline-current": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        },
+        "structure": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        }
+      },
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-a49c317a",
+      "frame_id": "20260901T143311Z-a49c317a",
+      "invocations": 2,
+      "valid_output_rate": 1.0,
+      "no_edge_rate": 0.5,
+      "invalid_outputs": 0,
+      "profiles": {
+        "baseline-current": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        },
+        "structure": {
+          "state_counts": {
+            "held": 1
+          }
+        }
+      },
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "baseline_category": "no_edge",
+      "challenger_category": "thesis_quality"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-c776a976",
+      "frame_id": "20260901T145322Z-c776a976",
+      "invocations": 2,
+      "valid_output_rate": 1.0,
+      "no_edge_rate": 1.0,
+      "invalid_outputs": 0,
+      "profiles": {
+        "baseline-current": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        },
+        "structure": {
+          "state_counts": {
+            "no_edge": 1
+          }
+        }
+      },
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge"
+    }
+  ],
+  "notes": [
+    "no_edge is a valid cognitive outcome, not a contract failure.",
+    "invalid indicates contract violation; investigate, do not coerce."
+  ]
+}

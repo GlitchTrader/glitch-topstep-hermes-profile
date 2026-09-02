@@ -1,0 +1,40 @@
+{
+  "schema_version": "glitch.topstep.prac_evidence_chain_manifest.v1",
+  "exported_utc": "2026-09-02T17:27:17.260207Z",
+  "scenario_tag": "prac_session",
+  "chains": [
+    {
+      "packet_id": "4fdd308c-7422-4d28-a889-2ffbe9150ff6",
+      "market_snapshot_hash": "756baed891c9d5595a9cdb5ab90f6da346d7f6df897e5d9fb41a5c83c6abe98f",
+      "intent_id": "01f3d0a0-5df1-53c0-8158-b227c8f46c0d",
+      "decision_recorded_utc": "2026-09-02T17:17:04.457734Z",
+      "action": "NOTHING",
+      "receipt_recorded_utc": "2026-09-02T17:17:05.798379Z",
+      "scenario_tag": "prac_session",
+      "directed_test_id": null,
+      "join_status": "NOTHING"
+    },
+    {
+      "packet_id": "86a52bbc-63a2-42f6-ae8c-c776ddc164c2",
+      "market_snapshot_hash": "5d990d1ce8ccef9df530807cad35300426f6462ae4876d46732967b8afb03eb3",
+      "intent_id": "18123780-cecf-5703-9938-ee7a91827229",
+      "decision_recorded_utc": "2026-09-02T17:23:30.543955Z",
+      "action": "NOTHING",
+      "receipt_recorded_utc": "2026-09-02T17:23:31.052674Z",
+      "scenario_tag": "prac_session",
+      "directed_test_id": null,
+      "join_status": "NOTHING"
+    },
+    {
+      "packet_id": "c62a7390-3332-4910-b358-6b83d9214277",
+      "market_snapshot_hash": "ef1d19a3a46635be27346b657b728787a8240cfe44984dab6645093fd541c8de",
+      "intent_id": "d58d822c-afa8-5ef7-bfbd-17431e8ec77a",
+      "decision_recorded_utc": "2026-09-02T17:26:56.295980Z",
+      "action": "NOTHING",
+      "receipt_recorded_utc": "2026-09-02T17:26:57.006567Z",
+      "scenario_tag": "prac_session",
+      "directed_test_id": null,
+      "join_status": "NOTHING"
+    }
+  ]
+}

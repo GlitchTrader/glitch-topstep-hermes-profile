@@ -1,0 +1,1167 @@
+{
+  "schema_version": "glitch.topstep.limited_capture_frame_quality_audit.v1",
+  "recorded_utc": "2026-09-02T20:14:19.123212Z",
+  "session_id": "PRAC-LIMITED-2026-09-02",
+  "frame_count": 8,
+  "summary": {
+    "gateway_degradation_at_decision": 3,
+    "bar_completeness_limitation": 5,
+    "snapshot_hash_manifest_match": 8,
+    "instruments_observed_union": [
+      "MCL",
+      "MES",
+      "MNQ"
+    ],
+    "instrument_decided_unique": [
+      "MNQ"
+    ],
+    "production_nothing_count": 8,
+    "daily_capture_lock_cited": 7
+  },
+  "frames": [
+    {
+      "frame_id": "20260902T200505Z-ce29fef7",
+      "packet_id": "ce29fef7-3080-490c-aadf-f7934b63e39c",
+      "decision_recorded_utc": "2026-09-02T20:06:28.214770Z",
+      "instruments_observed": [
+        "MCL",
+        "MES",
+        "MNQ"
+      ],
+      "instrument_decided": "MNQ",
+      "packet_data_quality_state_complete": true,
+      "gateway_health_at_decision": {
+        "matched": true,
+        "nearest_sample_utc": "2026-09-02T20:05:19.2260585Z",
+        "delta_seconds": 69.0,
+        "gateway_status": "ok",
+        "gateway_state_complete": true,
+        "capture_degradation_present": false
+      },
+      "bar_completeness": {
+        "capture_utc": "2026-09-02T20:05:05.353Z",
+        "quote_timestamp": "2026-09-02T20:05:05.2923224+00:00",
+        "state_complete": true,
+        "session_levels_reliable": false,
+        "timing_class": "state_complete",
+        "partial_1m_bar": null,
+        "last_1m_bar_close_utc": null,
+        "timeframes": [
+          {
+            "timeframe_minutes": 1,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 5,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 15,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 60,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          }
+        ],
+        "recommendation": "acceptable",
+        "bar_lag_ms": 5292,
+        "bar_completeness_issues": [
+          "1m_latest_bar_partial"
+        ]
+      },
+      "snapshot_integrity": {
+        "computed_snapshot_hash": "75afd8aab61e23e4552b1c3d88ba9f16fbbc017fa00897668b9acd65355009b8",
+        "manifest_snapshot_hash": "75afd8aab61e23e4552b1c3d88ba9f16fbbc017fa00897668b9acd65355009b8",
+        "packet_market_snapshot_hash": "eb1c990b60629bc411425fb854d61d7ca0f0bb307aa020f81a3c85b8a377b06d",
+        "manifest_hash_match": true,
+        "market_hash_match": false
+      },
+      "profile_capacity": {
+        "envelope_id": "env-75afd8aab61e23e4",
+        "manifest_snapshot_hash": "75afd8aab61e23e4552b1c3d88ba9f16fbbc017fa00897668b9acd65355009b8",
+        "profile_gates": {
+          "baseline-current": {
+            "profile_id": "baseline-current",
+            "completeness_used": {
+              "indicators": "partial",
+              "ohlc": "partial",
+              "orderflow": "available",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "available",
+              "structure": "partial"
+            },
+            "missing_required": [],
+            "stale_or_inconsistent": [],
+            "comparable": true,
+            "allows_directional_evaluation": true
+          },
+          "structure": {
+            "profile_id": "structure",
+            "completeness_used": {
+              "indicators": "partial",
+              "ohlc": "partial",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "available",
+              "structure": "partial"
+            },
+            "missing_required": [],
+            "stale_or_inconsistent": [],
+            "comparable": true,
+            "allows_directional_evaluation": true
+          }
+        },
+        "capacity_gate_pass_offline": true
+      },
+      "production_abstention": {
+        "production_action": "NOTHING",
+        "production_normalized_state": "no_edge",
+        "lock_cited": true,
+        "instruments_in_comparison": [
+          "MCL",
+          "MES",
+          "MNQ"
+        ],
+        "selection_instrument": "MCL"
+      },
+      "evidence_limitation": "bar_completeness_limitation",
+      "capacity_gate_caveat": null,
+      "cohort_capacity_gate_validated": true
+    },
+    {
+      "frame_id": "20260902T200007Z-7800e8c3",
+      "packet_id": "7800e8c3-dc4d-440b-aa6a-2433057418a7",
+      "decision_recorded_utc": "2026-09-02T20:02:27.381199Z",
+      "instruments_observed": [
+        "MCL",
+        "MES",
+        "MNQ"
+      ],
+      "instrument_decided": "MNQ",
+      "packet_data_quality_state_complete": true,
+      "gateway_health_at_decision": {
+        "matched": true,
+        "nearest_sample_utc": "2026-09-02T20:02:14.4596084Z",
+        "delta_seconds": 12.9,
+        "gateway_status": "degraded",
+        "gateway_state_complete": false,
+        "capture_degradation_present": true
+      },
+      "bar_completeness": {
+        "capture_utc": "2026-09-02T20:00:07.843Z",
+        "quote_timestamp": "2026-09-02T20:00:07.8295878+00:00",
+        "state_complete": true,
+        "session_levels_reliable": false,
+        "timing_class": "state_complete",
+        "partial_1m_bar": null,
+        "last_1m_bar_close_utc": null,
+        "timeframes": [
+          {
+            "timeframe_minutes": 1,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 5,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 15,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 60,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          }
+        ],
+        "recommendation": "acceptable",
+        "bar_lag_ms": 7829,
+        "bar_completeness_issues": [
+          "1m_latest_bar_partial"
+        ]
+      },
+      "snapshot_integrity": {
+        "computed_snapshot_hash": "a7f3d2c219a355161d13c173efcd15d19583b35c60ce18edb395736fcdd9e5fa",
+        "manifest_snapshot_hash": "a7f3d2c219a355161d13c173efcd15d19583b35c60ce18edb395736fcdd9e5fa",
+        "packet_market_snapshot_hash": "0437b984991052ee95825b932eea388698524bc4a17a7b4bfd39e0b13f04237d",
+        "manifest_hash_match": true,
+        "market_hash_match": false
+      },
+      "profile_capacity": {
+        "envelope_id": "env-a7f3d2c219a35516",
+        "manifest_snapshot_hash": "a7f3d2c219a355161d13c173efcd15d19583b35c60ce18edb395736fcdd9e5fa",
+        "profile_gates": {
+          "baseline-current": {
+            "profile_id": "baseline-current",
+            "completeness_used": {
+              "indicators": "partial",
+              "ohlc": "partial",
+              "orderflow": "available",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "available",
+              "structure": "partial"
+            },
+            "missing_required": [],
+            "stale_or_inconsistent": [],
+            "comparable": true,
+            "allows_directional_evaluation": true
+          },
+          "structure": {
+            "profile_id": "structure",
+            "completeness_used": {
+              "indicators": "partial",
+              "ohlc": "partial",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "available",
+              "structure": "partial"
+            },
+            "missing_required": [],
+            "stale_or_inconsistent": [],
+            "comparable": true,
+            "allows_directional_evaluation": true
+          }
+        },
+        "capacity_gate_pass_offline": true
+      },
+      "production_abstention": {
+        "production_action": "NOTHING",
+        "production_normalized_state": "no_edge",
+        "lock_cited": true,
+        "instruments_in_comparison": [
+          "MCL",
+          "MES",
+          "MNQ"
+        ],
+        "selection_instrument": "MNQ"
+      },
+      "evidence_limitation": "gateway_degraded_at_nearest_health_sample",
+      "capacity_gate_caveat": "offline_capacity_gate_pass_despite_gateway_or_bar_limitation",
+      "cohort_capacity_gate_validated": true
+    },
+    {
+      "frame_id": "20260902T195507Z-b071ff79",
+      "packet_id": "b071ff79-a8e4-4dbc-a188-b1fc982eddca",
+      "decision_recorded_utc": "2026-09-02T19:56:14.258503Z",
+      "instruments_observed": [
+        "MCL",
+        "MES",
+        "MNQ"
+      ],
+      "instrument_decided": "MNQ",
+      "packet_data_quality_state_complete": true,
+      "gateway_health_at_decision": {
+        "matched": true,
+        "nearest_sample_utc": "2026-09-02T19:56:10.6985030Z",
+        "delta_seconds": 3.6,
+        "gateway_status": "ok",
+        "gateway_state_complete": true,
+        "capture_degradation_present": false
+      },
+      "bar_completeness": {
+        "capture_utc": "2026-09-02T19:55:07.021Z",
+        "quote_timestamp": "2026-09-02T19:55:06.9914782+00:00",
+        "state_complete": true,
+        "session_levels_reliable": false,
+        "timing_class": "state_complete",
+        "partial_1m_bar": null,
+        "last_1m_bar_close_utc": null,
+        "timeframes": [
+          {
+            "timeframe_minutes": 1,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 5,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 15,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 60,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          }
+        ],
+        "recommendation": "acceptable",
+        "bar_lag_ms": 6991,
+        "bar_completeness_issues": [
+          "1m_latest_bar_partial"
+        ]
+      },
+      "snapshot_integrity": {
+        "computed_snapshot_hash": "e09452fd5eafc758c45ec6723347c06141039368ad063de4f9212d62029cc3b8",
+        "manifest_snapshot_hash": "e09452fd5eafc758c45ec6723347c06141039368ad063de4f9212d62029cc3b8",
+        "packet_market_snapshot_hash": "c7f6f6e814bab822976411c2267e63dc238ff700a26d3903fea3ff64d54d7bc4",
+        "manifest_hash_match": true,
+        "market_hash_match": false
+      },
+      "profile_capacity": {
+        "envelope_id": "env-e09452fd5eafc758",
+        "manifest_snapshot_hash": "e09452fd5eafc758c45ec6723347c06141039368ad063de4f9212d62029cc3b8",
+        "profile_gates": {
+          "baseline-current": {
+            "profile_id": "baseline-current",
+            "completeness_used": {
+              "indicators": "partial",
+              "ohlc": "partial",
+              "orderflow": "available",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "available",
+              "structure": "partial"
+            },
+            "missing_required": [],
+            "stale_or_inconsistent": [],
+            "comparable": true,
+            "allows_directional_evaluation": true
+          },
+          "structure": {
+            "profile_id": "structure",
+            "completeness_used": {
+              "indicators": "partial",
+              "ohlc": "partial",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "available",
+              "structure": "partial"
+            },
+            "missing_required": [],
+            "stale_or_inconsistent": [],
+            "comparable": true,
+            "allows_directional_evaluation": true
+          }
+        },
+        "capacity_gate_pass_offline": true
+      },
+      "production_abstention": {
+        "production_action": "NOTHING",
+        "production_normalized_state": "no_edge",
+        "lock_cited": true,
+        "instruments_in_comparison": [
+          "MCL",
+          "MES",
+          "MNQ"
+        ],
+        "selection_instrument": "MNQ"
+      },
+      "evidence_limitation": "bar_completeness_limitation",
+      "capacity_gate_caveat": null,
+      "cohort_capacity_gate_validated": true
+    },
+    {
+      "frame_id": "20260902T195006Z-b7219c00",
+      "packet_id": "b7219c00-7b8e-4d33-a569-a397d39cc757",
+      "decision_recorded_utc": "2026-09-02T19:51:20.147656Z",
+      "instruments_observed": [
+        "MCL",
+        "MES",
+        "MNQ"
+      ],
+      "instrument_decided": "MNQ",
+      "packet_data_quality_state_complete": true,
+      "gateway_health_at_decision": {
+        "matched": true,
+        "nearest_sample_utc": "2026-09-02T19:51:07.4736031Z",
+        "delta_seconds": 12.7,
+        "gateway_status": "degraded",
+        "gateway_state_complete": false,
+        "capture_degradation_present": true
+      },
+      "bar_completeness": {
+        "capture_utc": "2026-09-02T19:50:06.201Z",
+        "quote_timestamp": "2026-09-02T19:50:03.44237+00:00",
+        "state_complete": true,
+        "session_levels_reliable": false,
+        "timing_class": "state_complete",
+        "partial_1m_bar": null,
+        "last_1m_bar_close_utc": null,
+        "timeframes": [
+          {
+            "timeframe_minutes": 1,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 5,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 15,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 60,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          }
+        ],
+        "recommendation": "acceptable",
+        "bar_lag_ms": 3442,
+        "bar_completeness_issues": [
+          "1m_latest_bar_partial"
+        ]
+      },
+      "snapshot_integrity": {
+        "computed_snapshot_hash": "418f9c258f37a59e3b6b2d7c8a8061f4a6dd246df22c3289d6a71d32efac1fd6",
+        "manifest_snapshot_hash": "418f9c258f37a59e3b6b2d7c8a8061f4a6dd246df22c3289d6a71d32efac1fd6",
+        "packet_market_snapshot_hash": "b3014dca8b63d0dc1b1a12c93f504c3a25587a58d4768f960d7e9fd80e4b00d7",
+        "manifest_hash_match": true,
+        "market_hash_match": false
+      },
+      "profile_capacity": {
+        "envelope_id": "env-418f9c258f37a59e",
+        "manifest_snapshot_hash": "418f9c258f37a59e3b6b2d7c8a8061f4a6dd246df22c3289d6a71d32efac1fd6",
+        "profile_gates": {
+          "baseline-current": {
+            "profile_id": "baseline-current",
+            "completeness_used": {
+              "indicators": "partial",
+              "ohlc": "partial",
+              "orderflow": "available",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "available",
+              "structure": "partial"
+            },
+            "missing_required": [],
+            "stale_or_inconsistent": [],
+            "comparable": true,
+            "allows_directional_evaluation": true
+          },
+          "structure": {
+            "profile_id": "structure",
+            "completeness_used": {
+              "indicators": "partial",
+              "ohlc": "partial",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "available",
+              "structure": "partial"
+            },
+            "missing_required": [],
+            "stale_or_inconsistent": [],
+            "comparable": true,
+            "allows_directional_evaluation": true
+          }
+        },
+        "capacity_gate_pass_offline": true
+      },
+      "production_abstention": {
+        "production_action": "NOTHING",
+        "production_normalized_state": "no_edge",
+        "lock_cited": true,
+        "instruments_in_comparison": [
+          "MCL",
+          "MES",
+          "MNQ"
+        ],
+        "selection_instrument": "MNQ"
+      },
+      "evidence_limitation": "gateway_degraded_at_nearest_health_sample",
+      "capacity_gate_caveat": "offline_capacity_gate_pass_despite_gateway_or_bar_limitation",
+      "cohort_capacity_gate_validated": true
+    },
+    {
+      "frame_id": "20260902T194505Z-d7d1b4fb",
+      "packet_id": "d7d1b4fb-ef40-49c4-a502-5c6e793fff59",
+      "decision_recorded_utc": "2026-09-02T19:46:25.862520Z",
+      "instruments_observed": [
+        "MCL",
+        "MES",
+        "MNQ"
+      ],
+      "instrument_decided": "MNQ",
+      "packet_data_quality_state_complete": true,
+      "gateway_health_at_decision": {
+        "matched": true,
+        "nearest_sample_utc": "2026-09-02T19:46:01.3320726Z",
+        "delta_seconds": 24.5,
+        "gateway_status": "degraded",
+        "gateway_state_complete": false,
+        "capture_degradation_present": true
+      },
+      "bar_completeness": {
+        "capture_utc": "2026-09-02T19:45:05.666Z",
+        "quote_timestamp": "2026-09-02T19:45:05.6305157+00:00",
+        "state_complete": true,
+        "session_levels_reliable": false,
+        "timing_class": "state_complete",
+        "partial_1m_bar": null,
+        "last_1m_bar_close_utc": null,
+        "timeframes": [
+          {
+            "timeframe_minutes": 1,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 5,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 15,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 60,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          }
+        ],
+        "recommendation": "acceptable",
+        "bar_lag_ms": 5630,
+        "bar_completeness_issues": [
+          "1m_latest_bar_partial"
+        ]
+      },
+      "snapshot_integrity": {
+        "computed_snapshot_hash": "2ddbac195ab11e18d0fb61a682cf188a083ee9087ef0c2023e0b5b3950609825",
+        "manifest_snapshot_hash": "2ddbac195ab11e18d0fb61a682cf188a083ee9087ef0c2023e0b5b3950609825",
+        "packet_market_snapshot_hash": "ab13b33dc98b4a8d793ff61daffee29cbec93f781ffafb0dc5a14bf344f95130",
+        "manifest_hash_match": true,
+        "market_hash_match": false
+      },
+      "profile_capacity": {
+        "envelope_id": "env-2ddbac195ab11e18",
+        "manifest_snapshot_hash": "2ddbac195ab11e18d0fb61a682cf188a083ee9087ef0c2023e0b5b3950609825",
+        "profile_gates": {
+          "baseline-current": {
+            "profile_id": "baseline-current",
+            "completeness_used": {
+              "indicators": "partial",
+              "ohlc": "partial",
+              "orderflow": "available",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "available",
+              "structure": "partial"
+            },
+            "missing_required": [],
+            "stale_or_inconsistent": [],
+            "comparable": true,
+            "allows_directional_evaluation": true
+          },
+          "structure": {
+            "profile_id": "structure",
+            "completeness_used": {
+              "indicators": "partial",
+              "ohlc": "partial",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "available",
+              "structure": "partial"
+            },
+            "missing_required": [],
+            "stale_or_inconsistent": [],
+            "comparable": true,
+            "allows_directional_evaluation": true
+          }
+        },
+        "capacity_gate_pass_offline": true
+      },
+      "production_abstention": {
+        "production_action": "NOTHING",
+        "production_normalized_state": "no_edge",
+        "lock_cited": true,
+        "instruments_in_comparison": [
+          "MCL",
+          "MES",
+          "MNQ"
+        ],
+        "selection_instrument": "MNQ"
+      },
+      "evidence_limitation": "gateway_degraded_at_nearest_health_sample",
+      "capacity_gate_caveat": "offline_capacity_gate_pass_despite_gateway_or_bar_limitation",
+      "cohort_capacity_gate_validated": true
+    },
+    {
+      "frame_id": "20260902T194002Z-0d305fc5",
+      "packet_id": "0d305fc5-24a6-42fe-a137-00c77ae848e6",
+      "decision_recorded_utc": "2026-09-02T19:41:24.650541Z",
+      "instruments_observed": [
+        "MCL",
+        "MES",
+        "MNQ"
+      ],
+      "instrument_decided": "MNQ",
+      "packet_data_quality_state_complete": true,
+      "gateway_health_at_decision": {
+        "matched": true,
+        "nearest_sample_utc": "2026-09-02T19:40:58.3006748Z",
+        "delta_seconds": 26.3,
+        "gateway_status": "ok",
+        "gateway_state_complete": true,
+        "capture_degradation_present": false
+      },
+      "bar_completeness": {
+        "capture_utc": "2026-09-02T19:40:02.145Z",
+        "quote_timestamp": "2026-09-02T19:40:02.1401144+00:00",
+        "state_complete": true,
+        "session_levels_reliable": false,
+        "timing_class": "state_complete",
+        "partial_1m_bar": null,
+        "last_1m_bar_close_utc": null,
+        "timeframes": [
+          {
+            "timeframe_minutes": 1,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 5,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 15,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 60,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          }
+        ],
+        "recommendation": "acceptable",
+        "bar_lag_ms": 2140,
+        "bar_completeness_issues": [
+          "1m_latest_bar_partial"
+        ]
+      },
+      "snapshot_integrity": {
+        "computed_snapshot_hash": "1e8db94d816e16fbfece0d7f686c76e455e91fdf948fdaa76f19eab4b3b36437",
+        "manifest_snapshot_hash": "1e8db94d816e16fbfece0d7f686c76e455e91fdf948fdaa76f19eab4b3b36437",
+        "packet_market_snapshot_hash": "5c6ae6859c0ff5436580798bf64c5eae7b3baa8fee3878a9c625e834d12fc962",
+        "manifest_hash_match": true,
+        "market_hash_match": false
+      },
+      "profile_capacity": {
+        "envelope_id": "env-1e8db94d816e16fb",
+        "manifest_snapshot_hash": "1e8db94d816e16fbfece0d7f686c76e455e91fdf948fdaa76f19eab4b3b36437",
+        "profile_gates": {
+          "baseline-current": {
+            "profile_id": "baseline-current",
+            "completeness_used": {
+              "indicators": "partial",
+              "ohlc": "partial",
+              "orderflow": "available",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "available",
+              "structure": "partial"
+            },
+            "missing_required": [],
+            "stale_or_inconsistent": [],
+            "comparable": true,
+            "allows_directional_evaluation": true
+          },
+          "structure": {
+            "profile_id": "structure",
+            "completeness_used": {
+              "indicators": "partial",
+              "ohlc": "partial",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "available",
+              "structure": "partial"
+            },
+            "missing_required": [],
+            "stale_or_inconsistent": [],
+            "comparable": true,
+            "allows_directional_evaluation": true
+          }
+        },
+        "capacity_gate_pass_offline": true
+      },
+      "production_abstention": {
+        "production_action": "NOTHING",
+        "production_normalized_state": "no_edge",
+        "lock_cited": true,
+        "instruments_in_comparison": [
+          "MCL",
+          "MES",
+          "MNQ"
+        ],
+        "selection_instrument": "MNQ"
+      },
+      "evidence_limitation": "bar_completeness_limitation",
+      "capacity_gate_caveat": null,
+      "cohort_capacity_gate_validated": true
+    },
+    {
+      "frame_id": "20260902T193505Z-3dd35e83",
+      "packet_id": "3dd35e83-a202-46c9-81dd-9d5ef1f6ff68",
+      "decision_recorded_utc": "2026-09-02T19:36:25.893218Z",
+      "instruments_observed": [
+        "MCL",
+        "MES",
+        "MNQ"
+      ],
+      "instrument_decided": "MNQ",
+      "packet_data_quality_state_complete": true,
+      "gateway_health_at_decision": {
+        "matched": true,
+        "nearest_sample_utc": "2026-09-02T19:36:50.2839090Z",
+        "delta_seconds": 24.4,
+        "gateway_status": "ok",
+        "gateway_state_complete": true,
+        "capture_degradation_present": false
+      },
+      "bar_completeness": {
+        "capture_utc": "2026-09-02T19:35:05.864Z",
+        "quote_timestamp": "2026-09-02T19:35:05.8419503+00:00",
+        "state_complete": true,
+        "session_levels_reliable": false,
+        "timing_class": "state_complete",
+        "partial_1m_bar": null,
+        "last_1m_bar_close_utc": null,
+        "timeframes": [
+          {
+            "timeframe_minutes": 1,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 5,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 15,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 60,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          }
+        ],
+        "recommendation": "acceptable",
+        "bar_lag_ms": 5841,
+        "bar_completeness_issues": [
+          "1m_latest_bar_partial"
+        ]
+      },
+      "snapshot_integrity": {
+        "computed_snapshot_hash": "8b085bb1e90341917886b91e94c801edeb9efe0dd865d8b559e80ceea5f9e388",
+        "manifest_snapshot_hash": "8b085bb1e90341917886b91e94c801edeb9efe0dd865d8b559e80ceea5f9e388",
+        "packet_market_snapshot_hash": "8bb17040e5c45c6bd72a14c18a834fa29c962eb204ea250c18864a9519ea5617",
+        "manifest_hash_match": true,
+        "market_hash_match": false
+      },
+      "profile_capacity": {
+        "envelope_id": "env-8b085bb1e9034191",
+        "manifest_snapshot_hash": "8b085bb1e90341917886b91e94c801edeb9efe0dd865d8b559e80ceea5f9e388",
+        "profile_gates": {
+          "baseline-current": {
+            "profile_id": "baseline-current",
+            "completeness_used": {
+              "indicators": "partial",
+              "ohlc": "partial",
+              "orderflow": "available",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "available",
+              "structure": "partial"
+            },
+            "missing_required": [],
+            "stale_or_inconsistent": [],
+            "comparable": true,
+            "allows_directional_evaluation": true
+          },
+          "structure": {
+            "profile_id": "structure",
+            "completeness_used": {
+              "indicators": "partial",
+              "ohlc": "partial",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "available",
+              "structure": "partial"
+            },
+            "missing_required": [],
+            "stale_or_inconsistent": [],
+            "comparable": true,
+            "allows_directional_evaluation": true
+          }
+        },
+        "capacity_gate_pass_offline": true
+      },
+      "production_abstention": {
+        "production_action": "NOTHING",
+        "production_normalized_state": "no_edge",
+        "lock_cited": false,
+        "instruments_in_comparison": [
+          "MCL",
+          "MES",
+          "MNQ"
+        ],
+        "selection_instrument": "MNQ"
+      },
+      "evidence_limitation": "bar_completeness_limitation",
+      "capacity_gate_caveat": null,
+      "cohort_capacity_gate_validated": true
+    },
+    {
+      "frame_id": "20260902T193005Z-b5fd08f8",
+      "packet_id": "b5fd08f8-dd0b-499a-9d5a-be05ac247fef",
+      "decision_recorded_utc": "2026-09-02T19:31:43.974672Z",
+      "instruments_observed": [
+        "MCL",
+        "MES",
+        "MNQ"
+      ],
+      "instrument_decided": "MNQ",
+      "packet_data_quality_state_complete": true,
+      "gateway_health_at_decision": {
+        "matched": true,
+        "nearest_sample_utc": "2026-09-02T19:31:46.2137805Z",
+        "delta_seconds": 2.2,
+        "gateway_status": "ok",
+        "gateway_state_complete": true,
+        "capture_degradation_present": false
+      },
+      "bar_completeness": {
+        "capture_utc": "2026-09-02T19:30:05.291Z",
+        "quote_timestamp": "2026-09-02T19:30:05.2815958+00:00",
+        "state_complete": true,
+        "session_levels_reliable": false,
+        "timing_class": "state_complete",
+        "partial_1m_bar": null,
+        "last_1m_bar_close_utc": null,
+        "timeframes": [
+          {
+            "timeframe_minutes": 1,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 5,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 15,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          },
+          {
+            "timeframe_minutes": 60,
+            "bars_accepted": 500,
+            "last_bar": {
+              "open": null,
+              "close": null,
+              "high": null,
+              "low": null,
+              "volume": null,
+              "timestamp": null
+            }
+          }
+        ],
+        "recommendation": "acceptable",
+        "bar_lag_ms": 125281,
+        "bar_completeness_issues": [
+          "1m_bar_lag_over_120s"
+        ]
+      },
+      "snapshot_integrity": {
+        "computed_snapshot_hash": "6ea419047c1b1fcd2bba30b33ba3ec9fdd7559975755aaf95d819e3194d15621",
+        "manifest_snapshot_hash": "6ea419047c1b1fcd2bba30b33ba3ec9fdd7559975755aaf95d819e3194d15621",
+        "packet_market_snapshot_hash": "2157c91874e31e627c0e45940542e34d2e17637141d6655bd5516539329efc04",
+        "manifest_hash_match": true,
+        "market_hash_match": false
+      },
+      "profile_capacity": {
+        "envelope_id": "env-6ea419047c1b1fcd",
+        "manifest_snapshot_hash": "6ea419047c1b1fcd2bba30b33ba3ec9fdd7559975755aaf95d819e3194d15621",
+        "profile_gates": {
+          "baseline-current": {
+            "profile_id": "baseline-current",
+            "completeness_used": {
+              "indicators": "partial",
+              "ohlc": "partial",
+              "orderflow": "available",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "available",
+              "structure": "partial"
+            },
+            "missing_required": [],
+            "stale_or_inconsistent": [],
+            "comparable": true,
+            "allows_directional_evaluation": true
+          },
+          "structure": {
+            "profile_id": "structure",
+            "completeness_used": {
+              "indicators": "partial",
+              "ohlc": "partial",
+              "quote": "available",
+              "risk_context": "available",
+              "session": "available",
+              "structure": "partial"
+            },
+            "missing_required": [],
+            "stale_or_inconsistent": [],
+            "comparable": true,
+            "allows_directional_evaluation": true
+          }
+        },
+        "capacity_gate_pass_offline": true
+      },
+      "production_abstention": {
+        "production_action": "NOTHING",
+        "production_normalized_state": "no_edge",
+        "lock_cited": true,
+        "instruments_in_comparison": [
+          "MCL",
+          "MES",
+          "MNQ"
+        ],
+        "selection_instrument": "MNQ"
+      },
+      "evidence_limitation": "bar_completeness_limitation",
+      "capacity_gate_caveat": null,
+      "cohort_capacity_gate_validated": true
+    }
+  ]
+}

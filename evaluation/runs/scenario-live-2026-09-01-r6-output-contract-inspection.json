@@ -1,0 +1,175 @@
+{
+  "schema_version": "glitch.topstep.output_contract_inspection.v1",
+  "run_id": "scenario-live-2026-09-01-r6",
+  "artifact_count": 6,
+  "category_counts": {
+    "contract_violation": 4,
+    "ambiguous_output": 2
+  },
+  "artifacts": [
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r6-baseline-current-20260831T173427Z-4ac91997.json",
+      "run_id": "scenario-live-2026-09-01-r6-baseline-current-20260831T173427Z-4ac91997",
+      "profile_id": "baseline-current",
+      "frame_id": "4ac91997",
+      "raw_state_type": "dict",
+      "raw_state_preview": [
+        "snapshot_hash",
+        "valid_until_utc",
+        "instrument",
+        "current_price",
+        "bid",
+        "ask"
+      ],
+      "raw_direction": "BEARISH",
+      "raw_action": null,
+      "inspection": {
+        "category": "contract_violation",
+        "subtype": "state_field_contains_snapshot",
+        "issues": [
+          "state_field_is_object"
+        ],
+        "state_raw_type": "object"
+      },
+      "normalized_state": "invalid",
+      "normalized_direction": "BEARISH",
+      "error_code": null,
+      "raw_status": null,
+      "capacity_gate_comparable": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r6-structure-20260831T173427Z-4ac91997.json",
+      "run_id": "scenario-live-2026-09-01-r6-structure-20260831T173427Z-4ac91997",
+      "profile_id": "structure",
+      "frame_id": "4ac91997",
+      "raw_state_type": "dict",
+      "raw_state_preview": [
+        "position",
+        "current_price",
+        "expected_next_price",
+        "last_trade",
+        "last_trade_time",
+        "tranche_count"
+      ],
+      "raw_direction": "neutral",
+      "raw_action": "NOTHING",
+      "inspection": {
+        "category": "contract_violation",
+        "subtype": "state_field_contains_snapshot",
+        "issues": [
+          "state_field_is_object"
+        ],
+        "state_raw_type": "object"
+      },
+      "normalized_state": "invalid",
+      "normalized_direction": "neutral",
+      "error_code": null,
+      "raw_status": null,
+      "capacity_gate_comparable": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r6-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "run_id": "scenario-live-2026-09-01-r6-baseline-current-20260901T134026Z-bb50bbe9",
+      "profile_id": "baseline-current",
+      "frame_id": "bb50bbe9",
+      "raw_state_type": "dict",
+      "raw_state_preview": [
+        "valid_until_utc",
+        "quote",
+        "market",
+        "account"
+      ],
+      "raw_direction": "FLAT",
+      "raw_action": null,
+      "inspection": {
+        "category": "contract_violation",
+        "subtype": "state_field_contains_snapshot",
+        "issues": [
+          "state_field_is_object"
+        ],
+        "state_raw_type": "object"
+      },
+      "normalized_state": "invalid",
+      "normalized_direction": "FLAT",
+      "error_code": null,
+      "raw_status": null,
+      "capacity_gate_comparable": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r6-structure-20260901T134026Z-bb50bbe9.json",
+      "run_id": "scenario-live-2026-09-01-r6-structure-20260901T134026Z-bb50bbe9",
+      "profile_id": "structure",
+      "frame_id": "bb50bbe9",
+      "raw_state_type": "str",
+      "raw_state_preview": "active",
+      "raw_direction": "flat",
+      "raw_action": null,
+      "inspection": {
+        "category": "ambiguous_output",
+        "subtype": "ambiguous_state_vocabulary",
+        "issues": [
+          "ambiguous_state_vocabulary"
+        ],
+        "state_raw_type": "string"
+      },
+      "normalized_state": "invalid",
+      "normalized_direction": "flat",
+      "error_code": null,
+      "raw_status": null,
+      "capacity_gate_comparable": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r6-baseline-current-20260901T000528Z-041dc508.json",
+      "run_id": "scenario-live-2026-09-01-r6-baseline-current-20260901T000528Z-041dc508",
+      "profile_id": "baseline-current",
+      "frame_id": "041dc508",
+      "raw_state_type": "dict",
+      "raw_state_preview": [
+        "instrument",
+        "market_price",
+        "session_open",
+        "last_trade",
+        "current_bid",
+        "current_ask"
+      ],
+      "raw_direction": "FLAT",
+      "raw_action": null,
+      "inspection": {
+        "category": "contract_violation",
+        "subtype": "state_field_contains_snapshot",
+        "issues": [
+          "state_field_is_object"
+        ],
+        "state_raw_type": "object"
+      },
+      "normalized_state": "invalid",
+      "normalized_direction": "FLAT",
+      "error_code": null,
+      "raw_status": null,
+      "capacity_gate_comparable": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r6-structure-20260901T000528Z-041dc508.json",
+      "run_id": "scenario-live-2026-09-01-r6-structure-20260901T000528Z-041dc508",
+      "profile_id": "structure",
+      "frame_id": "041dc508",
+      "raw_state_type": "str",
+      "raw_state_preview": "frozen",
+      "raw_direction": "flat",
+      "raw_action": "NOTHING",
+      "inspection": {
+        "category": "ambiguous_output",
+        "subtype": "ambiguous_state_vocabulary",
+        "issues": [
+          "ambiguous_state_vocabulary"
+        ],
+        "state_raw_type": "string"
+      },
+      "normalized_state": "invalid",
+      "normalized_direction": "flat",
+      "error_code": null,
+      "raw_status": null,
+      "capacity_gate_comparable": true
+    }
+  ]
+}

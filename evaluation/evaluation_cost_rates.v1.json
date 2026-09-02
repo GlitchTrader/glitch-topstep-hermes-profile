@@ -1,0 +1,21 @@
+{
+  "schema_version": "glitch.topstep.evaluation_cost_rates.v1",
+  "rates_version": "2026-09-01-v1",
+  "token_estimate_chars_per_token": 4,
+  "models": {
+    "openai/gpt-4o-mini": {
+      "input_usd_per_1m_tokens": 0.15,
+      "output_usd_per_1m_tokens": 0.6
+    },
+    "openai/gpt-4.1-mini": {
+      "input_usd_per_1m_tokens": 0.4,
+      "output_usd_per_1m_tokens": 1.6
+    },
+    "gpt-5.6-luna": {
+      "input_usd_per_1m_tokens": 1.25,
+      "output_usd_per_1m_tokens": 10.0
+    }
+  },
+  "fallback_per_call_usd": 0.02,
+  "unknown_blocks_expansion": true
+}

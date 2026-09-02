@@ -1,0 +1,6 @@
+{
+  "profile_id": "p2",
+  "frame_id": "frame",
+  "run_id": "parallel-test",
+  "evaluation_only": true
+}

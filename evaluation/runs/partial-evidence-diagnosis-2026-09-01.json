@@ -1,0 +1,1084 @@
+{
+  "schema_version": "glitch.topstep.partial_evidence_diagnosis.v1",
+  "generated_utc": "2026-09-02T01:01:25.082445Z",
+  "bundle_count": 5,
+  "frame_count": 24,
+  "verdict": "mixed_corpus_and_profile_divergence",
+  "corpus_partial_field_histogram": {},
+  "profile_partial_histogram": {
+    "baseline-current:indicators,ohlc,structure": 33,
+    "structure:indicators,ohlc,structure": 33
+  },
+  "baseline_structure_completeness_mismatch_frames": [
+    "20260831T173427Z-4ac91997",
+    "20260901T134026Z-bb50bbe9",
+    "20260901T000528Z-041dc508",
+    "20260831T235211Z-cdbf204f",
+    "20260901T143431Z-534fefd5",
+    "20260901T182843Z-b06d9a93",
+    "20260901T150823Z-d7908a55",
+    "20260831T233830Z-cbb5cee1",
+    "20260831T234106Z-a9c3eb80",
+    "20260901T002738Z-818c9e79",
+    "20260901T002738Z-5e80e1ac",
+    "20260901T020441Z-9866a0f9",
+    "20260831T235211Z-8c371231",
+    "20260831T235620Z-fd331ad4",
+    "20260901T143311Z-a49c317a",
+    "20260901T145322Z-c776a976",
+    "20260901T152524Z-24fe8a4d",
+    "20260901T154226Z-52265102",
+    "20260901T165456Z-8b20659b",
+    "20260901T174044Z-2cfca7a6",
+    "20260901T175947Z-a71c2714",
+    "20260901T181807Z-e1ff909a",
+    "20260901T002742Z-ddd5ffb5",
+    "20260901T002828Z-f5fb2cc7"
+  ],
+  "root_cause": "indicators/ohlc/structure marcados partial pelo capacity_gate porque o packet cont\u00e9m barra 1m incompleta ou subset de paths no source_catalog \u2014 problema do corpus/captura, n\u00e3o do baseline isoladamente",
+  "affects_baseline_and_structure_equally": false,
+  "frames": [
+    {
+      "frame_id": "20260831T173427Z-4ac91997",
+      "scenario_tag": "prac_directed_test",
+      "runs": [
+        "scenario-live-2026-09-01-r10-v2",
+        "scenario-live-2026-09-01-r7-contract"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "data_quality_insufficient",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "held",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "scenario_tag": "operator_minute_frame",
+      "runs": [
+        "scenario-live-2026-09-01-r10-v2",
+        "scenario-live-2026-09-01-r11-v2",
+        "scenario-live-2026-09-01-r7-contract"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260901T000528Z-041dc508",
+      "scenario_tag": "timeout",
+      "runs": [
+        "scenario-live-2026-09-01-r10-v2",
+        "scenario-live-2026-09-01-r11-v2",
+        "scenario-live-2026-09-01-r7-contract"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260831T235211Z-cdbf204f",
+      "scenario_tag": "restart",
+      "runs": [
+        "scenario-live-2026-09-01-r10-v2",
+        "scenario-live-2026-09-01-r11-v2"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260901T143431Z-534fefd5",
+      "scenario_tag": "reconciliation",
+      "runs": [
+        "scenario-live-2026-09-01-r10-v2",
+        "scenario-live-2026-09-01-r11-v2"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "held",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260901T182843Z-b06d9a93",
+      "scenario_tag": "preflight",
+      "runs": [
+        "scenario-live-2026-09-01-r10-v2",
+        "scenario-live-2026-09-01-r11-v2"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260901T150823Z-d7908a55",
+      "scenario_tag": "operator_minute_frame",
+      "runs": [
+        "scenario-live-2026-09-01-r10-v2",
+        "scenario-live-2026-09-01-r11-v2"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260831T233830Z-cbb5cee1",
+      "scenario_tag": "prac_directed_test",
+      "runs": [
+        "scenario-live-2026-09-01-r12-stratified-v2"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "data_quality_insufficient",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260831T234106Z-a9c3eb80",
+      "scenario_tag": "prac_directed_test",
+      "runs": [
+        "scenario-live-2026-09-01-r12-stratified-v2"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "data_quality_insufficient",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "data_quality_insufficient",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260901T002738Z-818c9e79",
+      "scenario_tag": "prac_directed_test",
+      "runs": [
+        "scenario-live-2026-09-01-r12-stratified-v2"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260901T002738Z-5e80e1ac",
+      "scenario_tag": "reconciliation",
+      "runs": [
+        "scenario-live-2026-09-01-r12-stratified-v2"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260901T020441Z-9866a0f9",
+      "scenario_tag": "reconciliation",
+      "runs": [
+        "scenario-live-2026-09-01-r12-stratified-v2"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260831T235211Z-8c371231",
+      "scenario_tag": "restart",
+      "runs": [
+        "scenario-live-2026-09-01-r12-stratified-v2"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "expired",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260831T235620Z-fd331ad4",
+      "scenario_tag": "restart",
+      "runs": [
+        "scenario-live-2026-09-01-r12-stratified-v2"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260901T143311Z-a49c317a",
+      "scenario_tag": "operator_minute_frame",
+      "runs": [
+        "scenario-live-2026-09-01-r12-stratified-v2"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "held",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260901T145322Z-c776a976",
+      "scenario_tag": "operator_minute_frame",
+      "runs": [
+        "scenario-live-2026-09-01-r12-stratified-v2"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260901T152524Z-24fe8a4d",
+      "scenario_tag": "operator_minute_frame",
+      "runs": [
+        "scenario-live-2026-09-01-r13-stratified-v3"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260901T154226Z-52265102",
+      "scenario_tag": "operator_minute_frame",
+      "runs": [
+        "scenario-live-2026-09-01-r13-stratified-v3"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260901T165456Z-8b20659b",
+      "scenario_tag": "operator_minute_frame",
+      "runs": [
+        "scenario-live-2026-09-01-r13-stratified-v3"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "candidate",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260901T174044Z-2cfca7a6",
+      "scenario_tag": "operator_minute_frame",
+      "runs": [
+        "scenario-live-2026-09-01-r13-stratified-v3"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260901T175947Z-a71c2714",
+      "scenario_tag": "operator_minute_frame",
+      "runs": [
+        "scenario-live-2026-09-01-r13-stratified-v3"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "candidate",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260901T181807Z-e1ff909a",
+      "scenario_tag": "operator_minute_frame",
+      "runs": [
+        "scenario-live-2026-09-01-r13-stratified-v3"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260901T002742Z-ddd5ffb5",
+      "scenario_tag": "prac_directed_test",
+      "runs": [
+        "scenario-live-2026-09-01-r13-stratified-v3"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "data_quality_insufficient",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "held",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    },
+    {
+      "frame_id": "20260901T002828Z-f5fb2cc7",
+      "scenario_tag": "prac_directed_test",
+      "runs": [
+        "scenario-live-2026-09-01-r13-stratified-v3"
+      ],
+      "profiles": {
+        "baseline-current": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        },
+        "structure": {
+          "normalized_state": "no_edge",
+          "partial_fields": [
+            "indicators",
+            "ohlc",
+            "structure"
+          ],
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          }
+        }
+      },
+      "corpus_completeness": {}
+    }
+  ],
+  "recommendation": "N\u00e3o alterar baseline. Pr\u00f3ximo PRAC soak: capturar em fechamento de barra 1m ou enriquecer packet com data_quality.state_complete=true quando aplic\u00e1vel."
+}

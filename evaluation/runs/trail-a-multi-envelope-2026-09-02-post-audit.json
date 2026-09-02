@@ -1,0 +1,125 @@
+{
+  "schema_version": "glitch.topstep.trail_a_multi_envelope_post_audit.v1",
+  "generated_utc": "2026-09-02T22:01:05.562996Z",
+  "run_id": "trail-a-multi-envelope-2026-09-02",
+  "verdict": "PASS",
+  "issues": [],
+  "envelope_audits": [
+    {
+      "scenario_id": "SCN-TRAIL-A-MULTI-01",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "sealed_snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+      "sealed_envelope_hash": "5419bea167862a440dc2f9c516a88725dcd687d8e81d4bac0df4ad43307f679c",
+      "selection": {
+        "outcome": "no_selection",
+        "decision_code": "ENSEMBLE_UNANIMOUS_ABSTENTION"
+      },
+      "profile_checks": [
+        {
+          "profile_id": "baseline-current",
+          "invocation_id": "eval-trail-a-multi-envelope-2026-09-02-baseline-current-20260901T134026Z-bb50bbe9",
+          "latency_ms": 19108,
+          "cost_usd": 0.011152,
+          "envelope_hash": "5419bea167862a440dc2f9c516a88725dcd687d8e81d4bac0df4ad43307f679c"
+        },
+        {
+          "profile_id": "structure",
+          "invocation_id": "eval-trail-a-multi-envelope-2026-09-02-structure-20260901T134026Z-bb50bbe9",
+          "latency_ms": 21375,
+          "cost_usd": 0.011532,
+          "envelope_hash": "5419bea167862a440dc2f9c516a88725dcd687d8e81d4bac0df4ad43307f679c"
+        },
+        {
+          "profile_id": "adversarial-risk",
+          "invocation_id": "eval-trail-a-multi-envelope-2026-09-02-adversarial-risk-20260901T134026Z-bb50bbe9",
+          "latency_ms": 18062,
+          "cost_usd": 0.011492,
+          "envelope_hash": "5419bea167862a440dc2f9c516a88725dcd687d8e81d4bac0df4ad43307f679c"
+        }
+      ],
+      "issues": [],
+      "ok": true
+    },
+    {
+      "scenario_id": "SCN-TRAIL-A-MULTI-02",
+      "frame_id": "20260820T1200Z",
+      "sealed_snapshot_hash": "e3d8905356316096e95289df936942a956379e960ef1db53e121e318a63b67a7",
+      "sealed_envelope_hash": "5799472c16d7a631c9a091c03113b94526dc644ed3e4fa2b110db42f1056c374",
+      "selection": {
+        "outcome": "no_selection",
+        "decision_code": "INSUFFICIENT_ENSEMBLE_AGREEMENT"
+      },
+      "profile_checks": [
+        {
+          "profile_id": "baseline-current",
+          "invocation_id": "eval-trail-a-multi-envelope-2026-09-02-baseline-current-20260820T1200Z",
+          "latency_ms": 13827,
+          "cost_usd": 0.001789,
+          "envelope_hash": "5799472c16d7a631c9a091c03113b94526dc644ed3e4fa2b110db42f1056c374"
+        },
+        {
+          "profile_id": "structure",
+          "invocation_id": "eval-trail-a-multi-envelope-2026-09-02-structure-20260820T1200Z",
+          "latency_ms": 14250,
+          "cost_usd": 0.002019,
+          "envelope_hash": "5799472c16d7a631c9a091c03113b94526dc644ed3e4fa2b110db42f1056c374"
+        },
+        {
+          "profile_id": "adversarial-risk",
+          "invocation_id": "eval-trail-a-multi-envelope-2026-09-02-adversarial-risk-20260820T1200Z",
+          "latency_ms": 10312,
+          "cost_usd": 0.002019,
+          "envelope_hash": "5799472c16d7a631c9a091c03113b94526dc644ed3e4fa2b110db42f1056c374"
+        }
+      ],
+      "issues": [],
+      "ok": true
+    },
+    {
+      "scenario_id": "SCN-TRAIL-A-MULTI-03",
+      "frame_id": "20260820T1201Z",
+      "sealed_snapshot_hash": "1545fbe44615e07db3cbf6748477b643ab79925ebf40525072913555e0af2f56",
+      "sealed_envelope_hash": "1a799a464bafdcbecc020b3f5de0c103f6f4f0ac3e2390dc8741b24dfe4fd3db",
+      "selection": {
+        "outcome": "no_selection",
+        "decision_code": "INSUFFICIENT_ENSEMBLE_AGREEMENT"
+      },
+      "profile_checks": [
+        {
+          "profile_id": "structure",
+          "invocation_id": "eval-trail-a-multi-envelope-2026-09-02-structure-20260820T1201Z",
+          "latency_ms": 11780,
+          "cost_usd": 0.002079,
+          "envelope_hash": "1a799a464bafdcbecc020b3f5de0c103f6f4f0ac3e2390dc8741b24dfe4fd3db"
+        },
+        {
+          "profile_id": "baseline-current",
+          "invocation_id": "eval-trail-a-multi-envelope-2026-09-02-baseline-current-20260820T1201Z",
+          "latency_ms": 11890,
+          "cost_usd": 0.001929,
+          "envelope_hash": "1a799a464bafdcbecc020b3f5de0c103f6f4f0ac3e2390dc8741b24dfe4fd3db"
+        },
+        {
+          "profile_id": "adversarial-risk",
+          "invocation_id": "eval-trail-a-multi-envelope-2026-09-02-adversarial-risk-20260820T1201Z",
+          "latency_ms": 9297,
+          "cost_usd": 0.002029,
+          "envelope_hash": "1a799a464bafdcbecc020b3f5de0c103f6f4f0ac3e2390dc8741b24dfe4fd3db"
+        }
+      ],
+      "issues": [],
+      "ok": true
+    }
+  ],
+  "session_cost_usd": 0.04604,
+  "invocation_count": 9,
+  "lease_released": true,
+  "operational_snapshot_readable": true,
+  "trail_a_gate": {
+    "parallel_evaluation_real": "PASS",
+    "aggregator_offline_real": "PASS",
+    "parallel_evaluation_acceptance": "PASS",
+    "trail_a_complete": "PASS"
+  },
+  "promotion_gate": false
+}

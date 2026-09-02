@@ -1,0 +1,760 @@
+{
+  "schema_version": "glitch.topstep.sample_quality_gate_result.v1",
+  "recorded_utc": "2026-09-01T23:31:46.090745Z",
+  "gate_version": "2026-09-01-v1",
+  "gate_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\sample_quality_gate.v1.json",
+  "corpus_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\comparable_scenarios.v2.json",
+  "profiles": [
+    "baseline-current",
+    "structure"
+  ],
+  "runs": [
+    {
+      "run_id": "scenario-live-2026-09-01-r7-contract",
+      "invocation_count": 6,
+      "frame_count": 3,
+      "comparable_pairs": {
+        "count": 1,
+        "required_min": 5,
+        "rate": {
+          "numerator": 1,
+          "denominator": 3,
+          "rate": 0.3333333333333333
+        }
+      },
+      "scenario_coverage": {
+        "min_scenario_frames_required": 7,
+        "frame_count": 3,
+        "scenario_tag_coverage": {
+          "operator_minute_frame": {
+            "required_frames_in_corpus": 2,
+            "frames_with_dual_profile_in_run": 1,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          },
+          "prac_directed_test": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 1,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          },
+          "preflight": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 0,
+            "covered_in_run": false,
+            "present_in_run_artifacts": false
+          },
+          "reconciliation": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 0,
+            "covered_in_run": false,
+            "present_in_run_artifacts": false
+          },
+          "restart": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 0,
+            "covered_in_run": false,
+            "present_in_run_artifacts": false
+          },
+          "timeout": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 1,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          }
+        },
+        "scenario_tag_coverage_incomplete": true
+      },
+      "instrument_coverage": {
+        "min_samples_per_instrument": 20,
+        "counts": {
+          "MNQ": 6
+        },
+        "below_threshold": {
+          "MNQ": true
+        },
+        "instrument_level_stability_review_only": true
+      },
+      "regime_coverage": {
+        "optional": true,
+        "available": false,
+        "min_samples_per_regime": null,
+        "counts": {},
+        "below_threshold": {},
+        "dimension_ignored": true
+      },
+      "thesis_quality_denominator": {
+        "exclude_categories": [
+          "missing_required_evidence",
+          "not_comparable",
+          "schema_invalid"
+        ],
+        "exclude_states": [
+          "error",
+          "invalid",
+          "timeout"
+        ],
+        "eligible_invocation_count": 5,
+        "thesis_quality_count": 4,
+        "category_counts": {
+          "thesis_quality": 4,
+          "no_edge": 1,
+          "schema_invalid": 1
+        }
+      },
+      "no_edge_handling": {
+        "no_edge_count": 1,
+        "valid_normalized_denominator": 5,
+        "no_edge_rate": {
+          "numerator": 1,
+          "denominator": 5,
+          "rate": 0.2
+        },
+        "valid_contract_outcome": true,
+        "cognitive_divergence_frames": 1
+      },
+      "invocations_per_profile": {
+        "baseline-current": 3,
+        "structure": 3
+      },
+      "insufficient_sample": true,
+      "insufficient_sample_reasons": [
+        "comparable_pairs_count < min_comparable_pairs_count",
+        "scenario_tag_coverage_incomplete",
+        "filtered_invocation_count < min_invocations_per_profile * profiles_required",
+        "frame_count < min_scenario_frames"
+      ],
+      "blocked_conclusions": [
+        "profile_promotion",
+        "challenger_cognitive_superiority_verdict",
+        "cognitive_quality_promotion_pass",
+        "baseline_regression_promotion_blocker",
+        "intra_profile_stability_promotion_sufficient",
+        "aggregator_executable",
+        "parallel_execution",
+        "armed_shadow_promotion"
+      ],
+      "allowed_conclusions": [
+        "per_invocation_contract_validity",
+        "session_cost_and_latency",
+        "categorical_divergence_observation_hypothesis",
+        "historical_evidence_preservation",
+        "normalization_provenance_audit"
+      ]
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r8-contract",
+      "invocation_count": 6,
+      "frame_count": 3,
+      "comparable_pairs": {
+        "count": 0,
+        "required_min": 5,
+        "rate": {
+          "numerator": 0,
+          "denominator": 3,
+          "rate": 0.0
+        }
+      },
+      "scenario_coverage": {
+        "min_scenario_frames_required": 7,
+        "frame_count": 3,
+        "scenario_tag_coverage": {
+          "operator_minute_frame": {
+            "required_frames_in_corpus": 2,
+            "frames_with_dual_profile_in_run": 1,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          },
+          "prac_directed_test": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 1,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          },
+          "preflight": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 0,
+            "covered_in_run": false,
+            "present_in_run_artifacts": false
+          },
+          "reconciliation": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 0,
+            "covered_in_run": false,
+            "present_in_run_artifacts": false
+          },
+          "restart": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 0,
+            "covered_in_run": false,
+            "present_in_run_artifacts": false
+          },
+          "timeout": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 1,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          }
+        },
+        "scenario_tag_coverage_incomplete": true
+      },
+      "instrument_coverage": {
+        "min_samples_per_instrument": 20,
+        "counts": {
+          "MNQ": 6
+        },
+        "below_threshold": {
+          "MNQ": true
+        },
+        "instrument_level_stability_review_only": true
+      },
+      "regime_coverage": {
+        "optional": true,
+        "available": false,
+        "min_samples_per_regime": null,
+        "counts": {},
+        "below_threshold": {},
+        "dimension_ignored": true
+      },
+      "thesis_quality_denominator": {
+        "exclude_categories": [
+          "missing_required_evidence",
+          "not_comparable",
+          "schema_invalid"
+        ],
+        "exclude_states": [
+          "error",
+          "invalid",
+          "timeout"
+        ],
+        "eligible_invocation_count": 6,
+        "thesis_quality_count": 1,
+        "category_counts": {
+          "thesis_quality": 1,
+          "no_edge": 5
+        }
+      },
+      "no_edge_handling": {
+        "no_edge_count": 5,
+        "valid_normalized_denominator": 6,
+        "no_edge_rate": {
+          "numerator": 5,
+          "denominator": 6,
+          "rate": 0.8333333333333334
+        },
+        "valid_contract_outcome": true,
+        "cognitive_divergence_frames": 1
+      },
+      "invocations_per_profile": {
+        "baseline-current": 3,
+        "structure": 3
+      },
+      "insufficient_sample": true,
+      "insufficient_sample_reasons": [
+        "comparable_pairs_count < min_comparable_pairs_count",
+        "scenario_tag_coverage_incomplete",
+        "filtered_invocation_count < min_invocations_per_profile * profiles_required",
+        "frame_count < min_scenario_frames"
+      ],
+      "blocked_conclusions": [
+        "profile_promotion",
+        "challenger_cognitive_superiority_verdict",
+        "cognitive_quality_promotion_pass",
+        "baseline_regression_promotion_blocker",
+        "intra_profile_stability_promotion_sufficient",
+        "aggregator_executable",
+        "parallel_execution",
+        "armed_shadow_promotion"
+      ],
+      "allowed_conclusions": [
+        "per_invocation_contract_validity",
+        "session_cost_and_latency",
+        "categorical_divergence_observation_hypothesis",
+        "historical_evidence_preservation",
+        "normalization_provenance_audit"
+      ]
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r9-v2",
+      "invocation_count": 14,
+      "frame_count": 7,
+      "comparable_pairs": {
+        "count": 0,
+        "required_min": 5,
+        "rate": {
+          "numerator": 0,
+          "denominator": 7,
+          "rate": 0.0
+        }
+      },
+      "scenario_coverage": {
+        "min_scenario_frames_required": 7,
+        "frame_count": 7,
+        "scenario_tag_coverage": {
+          "operator_minute_frame": {
+            "required_frames_in_corpus": 2,
+            "frames_with_dual_profile_in_run": 2,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          },
+          "prac_directed_test": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 1,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          },
+          "preflight": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 1,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          },
+          "reconciliation": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 1,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          },
+          "restart": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 1,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          },
+          "timeout": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 1,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          }
+        },
+        "scenario_tag_coverage_incomplete": false
+      },
+      "instrument_coverage": {
+        "min_samples_per_instrument": 20,
+        "counts": {
+          "MNQ": 14
+        },
+        "below_threshold": {
+          "MNQ": true
+        },
+        "instrument_level_stability_review_only": true
+      },
+      "regime_coverage": {
+        "optional": true,
+        "available": false,
+        "min_samples_per_regime": null,
+        "counts": {},
+        "below_threshold": {},
+        "dimension_ignored": true
+      },
+      "thesis_quality_denominator": {
+        "exclude_categories": [
+          "missing_required_evidence",
+          "not_comparable",
+          "schema_invalid"
+        ],
+        "exclude_states": [
+          "error",
+          "invalid",
+          "timeout"
+        ],
+        "eligible_invocation_count": 14,
+        "thesis_quality_count": 2,
+        "category_counts": {
+          "no_edge": 12,
+          "thesis_quality": 2
+        }
+      },
+      "no_edge_handling": {
+        "no_edge_count": 12,
+        "valid_normalized_denominator": 14,
+        "no_edge_rate": {
+          "numerator": 12,
+          "denominator": 14,
+          "rate": 0.8571428571428571
+        },
+        "valid_contract_outcome": true,
+        "cognitive_divergence_frames": 2
+      },
+      "invocations_per_profile": {
+        "baseline-current": 7,
+        "structure": 7
+      },
+      "insufficient_sample": true,
+      "insufficient_sample_reasons": [
+        "comparable_pairs_count < min_comparable_pairs_count"
+      ],
+      "blocked_conclusions": [
+        "profile_promotion",
+        "challenger_cognitive_superiority_verdict",
+        "cognitive_quality_promotion_pass",
+        "baseline_regression_promotion_blocker",
+        "intra_profile_stability_promotion_sufficient",
+        "aggregator_executable",
+        "parallel_execution",
+        "armed_shadow_promotion"
+      ],
+      "allowed_conclusions": [
+        "per_invocation_contract_validity",
+        "session_cost_and_latency",
+        "categorical_divergence_observation_hypothesis",
+        "historical_evidence_preservation",
+        "normalization_provenance_audit"
+      ]
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "invocation_count": 14,
+      "frame_count": 7,
+      "comparable_pairs": {
+        "count": 1,
+        "required_min": 5,
+        "rate": {
+          "numerator": 1,
+          "denominator": 7,
+          "rate": 0.14285714285714285
+        }
+      },
+      "scenario_coverage": {
+        "min_scenario_frames_required": 7,
+        "frame_count": 7,
+        "scenario_tag_coverage": {
+          "operator_minute_frame": {
+            "required_frames_in_corpus": 2,
+            "frames_with_dual_profile_in_run": 2,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          },
+          "prac_directed_test": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 1,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          },
+          "preflight": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 1,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          },
+          "reconciliation": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 1,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          },
+          "restart": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 1,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          },
+          "timeout": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 1,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          }
+        },
+        "scenario_tag_coverage_incomplete": false
+      },
+      "instrument_coverage": {
+        "min_samples_per_instrument": 20,
+        "counts": {
+          "MNQ": 14
+        },
+        "below_threshold": {
+          "MNQ": true
+        },
+        "instrument_level_stability_review_only": true
+      },
+      "regime_coverage": {
+        "optional": true,
+        "available": false,
+        "min_samples_per_regime": null,
+        "counts": {},
+        "below_threshold": {},
+        "dimension_ignored": true
+      },
+      "thesis_quality_denominator": {
+        "exclude_categories": [
+          "missing_required_evidence",
+          "not_comparable",
+          "schema_invalid"
+        ],
+        "exclude_states": [
+          "error",
+          "invalid",
+          "timeout"
+        ],
+        "eligible_invocation_count": 12,
+        "thesis_quality_count": 3,
+        "category_counts": {
+          "not_comparable": 2,
+          "thesis_quality": 3,
+          "no_edge": 9
+        }
+      },
+      "no_edge_handling": {
+        "no_edge_count": 9,
+        "valid_normalized_denominator": 14,
+        "no_edge_rate": {
+          "numerator": 9,
+          "denominator": 14,
+          "rate": 0.6428571428571429
+        },
+        "valid_contract_outcome": true,
+        "cognitive_divergence_frames": 1
+      },
+      "invocations_per_profile": {
+        "baseline-current": 7,
+        "structure": 7
+      },
+      "insufficient_sample": true,
+      "insufficient_sample_reasons": [
+        "comparable_pairs_count < min_comparable_pairs_count"
+      ],
+      "blocked_conclusions": [
+        "profile_promotion",
+        "challenger_cognitive_superiority_verdict",
+        "cognitive_quality_promotion_pass",
+        "baseline_regression_promotion_blocker",
+        "intra_profile_stability_promotion_sufficient",
+        "aggregator_executable",
+        "parallel_execution",
+        "armed_shadow_promotion"
+      ],
+      "allowed_conclusions": [
+        "per_invocation_contract_validity",
+        "session_cost_and_latency",
+        "categorical_divergence_observation_hypothesis",
+        "historical_evidence_preservation",
+        "normalization_provenance_audit"
+      ]
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "invocation_count": 12,
+      "frame_count": 6,
+      "comparable_pairs": {
+        "count": 0,
+        "required_min": 5,
+        "rate": {
+          "numerator": 0,
+          "denominator": 6,
+          "rate": 0.0
+        }
+      },
+      "scenario_coverage": {
+        "min_scenario_frames_required": 7,
+        "frame_count": 6,
+        "scenario_tag_coverage": {
+          "operator_minute_frame": {
+            "required_frames_in_corpus": 2,
+            "frames_with_dual_profile_in_run": 2,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          },
+          "prac_directed_test": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 0,
+            "covered_in_run": false,
+            "present_in_run_artifacts": false
+          },
+          "preflight": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 1,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          },
+          "reconciliation": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 1,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          },
+          "restart": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 1,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          },
+          "timeout": {
+            "required_frames_in_corpus": 1,
+            "frames_with_dual_profile_in_run": 1,
+            "covered_in_run": true,
+            "present_in_run_artifacts": true
+          }
+        },
+        "scenario_tag_coverage_incomplete": true
+      },
+      "instrument_coverage": {
+        "min_samples_per_instrument": 20,
+        "counts": {
+          "MNQ": 12
+        },
+        "below_threshold": {
+          "MNQ": true
+        },
+        "instrument_level_stability_review_only": true
+      },
+      "regime_coverage": {
+        "optional": true,
+        "available": false,
+        "min_samples_per_regime": null,
+        "counts": {},
+        "below_threshold": {},
+        "dimension_ignored": true
+      },
+      "thesis_quality_denominator": {
+        "exclude_categories": [
+          "missing_required_evidence",
+          "not_comparable",
+          "schema_invalid"
+        ],
+        "exclude_states": [
+          "error",
+          "invalid",
+          "timeout"
+        ],
+        "eligible_invocation_count": 12,
+        "thesis_quality_count": 1,
+        "category_counts": {
+          "no_edge": 11,
+          "thesis_quality": 1
+        }
+      },
+      "no_edge_handling": {
+        "no_edge_count": 11,
+        "valid_normalized_denominator": 12,
+        "no_edge_rate": {
+          "numerator": 11,
+          "denominator": 12,
+          "rate": 0.9166666666666666
+        },
+        "valid_contract_outcome": true,
+        "cognitive_divergence_frames": 1
+      },
+      "invocations_per_profile": {
+        "baseline-current": 6,
+        "structure": 6
+      },
+      "insufficient_sample": true,
+      "insufficient_sample_reasons": [
+        "comparable_pairs_count < min_comparable_pairs_count",
+        "scenario_tag_coverage_incomplete",
+        "filtered_invocation_count < min_invocations_per_profile * profiles_required",
+        "frame_count < min_scenario_frames"
+      ],
+      "blocked_conclusions": [
+        "profile_promotion",
+        "challenger_cognitive_superiority_verdict",
+        "cognitive_quality_promotion_pass",
+        "baseline_regression_promotion_blocker",
+        "intra_profile_stability_promotion_sufficient",
+        "aggregator_executable",
+        "parallel_execution",
+        "armed_shadow_promotion"
+      ],
+      "allowed_conclusions": [
+        "per_invocation_contract_validity",
+        "session_cost_and_latency",
+        "categorical_divergence_observation_hypothesis",
+        "historical_evidence_preservation",
+        "normalization_provenance_audit"
+      ]
+    }
+  ],
+  "aggregated": {
+    "run_count": 5,
+    "invocation_count": 52,
+    "frame_count": 26,
+    "comparable_pairs": {
+      "count": 2,
+      "required_min": 5,
+      "rate": {
+        "numerator": 2,
+        "denominator": 26,
+        "rate": 0.07692307692307693
+      }
+    },
+    "scenario_coverage": {
+      "scenario_tag_coverage_aggregated": {
+        "operator_minute_frame": {
+          "covered_in_any_run": true,
+          "frames_with_dual_profile_across_runs": 2
+        },
+        "prac_directed_test": {
+          "covered_in_any_run": true,
+          "frames_with_dual_profile_across_runs": 1
+        },
+        "preflight": {
+          "covered_in_any_run": true,
+          "frames_with_dual_profile_across_runs": 1
+        },
+        "reconciliation": {
+          "covered_in_any_run": true,
+          "frames_with_dual_profile_across_runs": 1
+        },
+        "restart": {
+          "covered_in_any_run": true,
+          "frames_with_dual_profile_across_runs": 1
+        },
+        "timeout": {
+          "covered_in_any_run": true,
+          "frames_with_dual_profile_across_runs": 1
+        }
+      },
+      "scenario_tag_coverage_incomplete": false
+    },
+    "instrument_coverage": {
+      "min_samples_per_instrument": 20,
+      "counts": {
+        "MNQ": 52
+      },
+      "below_threshold": {
+        "MNQ": false
+      }
+    },
+    "regime_coverage": {
+      "available": false,
+      "counts": {},
+      "dimension_ignored": true
+    },
+    "no_edge_handling": {
+      "no_edge_count": 38,
+      "valid_normalized_denominator": 51,
+      "no_edge_rate": {
+        "numerator": 38,
+        "denominator": 51,
+        "rate": 0.7450980392156863
+      }
+    },
+    "invocations_per_profile": {
+      "baseline-current": 26,
+      "structure": 26
+    },
+    "insufficient_sample": true,
+    "insufficient_sample_reasons": [
+      "comparable_pairs_count < min_comparable_pairs_count"
+    ],
+    "blocked_conclusions": [
+      "profile_promotion",
+      "challenger_cognitive_superiority_verdict",
+      "cognitive_quality_promotion_pass",
+      "baseline_regression_promotion_blocker",
+      "intra_profile_stability_promotion_sufficient",
+      "aggregator_executable",
+      "parallel_execution",
+      "armed_shadow_promotion"
+    ],
+    "allowed_conclusions": [
+      "per_invocation_contract_validity",
+      "session_cost_and_latency",
+      "categorical_divergence_observation_hypothesis",
+      "historical_evidence_preservation",
+      "normalization_provenance_audit"
+    ]
+  }
+}

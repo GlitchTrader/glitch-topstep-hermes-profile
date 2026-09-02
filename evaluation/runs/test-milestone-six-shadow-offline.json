@@ -1,0 +1,221 @@
+[
+  {
+    "schema_version": "glitch.topstep.shadow_observation_offline.v1",
+    "generated_utc": "2026-09-02T22:21:10.061476Z",
+    "run_id": "test-milestone-six-shadow-20260820T1200Z",
+    "evaluation_only": true,
+    "shadow_live": false,
+    "profile_source": "fixtures",
+    "intents_sent": 0,
+    "orders_sent": 0,
+    "writes_operacionais": 0,
+    "gateway_touched": false,
+    "envelope": {
+      "envelope_id": "env-e3d8905356316096",
+      "snapshot_hash": "e3d8905356316096e95289df936942a956379e960ef1db53e121e318a63b67a7",
+      "envelope_hash": "5799472c16d7a631c9a091c03113b94526dc644ed3e4fa2b110db42f1056c374",
+      "snapshot_age_ms": 1160470061,
+      "completeness": {
+        "ohlc": "missing_required",
+        "quote": "available",
+        "structure": "missing_required",
+        "session": "partial",
+        "orderflow": "missing_required",
+        "indicators": "missing_required",
+        "risk_context": "available"
+      }
+    },
+    "profile_decisions": [
+      {
+        "profile_id": "baseline-current",
+        "invocation_id": "c782e5e2-c79e-4ab8-94dd-3d74f85ef629",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable",
+        "capacity_gate_reason": "missing_required",
+        "completeness_used": {
+          "indicators": "missing_required",
+          "ohlc": "missing_required",
+          "orderflow": "missing_required",
+          "quote": "available",
+          "risk_context": "available",
+          "session": "partial",
+          "structure": "missing_required"
+        },
+        "latency_ms": 1,
+        "cost_usd": 0.0,
+        "is_baseline": true
+      },
+      {
+        "profile_id": "structure",
+        "invocation_id": "cc4841df-190e-423d-8018-7ae6c376c590",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable",
+        "capacity_gate_reason": "missing_required",
+        "completeness_used": {
+          "indicators": "missing_required",
+          "ohlc": "missing_required",
+          "quote": "available",
+          "risk_context": "available",
+          "session": "partial",
+          "structure": "missing_required"
+        },
+        "latency_ms": 1,
+        "cost_usd": 0.0,
+        "is_baseline": false
+      },
+      {
+        "profile_id": "adversarial-risk",
+        "invocation_id": "a4215a26-94db-4eb3-a671-57f7e87ce463",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable",
+        "capacity_gate_reason": "missing_required",
+        "completeness_used": {
+          "ohlc": "missing_required",
+          "orderflow": "missing_required",
+          "quote": "available",
+          "risk_context": "available",
+          "session": "partial",
+          "structure": "missing_required"
+        },
+        "latency_ms": 1,
+        "cost_usd": 0.0,
+        "is_baseline": false
+      },
+      {
+        "profile_id": "smart-money",
+        "invocation_id": "2ef2c6d1-f69a-4b58-bcbb-1e06ee753ac9",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable",
+        "capacity_gate_reason": "missing_required",
+        "completeness_used": {
+          "indicators": "missing_required",
+          "ohlc": "missing_required",
+          "orderflow": "missing_required",
+          "quote": "available",
+          "risk_context": "available",
+          "session": "partial",
+          "structure": "missing_required"
+        },
+        "latency_ms": 1,
+        "cost_usd": 0.0,
+        "is_baseline": false
+      },
+      {
+        "profile_id": "indicators",
+        "invocation_id": "e5646888-91fc-4fbf-9720-4bf8ae949580",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable",
+        "capacity_gate_reason": "missing_required",
+        "completeness_used": {
+          "indicators": "missing_required",
+          "ohlc": "missing_required",
+          "quote": "available",
+          "risk_context": "available",
+          "session": "partial",
+          "structure": "missing_required"
+        },
+        "latency_ms": 1,
+        "cost_usd": 0.0,
+        "is_baseline": false
+      },
+      {
+        "profile_id": "orderflow",
+        "invocation_id": "8d5e1551-7e83-4aa3-a32d-4fcffb7b2ea8",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable",
+        "capacity_gate_reason": "missing_required",
+        "completeness_used": {
+          "ohlc": "missing_required",
+          "orderflow": "missing_required",
+          "quote": "available",
+          "risk_context": "available",
+          "session": "partial",
+          "structure": "missing_required"
+        },
+        "latency_ms": 1,
+        "cost_usd": 0.0,
+        "is_baseline": false
+      }
+    ],
+    "candidates": [
+      {
+        "profile_id": "baseline-current",
+        "invocation_id": "c782e5e2-c79e-4ab8-94dd-3d74f85ef629",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable"
+      },
+      {
+        "profile_id": "structure",
+        "invocation_id": "cc4841df-190e-423d-8018-7ae6c376c590",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable"
+      },
+      {
+        "profile_id": "adversarial-risk",
+        "invocation_id": "a4215a26-94db-4eb3-a671-57f7e87ce463",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable"
+      },
+      {
+        "profile_id": "smart-money",
+        "invocation_id": "2ef2c6d1-f69a-4b58-bcbb-1e06ee753ac9",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable"
+      },
+      {
+        "profile_id": "indicators",
+        "invocation_id": "e5646888-91fc-4fbf-9720-4bf8ae949580",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable"
+      },
+      {
+        "profile_id": "orderflow",
+        "invocation_id": "8d5e1551-7e83-4aa3-a32d-4fcffb7b2ea8",
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable"
+      }
+    ],
+    "aggregator_selection": {
+      "outcome": "no_selection",
+      "decision_code": "INSUFFICIENT_ENSEMBLE_AGREEMENT",
+      "selected_profile_id": null,
+      "decision_trace": [
+        "MISSING_REQUIRED_EVIDENCE",
+        "MISSING_REQUIRED_EVIDENCE",
+        "MISSING_REQUIRED_EVIDENCE",
+        "MISSING_REQUIRED_EVIDENCE",
+        "MISSING_REQUIRED_EVIDENCE",
+        "MISSING_REQUIRED_EVIDENCE",
+        "INSUFFICIENT_ENSEMBLE_AGREEMENT"
+      ],
+      "no_selection_reason": "INSUFFICIENT_ENSEMBLE_AGREEMENT"
+    },
+    "baseline_comparison": {
+      "baseline_profile_id": "baseline-current",
+      "baseline_state": "missing_required_evidence",
+      "baseline_direction": "flat",
+      "matches_global_selection": false
+    },
+    "counterfactual": {
+      "non_selected_candidates": [],
+      "diagnostic_only": true
+    },
+    "cost_usd": 0.0,
+    "latency_ms_total": 6,
+    "divergences": [],
+    "isolation_audit": [],
+    "isolation_failures": []
+  }
+]

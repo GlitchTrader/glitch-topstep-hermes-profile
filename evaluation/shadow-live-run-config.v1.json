@@ -1,0 +1,46 @@
+{
+  "schema_version": "glitch.topstep.shadow_live_run_config.v1",
+  "config_version": "2026-09-02-v1",
+  "run_id": "shadow-live-prep-2026-09-02",
+  "authorized_run_id": null,
+  "execution_blocked": true,
+  "requires_human_authorization": true,
+  "evaluation_only": true,
+  "profile_count": 6,
+  "profiles": [
+    "baseline-current",
+    "structure",
+    "adversarial-risk",
+    "smart-money",
+    "indicators",
+    "orderflow"
+  ],
+  "envelope": {
+    "frame_id": "20260820T1200Z",
+    "frame_path": "tests/fixtures/frozen_corpus/minute-frames/20260820T1200Z.json",
+    "corpus_root": "tests/fixtures/frozen_corpus",
+    "validity_seconds": 35
+  },
+  "budget": {
+    "max_parallel_slots": 2,
+    "max_cost_usd_per_session": 2.5,
+    "per_profile_timeout_ms": 35000,
+    "total_timeout_ms": 120000
+  },
+  "require_known_cost": false,
+  "stop_on": [
+    "write_operacional",
+    "hash_divergente",
+    "profile_outside_evaluation_home",
+    "lease_incorreto",
+    "custo_desconhecido",
+    "snapshot_invalido"
+  ],
+  "safety": {
+    "intents_sent": 0,
+    "orders_sent": 0,
+    "writes_operacionais": 0,
+    "production_parallelism": "blocked",
+    "promotion_use_allowed": false
+  }
+}
