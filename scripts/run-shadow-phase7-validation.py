@@ -47,13 +47,17 @@ def run_phase7_validation(*, run_id: str) -> dict[str, Any]:
 
     shadow_live = _load("shadow_observe_live", "shadow-observe-live.py")
     offline_path = runs_dir / f"{run_id}-shadow-offline-prep.json"
-    offline = shadow_live.run_shadow_offline_prep(run_id=f"{run_id}-offline")
+    offline = shadow_live.run_shadow_session(run_id=f"{run_id}-offline", mode=shadow_live.MODE_FIXTURE_OFFLINE)
     offline_path.write_text(json.dumps(offline, indent=2) + "\n", encoding="utf-8")
     obs = offline.get("observation") or {}
     steps.append(
         {
             "step": "shadow_observer_offline",
-            "ok": obs.get("intents_sent") == 0 and obs.get("writes_operacionais") == 0,
+            "ok": offline.get("status") == "completed"
+            and obs.get("intents_sent") == 0
+            and obs.get("writes_operacionais") == 0
+            and obs.get("evaluation_offline") is True
+            and obs.get("shadow_live") is False,
             "artifact": str(offline_path),
         }
     )
@@ -105,12 +109,12 @@ def run_phase7_validation(*, run_id: str) -> dict[str, Any]:
         }
     )
 
-    blocked = shadow_live.run_shadow_session(run_id=run_id, authorize=False)
+    blocked = shadow_live.run_shadow_session(run_id=run_id, mode=shadow_live.MODE_GATEWAY_READ_ONLY_LIVE, authorize=False)
     steps.append(
         {
             "step": "live_execution_blocked_without_authorization",
-            "ok": blocked.get("status") == "blocked",
-            "reason": blocked.get("reason"),
+            "ok": blocked.get("status") == "blocked"
+            and blocked.get("reason") == "human_authorization_required_for_gateway_read_only_live",
         }
     )
 

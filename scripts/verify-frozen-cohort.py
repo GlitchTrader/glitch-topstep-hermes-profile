@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from common import read_json
+from distribution_manifest import file_sha256
 
 SCRIPTS = Path(__file__).resolve().parent
 REPO = SCRIPTS.parent
@@ -18,7 +19,8 @@ MANIFEST_SCHEMA = "glitch.topstep.frozen_cohort_manifest.v1"
 
 
 def sha256_file(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    # ponytail: LF-normalize like SHA256SUMS so Linux/Windows CI agree on git-tracked files
+    return file_sha256(path).lower()
 
 
 def verify_frozen_cohort(

@@ -115,8 +115,10 @@ def observe_envelope_offline(
     )
 
     from shadow_observation import OBSERVATION_OFFLINE_SCHEMA, build_shadow_observation
+    from shadow_modes import MODE_FIXTURE_OFFLINE, enrich_observation_package, mode_flags
 
-    return build_shadow_observation(
+    flags = mode_flags(MODE_FIXTURE_OFFLINE)
+    observation = build_shadow_observation(
         run_id=effective_run_id,
         envelope=envelope,
         profile_decisions=profile_decisions,
@@ -125,10 +127,18 @@ def observe_envelope_offline(
         baseline_id=baseline_id,
         cost_usd=total_cost,
         latency_ms_total=total_latency,
-        shadow_live=False,
+        shadow_live=flags["shadow_live"],
         schema_version=OBSERVATION_OFFLINE_SCHEMA,
         gateway_touched=False,
         profile_source="fixtures",
+    )
+    return enrich_observation_package(
+        observation,
+        mode=MODE_FIXTURE_OFFLINE,
+        snapshot_source="frozen_fixture",
+        profile_ids=[str(p["profile_id"]) for p in profile_rows],
+        aggregator_rules_version=str(rules.get("rules_version") or ""),
+        registry_version=str(registry.get("registry_version") or ""),
     )
 
 

@@ -2,7 +2,7 @@
 
 **Data:** 2026-09-02  
 **Pré-requisito:** Trilha A **PASS** (`trail-a-multi-envelope-2026-09-02`)  
-**Status:** preparação — **sem shadow live**
+**Status:** preparação avançada — **sem shadow live** · PR [#211](https://github.com/GlitchTrader/glitch-topstep-hermes-profile/pull/211)
 
 ## Objetivo
 

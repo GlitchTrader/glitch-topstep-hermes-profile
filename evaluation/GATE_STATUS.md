@@ -39,11 +39,13 @@ aggregator_offline_real        **PASS** — envelope selado end-to-end · identi
 trail_a_complete               **PASS** — 2026-09-02 multi-envelope
 six_profile_evaluation_lane    **PASS** — registry v3 · 6 perfis `evaluation_enabled` · milestone offline 2026-09-02
 shadow_only_offline            **implemented/tested** — `scripts/shadow-observe-offline.py` · 0 intents · gateway untouched
+shadow_fixture_offline         **PASS** — modos `fixture_offline`/`snapshot_file` · `evaluation_offline=true` · `shadow_live=false`
+shadow_live_read_only          **PENDING** — modo `gateway_read_only_live` testado com mock · execução real pós-merge
 stability_metrics_trail_a      **implemented** — `scripts/report-trail-a-stability.py` · bundle multi-envelope
 provenance_chain_validation    **implemented/tested** — `scripts/validate-evaluation-provenance-chain.py`
 phase_7_shadow_live            **PREP** — observador + preflight + pacote congelado · live **BLOCKED**
 shadow_preflight               **implemented** — `scripts/shadow-preflight.py` · `shadow_not_ready:maintenance_window`
-shadow_observer_live_prep      **implemented/tested** — `scripts/shadow-observe-live.py` · requer `--authorize`
+shadow_observer_live_prep      **implemented/tested** — `scripts/shadow-observe-live.py` · modos explícitos · `--authorize` só em `gateway_read_only_live`
 evaluation_release_package     **frozen** — `evaluation/release/six-profile-evaluation-package-2026-09-02.json`
 shadow_phase7_validation       **implemented** — `scripts/run-shadow-phase7-validation.py`
 production_parallelism   **blocked**
@@ -69,7 +71,7 @@ fase ativa               **MEASUREMENT_STRATEGY_REVIEW** — Opção B Fase 5 ·
 phase_5_verdict          **OPTION_B** — `PHASE-5-SAMPLE-ADEQUACY-REVIEW-2026-09-02.md`
 measurement_review       **PENDING_HUMAN_APPROVAL** — `MEASUREMENT-STRATEGY-REVIEW-2026-09-02.md`
 abstention_spec          `ABSTENTION-DIAGNOSTIC-SPEC.md` (draft)
-test_suite               **599 OK** (2026-09-02) · SHA256SUMS coerente (625 entries)
+test_suite               **627 OK** (2026-09-02) · SHA256SUMS coerente (636 entries)
 evidência                source-tested · replay-proven · PRAC-proven · armed-promoted (sem promoção cruzada)
 coorte v6                **PRÉ-REGISTRADA** — 2 env · replay **NÃO** recomendado p/ gate (máx 4/5) · adiada
 coorte v7                **EXECUTADA** — `R15-POST-EXECUTION-REPORT-2026-09-02.md` · gate **2/5** inalterado

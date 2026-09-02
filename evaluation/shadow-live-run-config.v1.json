@@ -1,6 +1,8 @@
 {
   "schema_version": "glitch.topstep.shadow_live_run_config.v1",
-  "config_version": "2026-09-02-v1",
+  "config_version": "2026-09-02-v2",
+  "default_mode": "fixture_offline",
+  "modes": ["fixture_offline", "snapshot_file", "gateway_read_only_live"],
   "run_id": "shadow-live-prep-2026-09-02",
   "authorized_run_id": null,
   "execution_blocked": true,

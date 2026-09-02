@@ -30,6 +30,8 @@ PINNED_PATHS = (
     "scripts/shadow-preflight.py",
     "scripts/shadow-observe-offline.py",
     "scripts/shadow-observe-live.py",
+    "scripts/shadow_gateway_readonly.py",
+    "scripts/shadow_modes.py",
     "scripts/shadow_observation.py",
     "scripts/run-parallel-ensemble-evaluation.py",
     "scripts/ensemble_aggregator.py",

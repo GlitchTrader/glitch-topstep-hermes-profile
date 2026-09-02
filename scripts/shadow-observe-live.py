@@ -1,4 +1,4 @@
-"""Phase 7 shadow live observer — evaluation lane, observational only (blocked until --authorize)."""
+"""Shadow observer — explicit modes; gateway read-only live requires --authorize."""
 
 from __future__ import annotations
 
@@ -28,11 +28,21 @@ from evaluation_cognitive_replay import (  # noqa: E402
     operational_artifact_snapshot,
 )
 from evaluation_owner import production_state_root  # noqa: E402
-from shadow_observation import OBSERVATION_LIVE_SCHEMA, build_shadow_observation  # noqa: E402
+from shadow_gateway_readonly import ShadowGatewayError, fetch_gateway_readonly_snapshot  # noqa: E402
+from shadow_modes import (  # noqa: E402
+    DEFAULT_SHADOW_MODE,
+    MODE_FIXTURE_OFFLINE,
+    MODE_GATEWAY_READ_ONLY_LIVE,
+    MODE_SNAPSHOT_FILE,
+    SHADOW_MODES,
+    enrich_observation_package,
+    mode_flags,
+)
+from shadow_observation import OBSERVATION_OFFLINE_SCHEMA, build_shadow_observation  # noqa: E402
 
 DEFAULT_CONFIG = REPO / "evaluation" / "shadow-live-run-config.v1.json"
 DEFAULT_FRAME = REPO / "tests" / "fixtures" / "frozen_corpus" / "minute-frames" / "20260820T1200Z.json"
-SESSION_SCHEMA = "glitch.topstep.shadow_live_session.v1"
+SESSION_SCHEMA = "glitch.topstep.shadow_session.v1"
 
 
 def _load_seq():
@@ -60,15 +70,17 @@ def observe_shadow_six_profiles(
     rules: dict[str, Any],
     config: dict[str, Any],
     fixtures_dir: Path,
-    shadow_live: bool,
+    mode: str,
     prod_before: dict[str, Any] | None = None,
     prod_after: dict[str, Any] | None = None,
+    gateway_touched: bool = False,
 ) -> dict[str, Any]:
     seq = _load_seq()
     baseline_id = str(registry.get("baseline_policy") or "baseline-current")
     profiles = [p for p in registry.get("profiles") or [] if p.get("enabled", True)]
     budget = config.get("budget") or {}
     frame_id = str(envelope.get("frame_id") or envelope.get("envelope_id") or "shadow")
+    flags = mode_flags(mode)
 
     def loader(profile_id: str, fid: str) -> dict[str, Any] | None:
         path = fixtures_dir / profile_id / f"{fid}.json"
@@ -167,7 +179,11 @@ def observe_shadow_six_profiles(
             operational_writes = True
 
     cleanup_work_dirs(run_id)
-    return build_shadow_observation(
+    profile_source = "fixtures"
+    if mode == MODE_GATEWAY_READ_ONLY_LIVE:
+        profile_source = "fixtures_on_gateway_snapshot"
+
+    observation = build_shadow_observation(
         run_id=run_id,
         envelope=envelope,
         profile_decisions=profile_decisions,
@@ -176,25 +192,60 @@ def observe_shadow_six_profiles(
         baseline_id=baseline_id,
         cost_usd=total_cost,
         latency_ms_total=total_latency,
-        shadow_live=shadow_live,
-        schema_version=OBSERVATION_LIVE_SCHEMA,
+        shadow_live=flags["shadow_live"],
+        schema_version=OBSERVATION_OFFLINE_SCHEMA,
         isolation_audit=isolation_audit,
         operational_writes_detected=operational_writes,
-        gateway_touched=shadow_live,
-        profile_source="fixtures" if not shadow_live else "hermes",
+        gateway_touched=gateway_touched,
+        profile_source=profile_source,
     )
+    snapshot_source = {
+        MODE_FIXTURE_OFFLINE: "frozen_fixture",
+        MODE_SNAPSHOT_FILE: "snapshot_file",
+        MODE_GATEWAY_READ_ONLY_LIVE: "gateway_readonly",
+    }[mode]
+    return enrich_observation_package(
+        observation,
+        mode=mode,
+        snapshot_source=snapshot_source,
+        profile_ids=[str(p["profile_id"]) for p in profiles],
+        aggregator_rules_version=str(rules.get("rules_version") or ""),
+        registry_version=str(registry.get("registry_version") or ""),
+    )
+
+
+def _seal_frame(frame_path: Path, *, config: dict[str, Any], matrix: dict[str, Any], mapping: dict[str, Any]) -> dict[str, Any]:
+    frame = read_json(frame_path)
+    frame_id = str(frame.get("minute_id") or frame_path.stem)
+    sealed = seal_evaluation_envelope_from_frame(
+        frame=frame,
+        source_catalog=matrix["source_catalog"],
+        mapping=mapping,
+        validity_seconds=envelope_validity_seconds(budget=config.get("budget")),
+        frame_path=str(frame_path.parent),
+    )
+    identity = sealed_envelope_identity(sealed)
+    sealed["envelope_hash"] = identity["envelope_hash"]
+    sealed["frame_id"] = frame_id
+    return sealed
 
 
 def run_shadow_session(
     *,
     run_id: str,
+    mode: str = DEFAULT_SHADOW_MODE,
     config_path: Path = DEFAULT_CONFIG,
-    frame_path: Path = DEFAULT_FRAME,
+    frame_path: Path | None = None,
     fixtures_dir: Path | None = None,
     authorize: bool = False,
     gateway_health: dict[str, Any] | None = None,
     packet: dict[str, Any] | None = None,
+    http_get: Any = None,
 ) -> dict[str, Any]:
+    if mode not in SHADOW_MODES:
+        raise ValueError(f"unknown_shadow_mode:{mode}")
+
+    flags = mode_flags(mode)
     preflight_mod = _load_preflight()
     preflight = preflight_mod.shadow_preflight(
         run_id=run_id,
@@ -203,31 +254,40 @@ def run_shadow_session(
         packet=packet,
     )
 
-    if not authorize:
+    base = {
+        "schema_version": SESSION_SCHEMA,
+        "generated_utc": utc_now(),
+        "run_id": run_id,
+        "mode": mode,
+        "intents_sent": 0,
+        "orders_sent": 0,
+        "writes_operacionais": 0,
+        "production_parallelism": "blocked",
+        "promotion_use_allowed": False,
+        **flags,
+    }
+
+    if mode == MODE_GATEWAY_READ_ONLY_LIVE and not authorize:
         return {
-            "schema_version": SESSION_SCHEMA,
-            "generated_utc": utc_now(),
-            "run_id": run_id,
+            **base,
             "status": "blocked",
-            "reason": "human_authorization_required",
+            "reason": "human_authorization_required_for_gateway_read_only_live",
             "preflight": preflight,
-            "shadow_live": False,
-            "intents_sent": 0,
-            "orders_sent": 0,
-            "writes_operacionais": 0,
         }
 
-    if not preflight.get("ready"):
+    if mode in {MODE_FIXTURE_OFFLINE, MODE_SNAPSHOT_FILE} and authorize:
         return {
-            "schema_version": SESSION_SCHEMA,
-            "generated_utc": utc_now(),
-            "run_id": run_id,
+            **base,
+            "status": "blocked",
+            "reason": "authorize_not_applicable_for_offline_modes",
+            "preflight": preflight,
+        }
+
+    if mode == MODE_GATEWAY_READ_ONLY_LIVE and not preflight.get("ready"):
+        return {
+            **base,
             "status": preflight.get("status") or "shadow_not_ready",
             "preflight": preflight,
-            "shadow_live": False,
-            "intents_sent": 0,
-            "orders_sent": 0,
-            "writes_operacionais": 0,
         }
 
     config = read_json(config_path)
@@ -237,21 +297,29 @@ def run_shadow_session(
     mapping = read_json(REPO / "evaluation" / "packet_envelope_mapping.v1.json")
     fixtures = fixtures_dir or (REPO / "tests" / "fixtures" / "ensemble_candidates")
 
-    frame = read_json(frame_path)
-    frame_id = str(frame.get("minute_id") or frame_path.stem)
-    sealed = seal_evaluation_envelope_from_frame(
-        frame=frame,
-        source_catalog=matrix["source_catalog"],
-        mapping=mapping,
-        validity_seconds=envelope_validity_seconds(budget=config.get("budget")),
-        frame_path=str(frame_path.parent),
-    )
-    identity = sealed_envelope_identity(sealed)
-    sealed["envelope_hash"] = identity["envelope_hash"]
-    sealed["frame_id"] = frame_id
+    prod_before = operational_artifact_snapshot(production_state_root())
+    gateway_touched = False
+    sealed: dict[str, Any]
 
-    prod_state = production_state_root()
-    prod_before = operational_artifact_snapshot(prod_state)
+    try:
+        if mode == MODE_GATEWAY_READ_ONLY_LIVE:
+            snap = fetch_gateway_readonly_snapshot(
+                matrix=matrix,
+                mapping=mapping,
+                budget=config.get("budget"),
+                http_get=http_get,
+            )
+            sealed = snap["envelope"]
+            gateway_touched = True
+        else:
+            path = frame_path or DEFAULT_FRAME
+            if mode == MODE_SNAPSHOT_FILE and frame_path is None:
+                return {**base, "status": "blocked", "reason": "snapshot_file_requires_frame"}
+            sealed = _seal_frame(path, config=config, matrix=matrix, mapping=mapping)
+    except ShadowGatewayError as exc:
+        status = f"shadow_not_ready:{exc.code}"
+        return {**base, "status": status, "preflight": preflight, "error": str(exc)}
+
     observation = observe_shadow_six_profiles(
         run_id=run_id,
         envelope=sealed,
@@ -260,9 +328,10 @@ def run_shadow_session(
         rules=rules,
         config=config,
         fixtures_dir=fixtures,
-        shadow_live=True,
+        mode=mode,
         prod_before=prod_before,
-        prod_after=operational_artifact_snapshot(prod_state),
+        prod_after=operational_artifact_snapshot(production_state_root()),
+        gateway_touched=gateway_touched,
     )
 
     stop_reasons: list[str] = []
@@ -270,86 +339,32 @@ def run_shadow_session(
         stop_reasons.append("write_operacional")
     if observation.get("isolation_failures"):
         stop_reasons.append("isolation_failure")
-    if observation.get("cost_usd", 0) <= 0 and config.get("require_known_cost"):
-        stop_reasons.append("custo_desconhecido")
 
     status = "completed" if not stop_reasons else "stopped"
     return {
-        "schema_version": SESSION_SCHEMA,
-        "generated_utc": utc_now(),
-        "run_id": run_id,
+        **base,
         "status": status,
         "stop_reasons": stop_reasons,
-        "preflight": preflight,
+        "preflight": preflight if mode == MODE_GATEWAY_READ_ONLY_LIVE else None,
         "observation": observation,
-        "shadow_live": True,
-        "intents_sent": 0,
-        "orders_sent": 0,
         "writes_operacionais": observation.get("writes_operacionais", 0),
-        "production_parallelism": "blocked",
-        "promotion_use_allowed": False,
-    }
-
-
-def run_shadow_offline_prep(
-    *,
-    run_id: str,
-    frame_path: Path = DEFAULT_FRAME,
-    fixtures_dir: Path | None = None,
-) -> dict[str, Any]:
-    """Offline prep path — real preserved snapshot, fixture profiles, zero gateway."""
-    config = read_json(DEFAULT_CONFIG)
-    matrix = read_json(REPO / "evaluation" / "capability-matrix.json")
-    registry = read_json(REPO / "evaluation" / "registry.json")
-    rules = read_json(REPO / "evaluation" / "aggregator_rules.v1.json")
-    mapping = read_json(REPO / "evaluation" / "packet_envelope_mapping.v1.json")
-    fixtures = fixtures_dir or (REPO / "tests" / "fixtures" / "ensemble_candidates")
-    frame = read_json(frame_path)
-    frame_id = str(frame.get("minute_id") or frame_path.stem)
-    sealed = seal_evaluation_envelope_from_frame(
-        frame=frame,
-        source_catalog=matrix["source_catalog"],
-        mapping=mapping,
-        validity_seconds=envelope_validity_seconds(budget=config.get("budget")),
-        frame_path=str(frame_path.parent),
-    )
-    identity = sealed_envelope_identity(sealed)
-    sealed["envelope_hash"] = identity["envelope_hash"]
-    sealed["frame_id"] = frame_id
-
-    observation = observe_shadow_six_profiles(
-        run_id=run_id,
-        envelope=sealed,
-        registry=registry,
-        matrix=matrix,
-        rules=rules,
-        config=config,
-        fixtures_dir=fixtures,
-        shadow_live=False,
-    )
-    return {
-        "schema_version": SESSION_SCHEMA,
-        "generated_utc": utc_now(),
-        "run_id": run_id,
-        "status": "offline_prep_complete",
-        "observation": observation,
-        "shadow_live": False,
-        "intents_sent": 0,
-        "orders_sent": 0,
-        "writes_operacionais": 0,
     }
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Phase 7 shadow observer (blocked until --authorize)")
-    parser.add_argument("--run-id", default=f"shadow-live-prep-{uuid.uuid4()}")
+    parser = argparse.ArgumentParser(description="Shadow observer with explicit modes")
+    parser.add_argument("--run-id", default=f"shadow-{uuid.uuid4()}")
+    parser.add_argument("--mode", choices=sorted(SHADOW_MODES), default=DEFAULT_SHADOW_MODE)
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--frame", type=Path, default=DEFAULT_FRAME)
     parser.add_argument("--fixtures-dir", type=Path)
     parser.add_argument("--gateway-health", type=Path)
     parser.add_argument("--packet", type=Path)
-    parser.add_argument("--offline-prep", action="store_true", help="Offline prep only (default without --authorize)")
-    parser.add_argument("--authorize", action="store_true", help="Human authorization — still requires preflight PASS")
+    parser.add_argument(
+        "--authorize",
+        action="store_true",
+        help="Required only for gateway_read_only_live",
+    )
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
@@ -357,39 +372,23 @@ def main() -> int:
     packet_doc = read_json(args.packet) if args.packet and args.packet.is_file() else None
     packet = packet_doc.get("packet") if isinstance(packet_doc, dict) and isinstance(packet_doc.get("packet"), dict) else packet_doc
 
-    if args.offline_prep or not args.authorize:
-        result = run_shadow_offline_prep(
-            run_id=args.run_id,
-            frame_path=args.frame,
-            fixtures_dir=args.fixtures_dir,
-        )
-        if not args.offline_prep and not args.authorize:
-            preflight = _load_preflight().shadow_preflight(
-                run_id=args.run_id,
-                config_path=args.config,
-                gateway_health=health,
-                packet=packet,
-            )
-            result["preflight"] = preflight
-            result["status"] = "blocked"
-            result["reason"] = "human_authorization_required"
-    else:
-        result = run_shadow_session(
-            run_id=args.run_id,
-            config_path=args.config,
-            frame_path=args.frame,
-            fixtures_dir=args.fixtures_dir,
-            authorize=True,
-            gateway_health=health,
-            packet=packet,
-        )
+    result = run_shadow_session(
+        run_id=args.run_id,
+        mode=args.mode,
+        config_path=args.config,
+        frame_path=args.frame,
+        fixtures_dir=args.fixtures_dir,
+        authorize=args.authorize,
+        gateway_health=health,
+        packet=packet,
+    )
 
     text = json.dumps(result, indent=2) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(text, encoding="utf-8")
     print(text, end="")
-    return 0 if result.get("status") in {"offline_prep_complete", "completed"} else 1
+    return 0 if result.get("status") == "completed" else 1
 
 
 if __name__ == "__main__":

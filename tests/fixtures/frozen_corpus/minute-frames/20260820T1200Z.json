@@ -3,12 +3,29 @@
   "minute_id": "20260820T1200Z",
   "captured_utc": "2026-08-20T12:00:00Z",
   "packet": {
+    "schema_version": "glitch.direct.decision_packet.v2",
     "packet_id": "20260820T1200Z",
     "created_utc": "2026-08-20T12:00:00Z",
     "instrument": "MNQ",
-    "market": { "last": 20000.0, "high": 20010.0, "low": 19990.0 },
+    "market": {
+      "last": 20000.0,
+      "bid": 19999.0,
+      "ask": 20001.0,
+      "high": 20010.0,
+      "low": 19990.0,
+      "quote_timestamp": "2026-08-20T12:00:00Z"
+    },
     "account": { "name": "PRAC", "instrument_open_contracts": 0 },
-    "contract": { "symbol": "MNQ" }
+    "contract": {
+      "id": "CON.MNQ.202609",
+      "name": "MNQ",
+      "symbol_id": "MNQ",
+      "tick_size": 0.25,
+      "tick_value": 0.5,
+      "active_contract": true
+    },
+    "policy": { "account_stage": "PRAC" },
+    "data_quality": { "state_complete": true, "issues": [], "optional_issues": [] }
   },
   "forward_observation": { "high": 20005.0, "low": 19995.0, "close": 20000.0 }
 }

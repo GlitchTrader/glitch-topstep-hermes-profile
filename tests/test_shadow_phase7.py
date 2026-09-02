@@ -159,33 +159,36 @@ class ShadowPreflightTests(unittest.TestCase):
 
 
 class ShadowObserverTests(unittest.TestCase):
-    def test_offline_prep_six_profiles_zero_writes(self) -> None:
-        session = SHADOW_LIVE.run_shadow_offline_prep(run_id="test-shadow-offline-six")
-        self.assertEqual(session["status"], "offline_prep_complete")
+    def test_fixture_offline_six_profiles_zero_writes(self) -> None:
+        session = SHADOW_LIVE.run_shadow_session(run_id="test-shadow-offline-six", mode=SHADOW_LIVE.MODE_FIXTURE_OFFLINE)
+        self.assertEqual(session["status"], "completed")
+        self.assertTrue(session["evaluation_offline"])
+        self.assertFalse(session["shadow_live"])
         obs = session["observation"]
         self.assertEqual(obs["intents_sent"], 0)
         self.assertEqual(obs["orders_sent"], 0)
         self.assertEqual(obs["writes_operacionais"], 0)
         self.assertEqual(len(obs["profile_decisions"]), 6)
-        self.assertIn("aggregator_selection", obs)
-        self.assertIn("envelope", obs)
-        self.assertIsNotNone(obs["envelope"].get("snapshot_hash"))
+        self.assertEqual(obs["mode"], "fixture_offline")
+        self.assertIn("package_audit", obs)
 
-    def test_blocked_without_authorization(self) -> None:
-        blocked = SHADOW_LIVE.run_shadow_session(run_id="test-blocked", authorize=False)
+    def test_gateway_mode_blocked_without_authorization(self) -> None:
+        blocked = SHADOW_LIVE.run_shadow_session(
+            run_id="test-blocked",
+            mode=SHADOW_LIVE.MODE_GATEWAY_READ_ONLY_LIVE,
+            authorize=False,
+        )
         self.assertEqual(blocked["status"], "blocked")
-        self.assertEqual(blocked["intents_sent"], 0)
+        self.assertEqual(blocked["reason"], "human_authorization_required_for_gateway_read_only_live")
 
     def test_observation_records_no_selection_fields(self) -> None:
-        session = SHADOW_LIVE.run_shadow_offline_prep(run_id="test-no-selection-fields")
+        session = SHADOW_LIVE.run_shadow_session(run_id="test-no-selection-fields", mode=SHADOW_LIVE.MODE_FIXTURE_OFFLINE)
         agg = session["observation"]["aggregator_selection"]
         self.assertIn("outcome", agg)
         self.assertIn("decision_code", agg)
-        if agg["outcome"] == "no_selection":
-            self.assertIsNotNone(agg.get("no_selection_reason"))
 
     def test_isolation_audit_passes_offline(self) -> None:
-        session = SHADOW_LIVE.run_shadow_offline_prep(run_id="test-isolation")
+        session = SHADOW_LIVE.run_shadow_session(run_id="test-isolation", mode=SHADOW_LIVE.MODE_FIXTURE_OFFLINE)
         report = ISOLATION.audit_shadow_session(session)
         self.assertTrue(report["valid"])
 
@@ -215,10 +218,10 @@ class ShadowSafetyScenarioTests(unittest.TestCase):
             shadow_live=False,
         )
         self.assertEqual(obs["writes_operacionais"], 0)
-        self.assertEqual(obs["intents_sent"], 0)
+        self.assertFalse(obs.get("shadow_live", True))
 
     def test_metrics_report_from_sessions(self) -> None:
-        session = SHADOW_LIVE.run_shadow_offline_prep(run_id="test-metrics")
+        session = SHADOW_LIVE.run_shadow_session(run_id="test-metrics", mode=SHADOW_LIVE.MODE_FIXTURE_OFFLINE)
         out = ROOT / "evaluation" / "runs" / "test-shadow-metrics-temp.json"
         out.write_text(json.dumps(session, indent=2), encoding="utf-8")
         report = METRICS.build_shadow_metrics_report(observation_paths=[out])

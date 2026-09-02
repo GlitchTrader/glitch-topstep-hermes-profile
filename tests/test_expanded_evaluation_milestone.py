@@ -132,6 +132,8 @@ class ShadowOfflineTests(unittest.TestCase):
             rules=RULES,
         )
         self.assertFalse(report["shadow_live"])
+        self.assertTrue(report["evaluation_offline"])
+        self.assertEqual(report["mode"], "fixture_offline")
         self.assertEqual(report["intents_sent"], 0)
         self.assertFalse(report["gateway_touched"])
         self.assertEqual(len(report["profile_decisions"]), 6)

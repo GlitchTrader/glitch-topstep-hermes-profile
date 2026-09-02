@@ -1,11 +1,12 @@
 {
   "schema_version": "glitch.topstep.frozen_cohort_manifest.v1",
   "frozen_utc": "2026-09-01T21:00:00Z",
-  "pin_refresh_utc": "2026-09-02T22:10:00Z",
+  "pin_refresh_utc": "2026-09-02T23:00:00Z",
   "pin_refresh_notes": [
     "2026-09-02: refreshed registry.json and evaluation_output_contract.v1.json pins post-ensemble v2; collection_queue unchanged.",
     "2026-09-02: registry pin refresh for offline_parallel_evaluation runner (Trilha A capacity); collection_queue unchanged.",
-    "2026-09-02: registry pin refresh for six-profile evaluation lane v3 (smart-money, indicators, orderflow); collection_queue unchanged."
+    "2026-09-02: registry pin refresh for six-profile evaluation lane v3 (smart-money, indicators, orderflow); collection_queue unchanged.",
+    "2026-09-02: refreshed sample_quality_gate, SAMPLING-PLAN, comparable_scenarios pins to git-blob LF hashes (CI cross-platform)."
   ],
   "status": "frozen_measurement_phase",
   "sampling_plan_path": "evaluation/SAMPLING-PLAN-2026-09-01.md",
@@ -19,9 +20,9 @@
   "frozen_file_hashes": {
     "evaluation/evaluation_output_contract.v1.json": "aec33631e95165437b72d2e9d439dd168d9a61971f8d071510a0b644582309f3",
     "evaluation/registry.json": "b11062a9818d445aefb57bfc9fff314b19d4fc29043b41c51672378cdb63a68d",
-    "evaluation/sample_quality_gate.v1.json": "df1352877a8e3303100865f4f640796a2f7ec24c128f63a112f48dfb3d60547b",
-    "evaluation/SAMPLING-PLAN-2026-09-01.md": "4456a61f67be4bd13b7ea90dd46ca3279070ce32cc802f0b82346f88fa57d01f",
-    "evaluation/comparable_scenarios.v2.json": "187b9aaf54db35f91e648d8eb758091bdbb64b28a9619bb1886b8e0836cdbedc"
+    "evaluation/sample_quality_gate.v1.json": "5e0fa544be4e479f5c0a2e22aa7af2855d64f316e1a168c7a130f3938f2cd89a",
+    "evaluation/SAMPLING-PLAN-2026-09-01.md": "480458e30140ce7b22ccc949b3977c743ed6d374a5566355c14136f724001ee0",
+    "evaluation/comparable_scenarios.v2.json": "a5c59caaba04ca637e15352f1bb1c5cdaa64c463e19c0b7af10f2c980e55747d"
   },
   "historical_cohorts": {
     "runs": ["r7-contract", "r8-contract", "r9-v2"],
