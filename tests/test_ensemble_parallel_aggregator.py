@@ -719,7 +719,7 @@ class EnvelopeIdentitySealTests(unittest.TestCase):
     cls.SEAL = _load("ensemble_envelope_seal", "ensemble_envelope_seal.py")
     cls.ENV = _load("ensemble_envelope", "ensemble_envelope.py")
     cls.PREFLIGHT = _load("run_trail_a_real_preflight", "run-trail-a-real-preflight.py")
-    cls.FRAME_PATH = FIXTURES / "frozen_corpus" / "enriched" / "minute-frames" / "20260901T134026Z-bb50bbe9.json"
+    cls.FRAME_PATH = FIXTURES / "frozen_corpus" / "minute-frames" / "20260820T1200Z.json"
     cls.CONFIG = read_json(EVAL / "trail-a-real-run-config.v1.json")
     cls.MATRIX = read_json(EVAL / "capability-matrix.json")
     cls.MAPPING = read_json(EVAL / "packet_envelope_mapping.v1.json")

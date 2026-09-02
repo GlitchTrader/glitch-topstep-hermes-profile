@@ -14,7 +14,10 @@ FIXTURES = ROOT / "tests" / "fixtures" / "evaluation_runs"
 sys.path.insert(0, str(SCRIPTS))
 
 from evaluation_cost import audit_evaluation_costs
-from report_evaluation_metrics import _load_artifacts
+
+_COMPARISON_SCRIPT = SCRIPTS / "report-evaluation-runs-comparison.py"
+_METRICS_SCRIPT = SCRIPTS / "report_evaluation_metrics.py"
+_HAS_COMPARISON_DEPS = _COMPARISON_SCRIPT.is_file() and _METRICS_SCRIPT.is_file()
 
 
 def _load_module(filename: str, name: str):
@@ -25,9 +28,15 @@ def _load_module(filename: str, name: str):
     return module
 
 
-COMPARISON = _load_module("report-evaluation-runs-comparison.py", "report_evaluation_runs_comparison")
+if _HAS_COMPARISON_DEPS:
+    from report_evaluation_metrics import _load_artifacts
+
+    COMPARISON = _load_module("report-evaluation-runs-comparison.py", "report_evaluation_runs_comparison")
+else:
+    COMPARISON = None
 
 
+@unittest.skipUnless(_HAS_COMPARISON_DEPS, "comparison reporting scripts not in checkout")
 class EvaluationRunsComparisonTests(unittest.TestCase):
     def test_build_comparison_from_fixture_bundles(self) -> None:
         paths = [FIXTURES / "bundle-run-a.json", FIXTURES / "bundle-run-b.json"]

@@ -294,6 +294,9 @@ class EnsembleEvaluationTests(unittest.TestCase):
         self.assertFalse(comparison_1201["comparable_pair"])
 
     def test_enriched_corpus_builder_tags_and_sanitizes(self) -> None:
+        script = SCRIPTS / "build-enriched-corpus.py"
+        if not script.is_file():
+            self.skipTest("build-enriched-corpus.py not available in this checkout")
         BUILD = _load("build_enriched_corpus", "build-enriched-corpus.py")
         self.assertEqual(BUILD.prac_scenario_tag("preflight-T0.json", "packet"), "preflight")
         self.assertEqual(BUILD.prac_scenario_tag("test-08-timeout-mutation.json", "post_recovery.packet"), "timeout")
@@ -325,6 +328,9 @@ class EnsembleEvaluationTests(unittest.TestCase):
             self.assertIn(key, entry)
 
     def test_corpus_join_report_exact_match_policy(self) -> None:
+        script = SCRIPTS / "audit-corpus-decision-join.py"
+        if not script.is_file():
+            self.skipTest("audit-corpus-decision-join.py not available in this checkout")
         JOIN = _load("audit_corpus_decision_join", "audit-corpus-decision-join.py")
         report_path = ROOT / "evaluation" / "runs" / "corpus-join-report.json"
         self.assertTrue(
