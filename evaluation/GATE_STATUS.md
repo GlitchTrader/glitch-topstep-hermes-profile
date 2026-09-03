@@ -1,6 +1,6 @@
 # Ensemble evaluation gate status
 
-**Updated:** 2026-09-02 (six-profile expansion) · **PRAC-LIMITED encerrada** · coleta direcional **CONGELADA** · decisão produto **complete**
+**Updated:** 2026-09-03 (delivery_complete coherent capture merged #212) · **PRAC-LIMITED encerrada** · coleta direcional **CONGELADA** · decisão produto **complete**
 **Gate direcional v1:** **2/5** preservado · **`next_authorized_run_id: null`** · **`STOP_RERUNS` ativo**
 **Veredito:** `close_directional_evaluation` · `ensemble_inviable_with_current_data` · r18 **não autorizado**
 **Relatório:** `evaluation/reviews/LIMITED-2026-09-02-EXECUTIVE-DECISION-REPORT.md` (FINAL)
@@ -40,11 +40,12 @@ trail_a_complete               **PASS** — 2026-09-02 multi-envelope
 six_profile_evaluation_lane    **PASS** — registry v3 · 6 perfis `evaluation_enabled` · milestone offline 2026-09-02
 shadow_only_offline            **implemented/tested** — `scripts/shadow-observe-offline.py` · 0 intents · gateway untouched
 shadow_fixture_offline         **PASS** — modos `fixture_offline`/`snapshot_file` · `evaluation_offline=true` · `shadow_live=false`
-shadow_live_read_only          **PENDING** — modo `gateway_read_only_live` testado com mock · execução real pós-merge
+coherent_delivery_complete     **implemented** — `capture_coherent_evaluation_bundle.py` · modo `delivery_complete` · PR #212 merged
+shadow_live_read_only          **PENDING** — preflight `shadow-live-001-retry` not_ready (`release_package_hash_drift`, live anchor incoherent) · zero shadow cycle
 stability_metrics_trail_a      **implemented** — `scripts/report-trail-a-stability.py` · bundle multi-envelope
 provenance_chain_validation    **implemented/tested** — `scripts/validate-evaluation-provenance-chain.py`
 phase_7_shadow_live            **PREP** — observador + preflight + pacote congelado · live **BLOCKED**
-shadow_preflight               **implemented** — `scripts/shadow-preflight.py` · `shadow_not_ready:maintenance_window`
+shadow_preflight               **implemented** — `scripts/shadow-preflight.py` · `delivery_complete` mode · 2026-09-03 retry not_ready
 shadow_observer_live_prep      **implemented/tested** — `scripts/shadow-observe-live.py` · modos explícitos · `--authorize` só em `gateway_read_only_live`
 evaluation_release_package     **frozen** — `evaluation/release/six-profile-evaluation-package-2026-09-02.json`
 shadow_phase7_validation       **implemented** — `scripts/run-shadow-phase7-validation.py`
@@ -205,7 +206,8 @@ Gate `evaluation_enabled` nos novos perfis: capability matrix válida · schema 
 | Validação | `scripts/run-shadow-phase7-validation.py` |
 | Runbook | `evaluation/SHADOW-LIVE-RUNBOOK.md` |
 | Revisão técnica | `evaluation/reviews/PHASE-7-TECHNICAL-REVIEW-2026-09-02.md` |
-| Shadow live execução | **BLOCKED** — requer preflight PASS + `--authorize` humano |
+| Coherent capture `delivery_complete` | **merged** (#212) — ancora em cycle-empirical + minute-frame congelado |
+| Shadow live execução | **BLOCKED** — preflight not_ready 2026-09-03 · requer PASS + `--authorize` |
 | Gate cognitivo 2/5 | **inalterado** — promoção/roteamento bloqueados |
 
 ```powershell
