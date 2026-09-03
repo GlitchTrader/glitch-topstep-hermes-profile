@@ -1,7 +1,7 @@
 {
   "schema_version": "glitch.topstep.six_profile_evaluation_package.v1",
   "package_id": "test-package",
-  "generated_utc": "2026-09-03T03:33:16.814137Z",
+  "generated_utc": "2026-09-03T13:31:23.131079Z",
   "profile_count": 6,
   "profile_ids": [
     "baseline-current",
@@ -31,15 +31,10 @@
     "writes_operacionais": 0
   },
   "git_commits": {
-    "profile_repo": "62b0dec2b98babc5063e64ddc877a0956f4e8201",
-    "gateway_repo": "959d32abd8cde176d9cb74ea9954589db4968941"
+    "profile_repo": "8a13ebe6d1ef77ac090a99ea9fd51ff42860d044",
+    "gateway_repo": null
   },
-  "paired_contract": {
-    "gateway_version": "0.2.5",
-    "profile_version": "0.2.8",
-    "prompt_version": "glitch-topstep-v17.1",
-    "protocol_revision": "glitch.topstep.paired.v3"
-  },
+  "paired_contract": null,
   "file_hashes": {
     "evaluation/registry.json": "b11062a9818d445aefb57bfc9fff314b19d4fc29043b41c51672378cdb63a68d",
     "evaluation/capability-matrix.json": "7e4be060f4906ac268ec91546fdd17fcb0f90ac8c8dc2a9ec5e80d9f1c6414c0",
@@ -52,10 +47,10 @@
     "evaluation/profiles/smart-money.v1.json": "2180df40474dc7bfd491334aaa424b4a6cf00669fcb60aa9ce7bb5873fc7da3a",
     "evaluation/profiles/indicators.v1.json": "9a1c940ccdef08923e630ad3f201cf0c3885cb5ae77801f85abc904c4eafbc23",
     "evaluation/profiles/orderflow.v1.json": "46514ff90dc80f270f9b9a7040c7eb8436b03790fa7878855f7e4d22182e90ad",
-    "scripts/shadow-preflight.py": "76ef8ae34445eec904fa5c8585eab405e3602c00f129b8c9ad082ebf4ddecd6d",
+    "scripts/shadow-preflight.py": "12282edcd13beb8a96a4602741805fd7bfdf17ded371bb57eeda2ef4e7a4a6ef",
     "scripts/shadow-observe-offline.py": "ee89db97e2ca25e679b3ca082117080d40a8840a2f5afe7d5e7c06e4ef009e0a",
-    "scripts/shadow-observe-live.py": "fc1ceb1e86d15fc198f655372f22bd35b85b0bc27fbd4f0290b2c63be0025050",
-    "scripts/shadow_gateway_readonly.py": "ac6ace67b9f898cab5f17800e158711b1357979625abd084272ee148b2d504c2",
+    "scripts/shadow-observe-live.py": "2681d528af7b71db597efd3007f2b6b005380b69c1b592f959fc5be83291af44",
+    "scripts/shadow_gateway_readonly.py": "a09f69c8f6e42130a26d3002bf49caec5c325bd0d336e296ad79263cc33823ae",
     "scripts/shadow_modes.py": "2f48fb3fba7b47f2ffdef861e709e23f70e4418f93d91e99b2ee509c577fe9e3",
     "scripts/shadow_observation.py": "3e27924874ca8751fd77a3d5bd6c26d4b7f8282ae4f82e7324161fa50a5e772a",
     "scripts/run-parallel-ensemble-evaluation.py": "17c5babb4941cf16e629e8b36c4b5451bb5efded39505598eb2155fa39f3a0c5",
