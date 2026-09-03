@@ -77,6 +77,16 @@ def _verify_package_pins(package: dict[str, Any]) -> tuple[bool, list[str]]:
     return not issues, issues
 
 
+def _load_coherent_bundle():
+    spec = importlib.util.spec_from_file_location(
+        "capture_coherent_evaluation_bundle", SCRIPTS / "capture_coherent_evaluation_bundle.py"
+    )
+    assert spec and spec.loader
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
 def shadow_preflight(
     *,
     run_id: str,
@@ -84,9 +94,21 @@ def shadow_preflight(
     package_path: Path | None = DEFAULT_PACKAGE,
     gateway_health: dict[str, Any] | None = None,
     packet: dict[str, Any] | None = None,
+    decision: dict[str, Any] | None = None,
+    receipt: dict[str, Any] | None = None,
+    coherent_bundle: dict[str, Any] | None = None,
+    capture_mode: str | None = None,
     fetch_gateway: bool = False,
+    state_root: Path | None = None,
 ) -> dict[str, Any]:
     """Return shadow readiness without starting gateway, Hermes, or live session."""
+    if coherent_bundle is not None:
+        bundle_inputs = _load_coherent_bundle().bundle_preflight_inputs(coherent_bundle)
+        gateway_health = bundle_inputs.get("gateway_health") or gateway_health
+        packet = bundle_inputs.get("packet") or packet
+        decision = bundle_inputs.get("decision") or decision
+        receipt = bundle_inputs.get("receipt") or receipt
+
     config = read_json(config_path)
     registry = read_json(REPO / "evaluation" / "registry.json")
     ensemble_config = read_json(REPO / "evaluation" / "ensemble_config.json")
@@ -106,12 +128,31 @@ def shadow_preflight(
         capture_mr = measurement.evaluation_measurement_ready(
             mode="capture",
             packet=packet,
+            decision=decision,
+            receipt=receipt,
             gateway_health=gateway_health,
         )
         checks.append({"id": "capture_readiness", "ok": capture_mr.get("ready"), "detail": capture_mr})
         for reason in capture_mr.get("blocking_reasons") or []:
             if reason not in blocking:
                 blocking.append(reason)
+
+    if coherent_bundle is not None:
+        bundle_ready = bool(coherent_bundle.get("ready"))
+        bundle_reason = coherent_bundle.get("not_ready_reason")
+        checks.append(
+            {
+                "id": "coherent_evaluation_bundle",
+                "ok": bundle_ready,
+                "detail": {
+                    "packet_id": coherent_bundle.get("packet_id"),
+                    "not_ready_reason": bundle_reason,
+                    "snapshot_hash": coherent_bundle.get("snapshot_hash"),
+                },
+            }
+        )
+        if not bundle_ready:
+            blocking.append(str(bundle_reason or "coherent_bundle_not_ready"))
 
     if fetch_gateway:
         checks.append(
@@ -253,12 +294,29 @@ def main() -> int:
     parser.add_argument("--package", type=Path, default=DEFAULT_PACKAGE)
     parser.add_argument("--gateway-health", type=Path)
     parser.add_argument("--packet", type=Path)
+    parser.add_argument("--coherent-bundle", type=Path, help="Coherent evaluation bundle JSON")
+    parser.add_argument(
+        "--capture-mode",
+        choices=("delivery_complete", "live_gateway"),
+        default=None,
+        help="delivery_complete: single-shot capture when no --coherent-bundle file",
+    )
+    parser.add_argument("--state-root", type=Path, help="Hermes state root for delivery_complete capture")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
     health = read_json(args.gateway_health) if args.gateway_health and args.gateway_health.is_file() else None
     packet_doc = read_json(args.packet) if args.packet and args.packet.is_file() else None
     packet = packet_doc.get("packet") if isinstance(packet_doc, dict) and isinstance(packet_doc.get("packet"), dict) else packet_doc
+    coherent_bundle = None
+    if args.coherent_bundle and args.coherent_bundle.is_file():
+        coherent_bundle = _load_coherent_bundle().load_coherent_bundle(args.coherent_bundle)
+    elif args.capture_mode == "delivery_complete":
+        coherent_bundle = _load_coherent_bundle().capture_coherent_evaluation_bundle(
+            state_root=args.state_root,
+            capture_mode=args.capture_mode,
+            health=health,
+        )
 
     result = shadow_preflight(
         run_id=args.run_id,
@@ -266,6 +324,9 @@ def main() -> int:
         package_path=args.package,
         gateway_health=health,
         packet=packet,
+        coherent_bundle=coherent_bundle,
+        capture_mode=args.capture_mode,
+        state_root=args.state_root,
     )
     text = json.dumps(result, indent=2) + "\n"
     if args.output:

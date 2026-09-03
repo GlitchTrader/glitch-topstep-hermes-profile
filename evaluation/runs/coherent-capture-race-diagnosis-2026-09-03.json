@@ -1,0 +1,262 @@
+{
+  "schema_version": "glitch.topstep.coherent_capture_race_diagnosis.v1",
+  "investigation_id": "parallel-a-coherent-capture-race-2026-09-03",
+  "generated_utc": "2026-09-03T12:45:00Z",
+  "incident_window": {
+    "shadow_monitor_run_id": "shadow-live-001-retry",
+    "shadow_started_utc": "2026-09-03T12:28:18.588607Z",
+    "shadow_ended_utc": "2026-09-03T12:37:00.259935Z",
+    "shadow_poll_interval_sec": 45,
+    "shadow_poll_count": 12,
+    "shadow_outcome": "blocked",
+    "shadow_blocker": "evidence_chain_incomplete"
+  },
+  "verdict": "Shadow monitor cannot observe a coherent packet→decision→intent→receipt chain because GET /packet mints a fresh packet_id on every call while the profile binds to the packet_id captured at direct-cycle start (~90–155s earlier). Gateway advances the observable packet_id before Hermes finishes and before any shadow poll can match.",
+  "root_cause_classification": [
+    "gateway_packet_mint_per_get",
+    "cycle_latency_exceeds_packet_visibility",
+    "shadow_correlation_by_live_packet_id"
+  ],
+  "root_cause_classification_excluded": [
+    "hermes_invocation_failure",
+    "decision_persistence_failure",
+    "receipt_persistence_failure",
+    "cron_inactive",
+    "gateway_unavailable"
+  ],
+  "advance_point": {
+    "where": "gateway_GET_packet",
+    "mechanism": "DecisionPacketService.current() calls buildDecisionPacket() with randomUUID() on every GET /packet; each caller receives a new packet_id. Profile run-topstep-cycle fetches once at cycle start and retains that id in minute-frames/, attempts/, decisions.jsonl, and receipts/.",
+    "code_refs": [
+      "glitch-topstep/src/hermes/packet-service.ts:54-114",
+      "glitch-topstep/src/hermes/packet-builder.ts:646-647",
+      "glitch-topstep-hermes-profile/scripts/run-topstep-cycle.py:1647-1670",
+      "glitch-topstep-hermes-profile-clean-main/scripts/run-shadow-live-monitor-2026-09-03.py:82-96"
+    ],
+    "note": "packet expires_utc (~60s) governs intent admission, not shadow visibility. Observable packet_id diverges immediately on the next GET /packet after profile capture."
+  },
+  "race_window_estimates": {
+    "gateway_packet_id_rotation_observed_ms": {
+      "source": "shadow-readiness poll_log_summary",
+      "samples": [46010, 48879, 50213, 45866, 46120, 48133, 45811, 45857, 48419, 46192, 45974],
+      "mean_ms": 47043,
+      "driver": "shadow_poll_interval_sec=45 plus gateway mint-per-get"
+    },
+    "direct_cycle_duration_ms": {
+      "fea061df": 155447,
+      "873ad2d2": 88680,
+      "b68636bc": 154549,
+      "mean_ms": 132892
+    },
+    "post_packet_expiry_to_decision_ms": {
+      "fea061df": 95228,
+      "873ad2d2": 16243,
+      "b68636bc": 94155,
+      "note": "Decision often lands after packet expires_utc; live GET /packet cannot return expired packet_id."
+    },
+    "coherent_capture_window_via_live_poll_ms": 0,
+    "coherent_capture_window_rationale": "Zero shadow polls observed any completed-cycle packet_id. Profile cycles complete 88–155s after capture while each shadow poll binds to a newly minted gateway packet_id that never receives a profile decision."
+  },
+  "correlation_timeline": [
+    {
+      "utc": "2026-09-03T12:25:33.613Z",
+      "phase": "packet_captured",
+      "packet_id": "fea061df-ba10-4fc4-ab45-f21b89a3512d",
+      "source": "minute-frames/20260903T1225Z.json",
+      "expires_utc": "2026-09-03T12:26:33.613Z"
+    },
+    {
+      "utc": "2026-09-03T12:25:33.887Z",
+      "phase": "hermes_attempt_start",
+      "packet_id": "fea061df-ba10-4fc4-ab45-f21b89a3512d",
+      "invocation_reason": "scheduled"
+    },
+    {
+      "utc": "2026-09-03T12:26:33.613Z",
+      "phase": "packet_expired_on_gateway",
+      "packet_id": "fea061df-ba10-4fc4-ab45-f21b89a3512d",
+      "detail": "expires_utc reached; subsequent GET /packet returns new UUID"
+    },
+    {
+      "utc": "2026-09-03T12:28:08.842Z",
+      "phase": "decision",
+      "packet_id": "fea061df-ba10-4fc4-ab45-f21b89a3512d",
+      "action": "NOTHING",
+      "intent_id": "7fc55b08-9b8a-50e9-b6d9-ba2fc8eac70b",
+      "delta_after_expiry_ms": 95228
+    },
+    {
+      "utc": "2026-09-03T12:28:09.319Z",
+      "phase": "receipt",
+      "packet_id": "fea061df-ba10-4fc4-ab45-f21b89a3512d",
+      "status": "ignored",
+      "code": "no_execution_action",
+      "intent_id": "7fc55b08-9b8a-50e9-b6d9-ba2fc8eac70b"
+    },
+    {
+      "utc": "2026-09-03T12:28:18.589Z",
+      "phase": "shadow_poll_1",
+      "gateway_packet_id": "218d22da-194e-4158-a5df-17042238436d",
+      "decision_present": false,
+      "receipt_present": false,
+      "detail": "9s after fea061df receipt; gateway already on unrelated packet_id"
+    },
+    {
+      "utc": "2026-09-03T12:30:34.514Z",
+      "phase": "packet_captured",
+      "packet_id": "873ad2d2-cdd9-442a-82e6-f693b3f52906",
+      "source": "minute-frames/20260903T1230Z.json",
+      "expires_utc": "2026-09-03T12:31:34.514Z"
+    },
+    {
+      "utc": "2026-09-03T12:30:34.699Z",
+      "phase": "hermes_attempt_start",
+      "packet_id": "873ad2d2-cdd9-442a-82e6-f693b3f52906",
+      "invocation_reason": "scheduled"
+    },
+    {
+      "utc": "2026-09-03T12:30:43.692Z",
+      "phase": "shadow_poll_4",
+      "gateway_packet_id": "40acc6ce-b224-4c6e-b4fb-eada165e316b",
+      "decision_present": false,
+      "receipt_present": false
+    },
+    {
+      "utc": "2026-09-03T12:31:29.559Z",
+      "phase": "shadow_poll_5",
+      "gateway_packet_id": "aeb05b86-9564-4f4a-a37b-5d06179a4c44",
+      "decision_present": false,
+      "receipt_present": false
+    },
+    {
+      "utc": "2026-09-03T12:31:34.514Z",
+      "phase": "packet_expired_on_gateway",
+      "packet_id": "873ad2d2-cdd9-442a-82e6-f693b3f52906"
+    },
+    {
+      "utc": "2026-09-03T12:31:50.757Z",
+      "phase": "decision",
+      "packet_id": "873ad2d2-cdd9-442a-82e6-f693b3f52906",
+      "action": "NOTHING",
+      "intent_id": "af21d557-9389-5c9f-a496-f122c23a3ceb",
+      "delta_after_expiry_ms": 16243
+    },
+    {
+      "utc": "2026-09-03T12:32:03.366Z",
+      "phase": "receipt",
+      "packet_id": "873ad2d2-cdd9-442a-82e6-f693b3f52906",
+      "status": "ignored",
+      "code": "no_execution_action",
+      "intent_id": "af21d557-9389-5c9f-a496-f122c23a3ceb"
+    },
+    {
+      "utc": "2026-09-03T12:32:15.679Z",
+      "phase": "shadow_poll_6",
+      "gateway_packet_id": "c7a77eb6-264f-4da3-bde3-8958f5bacf79",
+      "decision_present": false,
+      "receipt_present": false,
+      "detail": "12s after 873ad2d2 receipt; still unrelated packet_id"
+    },
+    {
+      "utc": "2026-09-03T12:35:35.379Z",
+      "phase": "packet_captured",
+      "packet_id": "b68636bc-dd36-4a13-9c1f-0343052333a3",
+      "expires_utc": "2026-09-03T12:36:35.379Z",
+      "note": "Cycle started during shadow window but completed after monitor ended"
+    },
+    {
+      "utc": "2026-09-03T12:37:00.260Z",
+      "phase": "shadow_monitor_end",
+      "last_gateway_packet_id": "f233cf9b-12c2-4a8e-aac2-8d7f86a74d73",
+      "latest_profile_decision_packet_id": "873ad2d2-cdd9-442a-82e6-f693b3f52906",
+      "latest_profile_decision_utc": "2026-09-03T12:31:50.757148Z"
+    },
+    {
+      "utc": "2026-09-03T12:38:09.534Z",
+      "phase": "decision",
+      "packet_id": "b68636bc-dd36-4a13-9c1f-0343052333a3",
+      "action": "NOTHING",
+      "intent_id": "85c6c68d-4300-5bec-89de-7310b863c538"
+    },
+    {
+      "utc": "2026-09-03T12:38:10.135Z",
+      "phase": "receipt",
+      "packet_id": "b68636bc-dd36-4a13-9c1f-0343052333a3",
+      "status": "ignored",
+      "code": "no_execution_action",
+      "intent_id": "85c6c68d-4300-5bec-89de-7310b863c538"
+    }
+  ],
+  "completed_cycles_in_window": [
+    {
+      "packet_id": "fea061df-ba10-4fc4-ab45-f21b89a3512d",
+      "intent_id": "7fc55b08-9b8a-50e9-b6d9-ba2fc8eac70b",
+      "chain_complete": true,
+      "shadow_polls_matching_packet_id": 0,
+      "cycle_duration_ms": 155447,
+      "post_expiry_to_decision_ms": 95228
+    },
+    {
+      "packet_id": "873ad2d2-cdd9-442a-82e6-f693b3f52906",
+      "intent_id": "af21d557-9389-5c9f-a496-f122c23a3ceb",
+      "chain_complete": true,
+      "shadow_polls_matching_packet_id": 0,
+      "cycle_duration_ms": 88680,
+      "post_expiry_to_decision_ms": 16243
+    }
+  ],
+  "gateway_observation": {
+    "url": "http://127.0.0.1:8790",
+    "health_probe_utc": "2026-09-03T12:45:00Z",
+    "health_status": "ok",
+    "packet_probe": "unauthorized without token (expected); shadow monitor used bearer token successfully",
+    "flat_decision_interval_minutes": 5,
+    "packet_lease_default_ms": 300000,
+    "observed_packet_ttl_ms": 60000,
+    "observed_packet_ttl_source": "minute-frames packet.expires_utc - created_utc"
+  },
+  "upstream_context": {
+    "prior_artifact": "upstream-diagnosis-2026-09-03.json",
+    "note": "Upstream gap at 08:16 EDT was Hermes validation retry, not persistence failure. Profile produced decision+receipt throughout shadow window; shadow correlation model is the blocker."
+  },
+  "shadow_monitor_gap": {
+    "poll_log_source": "shadow-readiness-2026-09-03.json",
+    "gateway_packet_ids_observed": 12,
+    "unique_gateway_packet_ids": 12,
+    "profile_decisions_in_window": 2,
+    "packet_id_intersection_count": 0,
+    "valid_cycle_polls": 0
+  },
+  "minimal_coherent_capture_contract": {
+    "schema": "glitch.topstep.coherent_evaluation_bundle.v1",
+    "anchor": "profile_delivery_complete",
+    "steps": [
+      "Select packet_id from latest cycle-empirical.jsonl row with phase=delivery_complete (or events.jsonl decision_ready + matching receipt).",
+      "Load frozen packet from state/minute-frames/*.json where packet.packet_id matches anchor (not live GET /packet).",
+      "Load decision from decisions.jsonl and receipt from receipts/{packet_id}.json keyed by the same packet_id.",
+      "Verify intent.packet_id == decision.packet_id == receipt.packet_id == frozen packet.packet_id.",
+      "Verify snapshot_hash alignment across packet, intent, and receipt (_evidence_chain_complete / capture_coherent_evaluation_bundle rules).",
+      "Optionally fetch GET /health read-only for market gate; do not require live GET /packet packet_id to equal anchor."
+    ],
+    "anti_patterns": [
+      "Polling GET /packet and expecting decision_present for the returned packet_id",
+      "Treating gateway mint-per-get packet_id as the correlation key for in-flight direct cycles",
+      "Waiting for valid_cycle while bar_1m_partial rotates faster than Hermes cycle latency"
+    ],
+    "existing_implementation": "glitch-topstep-hermes-profile/scripts/capture_coherent_evaluation_bundle.py",
+    "recommended_trigger": "Event-driven single-shot capture on delivery_complete, or poll profile state for new receipt rows then backfill packet from minute-frames"
+  },
+  "recommended_next_step": "Replace shadow-live polling correlation with capture_coherent_evaluation_bundle anchored on profile delivery_complete. Re-run shadow gate only after a coherent bundle reports ready=true; do not mutate gateway or pause cron.",
+  "evidence_paths": [
+    "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state\\events.jsonl",
+    "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state\\decisions.jsonl",
+    "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state\\receipts.jsonl",
+    "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state\\cycle-empirical.jsonl",
+    "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state\\minute-frames\\20260903T1225Z.json",
+    "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state\\minute-frames\\20260903T1230Z.json",
+    "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state\\attempts\\873ad2d2-cdd9-442a-82e6-f693b3f52906.json",
+    "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile-clean-main\\evaluation\\runs\\shadow-readiness-2026-09-03.json",
+    "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\upstream-diagnosis-2026-09-03.json",
+    "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\scripts\\capture_coherent_evaluation_bundle.py"
+  ]
+}

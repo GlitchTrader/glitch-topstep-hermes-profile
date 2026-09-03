@@ -1,0 +1,19 @@
+{
+  "schema_version": "glitch.topstep.delivery_complete_evidence_audit.v1",
+  "generated_utc": "2026-09-03T12:55:00Z",
+  "state_root": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state",
+  "delivery_complete_real_evidence": "available",
+  "latest_delivery_complete": {
+    "packet_id": "e3249b69-0a48-4048-9e9d-edaedb86d616",
+    "delivery_complete_recorded_utc": "2026-09-03T12:47:02.300526Z",
+    "minute_frame_path": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state\\minute-frames\\20260903T1245Z.json",
+    "decision_present": true,
+    "decision_recorded_utc": "2026-09-03T12:47:01.831236Z",
+    "receipt_present": true,
+    "receipt_path": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state\\receipts\\e3249b69-0a48-4048-9e9d-edaedb86d616.json",
+    "chain_complete": true,
+    "snapshot_hash": "106ef41dc741573b41840965819effea9acb65321c459f4a1ab13241bff47768"
+  },
+  "audit_method": "read_only_scan_cycle_empirical_minute_frames_decisions_receipts",
+  "notes": "Complete real chain exists for latest delivery_complete anchor; live GET /packet mint-per-get remains uncorrelatable per coherent-capture-race-diagnosis-2026-09-03.json"
+}
