@@ -1,0 +1,41 @@
+{
+  "schema_version": "glitch.topstep.minute_frame.v2",
+  "minute_id": "20260903T1245Z",
+  "packet": {
+    "schema_version": "glitch.direct.decision_packet.v2",
+    "packet_id": "pkt-delivery-ok",
+    "created_utc": "2026-09-03T12:45:37.011Z",
+    "instrument": "MNQ",
+    "market": {
+      "instrument": "MNQ",
+      "last": 20000.0,
+      "bid": 19999.0,
+      "ask": 20001.0,
+      "quote_valid": true,
+      "quote_timestamp": "2026-09-03T12:45:37.011Z"
+    },
+    "account": {"name": "PRAC", "instrument_open_contracts": 0},
+    "contract": {
+      "id": "CON.MNQ.202609",
+      "name": "MNQ",
+      "symbol_id": "MNQ",
+      "tick_size": 0.25,
+      "tick_value": 0.5,
+      "active_contract": true
+    },
+    "policy": {"account_stage": "PRAC"},
+    "data_quality": {"state_complete": true, "quote_age_ms": 1000},
+    "execution": {"daily_capture_locked": false},
+    "market_observation": {
+      "observation": {
+        "timeframes": [
+          {
+            "timeframe_minutes": 1,
+            "latest_bar_utc": "2026-09-03T12:45:00Z",
+            "latest_bar_partial": false
+          }
+        ]
+      }
+    }
+  }
+}

@@ -45,6 +45,16 @@ DEFAULT_FRAME = REPO / "tests" / "fixtures" / "frozen_corpus" / "minute-frames" 
 SESSION_SCHEMA = "glitch.topstep.shadow_session.v1"
 
 
+def _load_coherent_capture():
+    spec = importlib.util.spec_from_file_location(
+        "capture_coherent_evaluation_bundle", SCRIPTS / "capture_coherent_evaluation_bundle.py"
+    )
+    assert spec and spec.loader
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
 def _load_seq():
     spec = importlib.util.spec_from_file_location("run_ensemble_evaluation", SCRIPTS / "run-ensemble-evaluation.py")
     assert spec and spec.loader
@@ -241,9 +251,21 @@ def run_shadow_session(
     gateway_health: dict[str, Any] | None = None,
     packet: dict[str, Any] | None = None,
     http_get: Any = None,
+    capture_mode: str | None = None,
+    coherent_bundle: dict[str, Any] | None = None,
+    state_root: Path | None = None,
 ) -> dict[str, Any]:
     if mode not in SHADOW_MODES:
         raise ValueError(f"unknown_shadow_mode:{mode}")
+
+    capture_mod = _load_coherent_capture()
+    resolved_capture_mode = capture_mode or capture_mod.CAPTURE_MODE_LIVE_GATEWAY
+    if coherent_bundle is None and resolved_capture_mode == capture_mod.CAPTURE_MODE_DELIVERY_COMPLETE:
+        coherent_bundle = capture_mod.capture_coherent_evaluation_bundle(
+            state_root=state_root,
+            capture_mode=resolved_capture_mode,
+            health=gateway_health,
+        )
 
     flags = mode_flags(mode)
     preflight_mod = _load_preflight()
@@ -252,6 +274,9 @@ def run_shadow_session(
         config_path=config_path,
         gateway_health=gateway_health,
         packet=packet,
+        coherent_bundle=coherent_bundle,
+        capture_mode=resolved_capture_mode,
+        state_root=state_root,
     )
 
     base = {
@@ -259,6 +284,7 @@ def run_shadow_session(
         "generated_utc": utc_now(),
         "run_id": run_id,
         "mode": mode,
+        "capture_mode": resolved_capture_mode,
         "intents_sent": 0,
         "orders_sent": 0,
         "writes_operacionais": 0,
@@ -302,7 +328,21 @@ def run_shadow_session(
     sealed: dict[str, Any]
 
     try:
-        if mode == MODE_GATEWAY_READ_ONLY_LIVE:
+        if (
+            mode == MODE_GATEWAY_READ_ONLY_LIVE
+            and resolved_capture_mode == capture_mod.CAPTURE_MODE_DELIVERY_COMPLETE
+            and coherent_bundle
+        ):
+            envelope = coherent_bundle.get("envelope")
+            if not isinstance(envelope, dict):
+                return {
+                    **base,
+                    "status": "shadow_not_ready:coherent_bundle_incomplete",
+                    "preflight": preflight,
+                }
+            sealed = envelope
+            # delivery_complete identity from frozen profile state — not live GET /packet
+        elif mode == MODE_GATEWAY_READ_ONLY_LIVE:
             snap = fetch_gateway_readonly_snapshot(
                 matrix=matrix,
                 mapping=mapping,
@@ -365,12 +405,23 @@ def main() -> int:
         action="store_true",
         help="Required only for gateway_read_only_live",
     )
+    parser.add_argument(
+        "--capture-mode",
+        choices=("delivery_complete", "live_gateway"),
+        default="live_gateway",
+        help="delivery_complete uses coherent bundle anchor; live_gateway uses GET /packet",
+    )
+    parser.add_argument("--coherent-bundle", type=Path, help="Pre-captured coherent evaluation bundle JSON")
+    parser.add_argument("--state-root", type=Path, help="Hermes state root for delivery_complete capture")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
     health = read_json(args.gateway_health) if args.gateway_health and args.gateway_health.is_file() else None
     packet_doc = read_json(args.packet) if args.packet and args.packet.is_file() else None
     packet = packet_doc.get("packet") if isinstance(packet_doc, dict) and isinstance(packet_doc.get("packet"), dict) else packet_doc
+    coherent_bundle = None
+    if args.coherent_bundle and args.coherent_bundle.is_file():
+        coherent_bundle = _load_coherent_capture().load_coherent_bundle(args.coherent_bundle)
 
     result = run_shadow_session(
         run_id=args.run_id,
@@ -381,6 +432,9 @@ def main() -> int:
         authorize=args.authorize,
         gateway_health=health,
         packet=packet,
+        capture_mode=args.capture_mode,
+        coherent_bundle=coherent_bundle,
+        state_root=args.state_root,
     )
 
     text = json.dumps(result, indent=2) + "\n"

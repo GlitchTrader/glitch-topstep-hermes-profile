@@ -1,0 +1,47 @@
+{
+  "schema_version": "glitch.topstep.evaluation_product_status.v1",
+  "generated_utc": "2026-09-03T12:55:00Z",
+  "evaluation_only": true,
+  "armed_promotion_allowed": false,
+  "readiness": {
+    "product_evaluation_ready": true,
+    "shadow_live_ready": false,
+    "production_execution_ready": false
+  },
+  "repos": {
+    "profile_feature_branch": {
+      "path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile-feat-delivery-complete",
+      "branch": "feat/coherent-delivery-complete-capture-2026-09-03",
+      "base_sha": "ed29cf0aab443e2e0c819e6327c15f33008ce543"
+    },
+    "profile_dirty_main": {
+      "path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile",
+      "note": "untouched — parallel D isolation"
+    }
+  },
+  "shadow_live": {
+    "ready": false,
+    "status": "shadow_not_ready:blocked_by_coherent_capture",
+    "blocked_by_coherent_capture": true,
+    "coherent_bundle_capture": {
+      "script": "scripts/capture_coherent_evaluation_bundle.py",
+      "schema": "glitch.topstep.coherent_evaluation_bundle.v1",
+      "capture_mode_default": "delivery_complete",
+      "status": "implementation_ready_pending_merge",
+      "note": "delivery_complete anchor implemented in feature branch; shadow retry after PR merge + live validation"
+    },
+    "delivery_complete_evidence_audit": "evaluation/runs/delivery-complete-evidence-audit-2026-09-03.json",
+    "primary_blockers": [
+      "blocked_by_coherent_capture_until_pr_merged",
+      "human_authorization_for_shadow_live"
+    ]
+  },
+  "production_execution": {
+    "ready": false,
+    "blocked": true,
+    "reasons": [
+      "evaluation_only_lane",
+      "shadow_live_not_cleared"
+    ]
+  }
+}

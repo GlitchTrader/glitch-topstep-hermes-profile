@@ -81,6 +81,22 @@ def _snapshot_expired(packet: dict[str, Any], *, max_age_ms: int) -> bool:
     return False
 
 
+def fetch_gateway_health_readonly(
+    *,
+    token: str | None = None,
+    http_get: Callable[[str, str, float], tuple[int, dict[str, Any]]] | None = None,
+) -> dict[str, Any]:
+    """GET /health only — market gate without minting a new packet_id."""
+    tok = token if token is not None else local_token()
+    getter = http_get or (lambda path, t, timeout: _http_get_json(path, token=t, timeout_s=timeout))
+    status, health = getter("/health", tok, 5.0)
+    if status != 200:
+        raise ShadowGatewayError("gateway_unavailable", f"health_status_{status}")
+    if _maintenance_window(health):
+        raise ShadowGatewayError("maintenance_window")
+    return health
+
+
 def fetch_gateway_readonly_snapshot(
     *,
     matrix: dict[str, Any],
