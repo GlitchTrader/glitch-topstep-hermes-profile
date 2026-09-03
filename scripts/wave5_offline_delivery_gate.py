@@ -19,6 +19,12 @@ def evaluate_delivery_revalidation(
 ) -> tuple[bool, str | None]:
     """Return (ok, failure_code). Never emits intents or orders."""
     instrument = str(selection.get("selected_instrument") or "").upper()
+    if not instrument and isinstance(selection.get("selected_candidate"), dict):
+        instrument = str(selection["selected_candidate"].get("instrument") or "").upper()
+    if not instrument:
+        instrument = str(
+            delivery_context.get("instrument") or envelope.get("instrument") or ""
+        ).upper()
     ctx_instrument = str(delivery_context.get("instrument") or "").upper()
     if instrument and ctx_instrument and instrument != ctx_instrument:
         return False, "identity_mismatch"
