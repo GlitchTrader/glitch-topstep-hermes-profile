@@ -4,12 +4,16 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO / "scripts"))
+from evaluation_run_public_bundle import slot_normalized, slot_replay_fields  # noqa: E402
+
 REPORT_SCHEMA = "glitch.topstep.trail_a_stability_report.v1"
 
 
@@ -73,12 +77,12 @@ def build_trail_a_stability_report(*, bundle_path: Path) -> dict[str, Any]:
         order_invariant = True
         for slot in slots_sorted:
             pid = str(slot.get("profile_id") or "")
-            art = slot.get("artifact") or {}
-            norm = art.get("normalized") or {}
+            replay = slot_replay_fields(slot)
+            norm = slot_normalized(slot) or {}
             directions_by_profile[pid].append(str(norm.get("direction") or ""))
             states_by_profile[pid].append(str(norm.get("state") or ""))
-            latency_by_profile[pid].append(int(art.get("latency_ms") or 0))
-            cost_by_profile[pid] += float(art.get("cost_usd") or 0.0)
+            latency_by_profile[pid].append(int(replay.get("latency_ms") or 0))
+            cost_by_profile[pid] += float(replay.get("cost_usd") or 0.0)
         if slots_sorted and slots_shuffled:
             order_invariant = [s.get("profile_id") for s in slots_sorted] != [s.get("profile_id") for s in slots_shuffled]
 

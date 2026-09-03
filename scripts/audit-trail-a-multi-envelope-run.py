@@ -17,6 +17,7 @@ from common import read_json  # noqa: E402
 from evaluation_lease import evaluation_lease_active  # noqa: E402
 from evaluation_cognitive_replay import operational_artifact_snapshot  # noqa: E402
 from evaluation_owner import production_state_root  # noqa: E402
+from evaluation_run_public_bundle import slot_normalized, slot_replay_fields  # noqa: E402
 
 AUDIT_SCHEMA = "glitch.topstep.trail_a_multi_envelope_post_audit.v1"
 DEFAULT_CONFIG = REPO / "evaluation" / "trail-a-multi-envelope-run-config.v1.json"
@@ -70,24 +71,26 @@ def audit_multi_envelope_run(
         profile_checks: list[dict[str, Any]] = []
         candidate_hashes: set[str] = set()
         for slot in frame.get("profile_slots") or []:
-            art = slot.get("artifact") or {}
-            if art.get("status") != "completed":
+            replay = slot_replay_fields(slot)
+            status = replay.get("status") or slot.get("status")
+            if status != "completed":
                 frame_issues.append(f"profile_incomplete:{slot.get('profile_id')}")
-            inv = str(art.get("invocation_id") or "")
+            inv = str(replay.get("invocation_id") or slot.get("invocation_id") or "")
             if inv:
                 all_invocation_ids.append(inv)
-            norm = art.get("normalized") or {}
+            norm = slot_normalized(slot) or {}
             eh = str(norm.get("envelope_hash") or "")
             if eh:
                 candidate_hashes.add(eh)
-            if art.get("snapshot_hash") != sealed_snap:
+            slot_snapshot = slot.get("snapshot_hash") or (slot.get("artifact") or {}).get("snapshot_hash")
+            if slot_snapshot and slot_snapshot != sealed_snap:
                 frame_issues.append(f"snapshot_divergence:{slot.get('profile_id')}")
             profile_checks.append(
                 {
                     "profile_id": slot.get("profile_id"),
                     "invocation_id": inv,
-                    "latency_ms": art.get("latency_ms"),
-                    "cost_usd": art.get("cost_usd"),
+                    "latency_ms": replay.get("latency_ms"),
+                    "cost_usd": replay.get("cost_usd"),
                     "envelope_hash": eh,
                 }
             )

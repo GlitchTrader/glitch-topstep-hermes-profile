@@ -20,6 +20,7 @@ from ensemble_envelope_seal import (  # noqa: E402
     seal_envelope_from_run_config,
     sealed_envelope_identity,
 )
+from evaluation_run_public_bundle import slot_normalized  # noqa: E402
 
 REPROCESS_SCHEMA = "glitch.topstep.trail_a_real_aggregator_reprocess.v1"
 INCIDENT_SCHEMA = "glitch.topstep.trail_a_envelope_identity_incident.v1"
@@ -34,7 +35,7 @@ def utc_now() -> str:
 def _collect_normalized(bundle: dict[str, Any]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for slot in sorted(bundle.get("profile_slots") or [], key=lambda r: str(r.get("profile_id"))):
-        norm = (slot.get("artifact") or {}).get("normalized")
+        norm = slot_normalized(slot)
         if norm:
             rows.append(norm)
     return rows

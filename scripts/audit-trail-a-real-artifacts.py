@@ -16,6 +16,7 @@ from common import read_json  # noqa: E402
 from ensemble_aggregator import aggregate_envelope  # noqa: E402
 from evaluation_lease import evaluation_lease_active  # noqa: E402
 from evaluation_owner import production_state_root  # noqa: E402
+from evaluation_run_public_bundle import slot_normalized, slot_replay_fields  # noqa: E402
 
 AUDIT_SCHEMA = "glitch.topstep.trail_a_real_artifact_audit.v1"
 DEFAULT_CONFIG = REPO / "evaluation" / "trail-a-real-run-config.v1.json"
@@ -50,12 +51,14 @@ def audit_trail_a_real_run(
     profile_checks: list[dict[str, Any]] = []
     normalized_for_agg: list[dict[str, Any]] = []
     for slot in bundle.get("profile_slots") or []:
-        art = slot.get("artifact") or {}
-        if art.get("status") != "completed":
+        replay = slot_replay_fields(slot)
+        status = replay.get("status") or slot.get("status")
+        if status != "completed":
             issues.append(f"profile_incomplete:{slot.get('profile_id')}")
-        if art.get("snapshot_hash") != pin.get("snapshot_hash"):
+        slot_snapshot = slot.get("snapshot_hash") or (slot.get("artifact") or {}).get("snapshot_hash")
+        if slot_snapshot and slot_snapshot != pin.get("snapshot_hash"):
             issues.append(f"snapshot_divergence:{slot.get('profile_id')}")
-        norm = art.get("normalized")
+        norm = slot_normalized(slot)
         if not norm:
             issues.append(f"missing_normalized:{slot.get('profile_id')}")
         else:
@@ -63,14 +66,14 @@ def audit_trail_a_real_run(
         profile_checks.append(
             {
                 "profile_id": slot.get("profile_id"),
-                "invocation_id": art.get("invocation_id"),
-                "has_raw": art.get("raw_profile_output") is not None,
+                "invocation_id": replay.get("invocation_id"),
+                "has_raw": replay.get("raw_profile_output") is not None,
                 "has_normalized": norm is not None,
-                "latency_ms": art.get("latency_ms"),
-                "cost_usd": art.get("cost_usd"),
-                "model": art.get("model"),
-                "provider": art.get("provider"),
-                "prompt_version": (art.get("profile") or {}).get("prompt_version"),
+                "latency_ms": replay.get("latency_ms"),
+                "cost_usd": replay.get("cost_usd"),
+                "model": replay.get("model"),
+                "provider": replay.get("provider"),
+                "prompt_version": replay.get("prompt_version"),
             }
         )
 

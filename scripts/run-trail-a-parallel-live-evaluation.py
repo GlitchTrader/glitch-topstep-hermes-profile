@@ -36,6 +36,7 @@ from evaluation_owner import (  # noqa: E402
     load_evaluation_budget,
     production_state_root,
 )
+from evaluation_run_public_bundle import persist_public_run_bundle  # noqa: E402
 
 import importlib.util
 
@@ -468,8 +469,7 @@ def main() -> int:
         scenarios_path=args.scenarios,
     )
     output = args.output or (REPO / "evaluation" / "runs" / f"{args.run_id}.json")
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+    persist_public_run_bundle(result, output)
     print(json.dumps({"status": result.get("status"), "output": str(output)}, indent=2))
     if result.get("status") in {"failed", "blocked"}:
         return 1

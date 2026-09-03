@@ -9,6 +9,10 @@ from pathlib import Path
 from typing import Any
 
 REPO = Path(__file__).resolve().parents[1]
+import sys
+
+sys.path.insert(0, str(REPO / "scripts"))
+from evaluation_run_public_bundle import slot_normalized, slot_replay_fields  # noqa: E402
 CHAIN_SCHEMA = "glitch.topstep.evaluation_provenance_chain_audit.v1"
 REQUIRED_LINKS = (
     "packet_id",
@@ -71,8 +75,9 @@ def validate_bundle_chain(bundle: dict[str, Any]) -> dict[str, Any]:
         for frame in bundle.get("frame_results") or []:
             agg_code = str((frame.get("selection") or {}).get("decision_code") or "")
             for slot in frame.get("profile_slots") or []:
-                art = slot.get("artifact") or {}
-                norm = art.get("normalized") or {}
+                replay = slot_replay_fields(slot)
+                norm = slot_normalized(slot) or {}
+                art = slot.get("artifact") if isinstance(slot.get("artifact"), dict) else {}
                 packet_id = str(
                     norm.get("packet_id")
                     or art.get("packet_id")
@@ -82,10 +87,15 @@ def validate_bundle_chain(bundle: dict[str, Any]) -> dict[str, Any]:
                 ) or None
                 row = _chain_row(
                     packet_id=packet_id or None,
-                    snapshot_hash=str(art.get("snapshot_hash") or frame.get("sealed_snapshot_hash") or ""),
+                    snapshot_hash=str(
+                        slot.get("snapshot_hash")
+                        or art.get("snapshot_hash")
+                        or frame.get("sealed_snapshot_hash")
+                        or ""
+                    ),
                     envelope_hash=str(norm.get("envelope_hash") or frame.get("sealed_envelope_hash") or ""),
                     profile_id=str(slot.get("profile_id") or ""),
-                    invocation_id=str(art.get("invocation_id") or ""),
+                    invocation_id=str(slot.get("invocation_id") or replay.get("invocation_id") or ""),
                     profile_decision=str(norm.get("state") or ""),
                     aggregator_decision=agg_code or None,
                     outcome=None,
@@ -96,14 +106,17 @@ def validate_bundle_chain(bundle: dict[str, Any]) -> dict[str, Any]:
                     issues.append(f"incomplete_chain:{row['profile_id']}:{frame.get('frame_id')}")
     else:
         for slot in bundle.get("profile_slots") or []:
-            art = slot.get("artifact") or {}
-            norm = art.get("normalized") or {}
+            replay = slot_replay_fields(slot)
+            norm = slot_normalized(slot) or {}
+            art = slot.get("artifact") if isinstance(slot.get("artifact"), dict) else {}
             row = _chain_row(
-                packet_id=str(art.get("envelope_id") or ""),
-                snapshot_hash=str(art.get("snapshot_hash") or bundle.get("sealed_snapshot_hash") or ""),
+                packet_id=str(art.get("envelope_id") or norm.get("envelope_id") or ""),
+                snapshot_hash=str(
+                    slot.get("snapshot_hash") or art.get("snapshot_hash") or bundle.get("sealed_snapshot_hash") or ""
+                ),
                 envelope_hash=str(norm.get("envelope_hash") or bundle.get("envelope_hash") or ""),
                 profile_id=str(slot.get("profile_id") or ""),
-                invocation_id=str(art.get("invocation_id") or ""),
+                invocation_id=str(slot.get("invocation_id") or replay.get("invocation_id") or ""),
                 profile_decision=str(norm.get("state") or ""),
                 aggregator_decision=agg_code or None,
                 outcome=None,
