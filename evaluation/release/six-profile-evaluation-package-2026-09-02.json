@@ -1,7 +1,7 @@
 {
   "schema_version": "glitch.topstep.six_profile_evaluation_package.v1",
   "package_id": "six-profile-evaluation-package-2026-09-02",
-  "generated_utc": "2026-09-03T16:20:55.254018Z",
+  "generated_utc": "2026-09-03T23:36:15.919757Z",
   "profile_count": 6,
   "profile_ids": [
     "baseline-current",
@@ -31,8 +31,8 @@
     "writes_operacionais": 0
   },
   "git_commits": {
-    "profile_repo": "bd1f7cbe263c97072bcbc80f3880d6aec9aed522",
-    "gateway_repo": "0d81b719ffa13dca8b3163a9fcc8e1ff06f4fc39"
+    "profile_repo": "acc246e9a35463c61db174d82904e983429129e0",
+    "gateway_repo": "36a1a2821885b0fcdabe6f6b5581cc88347d2420"
   },
   "paired_contract": {
     "gateway_version": "0.2.5",
@@ -52,6 +52,7 @@
     "evaluation/profiles/smart-money.v1.json": "2180df40474dc7bfd491334aaa424b4a6cf00669fcb60aa9ce7bb5873fc7da3a",
     "evaluation/profiles/indicators.v1.json": "9a1c940ccdef08923e630ad3f201cf0c3885cb5ae77801f85abc904c4eafbc23",
     "evaluation/profiles/orderflow.v1.json": "46514ff90dc80f270f9b9a7040c7eb8436b03790fa7878855f7e4d22182e90ad",
+    "scripts/run-shadow-live-single-attempt.py": "79b51d84a7890485ce4f6ef1ac550f2ccfefac5fafbb52cf2d8f386bd3db7951",
     "scripts/shadow-preflight.py": "12282edcd13beb8a96a4602741805fd7bfdf17ded371bb57eeda2ef4e7a4a6ef",
     "scripts/shadow-observe-offline.py": "ee89db97e2ca25e679b3ca082117080d40a8840a2f5afe7d5e7c06e4ef009e0a",
     "scripts/shadow-observe-live.py": "2681d528af7b71db597efd3007f2b6b005380b69c1b592f959fc5be83291af44",
@@ -62,7 +63,7 @@
     "scripts/ensemble_aggregator.py": "c6c81b0608b7be1275a2846a1724ee22dc46ba466f6b3bbbe69e983c60775496",
     "scripts/ensemble_parallel_runner.py": "8ec03f5a6c0c7b5fc55feb1a6be74b5ba90f86c5d920428e953e454010ce3916",
     "scripts/evaluation-measurement-ready.py": "f35e5c83219675cd32e10e715e8d0529584eb47567510b3aa4c2d74f07eee562",
-    "scripts/build-evaluation-release-package.py": "03bee1eacf574ba82ebcdd59eec159d3abf30a04b4df2fb7fdba560f15a9817c",
+    "scripts/build-evaluation-release-package.py": "c774bd2066a8cf6c99c73638c0398c533b209613d0bfa834e3d1f49bdbbe648c",
     "scripts/report-shadow-metrics.py": "ad6a29347831b5492e95326f7ff0f78e51999c5371eb659a42f3d5927a578a7f",
     "scripts/audit-shadow-isolation.py": "99766dd950e6478e5d0ed2afc81dbef26bebd1ef7780ec0663b7931e1e938330",
     "scripts/run-shadow-phase7-validation.py": "a519e9135cc7f3febadbc2e929720bc80e0ac2ab8e518e23a22ef0d4b31c0aaf",

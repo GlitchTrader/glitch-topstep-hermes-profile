@@ -22,6 +22,8 @@ jobs:
       - run: python -m unittest discover -s tests -p 'test_*.py'
       - name: Validate SHA256SUMS
         run: python -c "from pathlib import Path; import sys; sys.path.insert(0,'scripts'); from distribution_manifest import verify_sha256sums; errors=verify_sha256sums(Path('.')); assert not errors, errors"
+      - name: Validate evaluation release package
+        run: python scripts/build-evaluation-release-package.py --package-id six-profile-evaluation-package-2026-09-02
       - name: Validate JSON
         run: |
           python - <<'PY'
