@@ -1,7 +1,7 @@
 {
   "schema_version": "glitch.topstep.six_profile_evaluation_package.v1",
-  "package_id": "test-package",
-  "generated_utc": "2026-09-03T13:31:23.131079Z",
+  "package_id": "six-profile-evaluation-package-2026-09-02",
+  "generated_utc": "2026-09-03T16:20:55.254018Z",
   "profile_count": 6,
   "profile_ids": [
     "baseline-current",
@@ -31,17 +31,22 @@
     "writes_operacionais": 0
   },
   "git_commits": {
-    "profile_repo": "8a13ebe6d1ef77ac090a99ea9fd51ff42860d044",
-    "gateway_repo": null
+    "profile_repo": "bd1f7cbe263c97072bcbc80f3880d6aec9aed522",
+    "gateway_repo": "0d81b719ffa13dca8b3163a9fcc8e1ff06f4fc39"
   },
-  "paired_contract": null,
+  "paired_contract": {
+    "gateway_version": "0.2.5",
+    "profile_version": "0.2.8",
+    "prompt_version": "glitch-topstep-v17.1",
+    "protocol_revision": "glitch.topstep.paired.v3"
+  },
   "file_hashes": {
     "evaluation/registry.json": "b11062a9818d445aefb57bfc9fff314b19d4fc29043b41c51672378cdb63a68d",
     "evaluation/capability-matrix.json": "7e4be060f4906ac268ec91546fdd17fcb0f90ac8c8dc2a9ec5e80d9f1c6414c0",
     "evaluation/ensemble_config.json": "010893330c347b3bdedb87058a5dd24bbd008aea80d3fe30c26572630e57e7dd",
     "evaluation/aggregator_rules.v1.json": "2e5b0c4acafcfa49514cca0784e522e974fb76602af08f0d0f7a5b7125d3346b",
     "evaluation/evaluation_output_contract.v1.json": "aec33631e95165437b72d2e9d439dd168d9a61971f8d071510a0b644582309f3",
-    "evaluation/packet_envelope_mapping.v1.json": "608320b4b85421cf739c21eeb74d94772effeae66dad4e8d7b44bbcedc3563fa",
+    "evaluation/packet_envelope_mapping.v1.json": "339bbffd30c6e63520a25612501d829ba164102240cab7312ac520beb30d41c9",
     "evaluation/shadow-live-run-config.v1.json": "98a6828cd0a1a9e83e22ab32b22bebd103ba266d55037a9fda32ad3ff64dfbb4",
     "evaluation/shadow-live-scenarios.v1.json": "53355751e990d12b28ec82f38e62316be8a55a94197e9a7580117d37d24e2f50",
     "evaluation/profiles/smart-money.v1.json": "2180df40474dc7bfd491334aaa424b4a6cf00669fcb60aa9ce7bb5873fc7da3a",
