@@ -233,6 +233,100 @@ class CoherentCaptureTests(CoherentCaptureStateMixin, unittest.TestCase):
         self.assertEqual(result["operational_writes"], 0)
 
     @patch.object(MEASUREMENT, "_capacity_ok", return_value=(True, "ok"))
+    def test_delivery_complete_uses_market_snapshot_hash(self, _cap: object) -> None:
+        from ensemble_envelope import packet_canonical_subset, resolve_envelope_snapshot_hash, snapshot_hash
+
+        packet = _good_packet(packet_id="pkt-reg-hash")
+        gateway_hash = "c0080f988d70f310b72ebcbced94b4c1cf8baeee4ec511224b16b8a9b3c566cf"
+        subset = packet_canonical_subset(packet, MAPPING)
+        self.assertNotEqual(snapshot_hash(subset), gateway_hash)
+        packet["market"]["snapshot_hash"] = gateway_hash
+        self.assertEqual(resolve_envelope_snapshot_hash(packet, subset), gateway_hash)
+
+        decision = _decision_for(packet)
+        receipt = _receipt_for(decision)
+        self._write_minute_frame(packet)
+        self._write_cycle_empirical(packet_id=packet["packet_id"])
+        self._write_decisions(decision)
+        self._write_receipt_file(packet["packet_id"], receipt)
+
+        result = CAPTURE.capture_coherent_evaluation_bundle(
+            state_root=self.state_root,
+            matrix=MATRIX,
+            mapping=MAPPING,
+            skip_gateway=True,
+            capture_mode=CAPTURE.CAPTURE_MODE_DELIVERY_COMPLETE,
+            health=_good_health(),
+        )
+        self.assertTrue(result["ready"])
+        self.assertEqual(result["snapshot_hash"], gateway_hash)
+        self.assertEqual(result["envelope"]["snapshot_hash"], gateway_hash)
+
+    @patch.object(MEASUREMENT, "_capacity_ok", return_value=(True, "ok"))
+    def test_frozen_packet_hash_stable_after_envelope_build(self, _cap: object) -> None:
+        from ensemble_envelope import registered_packet_snapshot_hash
+
+        packet = _good_packet(packet_id="pkt-stable")
+        gateway_hash = "d4da612e891c536362de0861b2f88915853dc702cb2fb8e60ef83e37e47c4579"
+        packet["market"]["snapshot_hash"] = gateway_hash
+        env = _build_envelope(packet)
+        self.assertEqual(env["snapshot_hash"], gateway_hash)
+        self.assertEqual(registered_packet_snapshot_hash(packet), gateway_hash)
+        rebuilt = _build_envelope(packet)
+        self.assertEqual(rebuilt["snapshot_hash"], env["snapshot_hash"])
+
+    @patch.object(MEASUREMENT, "_capacity_ok", return_value=(True, "ok"))
+    def test_expired_decision_blocks_ready(self, _cap: object) -> None:
+        packet = _good_packet(packet_id="pkt-expired")
+        decision = _decision_for(packet)
+        decision["intent"]["expires_utc"] = _ts(_now() - timedelta(minutes=1))
+        receipt = _receipt_for(decision)
+        self._write_minute_frame(packet)
+        self._write_cycle_empirical(packet_id=packet["packet_id"])
+        self._write_decisions(decision)
+        self._write_receipt_file(packet["packet_id"], receipt)
+
+        result = CAPTURE.capture_coherent_evaluation_bundle(
+            state_root=self.state_root,
+            matrix=MATRIX,
+            mapping=MAPPING,
+            skip_gateway=True,
+            capture_mode=CAPTURE.CAPTURE_MODE_DELIVERY_COMPLETE,
+            health=_good_health(),
+        )
+        self.assertFalse(result["ready"])
+        self.assertEqual(result["not_ready_reason"], "snapshot_expired")
+
+    @patch.object(MEASUREMENT, "_capacity_ok", return_value=(True, "ok"))
+    def test_preflight_accepts_ready_coherent_bundle(self, _cap: object) -> None:
+        replay_mod = type("M", (), {"preflight_evaluation_replay": staticmethod(lambda **_: {"ok": True})})
+        packet = _good_packet(packet_id="pkt-preflight-ready")
+        gateway_hash = "f1a1b89d165dec4873bb3de83712bd8d00b41e58816544d4d96ec8d8e1a75ea6"
+        packet["market"]["snapshot_hash"] = gateway_hash
+        decision = _decision_for(packet)
+        receipt = _receipt_for(decision)
+        self._write_minute_frame(packet)
+        self._write_cycle_empirical(packet_id=packet["packet_id"])
+        self._write_decisions(decision)
+        self._write_receipt_file(packet["packet_id"], receipt)
+
+        bundle = CAPTURE.capture_coherent_evaluation_bundle(
+            state_root=self.state_root,
+            matrix=MATRIX,
+            mapping=MAPPING,
+            skip_gateway=True,
+            capture_mode=CAPTURE.CAPTURE_MODE_DELIVERY_COMPLETE,
+            health=_good_health(),
+        )
+        self.assertTrue(bundle["ready"])
+        with patch.object(PREFLIGHT, "_load_replay_preflight", return_value=replay_mod):
+            result = PREFLIGHT.shadow_preflight(
+                run_id="coherent-ready",
+                coherent_bundle=bundle,
+            )
+        self.assertNotIn("snapshot_hash_mismatch_decision", result["blocking_reasons"])
+
+    @patch.object(MEASUREMENT, "_capacity_ok", return_value=(True, "ok"))
     def test_delivery_complete_valid_bundle(self, _cap: object) -> None:
         packet = _good_packet(packet_id="pkt-delivery-ok")
         decision = _decision_for(packet)
