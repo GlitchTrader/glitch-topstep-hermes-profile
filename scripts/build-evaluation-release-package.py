@@ -27,6 +27,7 @@ PINNED_PATHS = (
     "evaluation/profiles/smart-money.v1.json",
     "evaluation/profiles/indicators.v1.json",
     "evaluation/profiles/orderflow.v1.json",
+    "scripts/run-shadow-live-single-attempt.py",
     "scripts/shadow-preflight.py",
     "scripts/shadow-observe-offline.py",
     "scripts/shadow-observe-live.py",
