@@ -79,6 +79,22 @@ def snapshot_hash(packet_subset: dict[str, Any]) -> str:
     return hashlib.sha256(canonical_json_bytes(packet_subset)).hexdigest()
 
 
+def registered_packet_snapshot_hash(packet: dict[str, Any]) -> str | None:
+    market = packet.get("market")
+    if not isinstance(market, dict):
+        return None
+    value = str(market.get("snapshot_hash") or "").strip()
+    return value or None
+
+
+def resolve_envelope_snapshot_hash(packet: dict[str, Any], packet_subset: dict[str, Any]) -> str:
+    """Gateway packets register decisionStateHash on market.snapshot_hash; bind envelope to that."""
+    registered = registered_packet_snapshot_hash(packet)
+    if registered:
+        return registered
+    return snapshot_hash(packet_subset)
+
+
 def _has_path(packet: dict[str, Any], dotted: str) -> bool:
     current: Any = packet
     for part in dotted.split("."):
@@ -139,7 +155,7 @@ def build_evaluation_envelope(
         raise ValueError("instrument_required")
     contract_raw = packet_subset.get("contract")
     contract = contract_raw if isinstance(contract_raw, dict) else {}
-    snap_hash = snapshot_hash(packet_subset)
+    snap_hash = resolve_envelope_snapshot_hash(packet, packet_subset)
     envelope_id = f"env-{snap_hash[:16]}"
     return {
         "schema_version": ENVELOPE_SCHEMA,
