@@ -1,0 +1,97 @@
+{
+  "schema_version": "glitch.topstep.stratified_cohort_digest.v1",
+  "manifest_schema": "glitch.topstep.stratified_cohort_manifest.v1",
+  "cohort_version": "v9-pre-registered",
+  "envelope_count": 8,
+  "sha256": "7a5c6ab5e92cc7d425bf2711ecf9be48ad25a43abb43bee9be2f4fab57a6fa31",
+  "envelopes": [
+    {
+      "queue_order": 1,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-ce29fef7",
+      "frame_id": "20260902T200505Z-ce29fef7",
+      "snapshot_hash": "75afd8aab61e23e4552b1c3d88ba9f16fbbc017fa00897668b9acd65355009b8",
+      "envelope_id": "env-75afd8aab61e23e4",
+      "envelope_hash": "7a205aa82495059a50533a6d9e81325ba672f2ab675e4c1cc49f719a6d68db37",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_limited_2026_09_02",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 2,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-7800e8c3",
+      "frame_id": "20260902T200007Z-7800e8c3",
+      "snapshot_hash": "a7f3d2c219a355161d13c173efcd15d19583b35c60ce18edb395736fcdd9e5fa",
+      "envelope_id": "env-a7f3d2c219a35516",
+      "envelope_hash": "974b3b5ea29d1e2e47c9f660f619c271d4b412b7b0cf80bea56aa592b928ccd9",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_limited_2026_09_02",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 3,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-b071ff79",
+      "frame_id": "20260902T195507Z-b071ff79",
+      "snapshot_hash": "e09452fd5eafc758c45ec6723347c06141039368ad063de4f9212d62029cc3b8",
+      "envelope_id": "env-e09452fd5eafc758",
+      "envelope_hash": "b08666057fe98cf09b82ad7ac73ad7e1fd8b41964793c3f310f97e3de9012cd6",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_limited_2026_09_02",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 4,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-b7219c00",
+      "frame_id": "20260902T195006Z-b7219c00",
+      "snapshot_hash": "418f9c258f37a59e3b6b2d7c8a8061f4a6dd246df22c3289d6a71d32efac1fd6",
+      "envelope_id": "env-418f9c258f37a59e",
+      "envelope_hash": "c94c08244ca255a191d86cbb0cb92073471885f3a12f77d3c04af004857a13a3",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_limited_2026_09_02",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 5,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-d7d1b4fb",
+      "frame_id": "20260902T194505Z-d7d1b4fb",
+      "snapshot_hash": "2ddbac195ab11e18d0fb61a682cf188a083ee9087ef0c2023e0b5b3950609825",
+      "envelope_id": "env-2ddbac195ab11e18",
+      "envelope_hash": "882b953c4cc07f080958cf33af06f73246a9e7432afb5a16985166fb5300181e",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_limited_2026_09_02",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 6,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-0d305fc5",
+      "frame_id": "20260902T194002Z-0d305fc5",
+      "snapshot_hash": "1e8db94d816e16fbfece0d7f686c76e455e91fdf948fdaa76f19eab4b3b36437",
+      "envelope_id": "env-1e8db94d816e16fb",
+      "envelope_hash": "6f03a2e65b5ad293ca8d77e48b4b65c8446de6bd3687f72834729d887aa01d22",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_limited_2026_09_02",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 7,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-3dd35e83",
+      "frame_id": "20260902T193505Z-3dd35e83",
+      "snapshot_hash": "8b085bb1e90341917886b91e94c801edeb9efe0dd865d8b559e80ceea5f9e388",
+      "envelope_id": "env-8b085bb1e9034191",
+      "envelope_hash": "3331dd30dea7da405fde02bd70621d806dcb4343269d3c2eb930ccd4e115faf0",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_limited_2026_09_02",
+      "capacity_gate_validated": true
+    },
+    {
+      "queue_order": 8,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-b5fd08f8",
+      "frame_id": "20260902T193005Z-b5fd08f8",
+      "snapshot_hash": "6ea419047c1b1fcd2bba30b33ba3ec9fdd7559975755aaf95d819e3194d15621",
+      "envelope_id": "env-6ea419047c1b1fcd",
+      "envelope_hash": "81c05401311754b7a3ad881fc85f374af513eb7dfce8671f9b47e2e298ddac73",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_limited_2026_09_02",
+      "capacity_gate_validated": true
+    }
+  ]
+}

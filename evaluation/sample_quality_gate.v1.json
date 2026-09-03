@@ -1,0 +1,106 @@
+{
+  "schema_version": "glitch.topstep.sample_quality_gate.v1",
+  "gate_version": "2026-09-01-v1",
+  "status": "frozen_pre_interpretation",
+  "reference_config": "evaluation/ensemble_config.json",
+  "reference_corpus": "evaluation/comparable_scenarios.v2.json",
+  "global_minimums": {
+    "min_comparable_pairs_count": 5,
+    "min_scenario_frames": 7,
+    "min_invocations_per_profile": 7,
+    "profiles_required": ["baseline-current", "structure"]
+  },
+  "coverage_minimums": {
+    "scenario_tag": {
+      "min_frames_per_tag": 1,
+      "require_both_profiles": true,
+      "source": "comparable_scenarios.v2.scenario_tag"
+    },
+    "instrument": {
+      "min_samples_per_instrument": 20,
+      "below_threshold_conclusion": "instrument_level_stability_review_only",
+      "source_fields": ["envelope.instrument", "capacity_gate.instrument"]
+    },
+    "regime": {
+      "optional": true,
+      "min_samples_per_regime": 30,
+      "source_fields": ["envelope.regime", "envelope.market_regime"],
+      "when_unavailable": "dimension_ignored"
+    }
+  },
+  "thesis_quality_denominators": {
+    "per_invocation_category": {
+      "denominator": "invocations_after_exclusions",
+      "exclude_categories": [
+        "not_comparable",
+        "missing_required_evidence",
+        "schema_invalid"
+      ],
+      "exclude_states": ["error", "timeout", "invalid"]
+    },
+    "comparable_pair_metrics": {
+      "denominator": "comparable_pair_only",
+      "metrics": [
+        "direction_agreement",
+        "direction_delta_rate",
+        "thesis_delta_rate",
+        "geometry_valid",
+        "regression_vs_baseline_net_return"
+      ]
+    }
+  },
+  "no_edge_rules": {
+    "valid_contract_outcome": true,
+    "counts_as_failure": false,
+    "cognitive_divergence_when_opposed_to": ["candidate", "held", "thesis_quality"],
+    "no_edge_rate_denominator": "valid_normalized_outputs_excluding_invalid_adapter"
+  },
+  "intra_profile_stability": {
+    "reference": "ensemble_config.promotion_threshold_semantics",
+    "intra_profile_direction_agreement_min": 0.75,
+    "intra_profile_state_agreement_min": 0.8,
+    "direction_denominator": "replays_with_comparable_envelope",
+    "direction_exclude_states": [
+      "missing_required_evidence",
+      "error",
+      "timeout",
+      "invalid",
+      "data_quality_insufficient"
+    ],
+    "state_exclude_states": ["error", "timeout", "invalid"],
+    "no_reruns_behavior": "not_evaluated_placeholder"
+  },
+  "baseline_comparison": {
+    "baseline_profile_id": "baseline-current",
+    "default_challenger_profile_id": "structure",
+    "max_regression_vs_baseline_net_return": 0.15,
+    "regression_gate_role": "promotion_blocker",
+    "pairwise_correlation_gate_role": "diagnostic_warning_only",
+    "max_pairwise_direction_correlation": 0.92
+  },
+  "insufficient_sample": {
+    "condition_any_of": [
+      "comparable_pairs_count < min_comparable_pairs_count",
+      "scenario_tag_coverage_incomplete",
+      "filtered_invocation_count < min_invocations_per_profile * profiles_required.length",
+      "corpus_frames_missing_dual_profile_invocations"
+    ],
+    "blocked_conclusions": [
+      "profile_promotion",
+      "challenger_cognitive_superiority_verdict",
+      "cognitive_quality_promotion_pass",
+      "baseline_regression_promotion_blocker",
+      "intra_profile_stability_promotion_sufficient",
+      "aggregator_executable",
+      "parallel_execution",
+      "armed_shadow_promotion"
+    ],
+    "allowed_conclusions": [
+      "per_invocation_contract_validity",
+      "session_cost_and_latency",
+      "categorical_divergence_observation_hypothesis",
+      "historical_evidence_preservation",
+      "normalization_provenance_audit"
+    ]
+  }
+}

@@ -1,0 +1,1043 @@
+{
+  "schema_version": "glitch.topstep.repeatability_offline_batch.v1",
+  "recorded_utc": "2026-09-01T20:40:38.777260Z",
+  "check": "repeatability_offline",
+  "cohort": "r7+r8+r9",
+  "measures": "pipeline_stability_not_llm_variance",
+  "artifact_count": 26,
+  "passed": true,
+  "summary": {
+    "pipeline_pass_count": 26,
+    "adapter_stable_count": 26,
+    "matches_stored_normalized_count": 23,
+    "known_historical_drift_count": 3,
+    "unexpected_stored_drift_count": 0
+  },
+  "known_historical_drift_artifacts": [
+    "scenario-live-2026-09-01-r7-contract-baseline-current-20260901T000528Z-041dc508.json",
+    "scenario-live-2026-09-01-r7-contract-baseline-current-20260901T134026Z-bb50bbe9.json",
+    "scenario-live-2026-09-01-r7-contract-structure-20260901T000528Z-041dc508.json"
+  ],
+  "historical_drift_paths": [
+    "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-baseline-current-20260901T000528Z-041dc508.json",
+    "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-baseline-current-20260901T134026Z-bb50bbe9.json",
+    "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-structure-20260901T000528Z-041dc508.json"
+  ],
+  "unexpected_stored_drift_paths": [],
+  "results": [
+    {
+      "run_id": "scenario-live-2026-09-01-r7-contract-baseline-current-20260831T173427Z-4ac91997",
+      "profile_id": "baseline-current",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "candidate",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "candidate",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "candidate",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "154c46de3042dbe1bc49ecf7217f0300a15e4c00a300c329c3bd376577d64c5b",
+        "envelope_hash_after": "154c46de3042dbe1bc49ecf7217f0300a15e4c00a300c329c3bd376577d64c5b",
+        "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "snapshot_hash_before": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "snapshot_hash_after": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "envelope_id": "env-7b2ecab988f81446"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-baseline-current-20260831T173427Z-4ac91997.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r7-contract-baseline-current-20260901T000528Z-041dc508",
+      "profile_id": "baseline-current",
+      "adapter_stable": true,
+      "matches_stored_normalized": false,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "invalid",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": "candidate_direction_flat_conflict",
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "invalid",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": "candidate_direction_flat_conflict",
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "candidate",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "26be01113943b39c38c700fe6e1c5d6e75f052f7bcc97e31fd68878bc77830b1",
+        "envelope_hash_after": "26be01113943b39c38c700fe6e1c5d6e75f052f7bcc97e31fd68878bc77830b1",
+        "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "snapshot_hash_before": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "snapshot_hash_after": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "envelope_id": "env-8d68e765cc68d29e"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-baseline-current-20260901T000528Z-041dc508.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r7-contract-baseline-current-20260901T134026Z-bb50bbe9",
+      "profile_id": "baseline-current",
+      "adapter_stable": true,
+      "matches_stored_normalized": false,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "invalid",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": "candidate_direction_flat_conflict",
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "invalid",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": "candidate_direction_flat_conflict",
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "candidate",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "6d122b4849e61a1aaa581f98c364289886eb034db78cfe137a38010e5189b8b5",
+        "envelope_hash_after": "6d122b4849e61a1aaa581f98c364289886eb034db78cfe137a38010e5189b8b5",
+        "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "snapshot_hash_before": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "snapshot_hash_after": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "envelope_id": "env-8d12d081fc8885a3"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-baseline-current-20260901T134026Z-bb50bbe9.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r7-contract-structure-20260831T173427Z-4ac91997",
+      "profile_id": "structure",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "candidate",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "candidate",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "candidate",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "154c46de3042dbe1bc49ecf7217f0300a15e4c00a300c329c3bd376577d64c5b",
+        "envelope_hash_after": "154c46de3042dbe1bc49ecf7217f0300a15e4c00a300c329c3bd376577d64c5b",
+        "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "snapshot_hash_before": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "snapshot_hash_after": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "envelope_id": "env-7b2ecab988f81446"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-structure-20260831T173427Z-4ac91997.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r7-contract-structure-20260901T000528Z-041dc508",
+      "profile_id": "structure",
+      "adapter_stable": true,
+      "matches_stored_normalized": false,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "invalid",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": "candidate_direction_flat_conflict",
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "invalid",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": "candidate_direction_flat_conflict",
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "invalid",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": "directional_without_geometry",
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "26be01113943b39c38c700fe6e1c5d6e75f052f7bcc97e31fd68878bc77830b1",
+        "envelope_hash_after": "26be01113943b39c38c700fe6e1c5d6e75f052f7bcc97e31fd68878bc77830b1",
+        "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "snapshot_hash_before": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "snapshot_hash_after": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "envelope_id": "env-8d68e765cc68d29e"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-structure-20260901T000528Z-041dc508.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r7-contract-structure-20260901T134026Z-bb50bbe9",
+      "profile_id": "structure",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "6d122b4849e61a1aaa581f98c364289886eb034db78cfe137a38010e5189b8b5",
+        "envelope_hash_after": "6d122b4849e61a1aaa581f98c364289886eb034db78cfe137a38010e5189b8b5",
+        "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "snapshot_hash_before": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "snapshot_hash_after": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "envelope_id": "env-8d12d081fc8885a3"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-structure-20260901T134026Z-bb50bbe9.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r8-contract-baseline-current-20260831T173427Z-4ac91997",
+      "profile_id": "baseline-current",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "154c46de3042dbe1bc49ecf7217f0300a15e4c00a300c329c3bd376577d64c5b",
+        "envelope_hash_after": "154c46de3042dbe1bc49ecf7217f0300a15e4c00a300c329c3bd376577d64c5b",
+        "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "snapshot_hash_before": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "snapshot_hash_after": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "envelope_id": "env-7b2ecab988f81446"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r8-contract-baseline-current-20260831T173427Z-4ac91997.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r8-contract-baseline-current-20260901T000528Z-041dc508",
+      "profile_id": "baseline-current",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "26be01113943b39c38c700fe6e1c5d6e75f052f7bcc97e31fd68878bc77830b1",
+        "envelope_hash_after": "26be01113943b39c38c700fe6e1c5d6e75f052f7bcc97e31fd68878bc77830b1",
+        "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "snapshot_hash_before": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "snapshot_hash_after": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "envelope_id": "env-8d68e765cc68d29e"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r8-contract-baseline-current-20260901T000528Z-041dc508.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r8-contract-baseline-current-20260901T134026Z-bb50bbe9",
+      "profile_id": "baseline-current",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "6d122b4849e61a1aaa581f98c364289886eb034db78cfe137a38010e5189b8b5",
+        "envelope_hash_after": "6d122b4849e61a1aaa581f98c364289886eb034db78cfe137a38010e5189b8b5",
+        "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "snapshot_hash_before": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "snapshot_hash_after": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "envelope_id": "env-8d12d081fc8885a3"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r8-contract-baseline-current-20260901T134026Z-bb50bbe9.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r8-contract-structure-20260831T173427Z-4ac91997",
+      "profile_id": "structure",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "154c46de3042dbe1bc49ecf7217f0300a15e4c00a300c329c3bd376577d64c5b",
+        "envelope_hash_after": "154c46de3042dbe1bc49ecf7217f0300a15e4c00a300c329c3bd376577d64c5b",
+        "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "snapshot_hash_before": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "snapshot_hash_after": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "envelope_id": "env-7b2ecab988f81446"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r8-contract-structure-20260831T173427Z-4ac91997.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r8-contract-structure-20260901T000528Z-041dc508",
+      "profile_id": "structure",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "26be01113943b39c38c700fe6e1c5d6e75f052f7bcc97e31fd68878bc77830b1",
+        "envelope_hash_after": "26be01113943b39c38c700fe6e1c5d6e75f052f7bcc97e31fd68878bc77830b1",
+        "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "snapshot_hash_before": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "snapshot_hash_after": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "envelope_id": "env-8d68e765cc68d29e"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r8-contract-structure-20260901T000528Z-041dc508.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r8-contract-structure-20260901T134026Z-bb50bbe9",
+      "profile_id": "structure",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "6d122b4849e61a1aaa581f98c364289886eb034db78cfe137a38010e5189b8b5",
+        "envelope_hash_after": "6d122b4849e61a1aaa581f98c364289886eb034db78cfe137a38010e5189b8b5",
+        "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "snapshot_hash_before": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "snapshot_hash_after": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "envelope_id": "env-8d12d081fc8885a3"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r8-contract-structure-20260901T134026Z-bb50bbe9.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r9-v2-baseline-current-20260831T173427Z-4ac91997",
+      "profile_id": "baseline-current",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "154c46de3042dbe1bc49ecf7217f0300a15e4c00a300c329c3bd376577d64c5b",
+        "envelope_hash_after": "154c46de3042dbe1bc49ecf7217f0300a15e4c00a300c329c3bd376577d64c5b",
+        "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "snapshot_hash_before": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "snapshot_hash_after": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "envelope_id": "env-7b2ecab988f81446"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-baseline-current-20260831T173427Z-4ac91997.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r9-v2-baseline-current-20260831T235211Z-cdbf204f",
+      "profile_id": "baseline-current",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "e91cc24e186b18a2f6f42228de253cf1562eb181b12a53c8f0f10b0879832792",
+        "envelope_hash_after": "e91cc24e186b18a2f6f42228de253cf1562eb181b12a53c8f0f10b0879832792",
+        "snapshot_hash": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+        "snapshot_hash_before": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+        "snapshot_hash_after": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+        "envelope_id": "env-b4154b9b398983a4"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-baseline-current-20260831T235211Z-cdbf204f.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r9-v2-baseline-current-20260901T000528Z-041dc508",
+      "profile_id": "baseline-current",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "26be01113943b39c38c700fe6e1c5d6e75f052f7bcc97e31fd68878bc77830b1",
+        "envelope_hash_after": "26be01113943b39c38c700fe6e1c5d6e75f052f7bcc97e31fd68878bc77830b1",
+        "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "snapshot_hash_before": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "snapshot_hash_after": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "envelope_id": "env-8d68e765cc68d29e"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-baseline-current-20260901T000528Z-041dc508.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r9-v2-baseline-current-20260901T134026Z-bb50bbe9",
+      "profile_id": "baseline-current",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "6d122b4849e61a1aaa581f98c364289886eb034db78cfe137a38010e5189b8b5",
+        "envelope_hash_after": "6d122b4849e61a1aaa581f98c364289886eb034db78cfe137a38010e5189b8b5",
+        "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "snapshot_hash_before": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "snapshot_hash_after": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "envelope_id": "env-8d12d081fc8885a3"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-baseline-current-20260901T134026Z-bb50bbe9.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r9-v2-baseline-current-20260901T143431Z-534fefd5",
+      "profile_id": "baseline-current",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "0878f82e9b50f789e886fc7cacb7ffa18fcdc08c24363a16717c900f7023d09e",
+        "envelope_hash_after": "0878f82e9b50f789e886fc7cacb7ffa18fcdc08c24363a16717c900f7023d09e",
+        "snapshot_hash": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+        "snapshot_hash_before": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+        "snapshot_hash_after": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+        "envelope_id": "env-1e829c3158feff4d"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-baseline-current-20260901T143431Z-534fefd5.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r9-v2-baseline-current-20260901T150823Z-d7908a55",
+      "profile_id": "baseline-current",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "55536b277a99d2b22cb8769d34e639be0643582f5a98ce2e403bf0407bb84a89",
+        "envelope_hash_after": "55536b277a99d2b22cb8769d34e639be0643582f5a98ce2e403bf0407bb84a89",
+        "snapshot_hash": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+        "snapshot_hash_before": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+        "snapshot_hash_after": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+        "envelope_id": "env-d6b73e4e5dacbc1b"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-baseline-current-20260901T150823Z-d7908a55.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r9-v2-baseline-current-20260901T182843Z-b06d9a93",
+      "profile_id": "baseline-current",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "44b217e9959427f6b6b246eaed6452d358472f4f0807b39b3b957e3b7f5f898c",
+        "envelope_hash_after": "44b217e9959427f6b6b246eaed6452d358472f4f0807b39b3b957e3b7f5f898c",
+        "snapshot_hash": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+        "snapshot_hash_before": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+        "snapshot_hash_after": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+        "envelope_id": "env-8ffdc3e1a920e0c1"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-baseline-current-20260901T182843Z-b06d9a93.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r9-v2-structure-20260831T173427Z-4ac91997",
+      "profile_id": "structure",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "held",
+        "direction": "short",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "held",
+        "direction": "short",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "held",
+        "direction": "short",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "154c46de3042dbe1bc49ecf7217f0300a15e4c00a300c329c3bd376577d64c5b",
+        "envelope_hash_after": "154c46de3042dbe1bc49ecf7217f0300a15e4c00a300c329c3bd376577d64c5b",
+        "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "snapshot_hash_before": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "snapshot_hash_after": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "envelope_id": "env-7b2ecab988f81446"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-structure-20260831T173427Z-4ac91997.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r9-v2-structure-20260831T235211Z-cdbf204f",
+      "profile_id": "structure",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "e91cc24e186b18a2f6f42228de253cf1562eb181b12a53c8f0f10b0879832792",
+        "envelope_hash_after": "e91cc24e186b18a2f6f42228de253cf1562eb181b12a53c8f0f10b0879832792",
+        "snapshot_hash": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+        "snapshot_hash_before": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+        "snapshot_hash_after": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+        "envelope_id": "env-b4154b9b398983a4"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-structure-20260831T235211Z-cdbf204f.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r9-v2-structure-20260901T000528Z-041dc508",
+      "profile_id": "structure",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "26be01113943b39c38c700fe6e1c5d6e75f052f7bcc97e31fd68878bc77830b1",
+        "envelope_hash_after": "26be01113943b39c38c700fe6e1c5d6e75f052f7bcc97e31fd68878bc77830b1",
+        "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "snapshot_hash_before": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "snapshot_hash_after": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "envelope_id": "env-8d68e765cc68d29e"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-structure-20260901T000528Z-041dc508.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r9-v2-structure-20260901T134026Z-bb50bbe9",
+      "profile_id": "structure",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "6d122b4849e61a1aaa581f98c364289886eb034db78cfe137a38010e5189b8b5",
+        "envelope_hash_after": "6d122b4849e61a1aaa581f98c364289886eb034db78cfe137a38010e5189b8b5",
+        "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "snapshot_hash_before": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "snapshot_hash_after": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "envelope_id": "env-8d12d081fc8885a3"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-structure-20260901T134026Z-bb50bbe9.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r9-v2-structure-20260901T143431Z-534fefd5",
+      "profile_id": "structure",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "0878f82e9b50f789e886fc7cacb7ffa18fcdc08c24363a16717c900f7023d09e",
+        "envelope_hash_after": "0878f82e9b50f789e886fc7cacb7ffa18fcdc08c24363a16717c900f7023d09e",
+        "snapshot_hash": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+        "snapshot_hash_before": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+        "snapshot_hash_after": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+        "envelope_id": "env-1e829c3158feff4d"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-structure-20260901T143431Z-534fefd5.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r9-v2-structure-20260901T150823Z-d7908a55",
+      "profile_id": "structure",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "55536b277a99d2b22cb8769d34e639be0643582f5a98ce2e403bf0407bb84a89",
+        "envelope_hash_after": "55536b277a99d2b22cb8769d34e639be0643582f5a98ce2e403bf0407bb84a89",
+        "snapshot_hash": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+        "snapshot_hash_before": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+        "snapshot_hash_after": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+        "envelope_id": "env-d6b73e4e5dacbc1b"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-structure-20260901T150823Z-d7908a55.json"
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r9-v2-structure-20260901T182843Z-b06d9a93",
+      "profile_id": "structure",
+      "adapter_stable": true,
+      "matches_stored_normalized": true,
+      "envelope_hash_stable": true,
+      "snapshot_hash_stable": true,
+      "adapter_run_a": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "adapter_run_b": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "hash_fields": {
+        "envelope_hash_before": "44b217e9959427f6b6b246eaed6452d358472f4f0807b39b3b957e3b7f5f898c",
+        "envelope_hash_after": "44b217e9959427f6b6b246eaed6452d358472f4f0807b39b3b957e3b7f5f898c",
+        "snapshot_hash": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+        "snapshot_hash_before": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+        "snapshot_hash_after": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+        "envelope_id": "env-8ffdc3e1a920e0c1"
+      },
+      "passed": true,
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-structure-20260901T182843Z-b06d9a93.json"
+    }
+  ]
+}

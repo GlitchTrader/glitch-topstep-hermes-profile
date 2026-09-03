@@ -1,0 +1,16 @@
+{
+  "schema_version": "glitch.topstep.prac_evidence_chain_validation.v1",
+  "evidence_dir": "C:\\Users\\arifr\\Projects\\glitch-topstep\\docs\\evidence\\PRAC-SOAK-2026-09-01",
+  "files_present": {
+    "decisions.jsonl": true,
+    "receipts.jsonl": true,
+    "evidence-chain-manifest.json": true
+  },
+  "manifest_row_count": 9,
+  "decisions_line_count": 9,
+  "receipts_line_count": 9,
+  "manifest_row_issues": [],
+  "chain_issues": [],
+  "valid": true,
+  "issues": []
+}

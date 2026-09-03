@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "glitch.topstep.evaluation_envelope.v1",
+  "title": "Evaluation envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "envelope_id",
+    "snapshot_id",
+    "snapshot_hash",
+    "reference_utc",
+    "valid_until_utc",
+    "instrument",
+    "contract",
+    "packet_schema_version",
+    "packet",
+    "completeness",
+    "source_refs"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "glitch.topstep.evaluation_envelope.v1"
+    },
+    "envelope_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "snapshot_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "snapshot_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "reference_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "valid_until_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "instrument": {
+      "type": "string",
+      "minLength": 1
+    },
+    "contract": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "packet_schema_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "packet": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "completeness": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "enum": [
+          "available",
+          "stale",
+          "partial",
+          "inconsistent",
+          "not_applicable",
+          "missing_required"
+        ]
+      }
+    },
+    "source_refs": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  }
+}

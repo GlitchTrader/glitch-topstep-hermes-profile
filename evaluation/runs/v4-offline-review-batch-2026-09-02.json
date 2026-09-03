@@ -1,0 +1,33 @@
+{
+  "schema_version": "glitch.topstep.v4_offline_review_batch.v1",
+  "recorded_utc": "2026-09-02T03:00:00Z",
+  "mode": "offline_read_only",
+  "hermes_started": false,
+  "r14_authorized": false,
+  "next_authorized_run_id": null,
+  "tests": {
+    "module": "tests/test_v4_offline_review.py",
+    "count": 8,
+    "passed": 8,
+    "failed": 0
+  },
+  "checks": [
+    {"name": "manifest_validation", "ok": true},
+    {"name": "cohort_independence", "ok": true},
+    {"name": "duplicate_rejection", "ok": true},
+    {"name": "skip_validation_denied", "ok": true},
+    {"name": "directed_test_classification", "ok": true},
+    {"name": "historical_r7_preserved", "ok": true},
+    {"name": "digest_repeatability", "ok": true, "sha256": "7b858bd3482eb15fd42982fb4a0e585b4501a928736fb9365eea88a692dfc209"},
+    {"name": "registry_r14_not_authorized", "ok": true}
+  ],
+  "deliverables": [
+    "evaluation/reviews/STRATIFIED-COHORT-V4-AUTHORIZATION-REVIEW-2026-09-01.md",
+    "evaluation/reviews/R14-AUTHORIZATION-CHECKLIST-2026-09-01.md",
+    "evaluation/reviews/EFFECTIVE-SAMPLE-ELIGIBILITY-AUDIT-2026-09-01.md",
+    "evaluation/reviews/AGGREGATOR-SPEC-STATIC-REVIEW-2026-09-02.md",
+    "evaluation/reviews/PROVENANCE-AUDIT-2026-09-02.md",
+    "evaluation/reviews/COHORT-COVERAGE-REPORT-2026-09-02.md",
+    "evaluation/reviews/PRAC-NEXT-CAPTURE-PREP-2026-09-02.md"
+  ]
+}

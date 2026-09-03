@@ -1,0 +1,10 @@
+{
+  "state": "candidate",
+  "direction": "long",
+  "thesis": "Baseline agrees with archived ENTER_LONG.",
+  "entry": 20020.0,
+  "stop": 20010.0,
+  "target": 20035.0,
+  "horizon_bars": 8,
+  "latency_ms": 2
+}

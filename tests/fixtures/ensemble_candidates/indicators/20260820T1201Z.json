@@ -1,0 +1,6 @@
+{
+  "state": "no_edge",
+  "direction": "flat",
+  "thesis": "RSI/MACD divergence not actionable on thin packet.",
+  "latency_ms": 1
+}

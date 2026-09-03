@@ -1,0 +1,5 @@
+{
+  "schema_version": "glitch.topstep.trail_a_parallel_live_run.v1",
+  "status": "failed",
+  "reason": "profile_error:baseline-current:cognitive_replay_blocked"
+}

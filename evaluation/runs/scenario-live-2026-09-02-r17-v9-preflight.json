@@ -1,0 +1,44 @@
+{
+  "schema_version": "glitch.topstep.preflight_evaluation_replay.v1",
+  "run_id": "scenario-live-2026-09-02-r17-v9",
+  "ok": true,
+  "checks": [
+    {
+      "id": "production_lane_inactive",
+      "ok": true,
+      "detail": "lane idle, or LIVE_VALIDATED lease defers cron while replay holds lease",
+      "lane_active": false,
+      "coordination_live_validated": true
+    },
+    {
+      "id": "evaluation_lease_available",
+      "ok": true,
+      "detail": "no foreign evaluation lease on production state",
+      "blocking_run_id": null
+    },
+    {
+      "id": "scenarios_manifest_present",
+      "ok": true,
+      "detail": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\stratified_scenarios.v9.json"
+    },
+    {
+      "id": "lease_scripts_synced",
+      "ok": true,
+      "detail": "all_matched=True synced_utc=2026-09-02T17:35:35Z",
+      "manifest_path": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state\\lease-coordination-sync.json"
+    },
+    {
+      "id": "lease_smoke_passed",
+      "ok": true,
+      "detail": "lease smoke ok=True path=lease-smoke-v8-preflight.json",
+      "report_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\lease-smoke-v8-preflight.json",
+      "required": true
+    },
+    {
+      "id": "coordination_contract",
+      "ok": true,
+      "detail": "evaluation_lease.py + cron defer + sync manifest + lease smoke"
+    }
+  ],
+  "production_state": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state"
+}

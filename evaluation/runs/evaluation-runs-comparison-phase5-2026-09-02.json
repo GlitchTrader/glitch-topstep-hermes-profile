@@ -1,0 +1,5212 @@
+{
+  "schema_version": "glitch.topstep.evaluation_runs_comparison.v1",
+  "profiles": [
+    "baseline-current",
+    "structure"
+  ],
+  "bundle_count": 9,
+  "runs": [
+    {
+      "run_id": "scenario-live-2026-09-01-r7-contract",
+      "bundle_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract.json",
+      "profiles": [
+        "baseline-current",
+        "structure"
+      ],
+      "invocation_count": 6,
+      "sections": {
+        "contract_validity": {
+          "invocation_count": 6,
+          "invalid_count": 1,
+          "invalid_rate": {
+            "numerator": 1,
+            "denominator": 6,
+            "rate": 0.16666666666666666
+          },
+          "error_code_counts": {
+            "directional_without_geometry": 1
+          },
+          "state_counts": {
+            "candidate": 4,
+            "no_edge": 1,
+            "invalid": 1
+          }
+        },
+        "missing_required_evidence": {
+          "invocation_count": 6,
+          "missing_required_evidence_count": 0,
+          "missing_required_evidence_rate": {
+            "numerator": 0,
+            "denominator": 6,
+            "rate": 0.0
+          },
+          "by_profile": {},
+          "missing_required_item_counts": {},
+          "evidence_completeness": {
+            "by_profile": {
+              "baseline-current": {
+                "comparable_count": 3,
+                "not_comparable_count": 0,
+                "completeness_state_counts": {
+                  "indicators:partial": 3,
+                  "ohlc:partial": 3,
+                  "orderflow:available": 3,
+                  "quote:available": 3,
+                  "risk_context:available": 3,
+                  "session:available": 3,
+                  "structure:partial": 3
+                },
+                "missing_required_counts": {},
+                "comparable_rate": {
+                  "numerator": 3,
+                  "denominator": 3,
+                  "rate": 1.0
+                },
+                "not_comparable_rate": {
+                  "numerator": 0,
+                  "denominator": 3,
+                  "rate": 0.0
+                }
+              },
+              "structure": {
+                "comparable_count": 3,
+                "not_comparable_count": 0,
+                "completeness_state_counts": {
+                  "indicators:partial": 3,
+                  "ohlc:partial": 3,
+                  "quote:available": 3,
+                  "risk_context:available": 3,
+                  "session:available": 3,
+                  "structure:partial": 3
+                },
+                "missing_required_counts": {},
+                "comparable_rate": {
+                  "numerator": 3,
+                  "denominator": 3,
+                  "rate": 1.0
+                },
+                "not_comparable_rate": {
+                  "numerator": 0,
+                  "denominator": 3,
+                  "rate": 0.0
+                }
+              }
+            }
+          }
+        },
+        "not_comparable": {
+          "comparable_count": 6,
+          "not_comparable_count": 0,
+          "comparable_rate": {
+            "numerator": 6,
+            "denominator": 6,
+            "rate": 1.0
+          },
+          "not_comparable_category_count": 0,
+          "not_comparable_category_rate": {
+            "numerator": 0,
+            "denominator": 6,
+            "rate": 0.0
+          },
+          "by_profile": {},
+          "not_comparable_rate": {
+            "numerator": 0,
+            "denominator": 6,
+            "rate": 0.0
+          }
+        },
+        "thesis_quality": {
+          "category_counts": {
+            "thesis_quality": 4,
+            "no_edge": 1,
+            "schema_invalid": 1
+          },
+          "thesis_quality_count": 4,
+          "by_profile": {
+            "baseline-current": {
+              "thesis_quality": 3
+            },
+            "structure": {
+              "thesis_quality": 1,
+              "no_edge": 1,
+              "schema_invalid": 1
+            }
+          },
+          "comparable_pair_count": 1,
+          "comparable_pair_rate": {
+            "numerator": 1,
+            "denominator": 3,
+            "rate": 0.3333333333333333
+          },
+          "scenario_comparisons": [
+            {
+              "frame_id": "20260831T173427Z-4ac91997",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "thesis_quality",
+              "challenger_category": "thesis_quality",
+              "comparable_pair": true,
+              "direction_delta": null,
+              "thesis_delta": true,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-PRAC-DIRECTED-02"
+            },
+            {
+              "frame_id": "20260901T134026Z-bb50bbe9",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "thesis_quality",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-OPERATOR-MIDSESSION"
+            },
+            {
+              "frame_id": "20260901T000528Z-041dc508",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "thesis_quality",
+              "challenger_category": "schema_invalid",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-PRAC-TIMEOUT-RECOVERY"
+            }
+          ],
+          "thesis_quality_rate": {
+            "numerator": 4,
+            "denominator": 5,
+            "rate": 0.8
+          },
+          "thesis_quality_denominator_excludes": [
+            "not_comparable",
+            "missing_required_evidence",
+            "schema_invalid"
+          ]
+        },
+        "cognitive_divergence": {
+          "frame_count": 3,
+          "comparable_pair_count": 1,
+          "direction_delta_count": 0,
+          "thesis_delta_count": 1,
+          "direction_deltas": [],
+          "thesis_deltas": [
+            {
+              "frame_id": "20260831T173427Z-4ac91997",
+              "scenario_id": "SCN-PRAC-DIRECTED-02",
+              "thesis_delta": true
+            }
+          ],
+          "comparable_pair_rate": {
+            "numerator": 1,
+            "denominator": 3,
+            "rate": 0.3333333333333333
+          },
+          "direction_delta_rate": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0.0
+          },
+          "thesis_delta_rate": {
+            "numerator": 1,
+            "denominator": 1,
+            "rate": 1.0
+          }
+        },
+        "intra_profile_stability": {
+          "groups_with_multiple_reruns": 0,
+          "agreements": [],
+          "placeholder": "no_intra_profile_reruns; invoke run-intra-profile-repeatability.py for stability data",
+          "direction_agreement_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "state_agreement_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          }
+        },
+        "cost_latency": {
+          "session_cost_usd_bundle": 0.007681,
+          "all_cost_gates_passed_bundle": true,
+          "session_cost_usd_max": 0.00132,
+          "cost_basis_counts": {
+            "estimated_tokens": 6
+          },
+          "estimated_vs_provider": {
+            "estimated_total_usd": 0.007681,
+            "provider_reported_total_usd": 0.0,
+            "confirmed_total_usd": 0.0,
+            "unknown_invocation_count": 0
+          },
+          "per_invocation_count": 6,
+          "sessions": {
+            "20260901_155810_dfbfee": {
+              "session_id": "20260901_155810_dfbfee",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.00132,
+              "accumulated_tokens": 8547,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_155817_195f98": {
+              "session_id": "20260901_155817_195f98",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.001314,
+              "accumulated_tokens": 8536,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_155822_ef7a57": {
+              "session_id": "20260901_155822_ef7a57",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.001275,
+              "accumulated_tokens": 8189,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_155829_28e56e": {
+              "session_id": "20260901_155829_28e56e",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.001265,
+              "accumulated_tokens": 8172,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_155834_3140fb": {
+              "session_id": "20260901_155834_3140fb",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.001257,
+              "accumulated_tokens": 8064,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_155841_779d59": {
+              "session_id": "20260901_155841_779d59",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.00125,
+              "accumulated_tokens": 8052,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            }
+          },
+          "latency_ms": {
+            "p50_ms": 6266,
+            "count": 6
+          },
+          "audit_gate_passed": true,
+          "violations": [],
+          "limits": {
+            "max_cost_usd_per_session": 2.5,
+            "max_tokens_per_call": 50000,
+            "max_tokens_per_session": 500000,
+            "max_calls_per_session": 36,
+            "max_calls_per_snapshot": 6,
+            "per_profile_timeout_ms": 35000,
+            "total_timeout_ms": 120000,
+            "total_latency_budget_ms": 180000,
+            "per_profile_limits_configured": false
+          },
+          "per_profile": {
+            "baseline-current": {
+              "limits_configured": false,
+              "max_cost_usd_per_session": null,
+              "sessions": {
+                "20260901_155810_dfbfee": {
+                  "accumulated_cost_usd": 0.00132,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_155822_ef7a57": {
+                  "accumulated_cost_usd": 0.001275,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_155834_3140fb": {
+                  "accumulated_cost_usd": 0.001257,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                }
+              }
+            },
+            "structure": {
+              "limits_configured": false,
+              "max_cost_usd_per_session": null,
+              "sessions": {
+                "20260901_155817_195f98": {
+                  "accumulated_cost_usd": 0.001314,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_155829_28e56e": {
+                  "accumulated_cost_usd": 0.001265,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_155841_779d59": {
+                  "accumulated_cost_usd": 0.00125,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                }
+              }
+            }
+          },
+          "unknown_pricing_rate": {
+            "numerator": 0,
+            "denominator": 6,
+            "rate": 0.0
+          },
+          "audit_gate_passed_rate": {
+            "numerator": 1,
+            "denominator": 1,
+            "rate": 1.0
+          },
+          "latency_timeout_rate": {
+            "numerator": 0,
+            "denominator": 6,
+            "rate": 0.0
+          }
+        },
+        "evidence_completeness": {
+          "by_profile": {
+            "baseline-current": {
+              "comparable_count": 3,
+              "not_comparable_count": 0,
+              "completeness_state_counts": {
+                "indicators:partial": 3,
+                "ohlc:partial": 3,
+                "orderflow:available": 3,
+                "quote:available": 3,
+                "risk_context:available": 3,
+                "session:available": 3,
+                "structure:partial": 3
+              },
+              "missing_required_counts": {},
+              "comparable_rate": {
+                "numerator": 3,
+                "denominator": 3,
+                "rate": 1.0
+              },
+              "not_comparable_rate": {
+                "numerator": 0,
+                "denominator": 3,
+                "rate": 0.0
+              }
+            },
+            "structure": {
+              "comparable_count": 3,
+              "not_comparable_count": 0,
+              "completeness_state_counts": {
+                "indicators:partial": 3,
+                "ohlc:partial": 3,
+                "quote:available": 3,
+                "risk_context:available": 3,
+                "session:available": 3,
+                "structure:partial": 3
+              },
+              "missing_required_counts": {},
+              "comparable_rate": {
+                "numerator": 3,
+                "denominator": 3,
+                "rate": 1.0
+              },
+              "not_comparable_rate": {
+                "numerator": 0,
+                "denominator": 3,
+                "rate": 0.0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "bundle_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2.json",
+      "profiles": [
+        "baseline-current",
+        "structure"
+      ],
+      "invocation_count": 14,
+      "sections": {
+        "contract_validity": {
+          "invocation_count": 14,
+          "invalid_count": 0,
+          "invalid_rate": {
+            "numerator": 0,
+            "denominator": 14,
+            "rate": 0.0
+          },
+          "error_code_counts": {},
+          "state_counts": {
+            "data_quality_insufficient": 1,
+            "held": 3,
+            "no_edge": 9,
+            "expired": 1
+          }
+        },
+        "missing_required_evidence": {
+          "invocation_count": 14,
+          "missing_required_evidence_count": 0,
+          "missing_required_evidence_rate": {
+            "numerator": 0,
+            "denominator": 14,
+            "rate": 0.0
+          },
+          "by_profile": {},
+          "missing_required_item_counts": {},
+          "evidence_completeness": {
+            "by_profile": {
+              "baseline-current": {
+                "comparable_count": 7,
+                "not_comparable_count": 0,
+                "completeness_state_counts": {
+                  "indicators:partial": 7,
+                  "ohlc:partial": 7,
+                  "orderflow:available": 7,
+                  "quote:available": 7,
+                  "risk_context:available": 7,
+                  "session:available": 7,
+                  "structure:partial": 7
+                },
+                "missing_required_counts": {},
+                "comparable_rate": {
+                  "numerator": 7,
+                  "denominator": 7,
+                  "rate": 1.0
+                },
+                "not_comparable_rate": {
+                  "numerator": 0,
+                  "denominator": 7,
+                  "rate": 0.0
+                }
+              },
+              "structure": {
+                "comparable_count": 7,
+                "not_comparable_count": 0,
+                "completeness_state_counts": {
+                  "indicators:partial": 7,
+                  "ohlc:partial": 7,
+                  "quote:available": 7,
+                  "risk_context:available": 7,
+                  "session:available": 7,
+                  "structure:partial": 7
+                },
+                "missing_required_counts": {},
+                "comparable_rate": {
+                  "numerator": 7,
+                  "denominator": 7,
+                  "rate": 1.0
+                },
+                "not_comparable_rate": {
+                  "numerator": 0,
+                  "denominator": 7,
+                  "rate": 0.0
+                }
+              }
+            }
+          }
+        },
+        "not_comparable": {
+          "comparable_count": 14,
+          "not_comparable_count": 0,
+          "comparable_rate": {
+            "numerator": 14,
+            "denominator": 14,
+            "rate": 1.0
+          },
+          "not_comparable_category_count": 2,
+          "not_comparable_category_rate": {
+            "numerator": 2,
+            "denominator": 14,
+            "rate": 0.14285714285714285
+          },
+          "by_profile": {
+            "baseline-current": 2
+          },
+          "not_comparable_rate": {
+            "numerator": 0,
+            "denominator": 14,
+            "rate": 0.0
+          }
+        },
+        "thesis_quality": {
+          "category_counts": {
+            "not_comparable": 2,
+            "thesis_quality": 3,
+            "no_edge": 9
+          },
+          "thesis_quality_count": 3,
+          "by_profile": {
+            "baseline-current": {
+              "not_comparable": 2,
+              "no_edge": 4,
+              "thesis_quality": 1
+            },
+            "structure": {
+              "thesis_quality": 2,
+              "no_edge": 5
+            }
+          },
+          "comparable_pair_count": 1,
+          "comparable_pair_rate": {
+            "numerator": 1,
+            "denominator": 7,
+            "rate": 0.14285714285714285
+          },
+          "scenario_comparisons": [
+            {
+              "frame_id": "20260831T173427Z-4ac91997",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "not_comparable",
+              "challenger_category": "thesis_quality",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-PRAC-DIRECTED-02"
+            },
+            {
+              "frame_id": "20260901T134026Z-bb50bbe9",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-OPERATOR-MIDSESSION"
+            },
+            {
+              "frame_id": "20260901T000528Z-041dc508",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-PRAC-TIMEOUT-RECOVERY"
+            },
+            {
+              "frame_id": "20260831T235211Z-cdbf204f",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "not_comparable",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-PRAC-RESTART-BRACKET"
+            },
+            {
+              "frame_id": "20260901T143431Z-534fefd5",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "thesis_quality",
+              "challenger_category": "thesis_quality",
+              "comparable_pair": true,
+              "direction_delta": null,
+              "thesis_delta": true,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-PRAC-RECONCILIATION"
+            },
+            {
+              "frame_id": "20260901T182843Z-b06d9a93",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-PRAC-PREFLIGHT"
+            },
+            {
+              "frame_id": "20260901T150823Z-d7908a55",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-OPERATOR-AFTERNOON"
+            }
+          ],
+          "thesis_quality_rate": {
+            "numerator": 3,
+            "denominator": 12,
+            "rate": 0.25
+          },
+          "thesis_quality_denominator_excludes": [
+            "not_comparable",
+            "missing_required_evidence",
+            "schema_invalid"
+          ]
+        },
+        "cognitive_divergence": {
+          "frame_count": 7,
+          "comparable_pair_count": 1,
+          "direction_delta_count": 0,
+          "thesis_delta_count": 1,
+          "direction_deltas": [],
+          "thesis_deltas": [
+            {
+              "frame_id": "20260901T143431Z-534fefd5",
+              "scenario_id": "SCN-PRAC-RECONCILIATION",
+              "thesis_delta": true
+            }
+          ],
+          "comparable_pair_rate": {
+            "numerator": 1,
+            "denominator": 7,
+            "rate": 0.14285714285714285
+          },
+          "direction_delta_rate": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0.0
+          },
+          "thesis_delta_rate": {
+            "numerator": 1,
+            "denominator": 1,
+            "rate": 1.0
+          }
+        },
+        "intra_profile_stability": {
+          "groups_with_multiple_reruns": 0,
+          "agreements": [],
+          "placeholder": "no_intra_profile_reruns; invoke run-intra-profile-repeatability.py for stability data",
+          "direction_agreement_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "state_agreement_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          }
+        },
+        "cost_latency": {
+          "session_cost_usd_bundle": 0.159548,
+          "all_cost_gates_passed_bundle": true,
+          "session_cost_usd_max": 0.01217,
+          "cost_basis_counts": {
+            "estimated_tokens": 14
+          },
+          "estimated_vs_provider": {
+            "estimated_total_usd": 0.159548,
+            "provider_reported_total_usd": 0.0,
+            "confirmed_total_usd": 0.0,
+            "unknown_invocation_count": 0
+          },
+          "per_invocation_count": 14,
+          "sessions": {
+            "20260901_185722_f11ef5": {
+              "session_id": "20260901_185722_f11ef5",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.01202,
+              "accumulated_tokens": 8769,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_185740_761956": {
+              "session_id": "20260901_185740_761956",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.01217,
+              "accumulated_tokens": 8784,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_185805_610a0b": {
+              "session_id": "20260901_185805_610a0b",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011312,
+              "accumulated_tokens": 8370,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_185817_daa4fb": {
+              "session_id": "20260901_185817_daa4fb",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011412,
+              "accumulated_tokens": 8380,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_185827_96ae86": {
+              "session_id": "20260901_185827_96ae86",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011212,
+              "accumulated_tokens": 8248,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_185839_0bbabb": {
+              "session_id": "20260901_185839_0bbabb",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011482,
+              "accumulated_tokens": 8275,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_185850_41627a": {
+              "session_id": "20260901_185850_41627a",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.010555,
+              "accumulated_tokens": 8157,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_185912_5d1765": {
+              "session_id": "20260901_185912_5d1765",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011255,
+              "accumulated_tokens": 8227,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_185923_022154": {
+              "session_id": "20260901_185923_022154",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011729,
+              "accumulated_tokens": 8627,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_185940_b357ff": {
+              "session_id": "20260901_185940_b357ff",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.012019,
+              "accumulated_tokens": 8656,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_185954_972f62": {
+              "session_id": "20260901_185954_972f62",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011112,
+              "accumulated_tokens": 8245,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_190008_d259d5": {
+              "session_id": "20260901_190008_d259d5",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011162,
+              "accumulated_tokens": 8250,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_190020_9a67a4": {
+              "session_id": "20260901_190020_9a67a4",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011069,
+              "accumulated_tokens": 8190,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_190033_138349": {
+              "session_id": "20260901_190033_138349",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011039,
+              "accumulated_tokens": 8187,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            }
+          },
+          "latency_ms": {
+            "p50_ms": 13016,
+            "count": 14
+          },
+          "audit_gate_passed": false,
+          "violations": [
+            {
+              "kind": "total_latency_budget_exceeded",
+              "latency_sum_ms": 202438,
+              "limit": 180000
+            }
+          ],
+          "limits": {
+            "max_cost_usd_per_session": 2.5,
+            "max_tokens_per_call": 50000,
+            "max_tokens_per_session": 500000,
+            "max_calls_per_session": 36,
+            "max_calls_per_snapshot": 6,
+            "per_profile_timeout_ms": 35000,
+            "total_timeout_ms": 120000,
+            "total_latency_budget_ms": 180000,
+            "per_profile_limits_configured": false
+          },
+          "per_profile": {
+            "baseline-current": {
+              "limits_configured": false,
+              "max_cost_usd_per_session": null,
+              "sessions": {
+                "20260901_185722_f11ef5": {
+                  "accumulated_cost_usd": 0.01202,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_185805_610a0b": {
+                  "accumulated_cost_usd": 0.011312,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_185827_96ae86": {
+                  "accumulated_cost_usd": 0.011212,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_185850_41627a": {
+                  "accumulated_cost_usd": 0.010555,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_185923_022154": {
+                  "accumulated_cost_usd": 0.011729,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_185954_972f62": {
+                  "accumulated_cost_usd": 0.011112,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_190020_9a67a4": {
+                  "accumulated_cost_usd": 0.011069,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                }
+              }
+            },
+            "structure": {
+              "limits_configured": false,
+              "max_cost_usd_per_session": null,
+              "sessions": {
+                "20260901_185740_761956": {
+                  "accumulated_cost_usd": 0.01217,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_185817_daa4fb": {
+                  "accumulated_cost_usd": 0.011412,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_185839_0bbabb": {
+                  "accumulated_cost_usd": 0.011482,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_185912_5d1765": {
+                  "accumulated_cost_usd": 0.011255,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_185940_b357ff": {
+                  "accumulated_cost_usd": 0.012019,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_190008_d259d5": {
+                  "accumulated_cost_usd": 0.011162,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_190033_138349": {
+                  "accumulated_cost_usd": 0.011039,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                }
+              }
+            }
+          },
+          "unknown_pricing_rate": {
+            "numerator": 0,
+            "denominator": 14,
+            "rate": 0.0
+          },
+          "audit_gate_passed_rate": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0.0
+          },
+          "latency_timeout_rate": {
+            "numerator": 0,
+            "denominator": 14,
+            "rate": 0.0
+          }
+        },
+        "evidence_completeness": {
+          "by_profile": {
+            "baseline-current": {
+              "comparable_count": 7,
+              "not_comparable_count": 0,
+              "completeness_state_counts": {
+                "indicators:partial": 7,
+                "ohlc:partial": 7,
+                "orderflow:available": 7,
+                "quote:available": 7,
+                "risk_context:available": 7,
+                "session:available": 7,
+                "structure:partial": 7
+              },
+              "missing_required_counts": {},
+              "comparable_rate": {
+                "numerator": 7,
+                "denominator": 7,
+                "rate": 1.0
+              },
+              "not_comparable_rate": {
+                "numerator": 0,
+                "denominator": 7,
+                "rate": 0.0
+              }
+            },
+            "structure": {
+              "comparable_count": 7,
+              "not_comparable_count": 0,
+              "completeness_state_counts": {
+                "indicators:partial": 7,
+                "ohlc:partial": 7,
+                "quote:available": 7,
+                "risk_context:available": 7,
+                "session:available": 7,
+                "structure:partial": 7
+              },
+              "missing_required_counts": {},
+              "comparable_rate": {
+                "numerator": 7,
+                "denominator": 7,
+                "rate": 1.0
+              },
+              "not_comparable_rate": {
+                "numerator": 0,
+                "denominator": 7,
+                "rate": 0.0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "bundle_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2.json",
+      "profiles": [
+        "baseline-current",
+        "structure"
+      ],
+      "invocation_count": 12,
+      "sections": {
+        "contract_validity": {
+          "invocation_count": 12,
+          "invalid_count": 0,
+          "invalid_rate": {
+            "numerator": 0,
+            "denominator": 12,
+            "rate": 0.0
+          },
+          "error_code_counts": {},
+          "state_counts": {
+            "no_edge": 11,
+            "held": 1
+          }
+        },
+        "missing_required_evidence": {
+          "invocation_count": 12,
+          "missing_required_evidence_count": 0,
+          "missing_required_evidence_rate": {
+            "numerator": 0,
+            "denominator": 12,
+            "rate": 0.0
+          },
+          "by_profile": {},
+          "missing_required_item_counts": {},
+          "evidence_completeness": {
+            "by_profile": {
+              "baseline-current": {
+                "comparable_count": 6,
+                "not_comparable_count": 0,
+                "completeness_state_counts": {
+                  "indicators:partial": 6,
+                  "ohlc:partial": 6,
+                  "orderflow:available": 6,
+                  "quote:available": 6,
+                  "risk_context:available": 6,
+                  "session:available": 6,
+                  "structure:partial": 6
+                },
+                "missing_required_counts": {},
+                "comparable_rate": {
+                  "numerator": 6,
+                  "denominator": 6,
+                  "rate": 1.0
+                },
+                "not_comparable_rate": {
+                  "numerator": 0,
+                  "denominator": 6,
+                  "rate": 0.0
+                }
+              },
+              "structure": {
+                "comparable_count": 6,
+                "not_comparable_count": 0,
+                "completeness_state_counts": {
+                  "indicators:partial": 6,
+                  "ohlc:partial": 6,
+                  "quote:available": 6,
+                  "risk_context:available": 6,
+                  "session:available": 6,
+                  "structure:partial": 6
+                },
+                "missing_required_counts": {},
+                "comparable_rate": {
+                  "numerator": 6,
+                  "denominator": 6,
+                  "rate": 1.0
+                },
+                "not_comparable_rate": {
+                  "numerator": 0,
+                  "denominator": 6,
+                  "rate": 0.0
+                }
+              }
+            }
+          }
+        },
+        "not_comparable": {
+          "comparable_count": 12,
+          "not_comparable_count": 0,
+          "comparable_rate": {
+            "numerator": 12,
+            "denominator": 12,
+            "rate": 1.0
+          },
+          "not_comparable_category_count": 0,
+          "not_comparable_category_rate": {
+            "numerator": 0,
+            "denominator": 12,
+            "rate": 0.0
+          },
+          "by_profile": {},
+          "not_comparable_rate": {
+            "numerator": 0,
+            "denominator": 12,
+            "rate": 0.0
+          }
+        },
+        "thesis_quality": {
+          "category_counts": {
+            "no_edge": 11,
+            "thesis_quality": 1
+          },
+          "thesis_quality_count": 1,
+          "by_profile": {
+            "baseline-current": {
+              "no_edge": 6
+            },
+            "structure": {
+              "no_edge": 5,
+              "thesis_quality": 1
+            }
+          },
+          "comparable_pair_count": 0,
+          "comparable_pair_rate": {
+            "numerator": 0,
+            "denominator": 6,
+            "rate": 0.0
+          },
+          "scenario_comparisons": [
+            {
+              "frame_id": "20260901T134026Z-bb50bbe9",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-OPERATOR-MIDSESSION"
+            },
+            {
+              "frame_id": "20260901T150823Z-d7908a55",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-OPERATOR-AFTERNOON"
+            },
+            {
+              "frame_id": "20260901T000528Z-041dc508",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-PRAC-TIMEOUT-RECOVERY"
+            },
+            {
+              "frame_id": "20260831T235211Z-cdbf204f",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-PRAC-RESTART-BRACKET"
+            },
+            {
+              "frame_id": "20260901T143431Z-534fefd5",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "thesis_quality",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-PRAC-RECONCILIATION"
+            },
+            {
+              "frame_id": "20260901T182843Z-b06d9a93",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-PRAC-PREFLIGHT"
+            }
+          ],
+          "thesis_quality_rate": {
+            "numerator": 1,
+            "denominator": 12,
+            "rate": 0.08333333333333333
+          },
+          "thesis_quality_denominator_excludes": [
+            "not_comparable",
+            "missing_required_evidence",
+            "schema_invalid"
+          ]
+        },
+        "cognitive_divergence": {
+          "frame_count": 6,
+          "comparable_pair_count": 0,
+          "direction_delta_count": 0,
+          "thesis_delta_count": 0,
+          "direction_deltas": [],
+          "thesis_deltas": [],
+          "comparable_pair_rate": {
+            "numerator": 0,
+            "denominator": 6,
+            "rate": 0.0
+          },
+          "direction_delta_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "thesis_delta_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          }
+        },
+        "intra_profile_stability": {
+          "groups_with_multiple_reruns": 0,
+          "agreements": [],
+          "placeholder": "no_intra_profile_reruns; invoke run-intra-profile-repeatability.py for stability data",
+          "direction_agreement_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "state_agreement_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          }
+        },
+        "cost_latency": {
+          "session_cost_usd_bundle": 0.135218,
+          "all_cost_gates_passed_bundle": null,
+          "session_cost_usd_max": 0.011979,
+          "cost_basis_counts": {
+            "estimated_tokens": 12
+          },
+          "estimated_vs_provider": {
+            "estimated_total_usd": 0.135218,
+            "provider_reported_total_usd": 0.0,
+            "confirmed_total_usd": 0.0,
+            "unknown_invocation_count": 0
+          },
+          "per_invocation_count": 12,
+          "sessions": {
+            "20260901_192847_a4f4a0": {
+              "session_id": "20260901_192847_a4f4a0",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011122,
+              "accumulated_tokens": 8351,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_192857_78cfd9": {
+              "session_id": "20260901_192857_78cfd9",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011312,
+              "accumulated_tokens": 8370,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_192913_b4a2e1": {
+              "session_id": "20260901_192913_b4a2e1",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011069,
+              "accumulated_tokens": 8190,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_192927_0207c4": {
+              "session_id": "20260901_192927_0207c4",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011029,
+              "accumulated_tokens": 8186,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_192938_933f32": {
+              "session_id": "20260901_192938_933f32",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011052,
+              "accumulated_tokens": 8232,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_192954_4709aa": {
+              "session_id": "20260901_192954_4709aa",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011172,
+              "accumulated_tokens": 8244,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_193009_9d0014": {
+              "session_id": "20260901_193009_9d0014",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011145,
+              "accumulated_tokens": 8216,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_193020_1c0d4c": {
+              "session_id": "20260901_193020_1c0d4c",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011105,
+              "accumulated_tokens": 8212,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_193031_534f8a": {
+              "session_id": "20260901_193031_534f8a",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011679,
+              "accumulated_tokens": 8622,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_193047_e98092": {
+              "session_id": "20260901_193047_e98092",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011979,
+              "accumulated_tokens": 8652,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_193101_d41cbe": {
+              "session_id": "20260901_193101_d41cbe",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011352,
+              "accumulated_tokens": 8269,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_193111_729872": {
+              "session_id": "20260901_193111_729872",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011202,
+              "accumulated_tokens": 8254,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            }
+          },
+          "latency_ms": {
+            "p50_ms": 13672,
+            "count": 12
+          },
+          "audit_gate_passed": true,
+          "violations": [],
+          "limits": {
+            "max_cost_usd_per_session": 2.5,
+            "max_tokens_per_call": 50000,
+            "max_tokens_per_session": 500000,
+            "max_calls_per_session": 36,
+            "max_calls_per_snapshot": 6,
+            "per_profile_timeout_ms": 35000,
+            "total_timeout_ms": 120000,
+            "total_latency_budget_ms": 180000,
+            "per_profile_limits_configured": false
+          },
+          "per_profile": {
+            "baseline-current": {
+              "limits_configured": false,
+              "max_cost_usd_per_session": null,
+              "sessions": {
+                "20260901_192847_a4f4a0": {
+                  "accumulated_cost_usd": 0.011122,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_192913_b4a2e1": {
+                  "accumulated_cost_usd": 0.011069,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_192938_933f32": {
+                  "accumulated_cost_usd": 0.011052,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_193009_9d0014": {
+                  "accumulated_cost_usd": 0.011145,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_193031_534f8a": {
+                  "accumulated_cost_usd": 0.011679,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_193101_d41cbe": {
+                  "accumulated_cost_usd": 0.011352,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                }
+              }
+            },
+            "structure": {
+              "limits_configured": false,
+              "max_cost_usd_per_session": null,
+              "sessions": {
+                "20260901_192857_78cfd9": {
+                  "accumulated_cost_usd": 0.011312,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_192927_0207c4": {
+                  "accumulated_cost_usd": 0.011029,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_192954_4709aa": {
+                  "accumulated_cost_usd": 0.011172,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_193020_1c0d4c": {
+                  "accumulated_cost_usd": 0.011105,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_193047_e98092": {
+                  "accumulated_cost_usd": 0.011979,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_193111_729872": {
+                  "accumulated_cost_usd": 0.011202,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                }
+              }
+            }
+          },
+          "unknown_pricing_rate": {
+            "numerator": 0,
+            "denominator": 12,
+            "rate": 0.0
+          },
+          "audit_gate_passed_rate": {
+            "numerator": 1,
+            "denominator": 1,
+            "rate": 1.0
+          },
+          "latency_timeout_rate": {
+            "numerator": 0,
+            "denominator": 12,
+            "rate": 0.0
+          }
+        },
+        "evidence_completeness": {
+          "by_profile": {
+            "baseline-current": {
+              "comparable_count": 6,
+              "not_comparable_count": 0,
+              "completeness_state_counts": {
+                "indicators:partial": 6,
+                "ohlc:partial": 6,
+                "orderflow:available": 6,
+                "quote:available": 6,
+                "risk_context:available": 6,
+                "session:available": 6,
+                "structure:partial": 6
+              },
+              "missing_required_counts": {},
+              "comparable_rate": {
+                "numerator": 6,
+                "denominator": 6,
+                "rate": 1.0
+              },
+              "not_comparable_rate": {
+                "numerator": 0,
+                "denominator": 6,
+                "rate": 0.0
+              }
+            },
+            "structure": {
+              "comparable_count": 6,
+              "not_comparable_count": 0,
+              "completeness_state_counts": {
+                "indicators:partial": 6,
+                "ohlc:partial": 6,
+                "quote:available": 6,
+                "risk_context:available": 6,
+                "session:available": 6,
+                "structure:partial": 6
+              },
+              "missing_required_counts": {},
+              "comparable_rate": {
+                "numerator": 6,
+                "denominator": 6,
+                "rate": 1.0
+              },
+              "not_comparable_rate": {
+                "numerator": 0,
+                "denominator": 6,
+                "rate": 0.0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+      "bundle_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-v2.json",
+      "profiles": [
+        "baseline-current",
+        "structure"
+      ],
+      "invocation_count": 18,
+      "sections": {
+        "contract_validity": {
+          "invocation_count": 18,
+          "invalid_count": 0,
+          "invalid_rate": {
+            "numerator": 0,
+            "denominator": 18,
+            "rate": 0.0
+          },
+          "error_code_counts": {},
+          "state_counts": {
+            "no_edge": 13,
+            "data_quality_insufficient": 3,
+            "expired": 1,
+            "held": 1
+          }
+        },
+        "missing_required_evidence": {
+          "invocation_count": 18,
+          "missing_required_evidence_count": 0,
+          "missing_required_evidence_rate": {
+            "numerator": 0,
+            "denominator": 18,
+            "rate": 0.0
+          },
+          "by_profile": {},
+          "missing_required_item_counts": {},
+          "evidence_completeness": {
+            "by_profile": {
+              "baseline-current": {
+                "comparable_count": 9,
+                "not_comparable_count": 0,
+                "completeness_state_counts": {
+                  "indicators:partial": 9,
+                  "ohlc:partial": 9,
+                  "orderflow:available": 9,
+                  "quote:available": 9,
+                  "risk_context:available": 9,
+                  "session:available": 9,
+                  "structure:partial": 9
+                },
+                "missing_required_counts": {},
+                "comparable_rate": {
+                  "numerator": 9,
+                  "denominator": 9,
+                  "rate": 1.0
+                },
+                "not_comparable_rate": {
+                  "numerator": 0,
+                  "denominator": 9,
+                  "rate": 0.0
+                }
+              },
+              "structure": {
+                "comparable_count": 9,
+                "not_comparable_count": 0,
+                "completeness_state_counts": {
+                  "indicators:partial": 9,
+                  "ohlc:partial": 9,
+                  "quote:available": 9,
+                  "risk_context:available": 9,
+                  "session:available": 9,
+                  "structure:partial": 9
+                },
+                "missing_required_counts": {},
+                "comparable_rate": {
+                  "numerator": 9,
+                  "denominator": 9,
+                  "rate": 1.0
+                },
+                "not_comparable_rate": {
+                  "numerator": 0,
+                  "denominator": 9,
+                  "rate": 0.0
+                }
+              }
+            }
+          }
+        },
+        "not_comparable": {
+          "comparable_count": 18,
+          "not_comparable_count": 0,
+          "comparable_rate": {
+            "numerator": 18,
+            "denominator": 18,
+            "rate": 1.0
+          },
+          "not_comparable_category_count": 4,
+          "not_comparable_category_rate": {
+            "numerator": 4,
+            "denominator": 18,
+            "rate": 0.2222222222222222
+          },
+          "by_profile": {
+            "structure": 2,
+            "baseline-current": 2
+          },
+          "not_comparable_rate": {
+            "numerator": 0,
+            "denominator": 18,
+            "rate": 0.0
+          }
+        },
+        "thesis_quality": {
+          "category_counts": {
+            "no_edge": 13,
+            "not_comparable": 4,
+            "thesis_quality": 1
+          },
+          "thesis_quality_count": 1,
+          "by_profile": {
+            "baseline-current": {
+              "no_edge": 7,
+              "not_comparable": 2
+            },
+            "structure": {
+              "not_comparable": 2,
+              "no_edge": 6,
+              "thesis_quality": 1
+            }
+          },
+          "comparable_pair_count": 0,
+          "comparable_pair_rate": {
+            "numerator": 0,
+            "denominator": 9,
+            "rate": 0.0
+          },
+          "scenario_comparisons": [
+            {
+              "frame_id": "20260831T233830Z-cbb5cee1",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "not_comparable",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-cbb5cee1"
+            },
+            {
+              "frame_id": "20260831T234106Z-a9c3eb80",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "not_comparable",
+              "challenger_category": "not_comparable",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-a9c3eb80"
+            },
+            {
+              "frame_id": "20260901T002738Z-818c9e79",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-818c9e79"
+            },
+            {
+              "frame_id": "20260901T002738Z-5e80e1ac",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-RECONCILIATION-5e80e1ac"
+            },
+            {
+              "frame_id": "20260901T020441Z-9866a0f9",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-RECONCILIATION-9866a0f9"
+            },
+            {
+              "frame_id": "20260831T235211Z-8c371231",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "not_comparable",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-RESTART-8c371231"
+            },
+            {
+              "frame_id": "20260831T235620Z-fd331ad4",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-RESTART-fd331ad4"
+            },
+            {
+              "frame_id": "20260901T143311Z-a49c317a",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "thesis_quality",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-a49c317a"
+            },
+            {
+              "frame_id": "20260901T145322Z-c776a976",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-c776a976"
+            }
+          ],
+          "thesis_quality_rate": {
+            "numerator": 1,
+            "denominator": 14,
+            "rate": 0.07142857142857142
+          },
+          "thesis_quality_denominator_excludes": [
+            "not_comparable",
+            "missing_required_evidence",
+            "schema_invalid"
+          ]
+        },
+        "cognitive_divergence": {
+          "frame_count": 9,
+          "comparable_pair_count": 0,
+          "direction_delta_count": 0,
+          "thesis_delta_count": 0,
+          "direction_deltas": [],
+          "thesis_deltas": [],
+          "comparable_pair_rate": {
+            "numerator": 0,
+            "denominator": 9,
+            "rate": 0.0
+          },
+          "direction_delta_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "thesis_delta_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          }
+        },
+        "intra_profile_stability": {
+          "groups_with_multiple_reruns": 0,
+          "agreements": [],
+          "placeholder": "no_intra_profile_reruns; invoke run-intra-profile-repeatability.py for stability data",
+          "direction_agreement_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "state_agreement_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          }
+        },
+        "cost_latency": {
+          "session_cost_usd_bundle": 0.203388,
+          "all_cost_gates_passed_bundle": true,
+          "session_cost_usd_max": 0.012107,
+          "cost_basis_counts": {
+            "estimated_tokens": 18
+          },
+          "estimated_vs_provider": {
+            "estimated_total_usd": 0.203388,
+            "provider_reported_total_usd": 0.0,
+            "confirmed_total_usd": 0.0,
+            "unknown_invocation_count": 0
+          },
+          "per_invocation_count": 18,
+          "sessions": {
+            "20260901_195516_6b0fa6": {
+              "session_id": "20260901_195516_6b0fa6",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011673,
+              "accumulated_tokens": 8638,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_195528_b220b1": {
+              "session_id": "20260901_195528_b220b1",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011583,
+              "accumulated_tokens": 8629,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_195538_71c31d": {
+              "session_id": "20260901_195538_71c31d",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011618,
+              "accumulated_tokens": 8601,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_195548_42cd65": {
+              "session_id": "20260901_195548_42cd65",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011518,
+              "accumulated_tokens": 8591,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_195557_e4b336": {
+              "session_id": "20260901_195557_e4b336",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011422,
+              "accumulated_tokens": 8437,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_195608_fc349d": {
+              "session_id": "20260901_195608_fc349d",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011242,
+              "accumulated_tokens": 8419,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_195620_0c73d9": {
+              "session_id": "20260901_195620_0c73d9",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011248,
+              "accumulated_tokens": 8417,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_195633_8484c6": {
+              "session_id": "20260901_195633_8484c6",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011538,
+              "accumulated_tokens": 8446,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_195643_6b32e8": {
+              "session_id": "20260901_195643_6b32e8",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.010609,
+              "accumulated_tokens": 8088,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_195654_8f879a": {
+              "session_id": "20260901_195654_8f879a",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.010839,
+              "accumulated_tokens": 8111,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_195703_283782": {
+              "session_id": "20260901_195703_283782",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.010603,
+              "accumulated_tokens": 8160,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_195715_3b7528": {
+              "session_id": "20260901_195715_3b7528",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.010933,
+              "accumulated_tokens": 8193,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_195725_3ee7e4": {
+              "session_id": "20260901_195725_3ee7e4",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.010914,
+              "accumulated_tokens": 8262,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_195738_71ccff": {
+              "session_id": "20260901_195738_71ccff",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011334,
+              "accumulated_tokens": 8304,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_195747_adab61": {
+              "session_id": "20260901_195747_adab61",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011757,
+              "accumulated_tokens": 8796,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_195802_b58e46": {
+              "session_id": "20260901_195802_b58e46",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.012107,
+              "accumulated_tokens": 8831,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_195817_fb602f": {
+              "session_id": "20260901_195817_fb602f",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011115,
+              "accumulated_tokens": 8262,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_195833_2ea170": {
+              "session_id": "20260901_195833_2ea170",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011335,
+              "accumulated_tokens": 8284,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            }
+          },
+          "latency_ms": {
+            "p50_ms": 11093,
+            "count": 18
+          },
+          "audit_gate_passed": false,
+          "violations": [
+            {
+              "kind": "total_latency_budget_exceeded",
+              "latency_sum_ms": 206459,
+              "limit": 180000
+            }
+          ],
+          "limits": {
+            "max_cost_usd_per_session": 2.5,
+            "max_tokens_per_call": 50000,
+            "max_tokens_per_session": 500000,
+            "max_calls_per_session": 36,
+            "max_calls_per_snapshot": 6,
+            "per_profile_timeout_ms": 35000,
+            "total_timeout_ms": 120000,
+            "total_latency_budget_ms": 180000,
+            "per_profile_limits_configured": false
+          },
+          "per_profile": {
+            "baseline-current": {
+              "limits_configured": false,
+              "max_cost_usd_per_session": null,
+              "sessions": {
+                "20260901_195516_6b0fa6": {
+                  "accumulated_cost_usd": 0.011673,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_195538_71c31d": {
+                  "accumulated_cost_usd": 0.011618,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_195557_e4b336": {
+                  "accumulated_cost_usd": 0.011422,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_195620_0c73d9": {
+                  "accumulated_cost_usd": 0.011248,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_195643_6b32e8": {
+                  "accumulated_cost_usd": 0.010609,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_195703_283782": {
+                  "accumulated_cost_usd": 0.010603,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_195725_3ee7e4": {
+                  "accumulated_cost_usd": 0.010914,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_195747_adab61": {
+                  "accumulated_cost_usd": 0.011757,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_195817_fb602f": {
+                  "accumulated_cost_usd": 0.011115,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                }
+              }
+            },
+            "structure": {
+              "limits_configured": false,
+              "max_cost_usd_per_session": null,
+              "sessions": {
+                "20260901_195528_b220b1": {
+                  "accumulated_cost_usd": 0.011583,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_195548_42cd65": {
+                  "accumulated_cost_usd": 0.011518,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_195608_fc349d": {
+                  "accumulated_cost_usd": 0.011242,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_195633_8484c6": {
+                  "accumulated_cost_usd": 0.011538,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_195654_8f879a": {
+                  "accumulated_cost_usd": 0.010839,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_195715_3b7528": {
+                  "accumulated_cost_usd": 0.010933,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_195738_71ccff": {
+                  "accumulated_cost_usd": 0.011334,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_195802_b58e46": {
+                  "accumulated_cost_usd": 0.012107,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_195833_2ea170": {
+                  "accumulated_cost_usd": 0.011335,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                }
+              }
+            }
+          },
+          "unknown_pricing_rate": {
+            "numerator": 0,
+            "denominator": 18,
+            "rate": 0.0
+          },
+          "audit_gate_passed_rate": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0.0
+          },
+          "latency_timeout_rate": {
+            "numerator": 0,
+            "denominator": 18,
+            "rate": 0.0
+          }
+        },
+        "evidence_completeness": {
+          "by_profile": {
+            "baseline-current": {
+              "comparable_count": 9,
+              "not_comparable_count": 0,
+              "completeness_state_counts": {
+                "indicators:partial": 9,
+                "ohlc:partial": 9,
+                "orderflow:available": 9,
+                "quote:available": 9,
+                "risk_context:available": 9,
+                "session:available": 9,
+                "structure:partial": 9
+              },
+              "missing_required_counts": {},
+              "comparable_rate": {
+                "numerator": 9,
+                "denominator": 9,
+                "rate": 1.0
+              },
+              "not_comparable_rate": {
+                "numerator": 0,
+                "denominator": 9,
+                "rate": 0.0
+              }
+            },
+            "structure": {
+              "comparable_count": 9,
+              "not_comparable_count": 0,
+              "completeness_state_counts": {
+                "indicators:partial": 9,
+                "ohlc:partial": 9,
+                "quote:available": 9,
+                "risk_context:available": 9,
+                "session:available": 9,
+                "structure:partial": 9
+              },
+              "missing_required_counts": {},
+              "comparable_rate": {
+                "numerator": 9,
+                "denominator": 9,
+                "rate": 1.0
+              },
+              "not_comparable_rate": {
+                "numerator": 0,
+                "denominator": 9,
+                "rate": 0.0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "bundle_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r13-stratified-v3.json",
+      "profiles": [
+        "baseline-current",
+        "structure"
+      ],
+      "invocation_count": 16,
+      "sections": {
+        "contract_validity": {
+          "invocation_count": 16,
+          "invalid_count": 0,
+          "invalid_rate": {
+            "numerator": 0,
+            "denominator": 16,
+            "rate": 0.0
+          },
+          "error_code_counts": {},
+          "state_counts": {
+            "no_edge": 12,
+            "candidate": 2,
+            "data_quality_insufficient": 1,
+            "held": 1
+          }
+        },
+        "missing_required_evidence": {
+          "invocation_count": 16,
+          "missing_required_evidence_count": 0,
+          "missing_required_evidence_rate": {
+            "numerator": 0,
+            "denominator": 16,
+            "rate": 0.0
+          },
+          "by_profile": {},
+          "missing_required_item_counts": {},
+          "evidence_completeness": {
+            "by_profile": {
+              "baseline-current": {
+                "comparable_count": 8,
+                "not_comparable_count": 0,
+                "completeness_state_counts": {
+                  "indicators:partial": 8,
+                  "ohlc:partial": 8,
+                  "orderflow:available": 8,
+                  "quote:available": 8,
+                  "risk_context:available": 8,
+                  "session:available": 8,
+                  "structure:partial": 8
+                },
+                "missing_required_counts": {},
+                "comparable_rate": {
+                  "numerator": 8,
+                  "denominator": 8,
+                  "rate": 1.0
+                },
+                "not_comparable_rate": {
+                  "numerator": 0,
+                  "denominator": 8,
+                  "rate": 0.0
+                }
+              },
+              "structure": {
+                "comparable_count": 8,
+                "not_comparable_count": 0,
+                "completeness_state_counts": {
+                  "indicators:partial": 8,
+                  "ohlc:partial": 8,
+                  "quote:available": 8,
+                  "risk_context:available": 8,
+                  "session:available": 8,
+                  "structure:partial": 8
+                },
+                "missing_required_counts": {},
+                "comparable_rate": {
+                  "numerator": 8,
+                  "denominator": 8,
+                  "rate": 1.0
+                },
+                "not_comparable_rate": {
+                  "numerator": 0,
+                  "denominator": 8,
+                  "rate": 0.0
+                }
+              }
+            }
+          }
+        },
+        "not_comparable": {
+          "comparable_count": 16,
+          "not_comparable_count": 0,
+          "comparable_rate": {
+            "numerator": 16,
+            "denominator": 16,
+            "rate": 1.0
+          },
+          "not_comparable_category_count": 1,
+          "not_comparable_category_rate": {
+            "numerator": 1,
+            "denominator": 16,
+            "rate": 0.0625
+          },
+          "by_profile": {
+            "baseline-current": 1
+          },
+          "not_comparable_rate": {
+            "numerator": 0,
+            "denominator": 16,
+            "rate": 0.0
+          }
+        },
+        "thesis_quality": {
+          "category_counts": {
+            "no_edge": 12,
+            "thesis_quality": 3,
+            "not_comparable": 1
+          },
+          "thesis_quality_count": 3,
+          "by_profile": {
+            "baseline-current": {
+              "no_edge": 5,
+              "thesis_quality": 2,
+              "not_comparable": 1
+            },
+            "structure": {
+              "no_edge": 7,
+              "thesis_quality": 1
+            }
+          },
+          "comparable_pair_count": 0,
+          "comparable_pair_rate": {
+            "numerator": 0,
+            "denominator": 8,
+            "rate": 0.0
+          },
+          "scenario_comparisons": [
+            {
+              "frame_id": "20260901T152524Z-24fe8a4d",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-24fe8a4d"
+            },
+            {
+              "frame_id": "20260901T154226Z-52265102",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-52265102"
+            },
+            {
+              "frame_id": "20260901T165456Z-8b20659b",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "thesis_quality",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-8b20659b"
+            },
+            {
+              "frame_id": "20260901T174044Z-2cfca7a6",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-2cfca7a6"
+            },
+            {
+              "frame_id": "20260901T175947Z-a71c2714",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "thesis_quality",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-a71c2714"
+            },
+            {
+              "frame_id": "20260901T181807Z-e1ff909a",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-e1ff909a"
+            },
+            {
+              "frame_id": "20260901T002742Z-ddd5ffb5",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "not_comparable",
+              "challenger_category": "thesis_quality",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-ddd5ffb5"
+            },
+            {
+              "frame_id": "20260901T002828Z-f5fb2cc7",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-f5fb2cc7"
+            }
+          ],
+          "thesis_quality_rate": {
+            "numerator": 3,
+            "denominator": 15,
+            "rate": 0.2
+          },
+          "thesis_quality_denominator_excludes": [
+            "not_comparable",
+            "missing_required_evidence",
+            "schema_invalid"
+          ]
+        },
+        "cognitive_divergence": {
+          "frame_count": 8,
+          "comparable_pair_count": 0,
+          "direction_delta_count": 0,
+          "thesis_delta_count": 0,
+          "direction_deltas": [],
+          "thesis_deltas": [],
+          "comparable_pair_rate": {
+            "numerator": 0,
+            "denominator": 8,
+            "rate": 0.0
+          },
+          "direction_delta_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "thesis_delta_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          }
+        },
+        "intra_profile_stability": {
+          "groups_with_multiple_reruns": 0,
+          "agreements": [],
+          "placeholder": "no_intra_profile_reruns; invoke run-intra-profile-repeatability.py for stability data",
+          "direction_agreement_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "state_agreement_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          }
+        },
+        "cost_latency": {
+          "session_cost_usd_bundle": 0.18065,
+          "all_cost_gates_passed_bundle": true,
+          "session_cost_usd_max": 0.012,
+          "cost_basis_counts": {
+            "estimated_tokens": 16
+          },
+          "estimated_vs_provider": {
+            "estimated_total_usd": 0.18065,
+            "provider_reported_total_usd": 0.0,
+            "confirmed_total_usd": 0.0,
+            "unknown_invocation_count": 0
+          },
+          "per_invocation_count": 16,
+          "sessions": {
+            "20260901_203151_42b11d": {
+              "session_id": "20260901_203151_42b11d",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011074,
+              "accumulated_tokens": 8292,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_203201_25c9f3": {
+              "session_id": "20260901_203201_25c9f3",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011284,
+              "accumulated_tokens": 8313,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_203212_de8ce2": {
+              "session_id": "20260901_203212_de8ce2",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011084,
+              "accumulated_tokens": 8300,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_203222_e4ae2f": {
+              "session_id": "20260901_203222_e4ae2f",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011444,
+              "accumulated_tokens": 8336,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_203235_88d81a": {
+              "session_id": "20260901_203235_88d81a",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.01132,
+              "accumulated_tokens": 8223,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_203249_91bdec": {
+              "session_id": "20260901_203249_91bdec",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.01103,
+              "accumulated_tokens": 8194,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_203303_a152b7": {
+              "session_id": "20260901_203303_a152b7",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011043,
+              "accumulated_tokens": 8225,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_203316_1e958e": {
+              "session_id": "20260901_203316_1e958e",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011253,
+              "accumulated_tokens": 8246,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_203326_fb6f8e": {
+              "session_id": "20260901_203326_fb6f8e",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011198,
+              "accumulated_tokens": 8230,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_203345_05dd64": {
+              "session_id": "20260901_203345_05dd64",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011048,
+              "accumulated_tokens": 8215,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_203359_a029cb": {
+              "session_id": "20260901_203359_a029cb",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011222,
+              "accumulated_tokens": 8235,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_203413_ca6217": {
+              "session_id": "20260901_203413_ca6217",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011092,
+              "accumulated_tokens": 8222,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_203424_945434": {
+              "session_id": "20260901_203424_945434",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.01157,
+              "accumulated_tokens": 8717,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_203436_cc0d01": {
+              "session_id": "20260901_203436_cc0d01",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.012,
+              "accumulated_tokens": 8760,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_203448_a719ea": {
+              "session_id": "20260901_203448_a719ea",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011204,
+              "accumulated_tokens": 8424,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260901_203459_011f3c": {
+              "session_id": "20260901_203459_011f3c",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011784,
+              "accumulated_tokens": 8482,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            }
+          },
+          "latency_ms": {
+            "p50_ms": 12484,
+            "count": 16
+          },
+          "audit_gate_passed": false,
+          "violations": [
+            {
+              "kind": "total_latency_budget_exceeded",
+              "latency_sum_ms": 201745,
+              "limit": 180000
+            }
+          ],
+          "limits": {
+            "max_cost_usd_per_session": 2.5,
+            "max_tokens_per_call": 50000,
+            "max_tokens_per_session": 500000,
+            "max_calls_per_session": 36,
+            "max_calls_per_snapshot": 6,
+            "per_profile_timeout_ms": 35000,
+            "total_timeout_ms": 120000,
+            "total_latency_budget_ms": 180000,
+            "per_profile_limits_configured": false
+          },
+          "per_profile": {
+            "baseline-current": {
+              "limits_configured": false,
+              "max_cost_usd_per_session": null,
+              "sessions": {
+                "20260901_203151_42b11d": {
+                  "accumulated_cost_usd": 0.011074,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_203212_de8ce2": {
+                  "accumulated_cost_usd": 0.011084,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_203235_88d81a": {
+                  "accumulated_cost_usd": 0.01132,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_203303_a152b7": {
+                  "accumulated_cost_usd": 0.011043,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_203326_fb6f8e": {
+                  "accumulated_cost_usd": 0.011198,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_203359_a029cb": {
+                  "accumulated_cost_usd": 0.011222,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_203424_945434": {
+                  "accumulated_cost_usd": 0.01157,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_203448_a719ea": {
+                  "accumulated_cost_usd": 0.011204,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                }
+              }
+            },
+            "structure": {
+              "limits_configured": false,
+              "max_cost_usd_per_session": null,
+              "sessions": {
+                "20260901_203201_25c9f3": {
+                  "accumulated_cost_usd": 0.011284,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_203222_e4ae2f": {
+                  "accumulated_cost_usd": 0.011444,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_203249_91bdec": {
+                  "accumulated_cost_usd": 0.01103,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_203316_1e958e": {
+                  "accumulated_cost_usd": 0.011253,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_203345_05dd64": {
+                  "accumulated_cost_usd": 0.011048,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_203413_ca6217": {
+                  "accumulated_cost_usd": 0.011092,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_203436_cc0d01": {
+                  "accumulated_cost_usd": 0.012,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260901_203459_011f3c": {
+                  "accumulated_cost_usd": 0.011784,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                }
+              }
+            }
+          },
+          "unknown_pricing_rate": {
+            "numerator": 0,
+            "denominator": 16,
+            "rate": 0.0
+          },
+          "audit_gate_passed_rate": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0.0
+          },
+          "latency_timeout_rate": {
+            "numerator": 0,
+            "denominator": 16,
+            "rate": 0.0
+          }
+        },
+        "evidence_completeness": {
+          "by_profile": {
+            "baseline-current": {
+              "comparable_count": 8,
+              "not_comparable_count": 0,
+              "completeness_state_counts": {
+                "indicators:partial": 8,
+                "ohlc:partial": 8,
+                "orderflow:available": 8,
+                "quote:available": 8,
+                "risk_context:available": 8,
+                "session:available": 8,
+                "structure:partial": 8
+              },
+              "missing_required_counts": {},
+              "comparable_rate": {
+                "numerator": 8,
+                "denominator": 8,
+                "rate": 1.0
+              },
+              "not_comparable_rate": {
+                "numerator": 0,
+                "denominator": 8,
+                "rate": 0.0
+              }
+            },
+            "structure": {
+              "comparable_count": 8,
+              "not_comparable_count": 0,
+              "completeness_state_counts": {
+                "indicators:partial": 8,
+                "ohlc:partial": 8,
+                "quote:available": 8,
+                "risk_context:available": 8,
+                "session:available": 8,
+                "structure:partial": 8
+              },
+              "missing_required_counts": {},
+              "comparable_rate": {
+                "numerator": 8,
+                "denominator": 8,
+                "rate": 1.0
+              },
+              "not_comparable_rate": {
+                "numerator": 0,
+                "denominator": 8,
+                "rate": 0.0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r14-v5.1",
+      "bundle_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-02-r14-v5.1.json",
+      "profiles": [
+        "baseline-current",
+        "structure"
+      ],
+      "invocation_count": 18,
+      "sections": {
+        "contract_validity": {
+          "invocation_count": 18,
+          "invalid_count": 0,
+          "invalid_rate": {
+            "numerator": 0,
+            "denominator": 18,
+            "rate": 0.0
+          },
+          "error_code_counts": {},
+          "state_counts": {
+            "no_edge": 17,
+            "candidate": 1
+          }
+        },
+        "missing_required_evidence": {
+          "invocation_count": 18,
+          "missing_required_evidence_count": 0,
+          "missing_required_evidence_rate": {
+            "numerator": 0,
+            "denominator": 18,
+            "rate": 0.0
+          },
+          "by_profile": {},
+          "missing_required_item_counts": {},
+          "evidence_completeness": {
+            "by_profile": {
+              "baseline-current": {
+                "comparable_count": 9,
+                "not_comparable_count": 0,
+                "completeness_state_counts": {
+                  "indicators:partial": 9,
+                  "ohlc:partial": 9,
+                  "orderflow:available": 9,
+                  "quote:available": 9,
+                  "risk_context:available": 9,
+                  "session:available": 9,
+                  "structure:partial": 9
+                },
+                "missing_required_counts": {},
+                "comparable_rate": {
+                  "numerator": 9,
+                  "denominator": 9,
+                  "rate": 1.0
+                },
+                "not_comparable_rate": {
+                  "numerator": 0,
+                  "denominator": 9,
+                  "rate": 0.0
+                }
+              },
+              "structure": {
+                "comparable_count": 9,
+                "not_comparable_count": 0,
+                "completeness_state_counts": {
+                  "indicators:partial": 9,
+                  "ohlc:partial": 9,
+                  "quote:available": 9,
+                  "risk_context:available": 9,
+                  "session:available": 9,
+                  "structure:partial": 9
+                },
+                "missing_required_counts": {},
+                "comparable_rate": {
+                  "numerator": 9,
+                  "denominator": 9,
+                  "rate": 1.0
+                },
+                "not_comparable_rate": {
+                  "numerator": 0,
+                  "denominator": 9,
+                  "rate": 0.0
+                }
+              }
+            }
+          }
+        },
+        "not_comparable": {
+          "comparable_count": 18,
+          "not_comparable_count": 0,
+          "comparable_rate": {
+            "numerator": 18,
+            "denominator": 18,
+            "rate": 1.0
+          },
+          "not_comparable_category_count": 0,
+          "not_comparable_category_rate": {
+            "numerator": 0,
+            "denominator": 18,
+            "rate": 0.0
+          },
+          "by_profile": {},
+          "not_comparable_rate": {
+            "numerator": 0,
+            "denominator": 18,
+            "rate": 0.0
+          }
+        },
+        "thesis_quality": {
+          "category_counts": {
+            "no_edge": 17,
+            "thesis_quality": 1
+          },
+          "thesis_quality_count": 1,
+          "by_profile": {
+            "baseline-current": {
+              "no_edge": 9
+            },
+            "structure": {
+              "no_edge": 8,
+              "thesis_quality": 1
+            }
+          },
+          "comparable_pair_count": 0,
+          "comparable_pair_rate": {
+            "numerator": 0,
+            "denominator": 9,
+            "rate": 0.0
+          },
+          "scenario_comparisons": [
+            {
+              "frame_id": "20260902T115053Z-b7730ea3",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-b7730ea3"
+            },
+            {
+              "frame_id": "20260902T113051Z-cb1139d6",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-cb1139d6"
+            },
+            {
+              "frame_id": "20260902T022826Z-2e035875",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-2e035875"
+            },
+            {
+              "frame_id": "20260902T022026Z-2a71dbe9",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-2a71dbe9"
+            },
+            {
+              "frame_id": "20260902T021025Z-c88c2945",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-c88c2945"
+            },
+            {
+              "frame_id": "20260902T020524Z-aba921ec",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-aba921ec"
+            },
+            {
+              "frame_id": "20260902T020023Z-e8df6b82",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "thesis_quality",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-e8df6b82"
+            },
+            {
+              "frame_id": "20260902T015522Z-065ef854",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-065ef854"
+            },
+            {
+              "frame_id": "20260902T112922Z-c30de894",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-RESTART-c30de894"
+            }
+          ],
+          "thesis_quality_rate": {
+            "numerator": 1,
+            "denominator": 18,
+            "rate": 0.05555555555555555
+          },
+          "thesis_quality_denominator_excludes": [
+            "not_comparable",
+            "missing_required_evidence",
+            "schema_invalid"
+          ]
+        },
+        "cognitive_divergence": {
+          "frame_count": 9,
+          "comparable_pair_count": 0,
+          "direction_delta_count": 0,
+          "thesis_delta_count": 0,
+          "direction_deltas": [],
+          "thesis_deltas": [],
+          "comparable_pair_rate": {
+            "numerator": 0,
+            "denominator": 9,
+            "rate": 0.0
+          },
+          "direction_delta_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "thesis_delta_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          }
+        },
+        "intra_profile_stability": {
+          "groups_with_multiple_reruns": 0,
+          "agreements": [],
+          "placeholder": "no_intra_profile_reruns; invoke run-intra-profile-repeatability.py for stability data",
+          "direction_agreement_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "state_agreement_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          }
+        },
+        "cost_latency": {
+          "session_cost_usd_bundle": 0.202966,
+          "all_cost_gates_passed_bundle": true,
+          "session_cost_usd_max": 0.01161,
+          "cost_basis_counts": {
+            "estimated_tokens": 18
+          },
+          "estimated_vs_provider": {
+            "estimated_total_usd": 0.202966,
+            "provider_reported_total_usd": 0.0,
+            "confirmed_total_usd": 0.0,
+            "unknown_invocation_count": 0
+          },
+          "per_invocation_count": 18,
+          "sessions": {
+            "20260902_105628_c305a1": {
+              "session_id": "20260902_105628_c305a1",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.01099,
+              "accumulated_tokens": 8183,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_105642_511aff": {
+              "session_id": "20260902_105642_511aff",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.01116,
+              "accumulated_tokens": 8200,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_105651_4f1aa1": {
+              "session_id": "20260902_105651_4f1aa1",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011086,
+              "accumulated_tokens": 8133,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_105701_c1ddeb": {
+              "session_id": "20260902_105701_c1ddeb",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.010956,
+              "accumulated_tokens": 8120,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_105713_a4a3ca": {
+              "session_id": "20260902_105713_a4a3ca",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011278,
+              "accumulated_tokens": 8399,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_105725_86c76a": {
+              "session_id": "20260902_105725_86c76a",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011538,
+              "accumulated_tokens": 8425,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_105734_3792db": {
+              "session_id": "20260902_105734_3792db",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011398,
+              "accumulated_tokens": 8355,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_105746_001885": {
+              "session_id": "20260902_105746_001885",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011328,
+              "accumulated_tokens": 8348,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_105800_73252a": {
+              "session_id": "20260902_105800_73252a",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.01161,
+              "accumulated_tokens": 8469,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_105815_37edc0": {
+              "session_id": "20260902_105815_37edc0",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.01152,
+              "accumulated_tokens": 8460,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_105826_4c2f1c": {
+              "session_id": "20260902_105826_4c2f1c",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011243,
+              "accumulated_tokens": 8343,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_105837_24f1cc": {
+              "session_id": "20260902_105837_24f1cc",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011333,
+              "accumulated_tokens": 8352,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_105849_1c1048": {
+              "session_id": "20260902_105849_1c1048",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011319,
+              "accumulated_tokens": 8439,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_105900_143fe8": {
+              "session_id": "20260902_105900_143fe8",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011489,
+              "accumulated_tokens": 8456,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_105916_2b597e": {
+              "session_id": "20260902_105916_2b597e",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011392,
+              "accumulated_tokens": 8455,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_105927_ba93f4": {
+              "session_id": "20260902_105927_ba93f4",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011442,
+              "accumulated_tokens": 8460,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_105940_244d1d": {
+              "session_id": "20260902_105940_244d1d",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.010942,
+              "accumulated_tokens": 8074,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_105958_0a25bd": {
+              "session_id": "20260902_105958_0a25bd",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.010942,
+              "accumulated_tokens": 8074,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            }
+          },
+          "latency_ms": {
+            "p50_ms": 11686,
+            "count": 18
+          },
+          "audit_gate_passed": false,
+          "violations": [
+            {
+              "kind": "total_latency_budget_exceeded",
+              "latency_sum_ms": 220853,
+              "limit": 180000
+            }
+          ],
+          "limits": {
+            "max_cost_usd_per_session": 2.5,
+            "max_tokens_per_call": 50000,
+            "max_tokens_per_session": 500000,
+            "max_calls_per_session": 36,
+            "max_calls_per_snapshot": 6,
+            "per_profile_timeout_ms": 35000,
+            "total_timeout_ms": 120000,
+            "total_latency_budget_ms": 180000,
+            "per_profile_limits_configured": false
+          },
+          "per_profile": {
+            "baseline-current": {
+              "limits_configured": false,
+              "max_cost_usd_per_session": null,
+              "sessions": {
+                "20260902_105628_c305a1": {
+                  "accumulated_cost_usd": 0.01099,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_105651_4f1aa1": {
+                  "accumulated_cost_usd": 0.011086,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_105713_a4a3ca": {
+                  "accumulated_cost_usd": 0.011278,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_105734_3792db": {
+                  "accumulated_cost_usd": 0.011398,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_105800_73252a": {
+                  "accumulated_cost_usd": 0.01161,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_105826_4c2f1c": {
+                  "accumulated_cost_usd": 0.011243,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_105849_1c1048": {
+                  "accumulated_cost_usd": 0.011319,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_105916_2b597e": {
+                  "accumulated_cost_usd": 0.011392,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_105940_244d1d": {
+                  "accumulated_cost_usd": 0.010942,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                }
+              }
+            },
+            "structure": {
+              "limits_configured": false,
+              "max_cost_usd_per_session": null,
+              "sessions": {
+                "20260902_105642_511aff": {
+                  "accumulated_cost_usd": 0.01116,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_105701_c1ddeb": {
+                  "accumulated_cost_usd": 0.010956,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_105725_86c76a": {
+                  "accumulated_cost_usd": 0.011538,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_105746_001885": {
+                  "accumulated_cost_usd": 0.011328,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_105815_37edc0": {
+                  "accumulated_cost_usd": 0.01152,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_105837_24f1cc": {
+                  "accumulated_cost_usd": 0.011333,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_105900_143fe8": {
+                  "accumulated_cost_usd": 0.011489,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_105927_ba93f4": {
+                  "accumulated_cost_usd": 0.011442,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_105958_0a25bd": {
+                  "accumulated_cost_usd": 0.010942,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                }
+              }
+            }
+          },
+          "unknown_pricing_rate": {
+            "numerator": 0,
+            "denominator": 18,
+            "rate": 0.0
+          },
+          "audit_gate_passed_rate": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0.0
+          },
+          "latency_timeout_rate": {
+            "numerator": 0,
+            "denominator": 18,
+            "rate": 0.0
+          }
+        },
+        "evidence_completeness": {
+          "by_profile": {
+            "baseline-current": {
+              "comparable_count": 9,
+              "not_comparable_count": 0,
+              "completeness_state_counts": {
+                "indicators:partial": 9,
+                "ohlc:partial": 9,
+                "orderflow:available": 9,
+                "quote:available": 9,
+                "risk_context:available": 9,
+                "session:available": 9,
+                "structure:partial": 9
+              },
+              "missing_required_counts": {},
+              "comparable_rate": {
+                "numerator": 9,
+                "denominator": 9,
+                "rate": 1.0
+              },
+              "not_comparable_rate": {
+                "numerator": 0,
+                "denominator": 9,
+                "rate": 0.0
+              }
+            },
+            "structure": {
+              "comparable_count": 9,
+              "not_comparable_count": 0,
+              "completeness_state_counts": {
+                "indicators:partial": 9,
+                "ohlc:partial": 9,
+                "quote:available": 9,
+                "risk_context:available": 9,
+                "session:available": 9,
+                "structure:partial": 9
+              },
+              "missing_required_counts": {},
+              "comparable_rate": {
+                "numerator": 9,
+                "denominator": 9,
+                "rate": 1.0
+              },
+              "not_comparable_rate": {
+                "numerator": 0,
+                "denominator": 9,
+                "rate": 0.0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r15-v7",
+      "bundle_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-02-r15-v7.json",
+      "profiles": [
+        "baseline-current",
+        "structure"
+      ],
+      "invocation_count": 8,
+      "sections": {
+        "contract_validity": {
+          "invocation_count": 8,
+          "invalid_count": 0,
+          "invalid_rate": {
+            "numerator": 0,
+            "denominator": 8,
+            "rate": 0.0
+          },
+          "error_code_counts": {},
+          "state_counts": {
+            "no_edge": 8
+          }
+        },
+        "missing_required_evidence": {
+          "invocation_count": 8,
+          "missing_required_evidence_count": 0,
+          "missing_required_evidence_rate": {
+            "numerator": 0,
+            "denominator": 8,
+            "rate": 0.0
+          },
+          "by_profile": {},
+          "missing_required_item_counts": {},
+          "evidence_completeness": {
+            "by_profile": {
+              "baseline-current": {
+                "comparable_count": 4,
+                "not_comparable_count": 0,
+                "completeness_state_counts": {
+                  "indicators:partial": 4,
+                  "ohlc:partial": 4,
+                  "orderflow:available": 4,
+                  "quote:available": 4,
+                  "risk_context:available": 4,
+                  "session:available": 4,
+                  "structure:partial": 4
+                },
+                "missing_required_counts": {},
+                "comparable_rate": {
+                  "numerator": 4,
+                  "denominator": 4,
+                  "rate": 1.0
+                },
+                "not_comparable_rate": {
+                  "numerator": 0,
+                  "denominator": 4,
+                  "rate": 0.0
+                }
+              },
+              "structure": {
+                "comparable_count": 4,
+                "not_comparable_count": 0,
+                "completeness_state_counts": {
+                  "indicators:partial": 4,
+                  "ohlc:partial": 4,
+                  "quote:available": 4,
+                  "risk_context:available": 4,
+                  "session:available": 4,
+                  "structure:partial": 4
+                },
+                "missing_required_counts": {},
+                "comparable_rate": {
+                  "numerator": 4,
+                  "denominator": 4,
+                  "rate": 1.0
+                },
+                "not_comparable_rate": {
+                  "numerator": 0,
+                  "denominator": 4,
+                  "rate": 0.0
+                }
+              }
+            }
+          }
+        },
+        "not_comparable": {
+          "comparable_count": 8,
+          "not_comparable_count": 0,
+          "comparable_rate": {
+            "numerator": 8,
+            "denominator": 8,
+            "rate": 1.0
+          },
+          "not_comparable_category_count": 0,
+          "not_comparable_category_rate": {
+            "numerator": 0,
+            "denominator": 8,
+            "rate": 0.0
+          },
+          "by_profile": {},
+          "not_comparable_rate": {
+            "numerator": 0,
+            "denominator": 8,
+            "rate": 0.0
+          }
+        },
+        "thesis_quality": {
+          "category_counts": {
+            "no_edge": 8
+          },
+          "thesis_quality_count": 0,
+          "by_profile": {
+            "baseline-current": {
+              "no_edge": 4
+            },
+            "structure": {
+              "no_edge": 4
+            }
+          },
+          "comparable_pair_count": 0,
+          "comparable_pair_rate": {
+            "numerator": 0,
+            "denominator": 4,
+            "rate": 0.0
+          },
+          "scenario_comparisons": [
+            {
+              "frame_id": "20260902T155530Z-4d39411f",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-4d39411f"
+            },
+            {
+              "frame_id": "20260902T155028Z-8c4e5912",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-8c4e5912"
+            },
+            {
+              "frame_id": "20260902T154529Z-db31fa40",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-db31fa40"
+            },
+            {
+              "frame_id": "20260902T154027Z-358cec55",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-358cec55"
+            }
+          ],
+          "thesis_quality_rate": {
+            "numerator": 0,
+            "denominator": 8,
+            "rate": 0.0
+          },
+          "thesis_quality_denominator_excludes": [
+            "not_comparable",
+            "missing_required_evidence",
+            "schema_invalid"
+          ]
+        },
+        "cognitive_divergence": {
+          "frame_count": 4,
+          "comparable_pair_count": 0,
+          "direction_delta_count": 0,
+          "thesis_delta_count": 0,
+          "direction_deltas": [],
+          "thesis_deltas": [],
+          "comparable_pair_rate": {
+            "numerator": 0,
+            "denominator": 4,
+            "rate": 0.0
+          },
+          "direction_delta_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "thesis_delta_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          }
+        },
+        "intra_profile_stability": {
+          "groups_with_multiple_reruns": 0,
+          "agreements": [],
+          "placeholder": "no_intra_profile_reruns; invoke run-intra-profile-repeatability.py for stability data",
+          "direction_agreement_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "state_agreement_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          }
+        },
+        "cost_latency": {
+          "session_cost_usd_bundle": 0.090658,
+          "all_cost_gates_passed_bundle": true,
+          "session_cost_usd_max": 0.011818,
+          "cost_basis_counts": {
+            "estimated_tokens": 8
+          },
+          "estimated_vs_provider": {
+            "estimated_total_usd": 0.090658,
+            "provider_reported_total_usd": 0.0,
+            "confirmed_total_usd": 0.0,
+            "unknown_invocation_count": 0
+          },
+          "per_invocation_count": 8,
+          "sessions": {
+            "20260902_122335_5070ff": {
+              "session_id": "20260902_122335_5070ff",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011719,
+              "accumulated_tokens": 8367,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_122347_c8af06": {
+              "session_id": "20260902_122347_c8af06",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011199,
+              "accumulated_tokens": 8315,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_122358_d1eaae": {
+              "session_id": "20260902_122358_d1eaae",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.010862,
+              "accumulated_tokens": 8094,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_122410_a5e46e": {
+              "session_id": "20260902_122410_a5e46e",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011202,
+              "accumulated_tokens": 8128,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_122421_4ed4b9": {
+              "session_id": "20260902_122421_4ed4b9",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011818,
+              "accumulated_tokens": 8306,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_122436_047ff3": {
+              "session_id": "20260902_122436_047ff3",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011318,
+              "accumulated_tokens": 8256,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_122449_ac9e65": {
+              "session_id": "20260902_122449_ac9e65",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.01121,
+              "accumulated_tokens": 8317,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_122502_acaa90": {
+              "session_id": "20260902_122502_acaa90",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.01133,
+              "accumulated_tokens": 8329,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            }
+          },
+          "latency_ms": {
+            "p50_ms": 12562,
+            "count": 8
+          },
+          "audit_gate_passed": true,
+          "violations": [],
+          "limits": {
+            "max_cost_usd_per_session": 2.5,
+            "max_tokens_per_call": 50000,
+            "max_tokens_per_session": 500000,
+            "max_calls_per_session": 36,
+            "max_calls_per_snapshot": 6,
+            "per_profile_timeout_ms": 35000,
+            "total_timeout_ms": 120000,
+            "total_latency_budget_ms": 180000,
+            "per_profile_limits_configured": false
+          },
+          "per_profile": {
+            "baseline-current": {
+              "limits_configured": false,
+              "max_cost_usd_per_session": null,
+              "sessions": {
+                "20260902_122335_5070ff": {
+                  "accumulated_cost_usd": 0.011719,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_122358_d1eaae": {
+                  "accumulated_cost_usd": 0.010862,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_122421_4ed4b9": {
+                  "accumulated_cost_usd": 0.011818,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_122449_ac9e65": {
+                  "accumulated_cost_usd": 0.01121,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                }
+              }
+            },
+            "structure": {
+              "limits_configured": false,
+              "max_cost_usd_per_session": null,
+              "sessions": {
+                "20260902_122347_c8af06": {
+                  "accumulated_cost_usd": 0.011199,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_122410_a5e46e": {
+                  "accumulated_cost_usd": 0.011202,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_122436_047ff3": {
+                  "accumulated_cost_usd": 0.011318,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_122502_acaa90": {
+                  "accumulated_cost_usd": 0.01133,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                }
+              }
+            }
+          },
+          "unknown_pricing_rate": {
+            "numerator": 0,
+            "denominator": 8,
+            "rate": 0.0
+          },
+          "audit_gate_passed_rate": {
+            "numerator": 1,
+            "denominator": 1,
+            "rate": 1.0
+          },
+          "latency_timeout_rate": {
+            "numerator": 0,
+            "denominator": 8,
+            "rate": 0.0
+          }
+        },
+        "evidence_completeness": {
+          "by_profile": {
+            "baseline-current": {
+              "comparable_count": 4,
+              "not_comparable_count": 0,
+              "completeness_state_counts": {
+                "indicators:partial": 4,
+                "ohlc:partial": 4,
+                "orderflow:available": 4,
+                "quote:available": 4,
+                "risk_context:available": 4,
+                "session:available": 4,
+                "structure:partial": 4
+              },
+              "missing_required_counts": {},
+              "comparable_rate": {
+                "numerator": 4,
+                "denominator": 4,
+                "rate": 1.0
+              },
+              "not_comparable_rate": {
+                "numerator": 0,
+                "denominator": 4,
+                "rate": 0.0
+              }
+            },
+            "structure": {
+              "comparable_count": 4,
+              "not_comparable_count": 0,
+              "completeness_state_counts": {
+                "indicators:partial": 4,
+                "ohlc:partial": 4,
+                "quote:available": 4,
+                "risk_context:available": 4,
+                "session:available": 4,
+                "structure:partial": 4
+              },
+              "missing_required_counts": {},
+              "comparable_rate": {
+                "numerator": 4,
+                "denominator": 4,
+                "rate": 1.0
+              },
+              "not_comparable_rate": {
+                "numerator": 0,
+                "denominator": 4,
+                "rate": 0.0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r16-v8",
+      "bundle_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-02-r16-v8.json",
+      "profiles": [
+        "baseline-current",
+        "structure"
+      ],
+      "invocation_count": 6,
+      "sections": {
+        "contract_validity": {
+          "invocation_count": 6,
+          "invalid_count": 0,
+          "invalid_rate": {
+            "numerator": 0,
+            "denominator": 6,
+            "rate": 0.0
+          },
+          "error_code_counts": {},
+          "state_counts": {
+            "no_edge": 6
+          }
+        },
+        "missing_required_evidence": {
+          "invocation_count": 6,
+          "missing_required_evidence_count": 0,
+          "missing_required_evidence_rate": {
+            "numerator": 0,
+            "denominator": 6,
+            "rate": 0.0
+          },
+          "by_profile": {},
+          "missing_required_item_counts": {},
+          "evidence_completeness": {
+            "by_profile": {
+              "baseline-current": {
+                "comparable_count": 3,
+                "not_comparable_count": 0,
+                "completeness_state_counts": {
+                  "indicators:partial": 3,
+                  "ohlc:partial": 3,
+                  "orderflow:available": 3,
+                  "quote:available": 3,
+                  "risk_context:available": 3,
+                  "session:available": 3,
+                  "structure:partial": 3
+                },
+                "missing_required_counts": {},
+                "comparable_rate": {
+                  "numerator": 3,
+                  "denominator": 3,
+                  "rate": 1.0
+                },
+                "not_comparable_rate": {
+                  "numerator": 0,
+                  "denominator": 3,
+                  "rate": 0.0
+                }
+              },
+              "structure": {
+                "comparable_count": 3,
+                "not_comparable_count": 0,
+                "completeness_state_counts": {
+                  "indicators:partial": 3,
+                  "ohlc:partial": 3,
+                  "quote:available": 3,
+                  "risk_context:available": 3,
+                  "session:available": 3,
+                  "structure:partial": 3
+                },
+                "missing_required_counts": {},
+                "comparable_rate": {
+                  "numerator": 3,
+                  "denominator": 3,
+                  "rate": 1.0
+                },
+                "not_comparable_rate": {
+                  "numerator": 0,
+                  "denominator": 3,
+                  "rate": 0.0
+                }
+              }
+            }
+          }
+        },
+        "not_comparable": {
+          "comparable_count": 6,
+          "not_comparable_count": 0,
+          "comparable_rate": {
+            "numerator": 6,
+            "denominator": 6,
+            "rate": 1.0
+          },
+          "not_comparable_category_count": 0,
+          "not_comparable_category_rate": {
+            "numerator": 0,
+            "denominator": 6,
+            "rate": 0.0
+          },
+          "by_profile": {},
+          "not_comparable_rate": {
+            "numerator": 0,
+            "denominator": 6,
+            "rate": 0.0
+          }
+        },
+        "thesis_quality": {
+          "category_counts": {
+            "no_edge": 6
+          },
+          "thesis_quality_count": 0,
+          "by_profile": {
+            "baseline-current": {
+              "no_edge": 3
+            },
+            "structure": {
+              "no_edge": 3
+            }
+          },
+          "comparable_pair_count": 0,
+          "comparable_pair_rate": {
+            "numerator": 0,
+            "denominator": 3,
+            "rate": 0.0
+          },
+          "scenario_comparisons": [
+            {
+              "frame_id": "20260902T172547Z-c62a7390",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-c62a7390"
+            },
+            {
+              "frame_id": "20260902T172046Z-86a52bbc",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-86a52bbc"
+            },
+            {
+              "frame_id": "20260902T171541Z-4fdd308c",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-4fdd308c"
+            }
+          ],
+          "thesis_quality_rate": {
+            "numerator": 0,
+            "denominator": 6,
+            "rate": 0.0
+          },
+          "thesis_quality_denominator_excludes": [
+            "not_comparable",
+            "missing_required_evidence",
+            "schema_invalid"
+          ]
+        },
+        "cognitive_divergence": {
+          "frame_count": 3,
+          "comparable_pair_count": 0,
+          "direction_delta_count": 0,
+          "thesis_delta_count": 0,
+          "direction_deltas": [],
+          "thesis_deltas": [],
+          "comparable_pair_rate": {
+            "numerator": 0,
+            "denominator": 3,
+            "rate": 0.0
+          },
+          "direction_delta_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "thesis_delta_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          }
+        },
+        "intra_profile_stability": {
+          "groups_with_multiple_reruns": 0,
+          "agreements": [],
+          "placeholder": "no_intra_profile_reruns; invoke run-intra-profile-repeatability.py for stability data",
+          "direction_agreement_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "state_agreement_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          }
+        },
+        "cost_latency": {
+          "session_cost_usd_bundle": 0.06705,
+          "all_cost_gates_passed_bundle": true,
+          "session_cost_usd_max": 0.011394,
+          "cost_basis_counts": {
+            "estimated_tokens": 6
+          },
+          "estimated_vs_provider": {
+            "estimated_total_usd": 0.06705,
+            "provider_reported_total_usd": 0.0,
+            "confirmed_total_usd": 0.0,
+            "unknown_invocation_count": 0
+          },
+          "per_invocation_count": 6,
+          "sessions": {
+            "20260902_133537_ba2c5b": {
+              "session_id": "20260902_133537_ba2c5b",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011118,
+              "accumulated_tokens": 8264,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_133549_781fb2": {
+              "session_id": "20260902_133549_781fb2",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011198,
+              "accumulated_tokens": 8272,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_133603_0bfe04": {
+              "session_id": "20260902_133603_0bfe04",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011048,
+              "accumulated_tokens": 8229,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_133614_08818a": {
+              "session_id": "20260902_133614_08818a",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011108,
+              "accumulated_tokens": 8235,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_133625_ac654a": {
+              "session_id": "20260902_133625_ac654a",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011184,
+              "accumulated_tokens": 8261,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_133636_8545f8": {
+              "session_id": "20260902_133636_8545f8",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011394,
+              "accumulated_tokens": 8282,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            }
+          },
+          "latency_ms": {
+            "p50_ms": 12717,
+            "count": 6
+          },
+          "audit_gate_passed": true,
+          "violations": [],
+          "limits": {
+            "max_cost_usd_per_session": 2.5,
+            "max_tokens_per_call": 50000,
+            "max_tokens_per_session": 500000,
+            "max_calls_per_session": 36,
+            "max_calls_per_snapshot": 6,
+            "per_profile_timeout_ms": 35000,
+            "total_timeout_ms": 120000,
+            "total_latency_budget_ms": 180000,
+            "per_profile_limits_configured": false
+          },
+          "per_profile": {
+            "baseline-current": {
+              "limits_configured": false,
+              "max_cost_usd_per_session": null,
+              "sessions": {
+                "20260902_133537_ba2c5b": {
+                  "accumulated_cost_usd": 0.011118,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_133603_0bfe04": {
+                  "accumulated_cost_usd": 0.011048,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_133625_ac654a": {
+                  "accumulated_cost_usd": 0.011184,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                }
+              }
+            },
+            "structure": {
+              "limits_configured": false,
+              "max_cost_usd_per_session": null,
+              "sessions": {
+                "20260902_133549_781fb2": {
+                  "accumulated_cost_usd": 0.011198,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_133614_08818a": {
+                  "accumulated_cost_usd": 0.011108,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_133636_8545f8": {
+                  "accumulated_cost_usd": 0.011394,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                }
+              }
+            }
+          },
+          "unknown_pricing_rate": {
+            "numerator": 0,
+            "denominator": 6,
+            "rate": 0.0
+          },
+          "audit_gate_passed_rate": {
+            "numerator": 1,
+            "denominator": 1,
+            "rate": 1.0
+          },
+          "latency_timeout_rate": {
+            "numerator": 0,
+            "denominator": 6,
+            "rate": 0.0
+          }
+        },
+        "evidence_completeness": {
+          "by_profile": {
+            "baseline-current": {
+              "comparable_count": 3,
+              "not_comparable_count": 0,
+              "completeness_state_counts": {
+                "indicators:partial": 3,
+                "ohlc:partial": 3,
+                "orderflow:available": 3,
+                "quote:available": 3,
+                "risk_context:available": 3,
+                "session:available": 3,
+                "structure:partial": 3
+              },
+              "missing_required_counts": {},
+              "comparable_rate": {
+                "numerator": 3,
+                "denominator": 3,
+                "rate": 1.0
+              },
+              "not_comparable_rate": {
+                "numerator": 0,
+                "denominator": 3,
+                "rate": 0.0
+              }
+            },
+            "structure": {
+              "comparable_count": 3,
+              "not_comparable_count": 0,
+              "completeness_state_counts": {
+                "indicators:partial": 3,
+                "ohlc:partial": 3,
+                "quote:available": 3,
+                "risk_context:available": 3,
+                "session:available": 3,
+                "structure:partial": 3
+              },
+              "missing_required_counts": {},
+              "comparable_rate": {
+                "numerator": 3,
+                "denominator": 3,
+                "rate": 1.0
+              },
+              "not_comparable_rate": {
+                "numerator": 0,
+                "denominator": 3,
+                "rate": 0.0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "run_id": "scenario-live-2026-09-02-r17-v9",
+      "bundle_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-02-r17-v9.json",
+      "profiles": [
+        "baseline-current",
+        "structure"
+      ],
+      "invocation_count": 8,
+      "sections": {
+        "contract_validity": {
+          "invocation_count": 8,
+          "invalid_count": 0,
+          "invalid_rate": {
+            "numerator": 0,
+            "denominator": 8,
+            "rate": 0.0
+          },
+          "error_code_counts": {},
+          "state_counts": {
+            "no_edge": 8
+          }
+        },
+        "missing_required_evidence": {
+          "invocation_count": 8,
+          "missing_required_evidence_count": 0,
+          "missing_required_evidence_rate": {
+            "numerator": 0,
+            "denominator": 8,
+            "rate": 0.0
+          },
+          "by_profile": {},
+          "missing_required_item_counts": {},
+          "evidence_completeness": {
+            "by_profile": {
+              "baseline-current": {
+                "comparable_count": 4,
+                "not_comparable_count": 0,
+                "completeness_state_counts": {
+                  "indicators:partial": 4,
+                  "ohlc:partial": 4,
+                  "orderflow:available": 4,
+                  "quote:available": 4,
+                  "risk_context:available": 4,
+                  "session:available": 4,
+                  "structure:partial": 4
+                },
+                "missing_required_counts": {},
+                "comparable_rate": {
+                  "numerator": 4,
+                  "denominator": 4,
+                  "rate": 1.0
+                },
+                "not_comparable_rate": {
+                  "numerator": 0,
+                  "denominator": 4,
+                  "rate": 0.0
+                }
+              },
+              "structure": {
+                "comparable_count": 4,
+                "not_comparable_count": 0,
+                "completeness_state_counts": {
+                  "indicators:partial": 4,
+                  "ohlc:partial": 4,
+                  "quote:available": 4,
+                  "risk_context:available": 4,
+                  "session:available": 4,
+                  "structure:partial": 4
+                },
+                "missing_required_counts": {},
+                "comparable_rate": {
+                  "numerator": 4,
+                  "denominator": 4,
+                  "rate": 1.0
+                },
+                "not_comparable_rate": {
+                  "numerator": 0,
+                  "denominator": 4,
+                  "rate": 0.0
+                }
+              }
+            }
+          }
+        },
+        "not_comparable": {
+          "comparable_count": 8,
+          "not_comparable_count": 0,
+          "comparable_rate": {
+            "numerator": 8,
+            "denominator": 8,
+            "rate": 1.0
+          },
+          "not_comparable_category_count": 0,
+          "not_comparable_category_rate": {
+            "numerator": 0,
+            "denominator": 8,
+            "rate": 0.0
+          },
+          "by_profile": {},
+          "not_comparable_rate": {
+            "numerator": 0,
+            "denominator": 8,
+            "rate": 0.0
+          }
+        },
+        "thesis_quality": {
+          "category_counts": {
+            "no_edge": 8
+          },
+          "thesis_quality_count": 0,
+          "by_profile": {
+            "baseline-current": {
+              "no_edge": 4
+            },
+            "structure": {
+              "no_edge": 4
+            }
+          },
+          "comparable_pair_count": 0,
+          "comparable_pair_rate": {
+            "numerator": 0,
+            "denominator": 4,
+            "rate": 0.0
+          },
+          "scenario_comparisons": [
+            {
+              "frame_id": "20260902T183055Z-92f0a8a8",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-92f0a8a8"
+            },
+            {
+              "frame_id": "20260902T182055Z-08066af5",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-08066af5"
+            },
+            {
+              "frame_id": "20260902T181051Z-ab6e5383",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-ab6e5383"
+            },
+            {
+              "frame_id": "20260902T180851Z-c5f24442",
+              "baseline_profile_id": "baseline-current",
+              "challenger_profile_id": "structure",
+              "baseline_category": "no_edge",
+              "challenger_category": "no_edge",
+              "comparable_pair": false,
+              "direction_delta": null,
+              "thesis_delta": null,
+              "notes": [
+                "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+                "not_comparable preserves audit direction without thesis-quality comparison."
+              ],
+              "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-c5f24442"
+            }
+          ],
+          "thesis_quality_rate": {
+            "numerator": 0,
+            "denominator": 8,
+            "rate": 0.0
+          },
+          "thesis_quality_denominator_excludes": [
+            "not_comparable",
+            "missing_required_evidence",
+            "schema_invalid"
+          ]
+        },
+        "cognitive_divergence": {
+          "frame_count": 4,
+          "comparable_pair_count": 0,
+          "direction_delta_count": 0,
+          "thesis_delta_count": 0,
+          "direction_deltas": [],
+          "thesis_deltas": [],
+          "comparable_pair_rate": {
+            "numerator": 0,
+            "denominator": 4,
+            "rate": 0.0
+          },
+          "direction_delta_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "thesis_delta_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          }
+        },
+        "intra_profile_stability": {
+          "groups_with_multiple_reruns": 0,
+          "agreements": [],
+          "placeholder": "no_intra_profile_reruns; invoke run-intra-profile-repeatability.py for stability data",
+          "direction_agreement_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "state_agreement_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          }
+        },
+        "cost_latency": {
+          "session_cost_usd_bundle": 0.08949,
+          "all_cost_gates_passed_bundle": true,
+          "session_cost_usd_max": 0.011307,
+          "cost_basis_counts": {
+            "estimated_tokens": 8
+          },
+          "estimated_vs_provider": {
+            "estimated_total_usd": 0.08949,
+            "provider_reported_total_usd": 0.0,
+            "confirmed_total_usd": 0.0,
+            "unknown_invocation_count": 0
+          },
+          "per_invocation_count": 8,
+          "sessions": {
+            "20260902_144509_8a6242": {
+              "session_id": "20260902_144509_8a6242",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011198,
+              "accumulated_tokens": 8230,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_144523_3fb96b": {
+              "session_id": "20260902_144523_3fb96b",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011208,
+              "accumulated_tokens": 8231,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_144533_5faec2": {
+              "session_id": "20260902_144533_5faec2",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011243,
+              "accumulated_tokens": 8224,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_144544_efba03": {
+              "session_id": "20260902_144544_efba03",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011193,
+              "accumulated_tokens": 8219,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_144556_54a5e9": {
+              "session_id": "20260902_144556_54a5e9",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011307,
+              "accumulated_tokens": 8240,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_144608_019cb2": {
+              "session_id": "20260902_144608_019cb2",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011267,
+              "accumulated_tokens": 8236,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_144620_fc453b": {
+              "session_id": "20260902_144620_fc453b",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011017,
+              "accumulated_tokens": 8071,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            },
+            "20260902_144631_6a020e": {
+              "session_id": "20260902_144631_6a020e",
+              "invocation_count": 1,
+              "accumulated_cost_usd": 0.011057,
+              "accumulated_tokens": 8075,
+              "unknown_pricing_count": 0,
+              "within_session_cost_limit": true,
+              "within_session_token_limit": true
+            }
+          },
+          "latency_ms": {
+            "p50_ms": 11515,
+            "count": 8
+          },
+          "audit_gate_passed": true,
+          "violations": [],
+          "limits": {
+            "max_cost_usd_per_session": 2.5,
+            "max_tokens_per_call": 50000,
+            "max_tokens_per_session": 500000,
+            "max_calls_per_session": 36,
+            "max_calls_per_snapshot": 6,
+            "per_profile_timeout_ms": 35000,
+            "total_timeout_ms": 120000,
+            "total_latency_budget_ms": 180000,
+            "per_profile_limits_configured": false
+          },
+          "per_profile": {
+            "baseline-current": {
+              "limits_configured": false,
+              "max_cost_usd_per_session": null,
+              "sessions": {
+                "20260902_144509_8a6242": {
+                  "accumulated_cost_usd": 0.011198,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_144533_5faec2": {
+                  "accumulated_cost_usd": 0.011243,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_144556_54a5e9": {
+                  "accumulated_cost_usd": 0.011307,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_144620_fc453b": {
+                  "accumulated_cost_usd": 0.011017,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                }
+              }
+            },
+            "structure": {
+              "limits_configured": false,
+              "max_cost_usd_per_session": null,
+              "sessions": {
+                "20260902_144523_3fb96b": {
+                  "accumulated_cost_usd": 0.011208,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_144544_efba03": {
+                  "accumulated_cost_usd": 0.011193,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_144608_019cb2": {
+                  "accumulated_cost_usd": 0.011267,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                },
+                "20260902_144631_6a020e": {
+                  "accumulated_cost_usd": 0.011057,
+                  "invocation_count": 1,
+                  "within_profile_cost_limit": null
+                }
+              }
+            }
+          },
+          "unknown_pricing_rate": {
+            "numerator": 0,
+            "denominator": 8,
+            "rate": 0.0
+          },
+          "audit_gate_passed_rate": {
+            "numerator": 1,
+            "denominator": 1,
+            "rate": 1.0
+          },
+          "latency_timeout_rate": {
+            "numerator": 0,
+            "denominator": 8,
+            "rate": 0.0
+          }
+        },
+        "evidence_completeness": {
+          "by_profile": {
+            "baseline-current": {
+              "comparable_count": 4,
+              "not_comparable_count": 0,
+              "completeness_state_counts": {
+                "indicators:partial": 4,
+                "ohlc:partial": 4,
+                "orderflow:available": 4,
+                "quote:available": 4,
+                "risk_context:available": 4,
+                "session:available": 4,
+                "structure:partial": 4
+              },
+              "missing_required_counts": {},
+              "comparable_rate": {
+                "numerator": 4,
+                "denominator": 4,
+                "rate": 1.0
+              },
+              "not_comparable_rate": {
+                "numerator": 0,
+                "denominator": 4,
+                "rate": 0.0
+              }
+            },
+            "structure": {
+              "comparable_count": 4,
+              "not_comparable_count": 0,
+              "completeness_state_counts": {
+                "indicators:partial": 4,
+                "ohlc:partial": 4,
+                "quote:available": 4,
+                "risk_context:available": 4,
+                "session:available": 4,
+                "structure:partial": 4
+              },
+              "missing_required_counts": {},
+              "comparable_rate": {
+                "numerator": 4,
+                "denominator": 4,
+                "rate": 1.0
+              },
+              "not_comparable_rate": {
+                "numerator": 0,
+                "denominator": 4,
+                "rate": 0.0
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "aggregated": {
+    "run_count": 9,
+    "invocation_count": 106,
+    "contract_validity": {
+      "invocation_count": 106,
+      "invalid_count": 1,
+      "error_code_counts": {
+        "directional_without_geometry": 1
+      },
+      "invalid_rate": {
+        "numerator": 1,
+        "denominator": 106,
+        "rate": 0.009433962264150943
+      }
+    },
+    "missing_required_evidence": {
+      "invocation_count": 106,
+      "missing_required_evidence_count": 0,
+      "missing_required_item_counts": {},
+      "evidence_completeness": {
+        "by_profile": {
+          "baseline-current": {
+            "comparable_count": 53,
+            "not_comparable_count": 0,
+            "comparable_rate": {
+              "numerator": 53,
+              "denominator": 53,
+              "rate": 1.0
+            },
+            "not_comparable_rate": {
+              "numerator": 0,
+              "denominator": 53,
+              "rate": 0.0
+            }
+          },
+          "structure": {
+            "comparable_count": 53,
+            "not_comparable_count": 0,
+            "comparable_rate": {
+              "numerator": 53,
+              "denominator": 53,
+              "rate": 1.0
+            },
+            "not_comparable_rate": {
+              "numerator": 0,
+              "denominator": 53,
+              "rate": 0.0
+            }
+          }
+        }
+      },
+      "missing_required_evidence_rate": {
+        "numerator": 0,
+        "denominator": 106,
+        "rate": 0.0
+      }
+    },
+    "evidence_completeness": {
+      "by_profile": {
+        "baseline-current": {
+          "comparable_count": 53,
+          "not_comparable_count": 0,
+          "comparable_rate": {
+            "numerator": 53,
+            "denominator": 53,
+            "rate": 1.0
+          },
+          "not_comparable_rate": {
+            "numerator": 0,
+            "denominator": 53,
+            "rate": 0.0
+          }
+        },
+        "structure": {
+          "comparable_count": 53,
+          "not_comparable_count": 0,
+          "comparable_rate": {
+            "numerator": 53,
+            "denominator": 53,
+            "rate": 1.0
+          },
+          "not_comparable_rate": {
+            "numerator": 0,
+            "denominator": 53,
+            "rate": 0.0
+          }
+        }
+      }
+    },
+    "not_comparable": {
+      "comparable_count": 106,
+      "not_comparable_count": 0,
+      "not_comparable_category_count": 7,
+      "comparable_rate": {
+        "numerator": 106,
+        "denominator": 106,
+        "rate": 1.0
+      },
+      "not_comparable_rate": {
+        "numerator": 0,
+        "denominator": 106,
+        "rate": 0.0
+      },
+      "not_comparable_category_rate": {
+        "numerator": 7,
+        "denominator": 106,
+        "rate": 0.0660377358490566
+      }
+    },
+    "thesis_quality": {
+      "thesis_quality_count": 13,
+      "comparable_pair_count": 2,
+      "frame_count": 53,
+      "category_counts": {
+        "thesis_quality": 13,
+        "no_edge": 85,
+        "schema_invalid": 1,
+        "not_comparable": 7
+      },
+      "scenario_comparisons": [],
+      "comparable_pair_rate": {
+        "numerator": 2,
+        "denominator": 53,
+        "rate": 0.03773584905660377
+      },
+      "thesis_quality_rate": {
+        "numerator": 13,
+        "denominator": 98,
+        "rate": 0.1326530612244898
+      },
+      "thesis_quality_denominator_excludes": [
+        "not_comparable",
+        "missing_required_evidence",
+        "schema_invalid"
+      ]
+    },
+    "cognitive_divergence": {
+      "frame_count": 53,
+      "comparable_pair_count": 2,
+      "direction_delta_count": 0,
+      "thesis_delta_count": 2,
+      "direction_deltas": [],
+      "thesis_deltas": [
+        {
+          "frame_id": "20260831T173427Z-4ac91997",
+          "scenario_id": "SCN-PRAC-DIRECTED-02",
+          "thesis_delta": true
+        },
+        {
+          "frame_id": "20260901T143431Z-534fefd5",
+          "scenario_id": "SCN-PRAC-RECONCILIATION",
+          "thesis_delta": true
+        }
+      ],
+      "comparable_pair_rate": {
+        "numerator": 2,
+        "denominator": 53,
+        "rate": 0.03773584905660377
+      },
+      "direction_delta_rate": {
+        "numerator": 0,
+        "denominator": 2,
+        "rate": 0.0
+      },
+      "thesis_delta_rate": {
+        "numerator": 2,
+        "denominator": 2,
+        "rate": 1.0
+      }
+    },
+    "intra_profile_stability": {
+      "placeholder": "aggregate stability requires intra-profile reruns per run bundle",
+      "groups_with_multiple_reruns": 0,
+      "agreements": [],
+      "direction_agreement_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "rate": null
+      },
+      "state_agreement_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "rate": null
+      }
+    },
+    "cost_latency": {
+      "per_invocation_count": 106,
+      "session_cost_usd_max": 0.01217,
+      "cost_basis_counts": {
+        "estimated_tokens": 106
+      },
+      "estimated_vs_provider": {
+        "estimated_total_usd": 1.136649,
+        "provider_reported_total_usd": 0.0,
+        "unknown_invocation_count": 0
+      },
+      "audit_gate_passed": false,
+      "latency_ms": {
+        "values": [],
+        "timeout_count": 0
+      },
+      "unknown_pricing_rate": {
+        "numerator": 0,
+        "denominator": 106,
+        "rate": 0.0
+      },
+      "audit_gate_passed_rate": {
+        "numerator": 0,
+        "denominator": 1,
+        "rate": 0.0
+      },
+      "latency_timeout_rate": {
+        "numerator": 0,
+        "denominator": 106,
+        "rate": 0.0
+      }
+    }
+  },
+  "notes": [
+    "Offline report only; no Hermes invocations.",
+    "Profiles filtered to baseline-current and structure.",
+    "intra_profile_stability remains placeholder until repeatability harness produces reruns."
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": "glitch.topstep.prac_session_finalize.v1",
+  "finalized_utc": "2026-09-02T15:28:38.317918Z",
+  "session_id": "PRAC-SOAK-2026-09-02-diversity",
+  "scenario_tag": "prac_session",
+  "state_dir": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state",
+  "output_dir": "C:\\Users\\arifr\\Projects\\glitch-topstep\\docs\\evidence\\PRAC-SOAK-2026-09-02-diversity",
+  "export": {
+    "output_dir": "C:\\Users\\arifr\\Projects\\glitch-topstep\\docs\\evidence\\PRAC-SOAK-2026-09-02-diversity",
+    "copied_files": {
+      "decisions.jsonl": "C:\\Users\\arifr\\Projects\\glitch-topstep\\docs\\evidence\\PRAC-SOAK-2026-09-02-diversity\\decisions.jsonl",
+      "receipts.jsonl": "C:\\Users\\arifr\\Projects\\glitch-topstep\\docs\\evidence\\PRAC-SOAK-2026-09-02-diversity\\receipts.jsonl"
+    },
+    "manifest_path": "C:\\Users\\arifr\\Projects\\glitch-topstep\\docs\\evidence\\PRAC-SOAK-2026-09-02-diversity\\evidence-chain-manifest.json",
+    "manifest_row_count": 3,
+    "since_utc": "2026-09-02T15:15:39.170Z",
+    "until_utc": null,
+    "decisions_exported": 3,
+    "receipts_exported": 3
+  },
+  "since_utc": "2026-09-02T15:15:39.170Z",
+  "until_utc": null,
+  "validation": {
+    "valid": true,
+    "manifest_row_count": 3,
+    "issues": []
+  },
+  "chain_complete": true
+}

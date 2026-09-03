@@ -1,0 +1,363 @@
+{
+  "run_id": "scenario-live-2026-09-01-r11-v2",
+  "auth_mode": "oauth",
+  "credentials_present": true,
+  "production_lane_was_active": false,
+  "operational_artifacts_unchanged": true,
+  "bundle_status": "completed",
+  "invocation_count": 12,
+  "expected_invocations": 12,
+  "session_cost_usd": 0.135218,
+  "scenario_comparisons": [
+    {
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-OPERATOR-MIDSESSION"
+    },
+    {
+      "frame_id": "20260901T150823Z-d7908a55",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-OPERATOR-AFTERNOON"
+    },
+    {
+      "frame_id": "20260901T000528Z-041dc508",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-PRAC-TIMEOUT-RECOVERY"
+    },
+    {
+      "frame_id": "20260831T235211Z-cdbf204f",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-PRAC-RESTART-BRACKET"
+    },
+    {
+      "frame_id": "20260901T143431Z-534fefd5",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "no_edge",
+      "challenger_category": "thesis_quality",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-PRAC-RECONCILIATION"
+    },
+    {
+      "frame_id": "20260901T182843Z-b06d9a93",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "no_edge",
+      "challenger_category": "no_edge",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ],
+      "scenario_id": "SCN-PRAC-PREFLIGHT"
+    }
+  ],
+  "bundle_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2.json",
+  "collection_log": {
+    "run_id": "scenario-live-2026-09-01-r11-v2",
+    "envelopes": [
+      {
+        "queue_order": 1,
+        "scenario_id": "SCN-OPERATOR-MIDSESSION",
+        "frame_id": "20260901T134026Z-bb50bbe9",
+        "profiles": [
+          {
+            "profile_id": "baseline-current",
+            "status": "completed",
+            "normalized_state": "no_edge",
+            "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260901T134026Z-bb50bbe9.json"
+          },
+          {
+            "profile_id": "structure",
+            "status": "completed",
+            "normalized_state": "no_edge",
+            "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260901T134026Z-bb50bbe9.json"
+          }
+        ],
+        "qc": {
+          "exit_code": 0,
+          "report": {
+            "schema_version": "glitch.topstep.envelope_collection_qc.v1",
+            "frame_id": "20260901T134026Z-bb50bbe9",
+            "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+            "ok": true,
+            "pause_collection": false,
+            "issues": [],
+            "baseline_category": "no_edge",
+            "structure_category": "no_edge",
+            "comparable_pair": false,
+            "bilateral_thesis_quality": false,
+            "baseline_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260901T134026Z-bb50bbe9.json",
+            "structure_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260901T134026Z-bb50bbe9.json"
+          }
+        },
+        "provenance_audit": {
+          "exit_code": 0,
+          "stdout": "{\n  \"output\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\runs\\\\artifact-provenance-audit.json\",\n  \"scanned_artifact_count\": 40,\n  \"historical_drift_total\": 3,\n  \"sidecars\": [],\n  \"decision_output\": null,\n  \"cohort_output\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\runs\\\\cohort-provenance-audit-2026-09-01-r11.json\"\n}",
+          "stderr": null
+        },
+        "comparable_pair": false
+      },
+      {
+        "queue_order": 2,
+        "scenario_id": "SCN-OPERATOR-AFTERNOON",
+        "frame_id": "20260901T150823Z-d7908a55",
+        "profiles": [
+          {
+            "profile_id": "baseline-current",
+            "status": "completed",
+            "normalized_state": "no_edge",
+            "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260901T150823Z-d7908a55.json"
+          },
+          {
+            "profile_id": "structure",
+            "status": "completed",
+            "normalized_state": "no_edge",
+            "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260901T150823Z-d7908a55.json"
+          }
+        ],
+        "qc": {
+          "exit_code": 0,
+          "report": {
+            "schema_version": "glitch.topstep.envelope_collection_qc.v1",
+            "frame_id": "20260901T150823Z-d7908a55",
+            "snapshot_hash": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+            "ok": true,
+            "pause_collection": false,
+            "issues": [],
+            "baseline_category": "no_edge",
+            "structure_category": "no_edge",
+            "comparable_pair": false,
+            "bilateral_thesis_quality": false,
+            "baseline_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260901T150823Z-d7908a55.json",
+            "structure_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260901T150823Z-d7908a55.json"
+          }
+        },
+        "provenance_audit": {
+          "exit_code": 0,
+          "stdout": "{\n  \"output\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\runs\\\\artifact-provenance-audit.json\",\n  \"scanned_artifact_count\": 40,\n  \"historical_drift_total\": 3,\n  \"sidecars\": [],\n  \"decision_output\": null,\n  \"cohort_output\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\runs\\\\cohort-provenance-audit-2026-09-01-r11.json\"\n}",
+          "stderr": null
+        },
+        "comparable_pair": false
+      },
+      {
+        "queue_order": 3,
+        "scenario_id": "SCN-PRAC-TIMEOUT-RECOVERY",
+        "frame_id": "20260901T000528Z-041dc508",
+        "profiles": [
+          {
+            "profile_id": "baseline-current",
+            "status": "completed",
+            "normalized_state": "no_edge",
+            "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260901T000528Z-041dc508.json"
+          },
+          {
+            "profile_id": "structure",
+            "status": "completed",
+            "normalized_state": "no_edge",
+            "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260901T000528Z-041dc508.json"
+          }
+        ],
+        "qc": {
+          "exit_code": 0,
+          "report": {
+            "schema_version": "glitch.topstep.envelope_collection_qc.v1",
+            "frame_id": "20260901T000528Z-041dc508",
+            "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+            "ok": true,
+            "pause_collection": false,
+            "issues": [],
+            "baseline_category": "no_edge",
+            "structure_category": "no_edge",
+            "comparable_pair": false,
+            "bilateral_thesis_quality": false,
+            "baseline_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260901T000528Z-041dc508.json",
+            "structure_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260901T000528Z-041dc508.json"
+          }
+        },
+        "provenance_audit": {
+          "exit_code": 0,
+          "stdout": "{\n  \"output\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\runs\\\\artifact-provenance-audit.json\",\n  \"scanned_artifact_count\": 40,\n  \"historical_drift_total\": 3,\n  \"sidecars\": [],\n  \"decision_output\": null,\n  \"cohort_output\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\runs\\\\cohort-provenance-audit-2026-09-01-r11.json\"\n}",
+          "stderr": null
+        },
+        "comparable_pair": false
+      },
+      {
+        "queue_order": 4,
+        "scenario_id": "SCN-PRAC-RESTART-BRACKET",
+        "frame_id": "20260831T235211Z-cdbf204f",
+        "profiles": [
+          {
+            "profile_id": "baseline-current",
+            "status": "completed",
+            "normalized_state": "no_edge",
+            "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260831T235211Z-cdbf204f.json"
+          },
+          {
+            "profile_id": "structure",
+            "status": "completed",
+            "normalized_state": "no_edge",
+            "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260831T235211Z-cdbf204f.json"
+          }
+        ],
+        "qc": {
+          "exit_code": 0,
+          "report": {
+            "schema_version": "glitch.topstep.envelope_collection_qc.v1",
+            "frame_id": "20260831T235211Z-cdbf204f",
+            "snapshot_hash": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+            "ok": true,
+            "pause_collection": false,
+            "issues": [],
+            "baseline_category": "no_edge",
+            "structure_category": "no_edge",
+            "comparable_pair": false,
+            "bilateral_thesis_quality": false,
+            "baseline_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260831T235211Z-cdbf204f.json",
+            "structure_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260831T235211Z-cdbf204f.json"
+          }
+        },
+        "provenance_audit": {
+          "exit_code": 0,
+          "stdout": "{\n  \"output\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\runs\\\\artifact-provenance-audit.json\",\n  \"scanned_artifact_count\": 40,\n  \"historical_drift_total\": 3,\n  \"sidecars\": [],\n  \"decision_output\": null,\n  \"cohort_output\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\runs\\\\cohort-provenance-audit-2026-09-01-r11.json\"\n}",
+          "stderr": null
+        },
+        "comparable_pair": false
+      },
+      {
+        "queue_order": 5,
+        "scenario_id": "SCN-PRAC-RECONCILIATION",
+        "frame_id": "20260901T143431Z-534fefd5",
+        "profiles": [
+          {
+            "profile_id": "baseline-current",
+            "status": "completed",
+            "normalized_state": "no_edge",
+            "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260901T143431Z-534fefd5.json"
+          },
+          {
+            "profile_id": "structure",
+            "status": "completed",
+            "normalized_state": "held",
+            "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260901T143431Z-534fefd5.json"
+          }
+        ],
+        "qc": {
+          "exit_code": 0,
+          "report": {
+            "schema_version": "glitch.topstep.envelope_collection_qc.v1",
+            "frame_id": "20260901T143431Z-534fefd5",
+            "snapshot_hash": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+            "ok": true,
+            "pause_collection": false,
+            "issues": [],
+            "baseline_category": "no_edge",
+            "structure_category": "thesis_quality",
+            "comparable_pair": false,
+            "bilateral_thesis_quality": false,
+            "baseline_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260901T143431Z-534fefd5.json",
+            "structure_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260901T143431Z-534fefd5.json"
+          }
+        },
+        "provenance_audit": {
+          "exit_code": 0,
+          "stdout": "{\n  \"output\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\runs\\\\artifact-provenance-audit.json\",\n  \"scanned_artifact_count\": 40,\n  \"historical_drift_total\": 3,\n  \"sidecars\": [],\n  \"decision_output\": null,\n  \"cohort_output\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\runs\\\\cohort-provenance-audit-2026-09-01-r11.json\"\n}",
+          "stderr": null
+        },
+        "comparable_pair": false
+      },
+      {
+        "queue_order": 6,
+        "scenario_id": "SCN-PRAC-PREFLIGHT",
+        "frame_id": "20260901T182843Z-b06d9a93",
+        "profiles": [
+          {
+            "profile_id": "baseline-current",
+            "status": "completed",
+            "normalized_state": "no_edge",
+            "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260901T182843Z-b06d9a93.json"
+          },
+          {
+            "profile_id": "structure",
+            "status": "completed",
+            "normalized_state": "no_edge",
+            "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260901T182843Z-b06d9a93.json"
+          }
+        ],
+        "qc": {
+          "exit_code": 0,
+          "report": {
+            "schema_version": "glitch.topstep.envelope_collection_qc.v1",
+            "frame_id": "20260901T182843Z-b06d9a93",
+            "snapshot_hash": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+            "ok": true,
+            "pause_collection": false,
+            "issues": [],
+            "baseline_category": "no_edge",
+            "structure_category": "no_edge",
+            "comparable_pair": false,
+            "bilateral_thesis_quality": false,
+            "baseline_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260901T182843Z-b06d9a93.json",
+            "structure_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260901T182843Z-b06d9a93.json"
+          }
+        },
+        "provenance_audit": {
+          "exit_code": 0,
+          "stdout": "{\n  \"output\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\runs\\\\artifact-provenance-audit.json\",\n  \"scanned_artifact_count\": 40,\n  \"historical_drift_total\": 3,\n  \"sidecars\": [],\n  \"decision_output\": null,\n  \"cohort_output\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\runs\\\\cohort-provenance-audit-2026-09-01-r11.json\"\n}",
+          "stderr": null
+        },
+        "comparable_pair": false
+      }
+    ],
+    "stopped": false,
+    "stop_reason": null
+  }
+}

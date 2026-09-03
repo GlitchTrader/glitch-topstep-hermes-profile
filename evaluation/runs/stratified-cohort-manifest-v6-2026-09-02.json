@@ -1,0 +1,129 @@
+{
+  "schema_version": "glitch.topstep.stratified_cohort_manifest.v1",
+  "generated_utc": "2026-09-02T15:34:22.545634Z",
+  "status": "pre_registered_offline",
+  "cohort_version": "v6-pre-registered",
+  "parent_frozen_manifest": "evaluation/runs/frozen-cohort-manifest-2026-09-01.json",
+  "corpus_root": "tests/fixtures/frozen_corpus/enriched",
+  "profiles": [
+    "baseline-current",
+    "structure"
+  ],
+  "excluded_frame_ids": [
+    "20260831T173427Z-4ac91997",
+    "20260831T233830Z-cbb5cee1",
+    "20260831T234106Z-a9c3eb80",
+    "20260831T235211Z-8c371231",
+    "20260831T235211Z-cdbf204f",
+    "20260831T235620Z-fd331ad4",
+    "20260901T000528Z-041dc508",
+    "20260901T002738Z-5e80e1ac",
+    "20260901T002738Z-818c9e79",
+    "20260901T002742Z-ddd5ffb5",
+    "20260901T002828Z-f5fb2cc7",
+    "20260901T020441Z-6e53152d",
+    "20260901T020441Z-9866a0f9",
+    "20260901T020448Z-d474ad40",
+    "20260901T020631Z-873485a4",
+    "20260901T134026Z-bb50bbe9",
+    "20260901T135732Z-d3e2d816",
+    "20260901T141348Z-65a590aa",
+    "20260901T143311Z-a49c317a",
+    "20260901T143431Z-534fefd5",
+    "20260901T145322Z-c776a976",
+    "20260901T150823Z-d7908a55",
+    "20260901T152524Z-24fe8a4d",
+    "20260901T154226Z-52265102",
+    "20260901T165456Z-8b20659b",
+    "20260901T174044Z-2cfca7a6",
+    "20260901T175947Z-a71c2714",
+    "20260901T181807Z-e1ff909a",
+    "20260901T182843Z-b06d9a93",
+    "20260902T012336Z-7278cb75",
+    "20260902T013720Z-46ba8be0",
+    "20260902T014320Z-59375017",
+    "20260902T015020Z-4bd5490f",
+    "20260902T015522Z-065ef854",
+    "20260902T020023Z-e8df6b82",
+    "20260902T020524Z-aba921ec",
+    "20260902T021025Z-c88c2945",
+    "20260902T022026Z-2a71dbe9",
+    "20260902T022826Z-2e035875",
+    "20260902T112922Z-c30de894",
+    "20260902T113051Z-cb1139d6",
+    "20260902T115053Z-b7730ea3"
+  ],
+  "independence_rules": {
+    "snapshot_hash_dedupe": "Repetir o mesmo snapshot_hash em m\u00faltiplos runs conta no m\u00e1ximo 1 evid\u00eancia independente.",
+    "scenario_tag_distribution": "Preferir scenario_tag distinto entre pares compar\u00e1veis contados.",
+    "session_origin_distribution": "scenario_tag distinto OU session/origin distinto (ex.: prac_soak vs operator_minute_frames).",
+    "regime_preference": "Preferencialmente regime distinto quando dispon\u00edvel.",
+    "instrument_preference": "Preferencialmente instrument distinto quando o corpus permitir (v2: MNQ apenas).",
+    "bilateral_pair_requirement": "comparable_pair exige baseline e structure ambos em thesis_quality (candidate/held compar\u00e1veis).",
+    "min_independent_pairs": 5
+  },
+  "collection_queue": [
+    {
+      "queue_order": 1,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-56090490",
+      "frame_id": "20260902T152528Z-56090490",
+      "envelope_id": "env-e6cbf6ff7d314de0",
+      "snapshot_hash": "e6cbf6ff7d314de0d09cf642a2741dced52e68c26414f8ce423ada08c47fc10a",
+      "envelope_hash": "4dc95b1a08777e44e4056628450107820563f44bbafa100c1e21c78772fb15fa",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_02_diversity",
+      "session_bucket": "afternoon",
+      "instrument": "MNQ",
+      "packet_id": "56090490-104c-4560-be45-8fa73def1cf8",
+      "packet_path": "packet",
+      "corpus_file": "minute-frames/20260902T152528Z-56090490.json",
+      "independence_group": "ig-e6cbf6ff7d31",
+      "selection_basis": "offline_stratified_pre_registration",
+      "capacity_gate_validated": true,
+      "chain_classification": "spontaneous_cognitive"
+    },
+    {
+      "queue_order": 2,
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-fedf09de",
+      "frame_id": "20260902T151525Z-fedf09de",
+      "envelope_id": "env-fe43eba3575da7fa",
+      "snapshot_hash": "fe43eba3575da7fae5a9f7c9fd24742a661c87c13ccdde365b4e241511dfedbb",
+      "envelope_hash": "858d150e87758ee8985bb3b9a6de553f2dcc1104286471f9a5e845f0965f9020",
+      "scenario_tag": "operator_minute_frame",
+      "origin": "prac_soak_2026_09_02_diversity",
+      "session_bucket": "afternoon",
+      "instrument": "MNQ",
+      "packet_id": "fedf09de-e202-44b8-8618-117ece849e09",
+      "packet_path": "packet",
+      "corpus_file": "minute-frames/20260902T151525Z-fedf09de.json",
+      "independence_group": "ig-fe43eba3575d",
+      "selection_basis": "offline_stratified_pre_registration",
+      "capacity_gate_validated": true,
+      "chain_classification": "spontaneous_cognitive"
+    }
+  ],
+  "coverage": {
+    "selected_count": 2,
+    "by_scenario_tag": {
+      "operator_minute_frame": 2
+    },
+    "by_origin": {
+      "prac_soak_2026_09_02_diversity": 2
+    },
+    "by_session_bucket": {
+      "afternoon": 2
+    }
+  },
+  "prior_cohort_manifest": "evaluation/runs/stratified-cohort-manifest-v5.1-2026-09-02.json",
+  "scenarios_path": "evaluation/stratified_scenarios.v6.json",
+  "prac_ingest_ref": "evaluation/runs/prac-corpus-ingest-PRAC-SOAK-2026-09-02-diversity.json",
+  "selection_policy": "recency_first_spontaneous",
+  "selection_notes": [
+    "Coorte v6 p\u00f3s-ingest PRAC-SOAK-2026-09-02-diversity (chain_complete).",
+    "Origem prac_soak_2026_09_02_diversity; exclui coortes v2\u2013v5.1 consumidas.",
+    "frames_added=0 no ingest inicial foi minute_frame path \u2014 re-ingest corrigido separadamente.",
+    "Autoriza\u00e7\u00e3o humana expl\u00edcita obrigat\u00f3ria antes de replay."
+  ],
+  "digest_path": "evaluation/runs/stratified-cohort-digest-v6-2026-09-02.json",
+  "digest_sha256": "e011cf91e0b80302102be7b6bdbf2278c81e92bd9b660fcff802add08b67efdb"
+}

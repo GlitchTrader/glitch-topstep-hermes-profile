@@ -1,0 +1,10 @@
+{
+  "state": "held",
+  "direction": "long",
+  "thesis": "Pullback toward prior high with activation pending.",
+  "entry": 20001.0,
+  "stop": 19992.0,
+  "target": 20030.0,
+  "horizon_bars": 8,
+  "latency_ms": 2
+}

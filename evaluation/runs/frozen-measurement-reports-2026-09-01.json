@@ -1,0 +1,113 @@
+{
+  "schema_version": "glitch.topstep.frozen_measurement_reports.v1",
+  "recorded_utc": "2026-09-01T23:54:28.895458Z",
+  "track": "K",
+  "ok": true,
+  "chain_scripts": [
+    "apply-sample-quality-gate.py",
+    "report-corpus-coverage-gaps.py",
+    "build-cohort-quality-manifest.py",
+    "report-insufficient-sample.py"
+  ],
+  "steps": [
+    {
+      "script": "apply-sample-quality-gate.py",
+      "command": [
+        "C:\\Users\\arifr\\AppData\\Local\\hermes\\hermes-agent\\venv\\Scripts\\python.exe",
+        "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\scripts\\apply-sample-quality-gate.py",
+        "--output",
+        "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\sample-quality-gate-result-2026-09-01.json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"output\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\runs\\\\sample-quality-gate-result-2026-09-01.json\",\n  \"insufficient_sample_aggregated\": true,\n  \"comparable_pairs\": 2\n}",
+      "stderr": null,
+      "parsed_stdout": {
+        "output": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\sample-quality-gate-result-2026-09-01.json",
+        "insufficient_sample_aggregated": true,
+        "comparable_pairs": 2
+      }
+    },
+    {
+      "script": "report-corpus-coverage-gaps.py",
+      "command": [
+        "C:\\Users\\arifr\\AppData\\Local\\hermes\\hermes-agent\\venv\\Scripts\\python.exe",
+        "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\scripts\\report-corpus-coverage-gaps.py",
+        "--output-json",
+        "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\corpus-coverage-gaps-2026-09-01.json",
+        "--output-md",
+        "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\reviews\\CORPUS-COVERAGE-GAPS-2026-09-01.md"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"recommendation\": \"more_collection\",\n  \"valid_comparable_pairs\": 2,\n  \"output_json\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\runs\\\\corpus-coverage-gaps-2026-09-01.json\",\n  \"output_md\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\reviews\\\\CORPUS-COVERAGE-GAPS-2026-09-01.md\"\n}",
+      "stderr": null,
+      "parsed_stdout": {
+        "recommendation": "more_collection",
+        "valid_comparable_pairs": 2,
+        "output_json": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\corpus-coverage-gaps-2026-09-01.json",
+        "output_md": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\reviews\\CORPUS-COVERAGE-GAPS-2026-09-01.md"
+      }
+    },
+    {
+      "script": "build-cohort-quality-manifest.py",
+      "command": [
+        "C:\\Users\\arifr\\AppData\\Local\\hermes\\hermes-agent\\venv\\Scripts\\python.exe",
+        "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\scripts\\build-cohort-quality-manifest.py",
+        "--output",
+        "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\cohort-quality-manifest-2026-09-01.json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"output\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\runs\\\\cohort-quality-manifest-2026-09-01.json\",\n  \"invocation_count\": 32,\n  \"independent_comparable_frames_estimate\": 2\n}",
+      "stderr": null,
+      "parsed_stdout": {
+        "output": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\cohort-quality-manifest-2026-09-01.json",
+        "invocation_count": 32,
+        "independent_comparable_frames_estimate": 2
+      }
+    },
+    {
+      "script": "report-insufficient-sample.py",
+      "command": [
+        "C:\\Users\\arifr\\AppData\\Local\\hermes\\hermes-agent\\venv\\Scripts\\python.exe",
+        "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\scripts\\report-insufficient-sample.py",
+        "--gate-result",
+        "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\sample-quality-gate-result-2026-09-01.json",
+        "--cohort-manifest",
+        "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\cohort-quality-manifest-2026-09-01.json",
+        "--coverage-gaps",
+        "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\corpus-coverage-gaps-2026-09-01.json",
+        "--json-output",
+        "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\insufficient-sample-report-2026-09-01.json",
+        "--md-output",
+        "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\reviews\\INSUFFICIENT-SAMPLE-REPORT-2026-09-01.md"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"json_output\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\runs\\\\insufficient-sample-report-2026-09-01.json\",\n  \"md_output\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\reviews\\\\INSUFFICIENT-SAMPLE-REPORT-2026-09-01.md\",\n  \"comparable_pairs_found\": 2,\n  \"independent_pairs_estimate\": 2\n}",
+      "stderr": null,
+      "parsed_stdout": {
+        "json_output": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\insufficient-sample-report-2026-09-01.json",
+        "md_output": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\reviews\\INSUFFICIENT-SAMPLE-REPORT-2026-09-01.md",
+        "comparable_pairs_found": 2,
+        "independent_pairs_estimate": 2
+      }
+    }
+  ],
+  "artifacts": {
+    "sample_quality_gate_result": "evaluation/runs/sample-quality-gate-result-2026-09-01.json",
+    "corpus_coverage_gaps_json": "evaluation/runs/corpus-coverage-gaps-2026-09-01.json",
+    "corpus_coverage_gaps_md": "evaluation/reviews/CORPUS-COVERAGE-GAPS-2026-09-01.md",
+    "cohort_quality_manifest": "evaluation/runs/cohort-quality-manifest-2026-09-01.json",
+    "insufficient_sample_report_json": "evaluation/runs/insufficient-sample-report-2026-09-01.json",
+    "insufficient_sample_report_md": "evaluation/reviews/INSUFFICIENT-SAMPLE-REPORT-2026-09-01.md"
+  },
+  "key_counts": {
+    "comparable_pairs": 2,
+    "insufficient_sample_aggregated": true,
+    "valid_comparable_pairs": 2,
+    "coverage_recommendation": "more_collection",
+    "invocation_count": 32,
+    "independent_comparable_frames_estimate": 2,
+    "comparable_pairs_found": 2,
+    "independent_pairs_estimate": 2
+  },
+  "output_manifest": "evaluation/runs/frozen-measurement-reports-2026-09-01.json"
+}

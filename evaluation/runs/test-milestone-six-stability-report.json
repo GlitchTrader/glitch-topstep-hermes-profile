@@ -1,0 +1,67 @@
+{
+  "schema_version": "glitch.topstep.trail_a_stability_report.v1",
+  "generated_utc": "2026-09-02T22:21:10.066372Z",
+  "source_bundle": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\trail-a-multi-envelope-2026-09-02.json",
+  "run_id": "trail-a-multi-envelope-2026-09-02",
+  "envelope_count": 3,
+  "sequential_vs_parallel": {
+    "note": "Trail A used parallel slots=2; per-frame profile order sorted for audit",
+    "parallel_slots": 2
+  },
+  "envelope_identities": [
+    {
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+      "envelope_hash": "5419bea167862a440dc2f9c516a88725dcd687d8e81d4bac0df4ad43307f679c"
+    },
+    {
+      "frame_id": "20260820T1200Z",
+      "snapshot_hash": "e3d8905356316096e95289df936942a956379e960ef1db53e121e318a63b67a7",
+      "envelope_hash": "5799472c16d7a631c9a091c03113b94526dc644ed3e4fa2b110db42f1056c374"
+    },
+    {
+      "frame_id": "20260820T1201Z",
+      "snapshot_hash": "1545fbe44615e07db3cbf6748477b643ab79925ebf40525072913555e0af2f56",
+      "envelope_hash": "1a799a464bafdcbecc020b3f5de0c103f6f4f0ac3e2390dc8741b24dfe4fd3db"
+    }
+  ],
+  "aggregator_stability": {
+    "decision_codes": [
+      "ENSEMBLE_UNANIMOUS_ABSTENTION",
+      "INSUFFICIENT_ENSEMBLE_AGREEMENT",
+      "INSUFFICIENT_ENSEMBLE_AGREEMENT"
+    ],
+    "unique_codes": [
+      "ENSEMBLE_UNANIMOUS_ABSTENTION",
+      "INSUFFICIENT_ENSEMBLE_AGREEMENT"
+    ],
+    "stable_across_envelopes": false
+  },
+  "per_profile": {
+    "adversarial-risk": {
+      "direction_stability": null,
+      "state_stability": 0.6666666666666666,
+      "latency_ms_p50": 10312,
+      "cost_usd_total": 0.01554
+    },
+    "baseline-current": {
+      "direction_stability": null,
+      "state_stability": 0.6666666666666666,
+      "latency_ms_p50": 13827,
+      "cost_usd_total": 0.01487
+    },
+    "structure": {
+      "direction_stability": null,
+      "state_stability": 0.6666666666666666,
+      "latency_ms_p50": 14250,
+      "cost_usd_total": 0.01563
+    }
+  },
+  "pairwise_baseline_correlation": {
+    "adversarial-risk": 1.0,
+    "structure": 1.0
+  },
+  "session_cost_usd": 0.04604,
+  "textual_equality_required": false,
+  "promotion_gate": false
+}

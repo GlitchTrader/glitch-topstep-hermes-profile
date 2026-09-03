@@ -1,0 +1,23 @@
+{
+  "schema_version": "glitch.topstep.evaluation_profile_kit.v1",
+  "profile_id": "indicators",
+  "profile_version": "1.0.0",
+  "profile_kind": "directional",
+  "role": "challenger",
+  "prompt_version": "glitch-topstep-v17.1",
+  "execution_authority": false,
+  "evaluation_enabled": true,
+  "required_sources": ["ohlc", "quote", "indicators"],
+  "optional_sources": ["session", "risk_context", "structure"],
+  "forbidden_inference": [
+    "indicators as automatic entry triggers",
+    "execution authority or intent submission"
+  ],
+  "tools": [
+    { "name": "market_observation", "version": "1" },
+    { "name": "scanner_contract", "version": "1" }
+  ],
+  "completeness_states": ["available", "partial", "stale", "inconsistent", "missing_required", "not_applicable"],
+  "raw_output_schema": "glitch.topstep.profile_raw_output.v1",
+  "normalized_output_schema": "glitch.topstep.normalized_candidate.v1"
+}

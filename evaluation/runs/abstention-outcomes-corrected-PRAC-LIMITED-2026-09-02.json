@@ -1,0 +1,28 @@
+{
+  "schema_version": "glitch.topstep.abstention_outcome_association.v1",
+  "recorded_utc": "2026-09-02T20:46:04.413405Z",
+  "classification": {
+    "track": "abstention_outcome_diagnostic",
+    "diagnostic_only": true,
+    "promotion_use_allowed": false,
+    "corrected_classification_v2": true,
+    "valid_abstention_only": true
+  },
+  "horizon_minutes": 15,
+  "frame_count_total": 8,
+  "valid_abstention_frame_count": 0,
+  "operationally_blocked_excluded": [
+    "20260902T193005Z-b5fd08f8",
+    "20260902T193505Z-3dd35e83",
+    "20260902T194002Z-0d305fc5",
+    "20260902T194505Z-d7d1b4fb",
+    "20260902T195006Z-b7219c00",
+    "20260902T195507Z-b071ff79",
+    "20260902T200007Z-7800e8c3",
+    "20260902T200505Z-ce29fef7"
+  ],
+  "association_count": 0,
+  "diagnostically_evaluable_count": 0,
+  "posterior_computed_count": 0,
+  "associations": []
+}

@@ -1,0 +1,72 @@
+{
+  "schema_version": "glitch.topstep.insufficient_sample_report.v1",
+  "generated_utc": "2026-09-01T23:54:28.871724Z",
+  "sampling_plan_path": "evaluation/SAMPLING-PLAN-2026-09-01.md",
+  "gate_result_path": "evaluation/runs/sample-quality-gate-result-2026-09-01.json",
+  "cohort_manifest_path": "evaluation/runs/cohort-quality-manifest-2026-09-01.json",
+  "coverage_gaps_path": "evaluation/runs/corpus-coverage-gaps-2026-09-01.json",
+  "comparable_pairs_found": 2,
+  "comparable_pairs_required_min": 5,
+  "independent_pairs_estimate": 2,
+  "insufficient_sample": true,
+  "insufficient_sample_reasons": [
+    "comparable_pairs_count < min_comparable_pairs_count"
+  ],
+  "scenarios_covered": [
+    "prac_directed_test",
+    "reconciliation"
+  ],
+  "scenarios_missing": [
+    "operator_minute_frame",
+    "timeout",
+    "restart",
+    "preflight"
+  ],
+  "regimes_covered": [
+    "CHOP",
+    "TRANSITION"
+  ],
+  "regimes_missing": [
+    "TREND_DOWN",
+    "TREND_UP"
+  ],
+  "exclusion_reasons_breakdown": {
+    "historical_normalization_drift": 2,
+    "schema_invalid": 1,
+    "thesis_quality_without_bilateral_pair": 2
+  },
+  "per_run": [
+    {
+      "run_id": "scenario-live-2026-09-01-r7-contract",
+      "comparable_pairs": 1,
+      "insufficient_sample": true,
+      "insufficient_sample_reasons": [
+        "comparable_pairs_count < min_comparable_pairs_count",
+        "scenario_tag_coverage_incomplete",
+        "filtered_invocation_count < min_invocations_per_profile * profiles_required",
+        "frame_count < min_scenario_frames"
+      ]
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "comparable_pairs": 1,
+      "insufficient_sample": true,
+      "insufficient_sample_reasons": [
+        "comparable_pairs_count < min_comparable_pairs_count"
+      ]
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "comparable_pairs": 0,
+      "insufficient_sample": true,
+      "insufficient_sample_reasons": [
+        "comparable_pairs_count < min_comparable_pairs_count",
+        "scenario_tag_coverage_incomplete",
+        "filtered_invocation_count < min_invocations_per_profile * profiles_required",
+        "frame_count < min_scenario_frames"
+      ]
+    }
+  ],
+  "process_gate_note": "5 pares compar\u00e1veis = limiar m\u00ednimo de processo (gate frozen), N\u00c3O prova de superioridade estat\u00edstica cognitiva.",
+  "recommendation": "more_collection"
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": "glitch.topstep.aggregator_spec_consistency_review.v1",
+  "generated_utc": "2026-09-02T02:49:08.634322Z",
+  "rules_version": "2026-09-01-v2",
+  "executor_blocked": true,
+  "fixture_cases_total": 12,
+  "fixture_cases_with_expected": 12,
+  "r13_observed_states": [
+    "candidate",
+    "data_quality_insufficient",
+    "held",
+    "no_edge",
+    "not_comparable",
+    "thesis_quality"
+  ],
+  "r13_unknown_states": [],
+  "adversarial_rules_present": true,
+  "consistency_ok": true,
+  "issues": [],
+  "notes": [
+    "thesis_quality is comparison category, not normalized.state",
+    "candidate/no_edge/not_comparable from r13 align with aggregator input taxonomy",
+    "No rule changes based on n=2 comparable pairs"
+  ]
+}

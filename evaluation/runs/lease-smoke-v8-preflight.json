@@ -1,0 +1,123 @@
+{
+  "schema_version": "glitch.topstep.evaluation_lease_smoke.v1",
+  "run_id": "lease-smoke-v8-preflight",
+  "recorded_utc": "2026-09-02T17:08:04.354396Z",
+  "profile_root": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep",
+  "modes": {
+    "smoke": {
+      "schema_version": "glitch.topstep.evaluation_lease_smoke.v1",
+      "mode": "smoke",
+      "run_id": "lease-smoke-v8-preflight",
+      "recorded_utc": "2026-09-02T17:09:22.665228Z",
+      "ok": true,
+      "production_profile": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep",
+      "operational_artifacts_unchanged": true,
+      "steps": [
+        {
+          "step": "lease_acquired",
+          "ok": true,
+          "run_id": "lease-smoke-v8-preflight"
+        },
+        {
+          "step": "cron_defer_direct_cycle",
+          "ok": true,
+          "exit_code": 0,
+          "status": {
+            "schema_version": "glitch.topstep.direct_worker_status.v2",
+            "run_id": "7bde8d8c-dbfd-471b-b2cf-1f1f98fcb291",
+            "recorded_utc": "2026-09-02T17:08:04.606636Z",
+            "status": "deferred",
+            "phase": "evaluation_lease_active",
+            "retryable": true,
+            "blocking_evaluation_run_id": "lease-smoke-v8-preflight",
+            "worker_kind": "direct_cycle"
+          },
+          "stdout_tail": "",
+          "stderr_tail": ""
+        },
+        {
+          "step": "cron_defer_learning",
+          "ok": true,
+          "exit_code": 0,
+          "status": {
+            "schema_version": "glitch.topstep.learning_worker_status.v2",
+            "run_id": "cff5194a-ebc7-5522-a577-35b845616112",
+            "recorded_utc": "2026-09-02T17:08:04.903941Z",
+            "status": "deferred",
+            "phase": "evaluation_lease_active",
+            "retryable": true,
+            "blocking_evaluation_run_id": "lease-smoke-v8-preflight",
+            "worker_kind": "learning"
+          },
+          "stdout_tail": "",
+          "stderr_tail": ""
+        },
+        {
+          "step": "cron_defer_wake_monitor",
+          "ok": true,
+          "exit_code": 0,
+          "status": {
+            "schema_version": "glitch.topstep.wake_monitor_status.v1",
+            "recorded_utc": "2026-09-02T17:08:05.174908Z",
+            "status": "deferred",
+            "phase": "evaluation_lease_active",
+            "retryable": true
+          },
+          "stdout_tail": "{\"polled\":false,\"reason\":\"evaluation_lease_active\",\"deferred\":true}",
+          "stderr_tail": ""
+        },
+        {
+          "step": "hold_with_active_cron_window",
+          "ok": true,
+          "hold_seconds": 12.0,
+          "wait_cron_seconds": 65.0,
+          "cron_defer_observed_during_window": true
+        },
+        {
+          "step": "lease_released",
+          "ok": true
+        },
+        {
+          "step": "cron_resume_probe",
+          "ok": true,
+          "defer_after_release": false
+        }
+      ]
+    },
+    "fault": {
+      "schema_version": "glitch.topstep.evaluation_lease_smoke.v1",
+      "mode": "fault",
+      "run_id": "lease-smoke-v8-preflight",
+      "recorded_utc": "2026-09-02T17:09:24.217432Z",
+      "ok": true,
+      "faults": [
+        {
+          "fault": "abort",
+          "ok": true,
+          "lease_active_after_release": false
+        },
+        {
+          "fault": "timeout",
+          "ok": true
+        },
+        {
+          "fault": "crash",
+          "ok": true,
+          "orphan_cleaned": true
+        },
+        {
+          "fault": "recovery",
+          "ok": true,
+          "crash": {
+            "fault": "crash",
+            "ok": true,
+            "orphan_cleaned": true
+          },
+          "deferred_during_recovery": true,
+          "resumed_after_release": true
+        }
+      ]
+    }
+  },
+  "ok": true
+}

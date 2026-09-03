@@ -1,0 +1,133 @@
+{
+  "schema_version": "glitch.topstep.directional_gate_stratified_view.v1",
+  "recorded_utc": "2026-09-02T20:14:19.123212Z",
+  "scope": "historical_replays_plus_PRAC_LIMITED_2026_09_02",
+  "directional_gate_v1": {
+    "preserved": true,
+    "comparable_pairs": 2,
+    "required_min": 5,
+    "insufficient_sample": true,
+    "source": "evaluation/runs/directional-gate-report-2026-09-02-v1.json",
+    "note": "Numerador historico imutavel"
+  },
+  "directional_gate_v2_stratified": {
+    "exclusive_strata_historical": {
+      "comparable_pair": 2,
+      "unilateral_candidate": 8,
+      "no_edge_bilateral": 33,
+      "other": 4,
+      "insufficient_capacity": 6
+    },
+    "limited_session_strata": {
+      "spontaneous": 8,
+      "no_edge_bilateral": 0,
+      "insufficient_capacity": 0,
+      "unilateral_candidate": 0,
+      "data_degradation": 8,
+      "directional_pairs": 0
+    },
+    "comparable_pairs_by_origin": {
+      "directed": 1,
+      "spontaneous": 1
+    },
+    "limited_session_additive": {
+      "session_id": "PRAC-LIMITED-2026-09-02",
+      "spontaneous_frames": 8,
+      "production_no_edge": 8,
+      "new_directional_pairs": 0,
+      "data_degradation_frames": 8,
+      "no_edge_bilateral_frames": 0
+    },
+    "do_not_mix": [
+      "directed_pairs",
+      "spontaneous_pairs",
+      "no_edge_bilateral",
+      "unilateral_candidate",
+      "insufficient_capacity",
+      "data_degradation"
+    ]
+  },
+  "provenance_confirmation": {
+    "chain_complete": true,
+    "frames_added": 8,
+    "novo_elegivel": 8,
+    "already_consumed": 0,
+    "verify_envelopes": "8/8",
+    "digest_path": "evaluation/runs/stratified-cohort-digest-limited-2026-09-02.json",
+    "digest_stable": true,
+    "production_paths_untouched": true,
+    "next_authorized_run_id": null,
+    "directional_gate_v1_unchanged": 2
+  },
+  "limited_frames": [
+    {
+      "frame_id": "20260902T200505Z-ce29fef7",
+      "origin_class": "spontaneous",
+      "stratum": "data_degradation",
+      "production_action": "NOTHING",
+      "evidence_limitation": "bar_completeness_limitation",
+      "capacity_gate_pass_offline": true
+    },
+    {
+      "frame_id": "20260902T200007Z-7800e8c3",
+      "origin_class": "spontaneous",
+      "stratum": "data_degradation",
+      "production_action": "NOTHING",
+      "evidence_limitation": "gateway_degraded_at_nearest_health_sample",
+      "capacity_gate_pass_offline": true
+    },
+    {
+      "frame_id": "20260902T195507Z-b071ff79",
+      "origin_class": "spontaneous",
+      "stratum": "data_degradation",
+      "production_action": "NOTHING",
+      "evidence_limitation": "bar_completeness_limitation",
+      "capacity_gate_pass_offline": true
+    },
+    {
+      "frame_id": "20260902T195006Z-b7219c00",
+      "origin_class": "spontaneous",
+      "stratum": "data_degradation",
+      "production_action": "NOTHING",
+      "evidence_limitation": "gateway_degraded_at_nearest_health_sample",
+      "capacity_gate_pass_offline": true
+    },
+    {
+      "frame_id": "20260902T194505Z-d7d1b4fb",
+      "origin_class": "spontaneous",
+      "stratum": "data_degradation",
+      "production_action": "NOTHING",
+      "evidence_limitation": "gateway_degraded_at_nearest_health_sample",
+      "capacity_gate_pass_offline": true
+    },
+    {
+      "frame_id": "20260902T194002Z-0d305fc5",
+      "origin_class": "spontaneous",
+      "stratum": "data_degradation",
+      "production_action": "NOTHING",
+      "evidence_limitation": "bar_completeness_limitation",
+      "capacity_gate_pass_offline": true
+    },
+    {
+      "frame_id": "20260902T193505Z-3dd35e83",
+      "origin_class": "spontaneous",
+      "stratum": "data_degradation",
+      "production_action": "NOTHING",
+      "evidence_limitation": "bar_completeness_limitation",
+      "capacity_gate_pass_offline": true
+    },
+    {
+      "frame_id": "20260902T193005Z-b5fd08f8",
+      "origin_class": "spontaneous",
+      "stratum": "data_degradation",
+      "production_action": "NOTHING",
+      "evidence_limitation": "bar_completeness_limitation",
+      "capacity_gate_pass_offline": true
+    }
+  ],
+  "abstention_posterior_summary": {
+    "associations": 8,
+    "posterior_available": 7,
+    "diagnostic_only": true
+  }
+}

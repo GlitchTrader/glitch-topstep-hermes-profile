@@ -1,0 +1,79 @@
+{
+  "schema_version": "glitch.topstep.r14_preflight.v1",
+  "generated_utc": "2026-09-02T19:28:15.157855Z",
+  "r14_replay_authorized": false,
+  "r14_prerequisite": "prac_session_with_chain_complete",
+  "preflight_pass": true,
+  "issues": [],
+  "checks": [
+    {
+      "check": "finalize_prac_session_script",
+      "ok": true,
+      "path": "C:\\Users\\arifr\\Projects\\glitch-topstep\\scripts\\finalize-prac-session.py"
+    },
+    {
+      "check": "validate_evidence_chain_script",
+      "ok": true,
+      "path": "C:\\Users\\arifr\\Projects\\glitch-topstep\\scripts\\validate-prac-evidence-chain.py"
+    },
+    {
+      "check": "prac_checklist_doc",
+      "ok": true,
+      "path": "C:\\Users\\arifr\\Projects\\glitch-topstep\\docs\\evidence\\PRAC-NEXT-SESSION-CHECKLIST.md"
+    },
+    {
+      "check": "sampling_plan_r14",
+      "ok": true,
+      "path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\SAMPLING-PLAN-R14-2026-09-01.md"
+    },
+    {
+      "check": "execution_registry",
+      "ok": true,
+      "path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\stratified-cohort-execution-registry.json"
+    },
+    {
+      "check": "reruns_blocked",
+      "ok": true,
+      "value": true
+    },
+    {
+      "check": "paired_contract_present",
+      "ok": true,
+      "gateway_version": "0.2.5",
+      "profile_version": "0.2.8"
+    },
+    {
+      "check": "frozen_comparable_scenarios.v2.json",
+      "ok": true,
+      "path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\comparable_scenarios.v2.json"
+    },
+    {
+      "check": "frozen_sample_quality_gate.v1.json",
+      "ok": true,
+      "path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\sample_quality_gate.v1.json"
+    },
+    {
+      "check": "frozen_capability-matrix.json",
+      "ok": true,
+      "path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\capability-matrix.json"
+    },
+    {
+      "check": "disk_free_gb",
+      "ok": true,
+      "free_gb": 1189.18
+    },
+    {
+      "check": "evidence_dir_clean_for_new_session",
+      "ok": true,
+      "existing_finalize_count": 0
+    },
+    {
+      "check": "prac_capture_chain_example",
+      "ok": true
+    }
+  ],
+  "notes": [
+    "Preflight offline OK does not authorize r14 \u2014 requires session-finalize.json with chain_complete=true",
+    "Prompt/adapter/registry must remain frozen during collection"
+  ]
+}

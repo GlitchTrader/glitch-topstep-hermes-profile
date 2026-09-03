@@ -1,0 +1,53 @@
+{
+  "schema_version": "glitch.topstep.measurement_adequacy_update.v1",
+  "recorded_utc": "2026-09-02T20:14:19.123212Z",
+  "session_id": "PRAC-LIMITED-2026-09-02",
+  "directional_gate_v1_preserved": {
+    "numerator": 2,
+    "denominator": 5
+  },
+  "accumulated": {
+    "total_frames_in_replay_corpus": 61,
+    "total_directional_pairs_v1": 2,
+    "new_pairs_from_limited_session": 0,
+    "total_production_abstentions_limited": 8,
+    "candidate_rate_historical": 2.0,
+    "new_pairs_per_session_recent": {
+      "r15": 0,
+      "r16": 0,
+      "r17": 0,
+      "PRAC-LIMITED-2026-09-02": 0
+    },
+    "cost_per_new_pair_usd": null,
+    "cost_per_new_pair_note": "undefined \u2014 zero new pairs since r10",
+    "limited_session_cost_proxy_usd": null
+  },
+  "outcomes_available": {
+    "posterior_data_available": 7,
+    "horizon_minutes": 15,
+    "median_contrafactual_edge_ticks": 27.0,
+    "labeled_correctness": false
+  },
+  "prac_return_conclusion": {
+    "another_prac_recommended": false,
+    "rationale": "Limited session added 8 spontaneous NOTHING frames with 0 new directional pairs; daily_capture_lock dominates; data degradation on subset.",
+    "preferred_option": "option_2_stop_directional_collection",
+    "r18_replay_for_abstention_only": "not_required_if_posterior_proxy_sufficient"
+  },
+  "quality_summary": {
+    "gateway_degradation_at_decision": 3,
+    "bar_completeness_limitation": 5,
+    "snapshot_hash_manifest_match": 8,
+    "instruments_observed_union": [
+      "MCL",
+      "MES",
+      "MNQ"
+    ],
+    "instrument_decided_unique": [
+      "MNQ"
+    ],
+    "production_nothing_count": 8,
+    "daily_capture_lock_cited": 7
+  },
+  "stratified_reference": "evaluation/runs/directional-gate-stratified-view-post-limited-2026-09-02.json"
+}

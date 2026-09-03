@@ -1,0 +1,161 @@
+{
+  "schema_version": "glitch.topstep.comparable_corpus_validation.v1",
+  "scenarios_version": "2026-09-01-v1",
+  "corpus_root": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\tests\\fixtures\\frozen_corpus\\enriched",
+  "scenario_count": 3,
+  "valid_count": 3,
+  "all_valid": true,
+  "scenarios": [
+    {
+      "scenario_id": "SCN-PRAC-DIRECTED-02",
+      "frame_id": "20260831T173427Z-4ac91997",
+      "scenario_tag": "prac_directed_test",
+      "packet_id": "4ac91997-4937-4159-af97-019beb3fc2fe",
+      "created_utc": "2026-08-31T17:34:27.230Z",
+      "captured_utc": "2026-08-31T17:34:27.230Z",
+      "computed_snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+      "packet_market_snapshot_hash": "f763174937b8492da16bee23da874a600731189541a255d8ed66b7e4ba753d05",
+      "manifest_snapshot_hash": "ffc44ee3f92eb9a2f1c0fa1ac2913488ec3b769a3ae5b56510a657d249250664",
+      "envelope_id": "env-7b2ecab988f81446",
+      "envelope_hash": "154c46de3042dbe1bc49ecf7217f0300a15e4c00a300c329c3bd376577d64c5b",
+      "profile_gates": {
+        "baseline-current": {
+          "profile_id": "baseline-current",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        },
+        "structure": {
+          "profile_id": "structure",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        }
+      },
+      "valid": true,
+      "issues": [
+        "manifest_snapshot_hash_stale"
+      ],
+      "blocking_issues": []
+    },
+    {
+      "scenario_id": "SCN-OPERATOR-MIDSESSION",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "scenario_tag": "operator_minute_frame",
+      "packet_id": "bb50bbe9-c988-46ad-b401-ba418b6f457e",
+      "created_utc": "2026-09-01T13:40:26.314Z",
+      "captured_utc": "2026-09-01T13:40:26.314Z",
+      "computed_snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+      "packet_market_snapshot_hash": "55ef5bfa37d259bed932e6e37c668a3cd95316e575814e8cf02c5615a3f66fbc",
+      "manifest_snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+      "envelope_id": "env-8d12d081fc8885a3",
+      "envelope_hash": "6d122b4849e61a1aaa581f98c364289886eb034db78cfe137a38010e5189b8b5",
+      "profile_gates": {
+        "baseline-current": {
+          "profile_id": "baseline-current",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        },
+        "structure": {
+          "profile_id": "structure",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        }
+      },
+      "valid": true,
+      "issues": [],
+      "blocking_issues": []
+    },
+    {
+      "scenario_id": "SCN-PRAC-TIMEOUT-RECOVERY",
+      "frame_id": "20260901T000528Z-041dc508",
+      "scenario_tag": "timeout",
+      "packet_id": "041dc508-2d46-4be7-9bc3-edbefac06bc5",
+      "created_utc": "2026-09-01T00:05:28.898Z",
+      "captured_utc": "2026-09-01T00:05:28.898Z",
+      "computed_snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+      "packet_market_snapshot_hash": "a7cc232d5a41bbfc05a2b23b3626129edf1c3e85f244a0a1f9578b4af955e71d",
+      "manifest_snapshot_hash": "aaaabf8a23bcdd95d5d44f51a60d57cf331bda10b3ac2ec251a5d1b376686021",
+      "envelope_id": "env-8d68e765cc68d29e",
+      "envelope_hash": "26be01113943b39c38c700fe6e1c5d6e75f052f7bcc97e31fd68878bc77830b1",
+      "profile_gates": {
+        "baseline-current": {
+          "profile_id": "baseline-current",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        },
+        "structure": {
+          "profile_id": "structure",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        }
+      },
+      "valid": true,
+      "issues": [
+        "manifest_snapshot_hash_stale"
+      ],
+      "blocking_issues": []
+    }
+  ]
+}

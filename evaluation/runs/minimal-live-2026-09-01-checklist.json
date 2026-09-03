@@ -1,0 +1,19 @@
+{
+  "run_id": "minimal-live-2026-09-01",
+  "hermes_home_used": "C:\\Users\\arifr",
+  "credentials_present": true,
+  "production_lane_was_active": false,
+  "operational_artifacts_unchanged": true,
+  "artifact_status": "completed",
+  "lock_released": true,
+  "snapshot_hash_preserved": true,
+  "profile_id": "baseline-current",
+  "profile_version": "1.0.0",
+  "prompt_version": "glitch-topstep-v17.1",
+  "invocation_id": "eval-minimal-live-2026-09-01",
+  "latency_ms": 18577,
+  "cost_usd": null,
+  "raw_output_valid": true,
+  "normalized_valid": true,
+  "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\minimal-live-2026-09-01.json"
+}

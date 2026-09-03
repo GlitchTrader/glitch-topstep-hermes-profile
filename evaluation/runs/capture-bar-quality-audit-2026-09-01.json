@@ -1,0 +1,2194 @@
+{
+  "schema_version": "glitch.topstep.capture_bar_quality_audit.v1",
+  "generated_utc": "2026-09-02T01:06:35.372948Z",
+  "manifest_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\tests\\fixtures\\frozen_corpus\\enriched\\manifest.json",
+  "entry_count": 34,
+  "timing_histogram": {
+    "state_complete": 27,
+    "unknown": 7
+  },
+  "next_capture_policy": {
+    "require_data_quality_state_complete": true,
+    "prefer_capture_at_1m_bar_close": true,
+    "record_bar_close_utc_in_packet": true,
+    "do_not_change_baseline_doctrine": true
+  },
+  "entries": [
+    {
+      "frame_id": "20260901T182843Z-b06d9a93",
+      "scenario_tag": "preflight",
+      "instrument": "MNQ",
+      "origin": "prac_soak_2026-08-31",
+      "capture_utc": "2026-09-01T18:28:43.976Z",
+      "quote_timestamp": "2026-09-01T18:28:43.9924165+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260901T172255Z-a46b4da0",
+      "scenario_tag": "restart",
+      "instrument": "MNQ",
+      "origin": "prac_soak_2026-08-31",
+      "capture_utc": "2026-09-01T17:22:55.599Z",
+      "quote_timestamp": "2026-09-01T17:22:55.4843828+00:00",
+      "state_complete": false,
+      "session_levels_reliable": false,
+      "timing_class": "unknown",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "prefer_bar_close_or_state_complete_true"
+    },
+    {
+      "frame_id": "20260831T173427Z-4ac91997",
+      "scenario_tag": "prac_directed_test",
+      "instrument": "MNQ",
+      "origin": "prac_soak_2026-08-31",
+      "capture_utc": "2026-08-31T17:34:27.230Z",
+      "quote_timestamp": "2026-08-31T17:34:27.2499301+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260901T143431Z-534fefd5",
+      "scenario_tag": "reconciliation",
+      "instrument": "MNQ",
+      "origin": "prac_soak_2026-08-31",
+      "capture_utc": "2026-09-01T14:34:31.939Z",
+      "quote_timestamp": "2026-09-01T14:34:31.9440799+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260831T233830Z-cbb5cee1",
+      "scenario_tag": "prac_directed_test",
+      "instrument": "MNQ",
+      "origin": "prac_soak_2026-08-31",
+      "capture_utc": "2026-08-31T23:38:30.774Z",
+      "quote_timestamp": "2026-08-31T23:38:30.9918511+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260831T234106Z-a9c3eb80",
+      "scenario_tag": "prac_directed_test",
+      "instrument": "MNQ",
+      "origin": "prac_soak_2026-08-31",
+      "capture_utc": "2026-08-31T23:41:06.184Z",
+      "quote_timestamp": "2026-08-31T23:41:06.1496322+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260831T235211Z-cdbf204f",
+      "scenario_tag": "restart",
+      "instrument": "MNQ",
+      "origin": "prac_soak_2026-08-31",
+      "capture_utc": "2026-08-31T23:52:11.461Z",
+      "quote_timestamp": "2026-08-31T23:52:11.1936545+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260831T235211Z-8c371231",
+      "scenario_tag": "restart",
+      "instrument": "MNQ",
+      "origin": "prac_soak_2026-08-31",
+      "capture_utc": "2026-08-31T23:52:11.587Z",
+      "quote_timestamp": "2026-08-31T23:52:11.6443542+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260831T235620Z-fd331ad4",
+      "scenario_tag": "restart",
+      "instrument": "MNQ",
+      "origin": "prac_soak_2026-08-31",
+      "capture_utc": "2026-08-31T23:56:20.872Z",
+      "quote_timestamp": "2026-08-31T23:56:21.0446123+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260901T000528Z-041dc508",
+      "scenario_tag": "timeout",
+      "instrument": "MNQ",
+      "origin": "prac_soak_2026-08-31",
+      "capture_utc": "2026-09-01T00:05:28.898Z",
+      "quote_timestamp": "2026-09-01T00:05:29.0946975+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260901T002738Z-5e80e1ac",
+      "scenario_tag": "reconciliation",
+      "instrument": "MNQ",
+      "origin": "prac_soak_2026-08-31",
+      "capture_utc": "2026-09-01T00:27:38.017Z",
+      "quote_timestamp": "2026-09-01T00:27:38.240576+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260901T002738Z-818c9e79",
+      "scenario_tag": "prac_directed_test",
+      "instrument": "MNQ",
+      "origin": "prac_soak_2026-08-31",
+      "capture_utc": "2026-09-01T00:27:38.229Z",
+      "quote_timestamp": "2026-09-01T00:27:38.3961137+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260901T002742Z-ddd5ffb5",
+      "scenario_tag": "prac_directed_test",
+      "instrument": "MNQ",
+      "origin": "prac_soak_2026-08-31",
+      "capture_utc": "2026-09-01T00:27:42.770Z",
+      "quote_timestamp": "2026-09-01T00:27:42.9916234+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260901T002828Z-f5fb2cc7",
+      "scenario_tag": "prac_directed_test",
+      "instrument": "MNQ",
+      "origin": "prac_soak_2026-08-31",
+      "capture_utc": "2026-09-01T00:28:28.067Z",
+      "quote_timestamp": "2026-09-01T00:28:28.1933023+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260901T020441Z-9866a0f9",
+      "scenario_tag": "reconciliation",
+      "instrument": "MNQ",
+      "origin": "prac_soak_2026-08-31",
+      "capture_utc": "2026-09-01T02:04:41.069Z",
+      "quote_timestamp": "2026-09-01T02:04:41.0401953+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260901T020441Z-6e53152d",
+      "scenario_tag": "prac_directed_test",
+      "instrument": "MNQ",
+      "origin": "prac_soak_2026-08-31",
+      "capture_utc": "2026-09-01T02:04:41.260Z",
+      "quote_timestamp": "2026-09-01T02:04:41.2480696+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260901T020448Z-d474ad40",
+      "scenario_tag": "prac_directed_test",
+      "instrument": "MNQ",
+      "origin": "prac_soak_2026-08-31",
+      "capture_utc": "2026-09-01T02:04:48.377Z",
+      "quote_timestamp": "2026-09-01T02:04:48.3919058+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260901T020631Z-873485a4",
+      "scenario_tag": "prac_directed_test",
+      "instrument": "MNQ",
+      "origin": "prac_soak_2026-08-31",
+      "capture_utc": "2026-09-01T02:06:31.299Z",
+      "quote_timestamp": "2026-09-01T02:06:31.343695+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260901T020635Z-e60bbd5b",
+      "scenario_tag": "prac_directed_test",
+      "instrument": "MNQ",
+      "origin": "prac_soak_2026-08-31",
+      "capture_utc": "2026-09-01T02:06:35.898Z",
+      "quote_timestamp": "2026-09-01T02:06:35.944825+00:00",
+      "state_complete": false,
+      "session_levels_reliable": false,
+      "timing_class": "unknown",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "prefer_bar_close_or_state_complete_true"
+    },
+    {
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "scenario_tag": "operator_minute_frame",
+      "instrument": "MNQ",
+      "origin": "operator_minute_frames",
+      "capture_utc": "2026-09-01T13:40:26.314Z",
+      "quote_timestamp": "2026-09-01T13:40:26.2838658+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260901T135732Z-d3e2d816",
+      "scenario_tag": "operator_minute_frame",
+      "instrument": "MNQ",
+      "origin": "operator_minute_frames",
+      "capture_utc": "2026-09-01T13:57:32.043Z",
+      "quote_timestamp": "2026-09-01T13:57:32.0382683+00:00",
+      "state_complete": false,
+      "session_levels_reliable": false,
+      "timing_class": "unknown",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "prefer_bar_close_or_state_complete_true"
+    },
+    {
+      "frame_id": "20260901T141348Z-65a590aa",
+      "scenario_tag": "operator_minute_frame",
+      "instrument": "MNQ",
+      "origin": "operator_minute_frames",
+      "capture_utc": "2026-09-01T14:13:48.404Z",
+      "quote_timestamp": "2026-09-01T14:13:48.3850694+00:00",
+      "state_complete": false,
+      "session_levels_reliable": false,
+      "timing_class": "unknown",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "prefer_bar_close_or_state_complete_true"
+    },
+    {
+      "frame_id": "20260901T143311Z-a49c317a",
+      "scenario_tag": "operator_minute_frame",
+      "instrument": "MNQ",
+      "origin": "operator_minute_frames",
+      "capture_utc": "2026-09-01T14:33:11.936Z",
+      "quote_timestamp": "2026-09-01T14:33:11.8918087+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260901T145322Z-c776a976",
+      "scenario_tag": "operator_minute_frame",
+      "instrument": "MNQ",
+      "origin": "operator_minute_frames",
+      "capture_utc": "2026-09-01T14:53:22.146Z",
+      "quote_timestamp": "2026-09-01T14:53:22.1420889+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260901T150823Z-d7908a55",
+      "scenario_tag": "operator_minute_frame",
+      "instrument": "MNQ",
+      "origin": "operator_minute_frames",
+      "capture_utc": "2026-09-01T15:08:23.163Z",
+      "quote_timestamp": "2026-09-01T15:08:23.1413284+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260901T152524Z-24fe8a4d",
+      "scenario_tag": "operator_minute_frame",
+      "instrument": "MNQ",
+      "origin": "operator_minute_frames",
+      "capture_utc": "2026-09-01T15:25:24.732Z",
+      "quote_timestamp": "2026-09-01T15:25:24.737635+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260901T154226Z-52265102",
+      "scenario_tag": "operator_minute_frame",
+      "instrument": "MNQ",
+      "origin": "operator_minute_frames",
+      "capture_utc": "2026-09-01T15:42:26.333Z",
+      "quote_timestamp": "2026-09-01T15:42:26.3345603+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260901T155952Z-1b07c459",
+      "scenario_tag": "operator_minute_frame",
+      "instrument": "MNQ",
+      "origin": "operator_minute_frames",
+      "capture_utc": "2026-09-01T15:59:52.815Z",
+      "quote_timestamp": "2026-09-01T15:59:49.1365106+00:00",
+      "state_complete": false,
+      "session_levels_reliable": false,
+      "timing_class": "unknown",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "prefer_bar_close_or_state_complete_true"
+    },
+    {
+      "frame_id": "20260901T162443Z-dac71ce0",
+      "scenario_tag": "operator_minute_frame",
+      "instrument": "MNQ",
+      "origin": "operator_minute_frames",
+      "capture_utc": "2026-09-01T16:24:43.532Z",
+      "quote_timestamp": "2026-09-01T16:24:43.5413079+00:00",
+      "state_complete": false,
+      "session_levels_reliable": false,
+      "timing_class": "unknown",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "prefer_bar_close_or_state_complete_true"
+    },
+    {
+      "frame_id": "20260901T165456Z-8b20659b",
+      "scenario_tag": "operator_minute_frame",
+      "instrument": "MNQ",
+      "origin": "operator_minute_frames",
+      "capture_utc": "2026-09-01T16:54:56.326Z",
+      "quote_timestamp": "2026-09-01T16:54:56.340905+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260901T172306Z-2def3ac5",
+      "scenario_tag": "operator_minute_frame",
+      "instrument": "MNQ",
+      "origin": "operator_minute_frames",
+      "capture_utc": "2026-09-01T17:23:06.911Z",
+      "quote_timestamp": "2026-09-01T17:23:06.9315723+00:00",
+      "state_complete": false,
+      "session_levels_reliable": false,
+      "timing_class": "unknown",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "prefer_bar_close_or_state_complete_true"
+    },
+    {
+      "frame_id": "20260901T174044Z-2cfca7a6",
+      "scenario_tag": "operator_minute_frame",
+      "instrument": "MNQ",
+      "origin": "operator_minute_frames",
+      "capture_utc": "2026-09-01T17:40:44.728Z",
+      "quote_timestamp": "2026-09-01T17:40:44.732542+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260901T175947Z-a71c2714",
+      "scenario_tag": "operator_minute_frame",
+      "instrument": "MNQ",
+      "origin": "operator_minute_frames",
+      "capture_utc": "2026-09-01T17:59:47.445Z",
+      "quote_timestamp": "2026-09-01T17:59:47.4446373+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    },
+    {
+      "frame_id": "20260901T181807Z-e1ff909a",
+      "scenario_tag": "operator_minute_frame",
+      "instrument": "MNQ",
+      "origin": "operator_minute_frames",
+      "capture_utc": "2026-09-01T18:18:07.324Z",
+      "quote_timestamp": "2026-09-01T18:18:07.3426436+00:00",
+      "state_complete": true,
+      "session_levels_reliable": false,
+      "timing_class": "state_complete",
+      "partial_1m_bar": null,
+      "last_1m_bar_close_utc": null,
+      "timeframes": [
+        {
+          "timeframe_minutes": 1,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 5,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 15,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        },
+        {
+          "timeframe_minutes": 60,
+          "bars_accepted": 500,
+          "last_bar": {
+            "open": null,
+            "close": null,
+            "high": null,
+            "low": null,
+            "volume": null,
+            "timestamp": null
+          }
+        }
+      ],
+      "recommendation": "acceptable"
+    }
+  ]
+}

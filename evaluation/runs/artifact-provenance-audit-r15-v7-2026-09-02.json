@@ -1,0 +1,2875 @@
+{
+  "schema_version": "glitch.topstep.artifact_provenance_audit.v1",
+  "recorded_utc": "2026-09-02T16:25:31.253041Z",
+  "scanned_artifact_count": 104,
+  "current_normalization_context": {
+    "adapter_version": "2026-09-01-v1",
+    "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+    "prompt_versions": [
+      "glitch-topstep-v17.1"
+    ],
+    "registry_version": "2026-09-01-v2",
+    "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+    "aggregator_rules_version": "2026-09-01-v2",
+    "normalization_version": "2026-09-01-post-candidate-flat-rule"
+  },
+  "known_historical_drift_artifacts": [
+    "scenario-live-2026-09-01-r7-contract-baseline-current-20260901T000528Z-041dc508.json",
+    "scenario-live-2026-09-01-r7-contract-baseline-current-20260901T134026Z-bb50bbe9.json",
+    "scenario-live-2026-09-01-r7-contract-structure-20260901T000528Z-041dc508.json"
+  ],
+  "runs": [
+    {
+      "run_id": "scenario-live-2026-09-01-r10-v2",
+      "artifact_count": 14,
+      "historical_drift_count": 0,
+      "matches_current_adapter_count": 14
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2",
+      "artifact_count": 12,
+      "historical_drift_count": 0,
+      "matches_current_adapter_count": 12
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r12-stratified",
+      "artifact_count": 36,
+      "historical_drift_count": 0,
+      "matches_current_adapter_count": 36
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r13-stratified-v3",
+      "artifact_count": 16,
+      "historical_drift_count": 0,
+      "matches_current_adapter_count": 16
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r7-contract",
+      "artifact_count": 6,
+      "historical_drift_count": 3,
+      "matches_current_adapter_count": 3
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r8-contract",
+      "artifact_count": 6,
+      "historical_drift_count": 0,
+      "matches_current_adapter_count": 6
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r9-v2",
+      "artifact_count": 14,
+      "historical_drift_count": 0,
+      "matches_current_adapter_count": 14
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-baseline-current-20260831T173427Z-4ac91997.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-baseline-current-20260831T173427Z-4ac91997.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "data_quality_insufficient",
+        "direction": "hold",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "data_quality_insufficient",
+        "direction": "hold",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-baseline-current-20260831T235211Z-cdbf204f.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-baseline-current-20260831T235211Z-cdbf204f.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "expired",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "expired",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-baseline-current-20260901T000528Z-041dc508.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-baseline-current-20260901T000528Z-041dc508.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-baseline-current-20260901T143431Z-534fefd5.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-baseline-current-20260901T143431Z-534fefd5.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-baseline-current-20260901T150823Z-d7908a55.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-baseline-current-20260901T150823Z-d7908a55.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-baseline-current-20260901T182843Z-b06d9a93.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-baseline-current-20260901T182843Z-b06d9a93.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-structure-20260831T173427Z-4ac91997.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-structure-20260831T173427Z-4ac91997.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-structure-20260831T235211Z-cdbf204f.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-structure-20260831T235211Z-cdbf204f.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-structure-20260901T000528Z-041dc508.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-structure-20260901T000528Z-041dc508.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-structure-20260901T134026Z-bb50bbe9.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-structure-20260901T134026Z-bb50bbe9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-structure-20260901T143431Z-534fefd5.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-structure-20260901T143431Z-534fefd5.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-structure-20260901T150823Z-d7908a55.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-structure-20260901T150823Z-d7908a55.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-structure-20260901T182843Z-b06d9a93.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-structure-20260901T182843Z-b06d9a93.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260831T235211Z-cdbf204f.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-baseline-current-20260831T235211Z-cdbf204f.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260901T000528Z-041dc508.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-baseline-current-20260901T000528Z-041dc508.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260901T143431Z-534fefd5.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-baseline-current-20260901T143431Z-534fefd5.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "hold",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "hold",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260901T150823Z-d7908a55.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-baseline-current-20260901T150823Z-d7908a55.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260901T182843Z-b06d9a93.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-baseline-current-20260901T182843Z-b06d9a93.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260831T235211Z-cdbf204f.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-structure-20260831T235211Z-cdbf204f.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260901T000528Z-041dc508.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-structure-20260901T000528Z-041dc508.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260901T134026Z-bb50bbe9.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-structure-20260901T134026Z-bb50bbe9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260901T143431Z-534fefd5.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-structure-20260901T143431Z-534fefd5.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260901T150823Z-d7908a55.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-structure-20260901T150823Z-d7908a55.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260901T182843Z-b06d9a93.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-structure-20260901T182843Z-b06d9a93.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-baseline-current-20260831T233830Z-cbb5cee1.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-baseline-current-20260831T233830Z-cbb5cee1.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "data_quality_insufficient",
+        "direction": "hold",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "data_quality_insufficient",
+        "direction": "hold",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-baseline-current-20260831T234106Z-a9c3eb80.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-baseline-current-20260831T234106Z-a9c3eb80.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "data_quality_insufficient",
+        "direction": "hold",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "data_quality_insufficient",
+        "direction": "hold",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-baseline-current-20260831T235211Z-8c371231.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-baseline-current-20260831T235211Z-8c371231.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-baseline-current-20260831T235620Z-fd331ad4.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-baseline-current-20260831T235620Z-fd331ad4.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-baseline-current-20260901T002738Z-5e80e1ac.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-baseline-current-20260901T002738Z-5e80e1ac.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-baseline-current-20260901T002738Z-818c9e79.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-baseline-current-20260901T002738Z-818c9e79.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-baseline-current-20260901T020441Z-9866a0f9.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-baseline-current-20260901T020441Z-9866a0f9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-baseline-current-20260901T135732Z-d3e2d816.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-baseline-current-20260901T135732Z-d3e2d816.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable",
+        "error_code": null,
+        "capacity_gate_reason": "stale_or_inconsistent"
+      },
+      "stored_normalized_slice": {
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable",
+        "error_code": null,
+        "capacity_gate_reason": "stale_or_inconsistent"
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-baseline-current-20260901T141348Z-65a590aa.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-baseline-current-20260901T141348Z-65a590aa.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable",
+        "error_code": null,
+        "capacity_gate_reason": "stale_or_inconsistent"
+      },
+      "stored_normalized_slice": {
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable",
+        "error_code": null,
+        "capacity_gate_reason": "stale_or_inconsistent"
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-structure-20260831T233830Z-cbb5cee1.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-structure-20260831T233830Z-cbb5cee1.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "data_quality_insufficient",
+        "direction": "hold",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "data_quality_insufficient",
+        "direction": "hold",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-structure-20260831T234106Z-a9c3eb80.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-structure-20260831T234106Z-a9c3eb80.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "data_quality_insufficient",
+        "direction": "hold",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "data_quality_insufficient",
+        "direction": "hold",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-structure-20260831T235211Z-8c371231.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-structure-20260831T235211Z-8c371231.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-structure-20260831T235620Z-fd331ad4.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-structure-20260831T235620Z-fd331ad4.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-structure-20260901T002738Z-5e80e1ac.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-structure-20260901T002738Z-5e80e1ac.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-structure-20260901T002738Z-818c9e79.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-structure-20260901T002738Z-818c9e79.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-structure-20260901T020441Z-9866a0f9.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-structure-20260901T020441Z-9866a0f9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-structure-20260901T135732Z-d3e2d816.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-structure-20260901T135732Z-d3e2d816.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable",
+        "error_code": null,
+        "capacity_gate_reason": "stale_or_inconsistent"
+      },
+      "stored_normalized_slice": {
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable",
+        "error_code": null,
+        "capacity_gate_reason": "stale_or_inconsistent"
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-structure-20260901T141348Z-65a590aa.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-structure-20260901T141348Z-65a590aa.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable",
+        "error_code": null,
+        "capacity_gate_reason": "stale_or_inconsistent"
+      },
+      "stored_normalized_slice": {
+        "state": "missing_required_evidence",
+        "direction": "flat",
+        "comparability": "not_comparable",
+        "error_code": null,
+        "capacity_gate_reason": "stale_or_inconsistent"
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-v2-baseline-current-20260831T233830Z-cbb5cee1.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-v2-baseline-current-20260831T233830Z-cbb5cee1.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-v2-baseline-current-20260831T234106Z-a9c3eb80.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-v2-baseline-current-20260831T234106Z-a9c3eb80.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "data_quality_insufficient",
+        "direction": "hold",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "data_quality_insufficient",
+        "direction": "hold",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-v2-baseline-current-20260831T235211Z-8c371231.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-v2-baseline-current-20260831T235211Z-8c371231.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "expired",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "expired",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-v2-baseline-current-20260831T235620Z-fd331ad4.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-v2-baseline-current-20260831T235620Z-fd331ad4.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-v2-baseline-current-20260901T002738Z-5e80e1ac.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-v2-baseline-current-20260901T002738Z-5e80e1ac.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-v2-baseline-current-20260901T002738Z-818c9e79.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-v2-baseline-current-20260901T002738Z-818c9e79.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-v2-baseline-current-20260901T020441Z-9866a0f9.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-v2-baseline-current-20260901T020441Z-9866a0f9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-v2-baseline-current-20260901T143311Z-a49c317a.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-v2-baseline-current-20260901T143311Z-a49c317a.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "hold",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "hold",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-v2-baseline-current-20260901T145322Z-c776a976.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-v2-baseline-current-20260901T145322Z-c776a976.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-v2-structure-20260831T233830Z-cbb5cee1.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-v2-structure-20260831T233830Z-cbb5cee1.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "data_quality_insufficient",
+        "direction": "hold",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "data_quality_insufficient",
+        "direction": "hold",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-v2-structure-20260831T234106Z-a9c3eb80.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-v2-structure-20260831T234106Z-a9c3eb80.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "data_quality_insufficient",
+        "direction": "hold",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "data_quality_insufficient",
+        "direction": "hold",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-v2-structure-20260831T235211Z-8c371231.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-v2-structure-20260831T235211Z-8c371231.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-v2-structure-20260831T235620Z-fd331ad4.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-v2-structure-20260831T235620Z-fd331ad4.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-v2-structure-20260901T002738Z-5e80e1ac.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-v2-structure-20260901T002738Z-5e80e1ac.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-v2-structure-20260901T002738Z-818c9e79.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-v2-structure-20260901T002738Z-818c9e79.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-v2-structure-20260901T020441Z-9866a0f9.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-v2-structure-20260901T020441Z-9866a0f9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-v2-structure-20260901T143311Z-a49c317a.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-v2-structure-20260901T143311Z-a49c317a.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r12-stratified-v2-structure-20260901T145322Z-c776a976.json",
+      "artifact_name": "scenario-live-2026-09-01-r12-stratified-v2-structure-20260901T145322Z-c776a976.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r12-stratified",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r13-stratified-v3-baseline-current-20260901T002742Z-ddd5ffb5.json",
+      "artifact_name": "scenario-live-2026-09-01-r13-stratified-v3-baseline-current-20260901T002742Z-ddd5ffb5.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r13-stratified-v3",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "data_quality_insufficient",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "data_quality_insufficient",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r13-stratified-v3-baseline-current-20260901T002828Z-f5fb2cc7.json",
+      "artifact_name": "scenario-live-2026-09-01-r13-stratified-v3-baseline-current-20260901T002828Z-f5fb2cc7.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r13-stratified-v3",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r13-stratified-v3-baseline-current-20260901T152524Z-24fe8a4d.json",
+      "artifact_name": "scenario-live-2026-09-01-r13-stratified-v3-baseline-current-20260901T152524Z-24fe8a4d.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r13-stratified-v3",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r13-stratified-v3-baseline-current-20260901T154226Z-52265102.json",
+      "artifact_name": "scenario-live-2026-09-01-r13-stratified-v3-baseline-current-20260901T154226Z-52265102.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r13-stratified-v3",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r13-stratified-v3-baseline-current-20260901T165456Z-8b20659b.json",
+      "artifact_name": "scenario-live-2026-09-01-r13-stratified-v3-baseline-current-20260901T165456Z-8b20659b.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r13-stratified-v3",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "candidate",
+        "direction": "short",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "candidate",
+        "direction": "short",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r13-stratified-v3-baseline-current-20260901T174044Z-2cfca7a6.json",
+      "artifact_name": "scenario-live-2026-09-01-r13-stratified-v3-baseline-current-20260901T174044Z-2cfca7a6.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r13-stratified-v3",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r13-stratified-v3-baseline-current-20260901T175947Z-a71c2714.json",
+      "artifact_name": "scenario-live-2026-09-01-r13-stratified-v3-baseline-current-20260901T175947Z-a71c2714.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r13-stratified-v3",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "candidate",
+        "direction": "short",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "candidate",
+        "direction": "short",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r13-stratified-v3-baseline-current-20260901T181807Z-e1ff909a.json",
+      "artifact_name": "scenario-live-2026-09-01-r13-stratified-v3-baseline-current-20260901T181807Z-e1ff909a.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r13-stratified-v3",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r13-stratified-v3-structure-20260901T002742Z-ddd5ffb5.json",
+      "artifact_name": "scenario-live-2026-09-01-r13-stratified-v3-structure-20260901T002742Z-ddd5ffb5.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r13-stratified-v3",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r13-stratified-v3-structure-20260901T002828Z-f5fb2cc7.json",
+      "artifact_name": "scenario-live-2026-09-01-r13-stratified-v3-structure-20260901T002828Z-f5fb2cc7.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r13-stratified-v3",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r13-stratified-v3-structure-20260901T152524Z-24fe8a4d.json",
+      "artifact_name": "scenario-live-2026-09-01-r13-stratified-v3-structure-20260901T152524Z-24fe8a4d.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r13-stratified-v3",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r13-stratified-v3-structure-20260901T154226Z-52265102.json",
+      "artifact_name": "scenario-live-2026-09-01-r13-stratified-v3-structure-20260901T154226Z-52265102.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r13-stratified-v3",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r13-stratified-v3-structure-20260901T165456Z-8b20659b.json",
+      "artifact_name": "scenario-live-2026-09-01-r13-stratified-v3-structure-20260901T165456Z-8b20659b.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r13-stratified-v3",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r13-stratified-v3-structure-20260901T174044Z-2cfca7a6.json",
+      "artifact_name": "scenario-live-2026-09-01-r13-stratified-v3-structure-20260901T174044Z-2cfca7a6.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r13-stratified-v3",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r13-stratified-v3-structure-20260901T175947Z-a71c2714.json",
+      "artifact_name": "scenario-live-2026-09-01-r13-stratified-v3-structure-20260901T175947Z-a71c2714.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r13-stratified-v3",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r13-stratified-v3-structure-20260901T181807Z-e1ff909a.json",
+      "artifact_name": "scenario-live-2026-09-01-r13-stratified-v3-structure-20260901T181807Z-e1ff909a.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r13-stratified-v3",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": "2026-09-01-post-candidate-flat-rule",
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-baseline-current-20260831T173427Z-4ac91997.json",
+      "artifact_name": "scenario-live-2026-09-01-r7-contract-baseline-current-20260831T173427Z-4ac91997.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r7-contract",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "candidate",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "candidate",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-baseline-current-20260901T000528Z-041dc508.json",
+      "artifact_name": "scenario-live-2026-09-01-r7-contract-baseline-current-20260901T000528Z-041dc508.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r7-contract",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": false,
+      "adapter_stable": true,
+      "stored_normalization_version": "historical_normalization_version",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "historical_normalization_version",
+      "drift_reason": "candidate_flat_pre_guard_stored_as_candidate",
+      "adapter_run_slice": {
+        "state": "invalid",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": "candidate_direction_flat_conflict",
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "candidate",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "artifact_name": "scenario-live-2026-09-01-r7-contract-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r7-contract",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": false,
+      "adapter_stable": true,
+      "stored_normalization_version": "historical_normalization_version",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "historical_normalization_version",
+      "drift_reason": "candidate_flat_pre_guard_stored_as_candidate",
+      "adapter_run_slice": {
+        "state": "invalid",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": "candidate_direction_flat_conflict",
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "candidate",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-structure-20260831T173427Z-4ac91997.json",
+      "artifact_name": "scenario-live-2026-09-01-r7-contract-structure-20260831T173427Z-4ac91997.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r7-contract",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "candidate",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "candidate",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-structure-20260901T000528Z-041dc508.json",
+      "artifact_name": "scenario-live-2026-09-01-r7-contract-structure-20260901T000528Z-041dc508.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r7-contract",
+      "profile_id": "structure",
+      "matches_stored_normalized": false,
+      "adapter_stable": true,
+      "stored_normalization_version": "historical_normalization_version",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "historical_normalization_version",
+      "drift_reason": "candidate_flat_pre_guard_stored_as_candidate",
+      "adapter_run_slice": {
+        "state": "invalid",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": "candidate_direction_flat_conflict",
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "invalid",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": "directional_without_geometry",
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-structure-20260901T134026Z-bb50bbe9.json",
+      "artifact_name": "scenario-live-2026-09-01-r7-contract-structure-20260901T134026Z-bb50bbe9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r7-contract",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r8-contract-baseline-current-20260831T173427Z-4ac91997.json",
+      "artifact_name": "scenario-live-2026-09-01-r8-contract-baseline-current-20260831T173427Z-4ac91997.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r8-contract",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r8-contract-baseline-current-20260901T000528Z-041dc508.json",
+      "artifact_name": "scenario-live-2026-09-01-r8-contract-baseline-current-20260901T000528Z-041dc508.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r8-contract",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r8-contract-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "artifact_name": "scenario-live-2026-09-01-r8-contract-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r8-contract",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r8-contract-structure-20260831T173427Z-4ac91997.json",
+      "artifact_name": "scenario-live-2026-09-01-r8-contract-structure-20260831T173427Z-4ac91997.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r8-contract",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r8-contract-structure-20260901T000528Z-041dc508.json",
+      "artifact_name": "scenario-live-2026-09-01-r8-contract-structure-20260901T000528Z-041dc508.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r8-contract",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r8-contract-structure-20260901T134026Z-bb50bbe9.json",
+      "artifact_name": "scenario-live-2026-09-01-r8-contract-structure-20260901T134026Z-bb50bbe9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r8-contract",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-baseline-current-20260831T173427Z-4ac91997.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-baseline-current-20260831T173427Z-4ac91997.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-baseline-current-20260831T235211Z-cdbf204f.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-baseline-current-20260831T235211Z-cdbf204f.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-baseline-current-20260901T000528Z-041dc508.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-baseline-current-20260901T000528Z-041dc508.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-baseline-current-20260901T143431Z-534fefd5.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-baseline-current-20260901T143431Z-534fefd5.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-baseline-current-20260901T150823Z-d7908a55.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-baseline-current-20260901T150823Z-d7908a55.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-baseline-current-20260901T182843Z-b06d9a93.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-baseline-current-20260901T182843Z-b06d9a93.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "baseline-current",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-structure-20260831T173427Z-4ac91997.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-structure-20260831T173427Z-4ac91997.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "held",
+        "direction": "short",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "held",
+        "direction": "short",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-structure-20260831T235211Z-cdbf204f.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-structure-20260831T235211Z-cdbf204f.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-structure-20260901T000528Z-041dc508.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-structure-20260901T000528Z-041dc508.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-structure-20260901T134026Z-bb50bbe9.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-structure-20260901T134026Z-bb50bbe9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-structure-20260901T143431Z-534fefd5.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-structure-20260901T143431Z-534fefd5.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "held",
+        "direction": "long",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-structure-20260901T150823Z-d7908a55.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-structure-20260901T150823Z-d7908a55.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-structure-20260901T182843Z-b06d9a93.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-structure-20260901T182843Z-b06d9a93.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "structure",
+      "matches_stored_normalized": true,
+      "adapter_stable": true,
+      "stored_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "artifact_normalization_version_field": null,
+      "recorded_normalization_version": "2026-09-01-post-candidate-flat-rule",
+      "drift_reason": null,
+      "adapter_run_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "stored_normalized_slice": {
+        "state": "no_edge",
+        "direction": "flat",
+        "comparability": "comparable",
+        "error_code": null,
+        "capacity_gate_reason": null
+      },
+      "known_historical_drift": false
+    }
+  ]
+}

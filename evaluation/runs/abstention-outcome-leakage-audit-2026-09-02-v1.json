@@ -1,0 +1,19 @@
+{
+  "schema_version": "glitch.topstep.abstention_outcome_leakage_audit.v1",
+  "source": "evaluation/runs/abstention-outcome-associations-2026-09-02-v1.json",
+  "association_count": 85,
+  "posterior_available_count": 47,
+  "posterior_unavailable_count": 38,
+  "counts_match_expected": true,
+  "classification": {
+    "track": "abstention_outcome_diagnostic",
+    "diagnostic_only": true,
+    "promotion_use_allowed": false
+  },
+  "promotion_use_allowed": false,
+  "no_correctness_labels": true,
+  "no_future_data_in_decision_timestamps": true,
+  "note_future": "Decision artifacts use frame capture time; posterior uses strictly later corpus frames only",
+  "leakage_violations": [],
+  "audit_passed": true
+}

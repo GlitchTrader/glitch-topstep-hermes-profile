@@ -1,0 +1,29 @@
+{
+  "schema_version": "glitch.topstep.prac_session_finalize.v1",
+  "finalized_utc": "2026-09-02T20:06:51.174736Z",
+  "session_id": "PRAC-LIMITED-2026-09-02",
+  "scenario_tag": "prac_limited",
+  "state_dir": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state",
+  "output_dir": "C:\\Users\\arifr\\Projects\\glitch-topstep\\docs\\evidence\\PRAC-LIMITED-2026-09-02",
+  "export": {
+    "output_dir": "C:\\Users\\arifr\\Projects\\glitch-topstep\\docs\\evidence\\PRAC-LIMITED-2026-09-02",
+    "copied_files": {
+      "decisions.jsonl": "C:\\Users\\arifr\\Projects\\glitch-topstep\\docs\\evidence\\PRAC-LIMITED-2026-09-02\\decisions.jsonl",
+      "receipts.jsonl": "C:\\Users\\arifr\\Projects\\glitch-topstep\\docs\\evidence\\PRAC-LIMITED-2026-09-02\\receipts.jsonl"
+    },
+    "manifest_path": "C:\\Users\\arifr\\Projects\\glitch-topstep\\docs\\evidence\\PRAC-LIMITED-2026-09-02\\evidence-chain-manifest.json",
+    "manifest_row_count": 8,
+    "since_utc": "2026-09-02T19:31:43.974672Z",
+    "until_utc": null,
+    "decisions_exported": 8,
+    "receipts_exported": 8
+  },
+  "since_utc": "2026-09-02T19:31:43.974672Z",
+  "until_utc": null,
+  "validation": {
+    "valid": true,
+    "manifest_row_count": 8,
+    "issues": []
+  },
+  "chain_complete": true
+}

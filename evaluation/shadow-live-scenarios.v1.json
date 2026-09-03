@@ -1,0 +1,24 @@
+{
+  "schema_version": "glitch.topstep.shadow_live_scenarios.v1",
+  "scenario_version": "2026-09-02-v1",
+  "corpus_root": "tests/fixtures/frozen_corpus",
+  "profiles": [
+    "baseline-current",
+    "structure",
+    "adversarial-risk",
+    "smart-money",
+    "indicators",
+    "orderflow"
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "SCN-SHADOW-PREP-FROZEN",
+      "frame_id": "20260820T1200Z",
+      "envelope_id": "env-prep-frozen",
+      "origin": "frozen_corpus",
+      "scenario_tag": "shadow_prep",
+      "instrument": "MNQ",
+      "notes": "Preserved real packet shape — offline prep only until human authorization"
+    }
+  ]
+}

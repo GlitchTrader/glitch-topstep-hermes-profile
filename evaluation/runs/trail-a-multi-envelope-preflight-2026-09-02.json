@@ -1,0 +1,237 @@
+{
+  "schema_version": "glitch.topstep.trail_a_multi_envelope_preflight.v1",
+  "generated_utc": "2026-09-02T21:59:24.126690Z",
+  "run_id": "trail-a-multi-envelope-2026-09-02",
+  "multi_envelope": true,
+  "verdict": "PASS",
+  "ready_for_human_authorization": true,
+  "hermes_execution_authorized": false,
+  "checks": [
+    {
+      "id": "evaluation_replay_preflight",
+      "ok": true,
+      "detail": {
+        "schema_version": "glitch.topstep.preflight_evaluation_replay.v1",
+        "run_id": "trail-a-multi-envelope-2026-09-02",
+        "ok": true,
+        "checks": [
+          {
+            "id": "production_lane_inactive",
+            "ok": true,
+            "detail": "lane idle, or LIVE_VALIDATED lease defers cron while replay holds lease",
+            "lane_active": false,
+            "coordination_live_validated": true
+          },
+          {
+            "id": "evaluation_lease_available",
+            "ok": true,
+            "detail": "no foreign evaluation lease on production state",
+            "blocking_run_id": null
+          },
+          {
+            "id": "scenarios_manifest_present",
+            "ok": true,
+            "detail": "evaluation\\trail-a-multi-envelope-scenarios.v1.json"
+          },
+          {
+            "id": "lease_scripts_synced",
+            "ok": true,
+            "detail": "all_matched=True synced_utc=2026-09-02T17:35:35Z",
+            "manifest_path": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state\\lease-coordination-sync.json"
+          },
+          {
+            "id": "lease_smoke_passed",
+            "ok": true,
+            "detail": "lease smoke ok=True path=lease-smoke-v8-preflight.json",
+            "report_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\lease-smoke-v8-preflight.json",
+            "required": true
+          },
+          {
+            "id": "coordination_contract",
+            "ok": true,
+            "detail": "evaluation_lease.py + cron defer + sync manifest + lease smoke"
+          }
+        ],
+        "production_state": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state"
+      }
+    },
+    {
+      "id": "pinned_envelope_digests",
+      "ok": true,
+      "detail": {
+        "ok": true,
+        "issues": [],
+        "envelopes": [
+          {
+            "scenario_id": "SCN-TRAIL-A-MULTI-01",
+            "frame_id": "20260901T134026Z-bb50bbe9",
+            "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+            "envelope_hash": "5419bea167862a440dc2f9c516a88725dcd687d8e81d4bac0df4ad43307f679c",
+            "envelope_id": "env-8d12d081fc8885a3",
+            "validity_seconds": 35,
+            "frame_sha256": "df2e01375530a12aaebd60ae3e7af67ad15e970c5b5e14307c2f7fb1b7121170"
+          },
+          {
+            "scenario_id": "SCN-TRAIL-A-MULTI-02",
+            "frame_id": "20260820T1200Z",
+            "snapshot_hash": "e3d8905356316096e95289df936942a956379e960ef1db53e121e318a63b67a7",
+            "envelope_hash": "5799472c16d7a631c9a091c03113b94526dc644ed3e4fa2b110db42f1056c374",
+            "envelope_id": "env-e3d8905356316096",
+            "validity_seconds": 35,
+            "frame_sha256": "c2b3b7715e338ace9a22c7a004c65906d2fa111cb865329203f7f878aa0b3613"
+          },
+          {
+            "scenario_id": "SCN-TRAIL-A-MULTI-03",
+            "frame_id": "20260820T1201Z",
+            "snapshot_hash": "1545fbe44615e07db3cbf6748477b643ab79925ebf40525072913555e0af2f56",
+            "envelope_hash": "1a799a464bafdcbecc020b3f5de0c103f6f4f0ac3e2390dc8741b24dfe4fd3db",
+            "envelope_id": "env-1545fbe44615e07d",
+            "validity_seconds": 35,
+            "frame_sha256": "9a939d6b119378330311a842fb37a81b9ba04ade478eb3e841a7768d0a01c346"
+          }
+        ]
+      }
+    },
+    {
+      "id": "evaluation_credentials",
+      "ok": true,
+      "detail": {
+        "mode": "oauth",
+        "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+        "error": null
+      }
+    },
+    {
+      "id": "hermes_home_isolated",
+      "ok": true,
+      "detail": {
+        "evaluation": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+        "production": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep"
+      }
+    },
+    {
+      "id": "production_paths_protected",
+      "ok": true
+    },
+    {
+      "id": "production_lane",
+      "ok": true,
+      "detail": "lane_active defers replay; lease defers cron when LIVE_VALIDATED",
+      "lane_active": false
+    },
+    {
+      "id": "profiles_registered",
+      "ok": true,
+      "detail": {
+        "expected": [
+          "adversarial-risk",
+          "baseline-current",
+          "structure"
+        ],
+        "enabled": [
+          "adversarial-risk",
+          "baseline-current",
+          "structure"
+        ]
+      }
+    },
+    {
+      "id": "max_parallel_slots",
+      "ok": true,
+      "detail": 2
+    },
+    {
+      "id": "cost_budget_known",
+      "ok": true,
+      "detail": 2.5
+    },
+    {
+      "id": "trail_a_offline_acceptance",
+      "ok": true,
+      "detail": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\trail-a-acceptance-report-2026-09-02.json"
+    },
+    {
+      "id": "per_profile_timeout",
+      "ok": true,
+      "detail": 35000
+    },
+    {
+      "id": "directional_next_authorized_run_id_null",
+      "ok": true,
+      "detail": {
+        "next_authorized_run_id": null,
+        "source": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\stratified-cohort-execution-registry.json"
+      }
+    },
+    {
+      "id": "multi_envelope_authorization_artifacts",
+      "ok": true,
+      "detail": {
+        "authorization": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\reviews\\TRAIL-A-MULTI-ENVELOPE-AUTHORIZATION.md",
+        "manifest": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\trail-a-multi-envelope-manifest.v1.json"
+      }
+    },
+    {
+      "id": "authorized_run_id_matches",
+      "ok": true,
+      "detail": "trail-a-multi-envelope-2026-09-02"
+    }
+  ],
+  "pinned_envelope": null,
+  "pinned_envelopes": [
+    {
+      "scenario_id": "SCN-TRAIL-A-MULTI-01",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "frame_path": "tests/fixtures/frozen_corpus/enriched/minute-frames/20260901T134026Z-bb50bbe9.json",
+      "frame_sha256": "df2e01375530a12aaebd60ae3e7af67ad15e970c5b5e14307c2f7fb1b7121170",
+      "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+      "envelope_hash": "5419bea167862a440dc2f9c516a88725dcd687d8e81d4bac0df4ad43307f679c",
+      "envelope_id": "env-8d12d081fc8885a3",
+      "validity_seconds": 35
+    },
+    {
+      "scenario_id": "SCN-TRAIL-A-MULTI-02",
+      "frame_id": "20260820T1200Z",
+      "frame_path": "tests/fixtures/frozen_corpus/minute-frames/20260820T1200Z.json",
+      "frame_sha256": "c2b3b7715e338ace9a22c7a004c65906d2fa111cb865329203f7f878aa0b3613",
+      "snapshot_hash": "e3d8905356316096e95289df936942a956379e960ef1db53e121e318a63b67a7",
+      "envelope_hash": "5799472c16d7a631c9a091c03113b94526dc644ed3e4fa2b110db42f1056c374",
+      "envelope_id": "env-e3d8905356316096",
+      "validity_seconds": 35
+    },
+    {
+      "scenario_id": "SCN-TRAIL-A-MULTI-03",
+      "frame_id": "20260820T1201Z",
+      "frame_path": "tests/fixtures/frozen_corpus/minute-frames/20260820T1201Z.json",
+      "frame_sha256": "9a939d6b119378330311a842fb37a81b9ba04ade478eb3e841a7768d0a01c346",
+      "snapshot_hash": "1545fbe44615e07db3cbf6748477b643ab79925ebf40525072913555e0af2f56",
+      "envelope_hash": "1a799a464bafdcbecc020b3f5de0c103f6f4f0ac3e2390dc8741b24dfe4fd3db",
+      "envelope_id": "env-1545fbe44615e07d",
+      "validity_seconds": 35
+    }
+  ],
+  "budget": {
+    "max_parallel_slots": 2,
+    "max_cost_usd_per_session": 2.5,
+    "per_profile_timeout_ms": 35000,
+    "total_timeout_ms": 180000,
+    "aggregation_budget_ms": 10000,
+    "validity_seconds": 35
+  },
+  "blocked_modes": [
+    "gateway_operational",
+    "outbox",
+    "intents",
+    "production_receipts",
+    "production_sqlite",
+    "shadow",
+    "paper",
+    "canary",
+    "promotion",
+    "dynamic_routing",
+    "automatic_retry",
+    "prac",
+    "start_ps1",
+    "cron_pause"
+  ]
+}

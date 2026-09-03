@@ -1,0 +1,81 @@
+{
+  "schema_version": "glitch.topstep.profile_evaluation_product.v1",
+  "recorded_utc": "2026-09-02T20:46:04.420852Z",
+  "promotion_use_allowed": false,
+  "profiles": {
+    "baseline-current": {
+      "historical_replay": {
+        "state_emitted_counts": {
+          "candidate": 7,
+          "no_edge": 85,
+          "invalid": 1,
+          "data_quality_insufficient": 5,
+          "held": 6,
+          "expired": 2
+        },
+        "cost_usd_total": null,
+        "latency_p50_ms_median": null,
+        "category_divergence_count": 0
+      },
+      "limited_session_PRAC-LIMITED": {
+        "invocation_mode": "offline_fixture_when_not_replayed",
+        "frames_observed": 8,
+        "operationally_blocked_frames": 8,
+        "valid_abstention_frames": 0,
+        "outcome_diagnostically_evaluable": 0
+      },
+      "product_interpretation": {
+        "observable_behavior": "historical_replay_emits_no_edge_and_candidate; limited_session_not_replayed",
+        "abstains_by_prudence": 85,
+        "no_valid_opportunity": 8
+      }
+    },
+    "structure": {
+      "historical_replay": {
+        "state_emitted_counts": {
+          "candidate": 7,
+          "no_edge": 85,
+          "invalid": 1,
+          "data_quality_insufficient": 5,
+          "held": 6,
+          "expired": 2
+        },
+        "cost_usd_total": null,
+        "latency_p50_ms_median": null,
+        "category_divergence_count": 0
+      },
+      "limited_session_PRAC-LIMITED": {
+        "invocation_mode": "offline_fixture_when_not_replayed",
+        "frames_observed": 8,
+        "operationally_blocked_frames": 8,
+        "valid_abstention_frames": 0,
+        "outcome_diagnostically_evaluable": 0
+      },
+      "product_interpretation": {
+        "observable_behavior": "historical_replay_emits_no_edge_and_candidate; limited_session_not_replayed",
+        "abstains_by_prudence": 85,
+        "no_valid_opportunity": 8
+      }
+    },
+    "production": {
+      "limited_session_only": true,
+      "state_emitted": "NOTHING",
+      "classification_v2": "operationally_blocked",
+      "frames": 8,
+      "daily_capture_locked": 8,
+      "evidence_availability": "multi_instrument_observation_MNQ_MES_MCL",
+      "operational_block": "daily_capture_locked",
+      "product_interpretation": {
+        "observable_behavior": "consistent_NOTHING_under_lock",
+        "abstains_by_prudence": 0,
+        "no_valid_opportunity": 8
+      }
+    }
+  },
+  "answers": {
+    "which_profile_has_observable_behavior": "baseline-current and structure (historical replay only)",
+    "which_abstains_by_prudence": "baseline-current/structure no_edge when not operationally_blocked",
+    "which_lacked_valid_opportunity": "all profiles on PRAC-LIMITED (operationally_blocked)"
+  },
+  "corrected_strata_reference": "directional-gate-corrected-view-v2"
+}

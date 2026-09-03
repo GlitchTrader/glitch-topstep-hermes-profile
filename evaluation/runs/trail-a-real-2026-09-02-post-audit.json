@@ -1,0 +1,71 @@
+{
+  "schema_version": "glitch.topstep.trail_a_real_post_audit.v1",
+  "generated_utc": "2026-09-02T22:00:00Z",
+  "run_id": "trail-a-real-2026-09-02",
+  "classification": {
+    "parallel_evaluation_real": "PASS",
+    "aggregator_offline_real": "CONDITIONAL",
+    "trail_a_complete": "pending"
+  },
+  "isolation": {
+    "zero_operational_writes": true,
+    "production_paths_untouched": true,
+    "lease_released": true,
+    "hermes_home_correct": true,
+    "hermes_home_profile": "glitch-topstep-evaluation",
+    "max_parallel_slots": 2,
+    "profiles_isolated": true
+  },
+  "identity": {
+    "invocation_ids_unique": 3,
+    "invocation_ids": [
+      "eval-trail-a-real-2026-09-02-baseline-current-20260901T134026Z-bb50bbe9",
+      "eval-trail-a-real-2026-09-02-structure-20260901T134026Z-bb50bbe9",
+      "eval-trail-a-real-2026-09-02-adversarial-risk-20260901T134026Z-bb50bbe9"
+    ],
+    "snapshot_hash_common": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+    "candidate_envelope_hash_common": "6d122b4849e61a1aaa581f98c364289886eb034db78cfe137a38010e5189b8b5",
+    "canonical_sealed_envelope_hash": "5419bea167862a440dc2f9c516a88725dcd687d8e81d4bac0df4ad43307f679c",
+    "validity_seconds_incident": {
+      "preflight_canonical": 35,
+      "live_replay_before_fix": 300
+    },
+    "wiring_fix": "scripts/ensemble_envelope_seal.py — sealed envelope shared preflight → replay → aggregator"
+  },
+  "measurement": {
+    "session_cost_usd": 0.033856,
+    "latency_ms_by_profile": {
+      "baseline-current": 14969,
+      "structure": 15766,
+      "adversarial-risk": 12109
+    },
+    "profiles_completed": 3
+  },
+  "aggregator": {
+    "original_bundle_selection": {
+      "outcome": "classified_failure",
+      "decision_code": "SNAPSHOT_DIVERGENCE"
+    },
+    "post_hoc_with_live_envelope_hash": {
+      "outcome": "no_selection",
+      "decision_code": "ENSEMBLE_UNANIMOUS_ABSTENTION",
+      "verdict": "PASS"
+    },
+    "post_hoc_artifact": "evaluation/runs/trail-a-real-2026-09-02-aggregator-reprocess.json",
+    "incident_artifact": "evaluation/runs/trail-a-real-2026-09-02-envelope-identity-incident.json"
+  },
+  "preserved": {
+    "original_run": "evaluation/runs/trail-a-real-2026-09-02.json",
+    "attempt1": "evaluation/runs/trail-a-real-2026-09-02-attempt1-context-blocked.json",
+    "attempt2": "evaluation/runs/trail-a-real-2026-09-02-attempt2-context-reentry.json"
+  },
+  "release_sequence": {
+    "regression_green": true,
+    "aggregator_post_hoc_pass": true,
+    "technical_review_pending": true,
+    "gate_status_update": "CONDITIONAL",
+    "multi_envelope_manifest": "evaluation/trail-a-multi-envelope-manifest.v1.json",
+    "multi_envelope_run_authorized": false
+  },
+  "promotion_gate": false
+}

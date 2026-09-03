@@ -1,0 +1,112 @@
+{
+  "schema_version": "glitch.topstep.ownership_evaluation.v1",
+  "spec_version": "2026-09-01-v1",
+  "status": "implemented",
+  "owner_kind": "evaluation",
+  "implementation_gate": "cognitive_replay_blocked_until_spec_approved_and_fault_injection_pass",
+  "priority": {
+    "direct_cycle": 100,
+    "repair": 90,
+    "wake_monitor": 80,
+    "evaluation": 40,
+    "learning": 10,
+    "rules": [
+      "evaluation never preempts direct_cycle, repair, or wake_monitor",
+      "evaluation defers when production lane holds model-owner.lock",
+      "learning defers to evaluation when evaluation holds lock at equal-or-higher priority"
+    ]
+  },
+  "hermes_home": {
+    "isolated": true,
+    "production_path_pattern": "%LOCALAPPDATA%/hermes/profiles/glitch-topstep",
+    "evaluation_path_pattern": "%LOCALAPPDATA%/hermes/profiles/glitch-topstep-evaluation",
+    "must_not_equal_production": true,
+    "skills_source": "read_only_copy_or_symlink_from_production_profile_at_run_start",
+    "writable_subtrees": ["state", "tmp", "runs"]
+  },
+  "state_root": {
+    "pattern": "evaluation/state/<run_id>/",
+    "must_not_use_production_state": true,
+    "forbidden_production_paths": [
+      "state/decisions.jsonl",
+      "state/receipts.jsonl",
+      "state/outbox",
+      "state/profile-state.sqlite",
+      "state/model-owner.lock"
+    ]
+  },
+  "lock": {
+    "filename": "model-owner.lock",
+    "location": "evaluation/state/<run_id>/model-owner.lock",
+    "separate_from_production_lock": true,
+    "acquire_before_hermes": true,
+    "release_after_tree_kill": true
+  },
+  "credentials_and_limits": {
+    "env_isolation": "evaluation/.env or EVALUATION_* prefixed keys only",
+    "must_not_load_production_outbox_credentials": true,
+    "rate_limits_source": "evaluation/ensemble_config.json",
+    "defaults": {
+      "max_calls_per_snapshot": 6,
+      "max_calls_per_session": 36,
+      "per_profile_timeout_ms": 35000,
+      "total_timeout_ms": 120000,
+      "max_cost_usd_per_session": 2.5
+    }
+  },
+  "subprocess": {
+    "supervisor": "process_supervisor.run_supervised",
+    "tree_kill_required": true,
+    "platforms": {
+      "windows": "taskkill /F /T",
+      "unix": "killpg"
+    },
+    "on_timeout": "terminate_process_tree then record timeout state"
+  },
+  "production_lane_active": {
+    "signals": [
+      "production state/model-owner.lock owned by direct_cycle",
+      "gateway trading_mode armed with open exposure",
+      "scheduler direct cycle pid alive"
+    ],
+    "behavior": "defer_or_abort_cognitive_replay",
+    "never_write_production_state": true,
+    "never_submit_gateway_intents": true
+  },
+  "fault_injection": {
+    "required_before_parallel_slots": true,
+    "scenario": "two_hermes_processes_evaluation_home_isolated",
+    "pass_criteria": [
+      "no production state mutation",
+      "no cross-profile HERMES_HOME bleed",
+      "tree-kill leaves zero orphan children",
+      "second process defers or runs in isolated run_id directory"
+    ]
+  },
+  "rollback": {
+    "modes": ["abort_run", "discard_run_directory", "baseline_fixture_only"],
+    "audit_artifacts": [
+      "evaluation/runs/<run_id>.json",
+      "evaluation/state/<run_id>/events.jsonl",
+      "invocation logs per profile"
+    ]
+  },
+  "replay_kinds": {
+    "artifact_replay": {
+      "invokes_hermes": false,
+      "allowed_now": true,
+      "operations": ["join", "normalize", "capacity_gate", "compare", "metrics"]
+    },
+    "cognitive_replay": {
+      "invokes_hermes": true,
+      "allowed_now": false,
+      "requires": [
+        "OwnerKind=evaluation implemented",
+        "isolated HERMES_HOME",
+        "isolated state root",
+        "ownership tests green",
+        "fault injection pass"
+      ]
+    }
+  }
+}

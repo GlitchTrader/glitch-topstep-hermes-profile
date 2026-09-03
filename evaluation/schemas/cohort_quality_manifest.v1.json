@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema_version": "glitch.topstep.cohort_quality_manifest.v1",
+  "manifest_version": "2026-09-01-v1",
+  "status": "offline_cohort_inventory",
+  "description": "Per-invocation cohort inventory for sample-quality gate review. Rows are never blended across run_id populations.",
+  "required_top_level": [
+    "schema_version",
+    "generated_utc",
+    "source_bundles",
+    "rows",
+    "summary"
+  ],
+  "run_id_enum": ["r7-contract", "r8-contract", "r9-v2"],
+  "evidence_quality_enum": ["complete", "partial", "unknown"],
+  "row_required": [
+    "envelope_id",
+    "snapshot_hash",
+    "scenario",
+    "instrument",
+    "session",
+    "regime",
+    "evidence_quality",
+    "prompt_version",
+    "adapter_version",
+    "normalization_version",
+    "profiles_executed",
+    "run_id"
+  ],
+  "row_mutually_exclusive": ["inclusion_reason", "exclusion_reason"],
+  "properties": {
+    "schema_version": { "const": "glitch.topstep.cohort_quality_manifest.v1" },
+    "generated_utc": { "type": "string", "format": "date-time" },
+    "sampling_plan_path": { "type": "string" },
+    "source_bundles": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "provenance_sidecars": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "invocation_count": { "type": "integer", "minimum": 0 },
+        "included_count": { "type": "integer", "minimum": 0 },
+        "excluded_count": { "type": "integer", "minimum": 0 },
+        "by_run_id": { "type": "object" },
+        "exclusion_reason_counts": { "type": "object" },
+        "comparable_pair_frames": { "type": "integer", "minimum": 0 },
+        "independent_comparable_frames_estimate": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "envelope_id",
+          "snapshot_hash",
+          "scenario",
+          "instrument",
+          "session",
+          "regime",
+          "evidence_quality",
+          "prompt_version",
+          "adapter_version",
+          "normalization_version",
+          "profiles_executed",
+          "run_id"
+        ],
+        "properties": {
+          "envelope_id": { "type": "string" },
+          "snapshot_hash": { "type": "string" },
+          "scenario": { "type": "string" },
+          "scenario_tag": { "type": "string" },
+          "frame_id": { "type": "string" },
+          "profile_id": { "type": "string" },
+          "instrument": { "type": "string" },
+          "session": { "type": "string" },
+          "regime": { "type": ["string", "null"] },
+          "evidence_quality": {
+            "type": "string",
+            "enum": ["complete", "partial", "unknown"]
+          },
+          "prompt_version": { "type": "string" },
+          "adapter_version": { "type": "string" },
+          "normalization_version": { "type": "string" },
+          "profiles_executed": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1
+          },
+          "run_id": {
+            "type": "string",
+            "enum": ["r7-contract", "r8-contract", "r9-v2"]
+          },
+          "category": { "type": "string" },
+          "comparable_pair_frame": { "type": "boolean" },
+          "inclusion_reason": { "type": "string" },
+          "exclusion_reason": { "type": "string" }
+        },
+        "oneOf": [
+          { "required": ["inclusion_reason"], "not": { "required": ["exclusion_reason"] } },
+          { "required": ["exclusion_reason"], "not": { "required": ["inclusion_reason"] } }
+        ]
+      }
+    }
+  }
+}

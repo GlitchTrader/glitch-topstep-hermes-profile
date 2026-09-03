@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "glitch.topstep.outcome_enrichment.v1",
+  "title": "Outcome enrichment record (Wave 3 prep)",
+  "description": "Rich outcome fields for future analysis — not used for profile promotion without sufficient sample.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "outcome_id",
+    "intent_id",
+    "packet_id",
+    "market_snapshot_hash"
+  ],
+  "properties": {
+    "schema_version": { "const": "glitch.topstep.outcome_enrichment.v1" },
+    "outcome_id": { "type": "string" },
+    "intent_id": { "type": "string" },
+    "packet_id": { "type": "string" },
+    "market_snapshot_hash": { "type": "string" },
+    "instrument": { "type": "string" },
+    "scenario_tag": { "type": "string" },
+    "recorded_utc": { "type": "string", "format": "date-time" },
+    "mfe_ticks": { "type": "number" },
+    "mae_ticks": { "type": "number" },
+    "first_touch": {
+      "type": "string",
+      "enum": ["stop", "target", "neither", "unknown"]
+    },
+    "fills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "filled_qty": { "type": "number" },
+          "avg_price": { "type": "number" },
+          "recorded_utc": { "type": "string" }
+        }
+      }
+    },
+    "stop_target_changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": { "type": "string", "enum": ["stop", "target"] },
+          "from_ticks": { "type": "number" },
+          "to_ticks": { "type": "number" },
+          "recorded_utc": { "type": "string" }
+        }
+      }
+    },
+    "tranches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tranche_id": { "type": "string" },
+          "qty": { "type": "number" },
+          "exit_reason": { "type": "string" }
+        }
+      }
+    },
+    "evidence_quality": {
+      "type": "object",
+      "properties": {
+        "completeness_used": { "type": "object" },
+        "capture_timing_class": {
+          "type": "string",
+          "enum": ["state_complete", "bar_close_complete", "mid_bar_partial", "unknown"]
+        }
+      }
+    },
+    "promotion_use_allowed": {
+      "type": "boolean",
+      "const": false,
+      "description": "Must remain false until gate sample requirements met"
+    }
+  },
+  "additionalProperties": false
+}

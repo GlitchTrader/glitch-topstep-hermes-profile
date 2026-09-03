@@ -1,0 +1,22 @@
+{
+  "schema_version": "glitch.topstep.directional_gate_report.v1",
+  "report_version": "directional_gate_v1",
+  "recorded_utc": "2026-09-02T18:51:03.709007Z",
+  "immutable": true,
+  "note": "Numerador historico preservado; nao recalcular sem nova versao de relatorio",
+  "source_gate_result": "evaluation/runs/sample-quality-gate-result-2026-09-02-r17-v9.json",
+  "aggregated": {
+    "comparable_pairs": {
+      "count": 2,
+      "required_min": 5,
+      "rate": {
+        "numerator": 2,
+        "denominator": 33,
+        "rate": 0.06060606060606061
+      }
+    },
+    "insufficient_sample": true,
+    "invocation_count": 66,
+    "frame_count": 33
+  }
+}

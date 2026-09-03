@@ -1,0 +1,55 @@
+{
+  "schema_version": "glitch.topstep.evaluation_cost_audit.v1",
+  "budget_reference": "evaluation/ensemble_config.json",
+  "limits": {
+    "max_cost_usd_per_session": 2.5,
+    "max_tokens_per_call": 50000,
+    "max_tokens_per_session": 500000,
+    "max_calls_per_session": 36,
+    "max_calls_per_snapshot": 6,
+    "per_profile_timeout_ms": 35000,
+    "total_timeout_ms": 120000,
+    "total_latency_budget_ms": 180000,
+    "per_profile_limits_configured": false
+  },
+  "invocation_count": 0,
+  "unknown_pricing_count": 0,
+  "cost_basis_counts": {},
+  "cost_breakdown": {
+    "estimated_total_usd": 0.0,
+    "confirmed_total_usd": 0.0,
+    "unknown_invocation_count": 0
+  },
+  "estimated_vs_provider": {
+    "estimated_total_usd": 0.0,
+    "provider_reported_total_usd": 0.0,
+    "confirmed_total_usd": 0.0,
+    "unknown_invocation_count": 0
+  },
+  "calls_audit": {},
+  "execution_time_audit": {
+    "per_profile_timeout_ms": 35000,
+    "total_timeout_ms": 120000,
+    "total_latency_budget_ms": 180000,
+    "latency_sum_ms": 0,
+    "within_total_latency_budget": true,
+    "latency_p50_ms": null,
+    "latency_count": 0
+  },
+  "per_invocation": [],
+  "sessions": {},
+  "per_profile": {},
+  "session_cost_usd_max": null,
+  "latency_ms": {
+    "p50_ms": null,
+    "count": 0
+  },
+  "violations": [],
+  "audit_gate_passed": true,
+  "notes": [
+    "unknown_pricing (cost_usd null) fails audit_gate_passed.",
+    "per_profile limits enforced only when evaluation budget defines per_profile."
+  ],
+  "config_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\ensemble_config.json",
+  "timeout_policy_reference": "ensemble_config.timeout_policy"
+}

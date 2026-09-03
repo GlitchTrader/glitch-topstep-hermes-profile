@@ -1,0 +1,49 @@
+{
+  "schema_version": "glitch.topstep.r17_canonical_artifacts_index.v1",
+  "run_id": "scenario-live-2026-09-02-r17-v9",
+  "cohort_version": "v9-pre-registered",
+  "cohort_digest_sha256": "59093a3a770107f0abe0173cfcd98d4746fd908ff3429b55a15ade0e56d56674",
+  "executed_utc": "2026-09-02T18:48:00Z",
+  "closure_utc": "2026-09-02T18:51:03Z",
+  "authorized_by": "Ari",
+  "status": "canonical_execution_complete",
+  "gate_post_execution": {
+    "comparable_pairs_run": 0,
+    "comparable_pairs_envelopes": "0/4",
+    "required_min": 5,
+    "aggregated_comparable_pairs": 2,
+    "insufficient_sample": true,
+    "new_pairs_from_r17": 0
+  },
+  "collection_policy": "STOP_RERUNS_v9",
+  "bundle": "evaluation/runs/scenario-live-2026-09-02-r17-v9.json",
+  "reports": {
+    "post_execution": "evaluation/reviews/R17-POST-EXECUTION-REPORT-2026-09-02.md",
+    "qc_checklist": "evaluation/reviews/V9-REPLAY-QC-CHECKLIST-2026-09-02.md",
+    "cost_latency": "evaluation/reviews/R17-COST-LATENCY-REPORT-2026-09-02.md",
+    "provenance_review": "evaluation/reviews/R17-PROVENANCE-REVIEW-2026-09-02.md",
+    "abstention_analysis": "evaluation/reviews/R17-ABSTENTION-ANALYSIS-2026-09-02.md",
+    "checklist": "evaluation/runs/scenario-live-2026-09-02-r17-v9-checklist.json",
+    "corpus_validation": "evaluation/runs/scenario-live-2026-09-02-r17-v9-corpus-validation.json",
+    "quality": "evaluation/runs/scenario-live-2026-09-02-r17-v9-quality-report.json",
+    "preflight": "evaluation/runs/scenario-live-2026-09-02-r17-v9-preflight.json",
+    "authorization": "evaluation/reviews/V9-TECHNICAL-REVIEW-AUTHORIZATION-CHECKLIST-2026-09-02.md"
+  },
+  "audits": {
+    "cost": "evaluation/runs/scenario-live-2026-09-02-r17-v9-cost-audit.json",
+    "r17_provenance": "evaluation/runs/r17-provenance-audit-2026-09-02.json",
+    "cohort_post_r17": "evaluation/runs/cohort-provenance-audit-2026-09-02-post-r17-v9.json",
+    "artifact_provenance": "evaluation/runs/artifact-provenance-audit-2026-09-02-r17-v9.json",
+    "sample_quality_gate": "evaluation/runs/sample-quality-gate-result-2026-09-02-r17-v9.json",
+    "evaluation_quality": "evaluation/runs/evaluation-quality-report-2026-09-02-r17-v9.json"
+  },
+  "cohort": {
+    "manifest": "evaluation/runs/stratified-cohort-manifest-v9-2026-09-02.json",
+    "digest": "evaluation/runs/stratified-cohort-digest-v9-2026-09-02.json",
+    "scenarios": "evaluation/stratified_scenarios.v9.json"
+  },
+  "invocation_count": 8,
+  "invalid_count": 0,
+  "session_cost_usd": 0.08949,
+  "cognitive_outcome": "abstention_aligned_no_edge_8_of_8"
+}

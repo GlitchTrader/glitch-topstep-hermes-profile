@@ -1,0 +1,65 @@
+{
+  "schema_version": "glitch.topstep.stratified_cohort_executed.v1",
+  "run_id": "scenario-live-2026-09-01-r12-stratified",
+  "executed_utc": null,
+  "skip_validation": true,
+  "envelope_count": 9,
+  "executed_frames": [
+    {
+      "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-cbb5cee1",
+      "frame_id": "20260831T233830Z-cbb5cee1",
+      "scenario_tag": "prac_directed_test"
+    },
+    {
+      "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-a9c3eb80",
+      "frame_id": "20260831T234106Z-a9c3eb80",
+      "scenario_tag": "prac_directed_test"
+    },
+    {
+      "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-818c9e79",
+      "frame_id": "20260901T002738Z-818c9e79",
+      "scenario_tag": "prac_directed_test"
+    },
+    {
+      "scenario_id": "SCN-STRAT-RECONCILIATION-5e80e1ac",
+      "frame_id": "20260901T002738Z-5e80e1ac",
+      "scenario_tag": "reconciliation"
+    },
+    {
+      "scenario_id": "SCN-STRAT-RECONCILIATION-9866a0f9",
+      "frame_id": "20260901T020441Z-9866a0f9",
+      "scenario_tag": "reconciliation"
+    },
+    {
+      "scenario_id": "SCN-STRAT-RESTART-8c371231",
+      "frame_id": "20260831T235211Z-8c371231",
+      "scenario_tag": "restart"
+    },
+    {
+      "scenario_id": "SCN-STRAT-RESTART-fd331ad4",
+      "frame_id": "20260831T235620Z-fd331ad4",
+      "scenario_tag": "restart"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-d3e2d816",
+      "frame_id": "20260901T135732Z-d3e2d816",
+      "scenario_tag": "operator_minute_frame"
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-65a590aa",
+      "frame_id": "20260901T141348Z-65a590aa",
+      "scenario_tag": "operator_minute_frame"
+    }
+  ],
+  "manifest_v2_on_disk_differs": [
+    "20260901T135732Z-d3e2d816",
+    "20260901T141348Z-65a590aa",
+    "20260901T143311Z-a49c317a",
+    "20260901T145322Z-c776a976"
+  ],
+  "invalid_operator_frames_executed": [
+    "20260901T135732Z-d3e2d816",
+    "20260901T141348Z-65a590aa"
+  ],
+  "note": "r12 usou coorte v1 (2 operator degradados); manifest em disco ja e v2 gate-validated para proximas runs."
+}

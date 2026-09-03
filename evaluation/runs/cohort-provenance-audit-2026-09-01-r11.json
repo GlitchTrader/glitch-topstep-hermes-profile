@@ -1,0 +1,3809 @@
+{
+  "schema_version": "glitch.topstep.cohort_provenance_audit.v1",
+  "recorded_utc": "2026-09-01T23:34:31.539062Z",
+  "cohort": "r7+r8+r9",
+  "scanned_invocation_count": 52,
+  "normalization_context": {
+    "adapter_version": "2026-09-01-v1",
+    "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+    "prompt_versions": [
+      "glitch-topstep-v17.1"
+    ],
+    "registry_version": "2026-09-01-v2",
+    "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+    "aggregator_rules_version": "2026-09-01-v2",
+    "normalization_version": "2026-09-01-post-candidate-flat-rule"
+  },
+  "summary": {
+    "hash_integrity_ok_count": 52,
+    "version_alignment_ok_count": 52,
+    "envelope_identity_ok_count": 52,
+    "pipeline_repeatability_pass_count": 52,
+    "post_collection_mutation_flagged_count": 3,
+    "known_historical_drift_count": 3,
+    "temporal_leakage_flag_count": 0,
+    "suspicious_temporal_leakage_count": 0,
+    "within_run_duplicate_count": 0
+  },
+  "duplicate_detection": {
+    "cross_run_snapshot_groups": [
+      {
+        "snapshot_hash": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+        "artifact_count": 6,
+        "run_id_prefixes": [
+          "scenario-live-2026-09-01-r10-v2",
+          "scenario-live-2026-09-01-r11-v2",
+          "scenario-live-2026-09-01-r9-v2"
+        ],
+        "expected_corpus_replay": true
+      },
+      {
+        "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "artifact_count": 8,
+        "run_id_prefixes": [
+          "scenario-live-2026-09-01-r10-v2",
+          "scenario-live-2026-09-01-r7-contract",
+          "scenario-live-2026-09-01-r8-contract",
+          "scenario-live-2026-09-01-r9-v2"
+        ],
+        "expected_corpus_replay": true
+      },
+      {
+        "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "artifact_count": 10,
+        "run_id_prefixes": [
+          "scenario-live-2026-09-01-r10-v2",
+          "scenario-live-2026-09-01-r11-v2",
+          "scenario-live-2026-09-01-r7-contract",
+          "scenario-live-2026-09-01-r8-contract",
+          "scenario-live-2026-09-01-r9-v2"
+        ],
+        "expected_corpus_replay": true
+      },
+      {
+        "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "artifact_count": 10,
+        "run_id_prefixes": [
+          "scenario-live-2026-09-01-r10-v2",
+          "scenario-live-2026-09-01-r11-v2",
+          "scenario-live-2026-09-01-r7-contract",
+          "scenario-live-2026-09-01-r8-contract",
+          "scenario-live-2026-09-01-r9-v2"
+        ],
+        "expected_corpus_replay": true
+      },
+      {
+        "snapshot_hash": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+        "artifact_count": 6,
+        "run_id_prefixes": [
+          "scenario-live-2026-09-01-r10-v2",
+          "scenario-live-2026-09-01-r11-v2",
+          "scenario-live-2026-09-01-r9-v2"
+        ],
+        "expected_corpus_replay": true
+      },
+      {
+        "snapshot_hash": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+        "artifact_count": 6,
+        "run_id_prefixes": [
+          "scenario-live-2026-09-01-r10-v2",
+          "scenario-live-2026-09-01-r11-v2",
+          "scenario-live-2026-09-01-r9-v2"
+        ],
+        "expected_corpus_replay": true
+      },
+      {
+        "snapshot_hash": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+        "artifact_count": 6,
+        "run_id_prefixes": [
+          "scenario-live-2026-09-01-r10-v2",
+          "scenario-live-2026-09-01-r11-v2",
+          "scenario-live-2026-09-01-r9-v2"
+        ],
+        "expected_corpus_replay": true
+      }
+    ],
+    "within_run_duplicate_count": 0,
+    "within_run_duplicates": []
+  },
+  "temporal_leakage_flags": [],
+  "known_historical_drift_artifacts": [
+    "scenario-live-2026-09-01-r7-contract-baseline-current-20260901T000528Z-041dc508.json",
+    "scenario-live-2026-09-01-r7-contract-baseline-current-20260901T134026Z-bb50bbe9.json",
+    "scenario-live-2026-09-01-r7-contract-structure-20260901T000528Z-041dc508.json"
+  ],
+  "invocations": [
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-baseline-current-20260831T173427Z-4ac91997.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-baseline-current-20260831T173427Z-4ac91997.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r10-v2-baseline-current-20260831T173427Z-4ac91997",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+      "frame_id": "20260831T173427Z-4ac91997",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.01202,
+      "latency_ms": 17890,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "2ddb6f836bd6afdf087ef4114daebc0cc24fb54192fee7a319829e164ae73335"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-7b2ecab988f81446",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_185722_f11ef5",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "raw_output_sha256": "2ddb6f836bd6afdf087ef4114daebc0cc24fb54192fee7a319829e164ae73335"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-7b2ecab988f81446",
+        "normalized_envelope_id": "env-7b2ecab988f81446"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-baseline-current-20260831T235211Z-cdbf204f.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-baseline-current-20260831T235211Z-cdbf204f.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r10-v2-baseline-current-20260831T235211Z-cdbf204f",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+      "frame_id": "20260831T235211Z-cdbf204f",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.010555,
+      "latency_ms": 22219,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "4ee35ca080a7c542536b59d401ddbc6a96b12a79a98e4b1562ebb5c4dee577f5"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-b4154b9b398983a4",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_185850_41627a",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+        "raw_output_sha256": "4ee35ca080a7c542536b59d401ddbc6a96b12a79a98e4b1562ebb5c4dee577f5"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-b4154b9b398983a4",
+        "normalized_envelope_id": "env-b4154b9b398983a4"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-baseline-current-20260901T000528Z-041dc508.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-baseline-current-20260901T000528Z-041dc508.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r10-v2-baseline-current-20260901T000528Z-041dc508",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+      "frame_id": "20260901T000528Z-041dc508",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011212,
+      "latency_ms": 11625,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "95924e6ed113e765f4ce3118216ef088b4f781cc207b2af1bbfe97bd81907302"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8d68e765cc68d29e",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_185827_96ae86",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "raw_output_sha256": "95924e6ed113e765f4ce3118216ef088b4f781cc207b2af1bbfe97bd81907302"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8d68e765cc68d29e",
+        "normalized_envelope_id": "env-8d68e765cc68d29e"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r10-v2-baseline-current-20260901T134026Z-bb50bbe9",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "frame_origin": "operator_minute_frames",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011312,
+      "latency_ms": 12343,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "b5e13e1354da0cc01efc399aaeb9944dcb676fb389df9673f2b316af06130a7b"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8d12d081fc8885a3",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_185805_610a0b",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "raw_output_sha256": "b5e13e1354da0cc01efc399aaeb9944dcb676fb389df9673f2b316af06130a7b"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8d12d081fc8885a3",
+        "normalized_envelope_id": "env-8d12d081fc8885a3"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-baseline-current-20260901T143431Z-534fefd5.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-baseline-current-20260901T143431Z-534fefd5.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r10-v2-baseline-current-20260901T143431Z-534fefd5",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+      "frame_id": "20260901T143431Z-534fefd5",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011729,
+      "latency_ms": 17063,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "df7b937c42afc2dcc251036c86638485a747c70672750d80976634ac30974925"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-1e829c3158feff4d",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_185923_022154",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+        "raw_output_sha256": "df7b937c42afc2dcc251036c86638485a747c70672750d80976634ac30974925"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-1e829c3158feff4d",
+        "normalized_envelope_id": "env-1e829c3158feff4d"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-baseline-current-20260901T150823Z-d7908a55.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-baseline-current-20260901T150823Z-d7908a55.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r10-v2-baseline-current-20260901T150823Z-d7908a55",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+      "frame_id": "20260901T150823Z-d7908a55",
+      "frame_origin": "operator_minute_frames",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011069,
+      "latency_ms": 12235,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "50417c985d313adf3017ce0998db53a994ccb88902f30d1e5a44d370a3a0ba6e"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-d6b73e4e5dacbc1b",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_190020_9a67a4",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+        "raw_output_sha256": "50417c985d313adf3017ce0998db53a994ccb88902f30d1e5a44d370a3a0ba6e"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-d6b73e4e5dacbc1b",
+        "normalized_envelope_id": "env-d6b73e4e5dacbc1b"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-baseline-current-20260901T182843Z-b06d9a93.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-baseline-current-20260901T182843Z-b06d9a93.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r10-v2-baseline-current-20260901T182843Z-b06d9a93",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+      "frame_id": "20260901T182843Z-b06d9a93",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011112,
+      "latency_ms": 13750,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "3949e06ab67706ec89abd28db76b769ca372e37e3dbf517a49f5a9c2a915c466"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8ffdc3e1a920e0c1",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_185954_972f62",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+        "raw_output_sha256": "3949e06ab67706ec89abd28db76b769ca372e37e3dbf517a49f5a9c2a915c466"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8ffdc3e1a920e0c1",
+        "normalized_envelope_id": "env-8ffdc3e1a920e0c1"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-structure-20260831T173427Z-4ac91997.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-structure-20260831T173427Z-4ac91997.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r10-v2-structure-20260831T173427Z-4ac91997",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+      "frame_id": "20260831T173427Z-4ac91997",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.01217,
+      "latency_ms": 24641,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "97841e17a9338ef2b846ee357d9457100d3b1f762497a839af0025d31d0a415e"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-7b2ecab988f81446",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_185740_761956",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "raw_output_sha256": "97841e17a9338ef2b846ee357d9457100d3b1f762497a839af0025d31d0a415e"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-7b2ecab988f81446",
+        "normalized_envelope_id": "env-7b2ecab988f81446"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-structure-20260831T235211Z-cdbf204f.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-structure-20260831T235211Z-cdbf204f.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r10-v2-structure-20260831T235211Z-cdbf204f",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+      "frame_id": "20260831T235211Z-cdbf204f",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011255,
+      "latency_ms": 10985,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "a6b38da4f856098e51b285fc183a037208e79669aa70450a3d9aa96f2835f2b2"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-b4154b9b398983a4",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_185912_5d1765",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+        "raw_output_sha256": "a6b38da4f856098e51b285fc183a037208e79669aa70450a3d9aa96f2835f2b2"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-b4154b9b398983a4",
+        "normalized_envelope_id": "env-b4154b9b398983a4"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-structure-20260901T000528Z-041dc508.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-structure-20260901T000528Z-041dc508.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r10-v2-structure-20260901T000528Z-041dc508",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+      "frame_id": "20260901T000528Z-041dc508",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011482,
+      "latency_ms": 10686,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "74d8f6b77d8a466d27b583222dee35f89bfd58ef6dc0858b997af4ec4ba6eadd"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8d68e765cc68d29e",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_185839_0bbabb",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "raw_output_sha256": "74d8f6b77d8a466d27b583222dee35f89bfd58ef6dc0858b997af4ec4ba6eadd"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8d68e765cc68d29e",
+        "normalized_envelope_id": "env-8d68e765cc68d29e"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-structure-20260901T134026Z-bb50bbe9.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-structure-20260901T134026Z-bb50bbe9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r10-v2-structure-20260901T134026Z-bb50bbe9",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "frame_origin": "operator_minute_frames",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011412,
+      "latency_ms": 10375,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "f1bf016591de3df636d4adb254e12184734feb2652879b9de1a004ccaae2d98c"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8d12d081fc8885a3",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_185817_daa4fb",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "raw_output_sha256": "f1bf016591de3df636d4adb254e12184734feb2652879b9de1a004ccaae2d98c"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8d12d081fc8885a3",
+        "normalized_envelope_id": "env-8d12d081fc8885a3"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-structure-20260901T143431Z-534fefd5.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-structure-20260901T143431Z-534fefd5.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r10-v2-structure-20260901T143431Z-534fefd5",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+      "frame_id": "20260901T143431Z-534fefd5",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.012019,
+      "latency_ms": 13391,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "8193245952fe4988e604c9592eee34e9a93b80dac3551d0605e9cd39d2cf9643"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-1e829c3158feff4d",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_185940_b357ff",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+        "raw_output_sha256": "8193245952fe4988e604c9592eee34e9a93b80dac3551d0605e9cd39d2cf9643"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-1e829c3158feff4d",
+        "normalized_envelope_id": "env-1e829c3158feff4d"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-structure-20260901T150823Z-d7908a55.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-structure-20260901T150823Z-d7908a55.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r10-v2-structure-20260901T150823Z-d7908a55",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+      "frame_id": "20260901T150823Z-d7908a55",
+      "frame_origin": "operator_minute_frames",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011039,
+      "latency_ms": 12219,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "586069db70c833bf35886675eeb4bfed751b67a9a10c11d965f787c922c946de"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-d6b73e4e5dacbc1b",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_190033_138349",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+        "raw_output_sha256": "586069db70c833bf35886675eeb4bfed751b67a9a10c11d965f787c922c946de"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-d6b73e4e5dacbc1b",
+        "normalized_envelope_id": "env-d6b73e4e5dacbc1b"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r10-v2-structure-20260901T182843Z-b06d9a93.json",
+      "artifact_name": "scenario-live-2026-09-01-r10-v2-structure-20260901T182843Z-b06d9a93.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r10-v2",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r10-v2-structure-20260901T182843Z-b06d9a93",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+      "frame_id": "20260901T182843Z-b06d9a93",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011162,
+      "latency_ms": 13016,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "06d28010930b13d13410244a575ca4210a1c9e95be21d2441099650f247f6476"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8ffdc3e1a920e0c1",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_190008_d259d5",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+        "raw_output_sha256": "06d28010930b13d13410244a575ca4210a1c9e95be21d2441099650f247f6476"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8ffdc3e1a920e0c1",
+        "normalized_envelope_id": "env-8ffdc3e1a920e0c1"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260831T235211Z-cdbf204f.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-baseline-current-20260831T235211Z-cdbf204f.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r11-v2-baseline-current-20260831T235211Z-cdbf204f",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+      "frame_id": "20260831T235211Z-cdbf204f",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011145,
+      "latency_ms": 11000,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "b48959eb59e9427128ee776bb1b573b08c547d01e2d953996bd689504531c9a4"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-b4154b9b398983a4",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_193009_9d0014",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+        "raw_output_sha256": "b48959eb59e9427128ee776bb1b573b08c547d01e2d953996bd689504531c9a4"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-b4154b9b398983a4",
+        "normalized_envelope_id": "env-b4154b9b398983a4"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260901T000528Z-041dc508.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-baseline-current-20260901T000528Z-041dc508.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r11-v2-baseline-current-20260901T000528Z-041dc508",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+      "frame_id": "20260901T000528Z-041dc508",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011052,
+      "latency_ms": 15422,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "18f5174335bedb3b49937afcf39f2e8bb0271c41b2854d9afd1255e5505dfe4b"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8d68e765cc68d29e",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_192938_933f32",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "raw_output_sha256": "18f5174335bedb3b49937afcf39f2e8bb0271c41b2854d9afd1255e5505dfe4b"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8d68e765cc68d29e",
+        "normalized_envelope_id": "env-8d68e765cc68d29e"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r11-v2-baseline-current-20260901T134026Z-bb50bbe9",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "frame_origin": "operator_minute_frames",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011122,
+      "latency_ms": 9750,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "599d255356c852168fcda1295b0d9563009ac0cbbc7ec0cf6e2e3c61369441b7"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8d12d081fc8885a3",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_192847_a4f4a0",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "raw_output_sha256": "599d255356c852168fcda1295b0d9563009ac0cbbc7ec0cf6e2e3c61369441b7"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8d12d081fc8885a3",
+        "normalized_envelope_id": "env-8d12d081fc8885a3"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260901T143431Z-534fefd5.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-baseline-current-20260901T143431Z-534fefd5.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r11-v2-baseline-current-20260901T143431Z-534fefd5",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+      "frame_id": "20260901T143431Z-534fefd5",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011679,
+      "latency_ms": 15827,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "c5af77e117702598a41fe5e5de764c92ee1b35c78d4810c57b3dad3ca3e28ac3"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-1e829c3158feff4d",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_193031_534f8a",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+        "raw_output_sha256": "c5af77e117702598a41fe5e5de764c92ee1b35c78d4810c57b3dad3ca3e28ac3"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-1e829c3158feff4d",
+        "normalized_envelope_id": "env-1e829c3158feff4d"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260901T150823Z-d7908a55.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-baseline-current-20260901T150823Z-d7908a55.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r11-v2-baseline-current-20260901T150823Z-d7908a55",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+      "frame_id": "20260901T150823Z-d7908a55",
+      "frame_origin": "operator_minute_frames",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011069,
+      "latency_ms": 13672,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "e45e737e5cc60e990d1fbc64e63334aa8598f2a0d14cf2170a81bbd2c7e2e57e"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-d6b73e4e5dacbc1b",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_192913_b4a2e1",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+        "raw_output_sha256": "e45e737e5cc60e990d1fbc64e63334aa8598f2a0d14cf2170a81bbd2c7e2e57e"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-d6b73e4e5dacbc1b",
+        "normalized_envelope_id": "env-d6b73e4e5dacbc1b"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-baseline-current-20260901T182843Z-b06d9a93.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-baseline-current-20260901T182843Z-b06d9a93.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r11-v2-baseline-current-20260901T182843Z-b06d9a93",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+      "frame_id": "20260901T182843Z-b06d9a93",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011352,
+      "latency_ms": 10686,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "fcda2925a6595d06d55618a6938ad5152a184cfca59e64665e7ab247556936cd"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8ffdc3e1a920e0c1",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_193101_d41cbe",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+        "raw_output_sha256": "fcda2925a6595d06d55618a6938ad5152a184cfca59e64665e7ab247556936cd"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8ffdc3e1a920e0c1",
+        "normalized_envelope_id": "env-8ffdc3e1a920e0c1"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260831T235211Z-cdbf204f.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-structure-20260831T235211Z-cdbf204f.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r11-v2-structure-20260831T235211Z-cdbf204f",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+      "frame_id": "20260831T235211Z-cdbf204f",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011105,
+      "latency_ms": 10078,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "e83aae481c533bb477a3f0861765c348b51f1d8d9df6a47611d2388157bd8631"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-b4154b9b398983a4",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_193020_1c0d4c",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+        "raw_output_sha256": "e83aae481c533bb477a3f0861765c348b51f1d8d9df6a47611d2388157bd8631"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-b4154b9b398983a4",
+        "normalized_envelope_id": "env-b4154b9b398983a4"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260901T000528Z-041dc508.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-structure-20260901T000528Z-041dc508.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r11-v2-structure-20260901T000528Z-041dc508",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+      "frame_id": "20260901T000528Z-041dc508",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011172,
+      "latency_ms": 14718,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "0da28cef8034744a0abc354fcc327ae8cd296183eb46d400700b71c9ce86688a"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8d68e765cc68d29e",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_192954_4709aa",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "raw_output_sha256": "0da28cef8034744a0abc354fcc327ae8cd296183eb46d400700b71c9ce86688a"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8d68e765cc68d29e",
+        "normalized_envelope_id": "env-8d68e765cc68d29e"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260901T134026Z-bb50bbe9.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-structure-20260901T134026Z-bb50bbe9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r11-v2-structure-20260901T134026Z-bb50bbe9",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "frame_origin": "operator_minute_frames",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011312,
+      "latency_ms": 16000,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "8c47417c5f4e99033432a12c36f9f43b4ea7f5465092531170ab5d856f86cdc7"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8d12d081fc8885a3",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_192857_78cfd9",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "raw_output_sha256": "8c47417c5f4e99033432a12c36f9f43b4ea7f5465092531170ab5d856f86cdc7"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8d12d081fc8885a3",
+        "normalized_envelope_id": "env-8d12d081fc8885a3"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260901T143431Z-534fefd5.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-structure-20260901T143431Z-534fefd5.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r11-v2-structure-20260901T143431Z-534fefd5",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+      "frame_id": "20260901T143431Z-534fefd5",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011979,
+      "latency_ms": 13484,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "20d220efaa4f2cadfa10941969420d296c7d83f540e411a1296a6261fe633fe1"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-1e829c3158feff4d",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_193047_e98092",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+        "raw_output_sha256": "20d220efaa4f2cadfa10941969420d296c7d83f540e411a1296a6261fe633fe1"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-1e829c3158feff4d",
+        "normalized_envelope_id": "env-1e829c3158feff4d"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260901T150823Z-d7908a55.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-structure-20260901T150823Z-d7908a55.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r11-v2-structure-20260901T150823Z-d7908a55",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+      "frame_id": "20260901T150823Z-d7908a55",
+      "frame_origin": "operator_minute_frames",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011029,
+      "latency_ms": 10703,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "1a1b519ec609a6cd94bdde151123ea100ff1c26e3364589c9a9679958134dd15"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-d6b73e4e5dacbc1b",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_192927_0207c4",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+        "raw_output_sha256": "1a1b519ec609a6cd94bdde151123ea100ff1c26e3364589c9a9679958134dd15"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-d6b73e4e5dacbc1b",
+        "normalized_envelope_id": "env-d6b73e4e5dacbc1b"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r11-v2-structure-20260901T182843Z-b06d9a93.json",
+      "artifact_name": "scenario-live-2026-09-01-r11-v2-structure-20260901T182843Z-b06d9a93.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r11-v2",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r11-v2-structure-20260901T182843Z-b06d9a93",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+      "frame_id": "20260901T182843Z-b06d9a93",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.011202,
+      "latency_ms": 15047,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "35889a81f2f426eb1b623925296c4ff725b793fcb97b709b03e792ed8b1f0b76"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8ffdc3e1a920e0c1",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_193111_729872",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+        "raw_output_sha256": "35889a81f2f426eb1b623925296c4ff725b793fcb97b709b03e792ed8b1f0b76"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8ffdc3e1a920e0c1",
+        "normalized_envelope_id": "env-8ffdc3e1a920e0c1"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-baseline-current-20260831T173427Z-4ac91997.json",
+      "artifact_name": "scenario-live-2026-09-01-r7-contract-baseline-current-20260831T173427Z-4ac91997.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r7-contract",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r7-contract-baseline-current-20260831T173427Z-4ac91997",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+      "frame_id": "20260831T173427Z-4ac91997",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.00132,
+      "latency_ms": 7250,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "41c726b55f1e3717c065547031b399644c8717dffad0f48361ffd6f1efe4170e"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-7b2ecab988f81446",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_155810_dfbfee",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "raw_output_sha256": "41c726b55f1e3717c065547031b399644c8717dffad0f48361ffd6f1efe4170e"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-7b2ecab988f81446",
+        "normalized_envelope_id": "env-7b2ecab988f81446"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-baseline-current-20260901T000528Z-041dc508.json",
+      "artifact_name": "scenario-live-2026-09-01-r7-contract-baseline-current-20260901T000528Z-041dc508.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r7-contract",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r7-contract-baseline-current-20260901T000528Z-041dc508",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+      "frame_id": "20260901T000528Z-041dc508",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": false,
+      "cost_usd": 0.001257,
+      "latency_ms": 6344,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "c4423e686c316f676b5501573c39cf23d35d116e580ae39fb51081424d77900b"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8d68e765cc68d29e",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_155834_3140fb",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "raw_output_sha256": "c4423e686c316f676b5501573c39cf23d35d116e580ae39fb51081424d77900b"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8d68e765cc68d29e",
+        "normalized_envelope_id": "env-8d68e765cc68d29e"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": false,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": true,
+        "artifact_rewritten": false,
+        "known_historical_drift": true,
+        "matches_stored_normalized": false,
+        "drift_reason": "candidate_flat_pre_guard_stored_as_candidate"
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "artifact_name": "scenario-live-2026-09-01-r7-contract-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r7-contract",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r7-contract-baseline-current-20260901T134026Z-bb50bbe9",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "frame_origin": "operator_minute_frames",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": false,
+      "cost_usd": 0.001275,
+      "latency_ms": 6266,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "15fb1af90d7653504d9a3b3f595798d17e49ad0dedaea6400df612831f015103"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8d12d081fc8885a3",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_155822_ef7a57",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "raw_output_sha256": "15fb1af90d7653504d9a3b3f595798d17e49ad0dedaea6400df612831f015103"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8d12d081fc8885a3",
+        "normalized_envelope_id": "env-8d12d081fc8885a3"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": false,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": true,
+        "artifact_rewritten": false,
+        "known_historical_drift": true,
+        "matches_stored_normalized": false,
+        "drift_reason": "candidate_flat_pre_guard_stored_as_candidate"
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-structure-20260831T173427Z-4ac91997.json",
+      "artifact_name": "scenario-live-2026-09-01-r7-contract-structure-20260831T173427Z-4ac91997.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r7-contract",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r7-contract-structure-20260831T173427Z-4ac91997",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+      "frame_id": "20260831T173427Z-4ac91997",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.001314,
+      "latency_ms": 5625,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "7986c616299bd89c0dc29348be6a083baf1976fbdba65df80a37d79834ea4e23"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-7b2ecab988f81446",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_155817_195f98",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "raw_output_sha256": "7986c616299bd89c0dc29348be6a083baf1976fbdba65df80a37d79834ea4e23"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-7b2ecab988f81446",
+        "normalized_envelope_id": "env-7b2ecab988f81446"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-structure-20260901T000528Z-041dc508.json",
+      "artifact_name": "scenario-live-2026-09-01-r7-contract-structure-20260901T000528Z-041dc508.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r7-contract",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r7-contract-structure-20260901T000528Z-041dc508",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+      "frame_id": "20260901T000528Z-041dc508",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": false,
+      "cost_usd": 0.00125,
+      "latency_ms": 6108,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "ebd41949b28db7119619c85c3bc16a945054105579bbe0da14c321049b71acb2"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8d68e765cc68d29e",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_155841_779d59",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "raw_output_sha256": "ebd41949b28db7119619c85c3bc16a945054105579bbe0da14c321049b71acb2"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8d68e765cc68d29e",
+        "normalized_envelope_id": "env-8d68e765cc68d29e"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": false,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": true,
+        "artifact_rewritten": false,
+        "known_historical_drift": true,
+        "matches_stored_normalized": false,
+        "drift_reason": "candidate_flat_pre_guard_stored_as_candidate"
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r7-contract-structure-20260901T134026Z-bb50bbe9.json",
+      "artifact_name": "scenario-live-2026-09-01-r7-contract-structure-20260901T134026Z-bb50bbe9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r7-contract",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r7-contract-structure-20260901T134026Z-bb50bbe9",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "frame_origin": "operator_minute_frames",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.001265,
+      "latency_ms": 5733,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "66aa1d9a62dcf26aade58aaddaf2c0d52f22ce081c307770c9f446f0c6470eca"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8d12d081fc8885a3",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_155829_28e56e",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "raw_output_sha256": "66aa1d9a62dcf26aade58aaddaf2c0d52f22ce081c307770c9f446f0c6470eca"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8d12d081fc8885a3",
+        "normalized_envelope_id": "env-8d12d081fc8885a3"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r8-contract-baseline-current-20260831T173427Z-4ac91997.json",
+      "artifact_name": "scenario-live-2026-09-01-r8-contract-baseline-current-20260831T173427Z-4ac91997.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r8-contract",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r8-contract-baseline-current-20260831T173427Z-4ac91997",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+      "frame_id": "20260831T173427Z-4ac91997",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.001343,
+      "latency_ms": 7280,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "54493a935b53646f42c648e7a34d4662195fdaf0805d5a9825cb81b2f43d4370"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-7b2ecab988f81446",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_160443_83b529",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "raw_output_sha256": "54493a935b53646f42c648e7a34d4662195fdaf0805d5a9825cb81b2f43d4370"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-7b2ecab988f81446",
+        "normalized_envelope_id": "env-7b2ecab988f81446"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r8-contract-baseline-current-20260901T000528Z-041dc508.json",
+      "artifact_name": "scenario-live-2026-09-01-r8-contract-baseline-current-20260901T000528Z-041dc508.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r8-contract",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r8-contract-baseline-current-20260901T000528Z-041dc508",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+      "frame_id": "20260901T000528Z-041dc508",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.00127,
+      "latency_ms": 11906,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "3946a354163fdc929aca74dfb3c5572052086eb0296de083afe754334f9ade25"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8d68e765cc68d29e",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_160514_0493de",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "raw_output_sha256": "3946a354163fdc929aca74dfb3c5572052086eb0296de083afe754334f9ade25"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8d68e765cc68d29e",
+        "normalized_envelope_id": "env-8d68e765cc68d29e"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r8-contract-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "artifact_name": "scenario-live-2026-09-01-r8-contract-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r8-contract",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r8-contract-baseline-current-20260901T134026Z-bb50bbe9",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "frame_origin": "operator_minute_frames",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.001283,
+      "latency_ms": 7077,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "080d5692367d1086300a1b66ec11107b1f41d08363d35370b527c2dca53ce084"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8d12d081fc8885a3",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_160456_68bd45",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "raw_output_sha256": "080d5692367d1086300a1b66ec11107b1f41d08363d35370b527c2dca53ce084"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8d12d081fc8885a3",
+        "normalized_envelope_id": "env-8d12d081fc8885a3"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r8-contract-structure-20260831T173427Z-4ac91997.json",
+      "artifact_name": "scenario-live-2026-09-01-r8-contract-structure-20260831T173427Z-4ac91997.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r8-contract",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r8-contract-structure-20260831T173427Z-4ac91997",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+      "frame_id": "20260831T173427Z-4ac91997",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.001342,
+      "latency_ms": 6108,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "0781ac4ca1d97a80f0a5583c559f007660705add3e9386fdc5fdf7c7ee6433d0"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-7b2ecab988f81446",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_160450_a77e56",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "raw_output_sha256": "0781ac4ca1d97a80f0a5583c559f007660705add3e9386fdc5fdf7c7ee6433d0"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-7b2ecab988f81446",
+        "normalized_envelope_id": "env-7b2ecab988f81446"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r8-contract-structure-20260901T000528Z-041dc508.json",
+      "artifact_name": "scenario-live-2026-09-01-r8-contract-structure-20260901T000528Z-041dc508.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r8-contract",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r8-contract-structure-20260901T000528Z-041dc508",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+      "frame_id": "20260901T000528Z-041dc508",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.001248,
+      "latency_ms": 9750,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "09420e85b39f091e79707672962e6496366e255c685c5a01fe7c4553e0527fa9"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8d68e765cc68d29e",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_160526_2ffeb6",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "raw_output_sha256": "09420e85b39f091e79707672962e6496366e255c685c5a01fe7c4553e0527fa9"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8d68e765cc68d29e",
+        "normalized_envelope_id": "env-8d68e765cc68d29e"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r8-contract-structure-20260901T134026Z-bb50bbe9.json",
+      "artifact_name": "scenario-live-2026-09-01-r8-contract-structure-20260901T134026Z-bb50bbe9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r8-contract",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r8-contract-structure-20260901T134026Z-bb50bbe9",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "frame_origin": "operator_minute_frames",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.001283,
+      "latency_ms": 9797,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "f8999d9f80ea90deca4f91b554fd42086ef83eddaf1fe16f70d96e404085e099"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8d12d081fc8885a3",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_160505_da1c48",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "raw_output_sha256": "f8999d9f80ea90deca4f91b554fd42086ef83eddaf1fe16f70d96e404085e099"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8d12d081fc8885a3",
+        "normalized_envelope_id": "env-8d12d081fc8885a3"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-baseline-current-20260831T173427Z-4ac91997.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-baseline-current-20260831T173427Z-4ac91997.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r9-v2-baseline-current-20260831T173427Z-4ac91997",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+      "frame_id": "20260831T173427Z-4ac91997",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.001342,
+      "latency_ms": 10781,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "0c31810d7cd1dc4b5ee7704b9cacc4c72a66ed4212f9b39f459037e30dacbff5"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-7b2ecab988f81446",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_160946_2eefba",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "raw_output_sha256": "0c31810d7cd1dc4b5ee7704b9cacc4c72a66ed4212f9b39f459037e30dacbff5"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-7b2ecab988f81446",
+        "normalized_envelope_id": "env-7b2ecab988f81446"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-baseline-current-20260831T235211Z-cdbf204f.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-baseline-current-20260831T235211Z-cdbf204f.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r9-v2-baseline-current-20260831T235211Z-cdbf204f",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+      "frame_id": "20260831T235211Z-cdbf204f",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.001256,
+      "latency_ms": 5546,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "8beb7afb4052523bb2ec97342ff1f4a2d60ef1667d27d103c236d52d98001956"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-b4154b9b398983a4",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_161029_37dbda",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+        "raw_output_sha256": "8beb7afb4052523bb2ec97342ff1f4a2d60ef1667d27d103c236d52d98001956"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-b4154b9b398983a4",
+        "normalized_envelope_id": "env-b4154b9b398983a4"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-baseline-current-20260901T000528Z-041dc508.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-baseline-current-20260901T000528Z-041dc508.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r9-v2-baseline-current-20260901T000528Z-041dc508",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+      "frame_id": "20260901T000528Z-041dc508",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.001276,
+      "latency_ms": 7735,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "7530674f65d13f8e1e3e15e3592acaa83913cadc094711a4e53fd0306abae934"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8d68e765cc68d29e",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_161016_a16482",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "raw_output_sha256": "7530674f65d13f8e1e3e15e3592acaa83913cadc094711a4e53fd0306abae934"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8d68e765cc68d29e",
+        "normalized_envelope_id": "env-8d68e765cc68d29e"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-baseline-current-20260901T134026Z-bb50bbe9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r9-v2-baseline-current-20260901T134026Z-bb50bbe9",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "frame_origin": "operator_minute_frames",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.001275,
+      "latency_ms": 5750,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "11a9f8e93bcd9f84fd34cac4ea46fe3cb16a96f0b49acbad15ff93d46825c263"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8d12d081fc8885a3",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_161004_7b5ae4",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "raw_output_sha256": "11a9f8e93bcd9f84fd34cac4ea46fe3cb16a96f0b49acbad15ff93d46825c263"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8d12d081fc8885a3",
+        "normalized_envelope_id": "env-8d12d081fc8885a3"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-baseline-current-20260901T143431Z-534fefd5.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-baseline-current-20260901T143431Z-534fefd5.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r9-v2-baseline-current-20260901T143431Z-534fefd5",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+      "frame_id": "20260901T143431Z-534fefd5",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.001309,
+      "latency_ms": 5593,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "ebe961f919c307ba6246e9cddc30dd74bb1f92db3cc4f2affcbba349718397e1"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-1e829c3158feff4d",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_161040_b70130",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+        "raw_output_sha256": "ebe961f919c307ba6246e9cddc30dd74bb1f92db3cc4f2affcbba349718397e1"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-1e829c3158feff4d",
+        "normalized_envelope_id": "env-1e829c3158feff4d"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-baseline-current-20260901T150823Z-d7908a55.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-baseline-current-20260901T150823Z-d7908a55.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r9-v2-baseline-current-20260901T150823Z-d7908a55",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+      "frame_id": "20260901T150823Z-d7908a55",
+      "frame_origin": "operator_minute_frames",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.001251,
+      "latency_ms": 6281,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "e9dd1b68077151698b66132e083a41e9fdc04b1f21f69a51c38d53afdd83e0ee"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-d6b73e4e5dacbc1b",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_161106_675af1",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+        "raw_output_sha256": "e9dd1b68077151698b66132e083a41e9fdc04b1f21f69a51c38d53afdd83e0ee"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-d6b73e4e5dacbc1b",
+        "normalized_envelope_id": "env-d6b73e4e5dacbc1b"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-baseline-current-20260901T182843Z-b06d9a93.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-baseline-current-20260901T182843Z-b06d9a93.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "baseline-current",
+      "invocation_id": "eval-scenario-live-2026-09-01-r9-v2-baseline-current-20260901T182843Z-b06d9a93",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+      "frame_id": "20260901T182843Z-b06d9a93",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.001264,
+      "latency_ms": 7030,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "8b9dd85f992995fccb9a2ff6868685076cbf457787b4fdf98513f537852b941f"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8ffdc3e1a920e0c1",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_161052_8ae613",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+        "raw_output_sha256": "8b9dd85f992995fccb9a2ff6868685076cbf457787b4fdf98513f537852b941f"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8ffdc3e1a920e0c1",
+        "normalized_envelope_id": "env-8ffdc3e1a920e0c1"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-structure-20260831T173427Z-4ac91997.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-structure-20260831T173427Z-4ac91997.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r9-v2-structure-20260831T173427Z-4ac91997",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+      "frame_id": "20260831T173427Z-4ac91997",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.001339,
+      "latency_ms": 7172,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "8e618d22d62ae5c8640a45076eeb7a7cbb6243a716368073bf465790b3af6d2b"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-7b2ecab988f81446",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_160957_4d3356",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "7b2ecab988f81446fa77ae95a5e7d1c038b2107bcea7002279d6bfeec7bf1824",
+        "raw_output_sha256": "8e618d22d62ae5c8640a45076eeb7a7cbb6243a716368073bf465790b3af6d2b"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-7b2ecab988f81446",
+        "normalized_envelope_id": "env-7b2ecab988f81446"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-structure-20260831T235211Z-cdbf204f.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-structure-20260831T235211Z-cdbf204f.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r9-v2-structure-20260831T235211Z-cdbf204f",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+      "frame_id": "20260831T235211Z-cdbf204f",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.001242,
+      "latency_ms": 5718,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "bdab6ed6a6b21bfa14fac7ae8c74244dd4027451c81881a3f3294918d6dac6eb"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-b4154b9b398983a4",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_161034_279687",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "b4154b9b398983a4b92f2a8955c7194cab639d56ad9f3def140c268784d83143",
+        "raw_output_sha256": "bdab6ed6a6b21bfa14fac7ae8c74244dd4027451c81881a3f3294918d6dac6eb"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-b4154b9b398983a4",
+        "normalized_envelope_id": "env-b4154b9b398983a4"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-structure-20260901T000528Z-041dc508.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-structure-20260901T000528Z-041dc508.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r9-v2-structure-20260901T000528Z-041dc508",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+      "frame_id": "20260901T000528Z-041dc508",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.001267,
+      "latency_ms": 5579,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "aa2dbb2491a7b2e32cbe6d28796bae87aa36e57443870c72a3b4274f5273ae04"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8d68e765cc68d29e",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_161023_ff88be",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8d68e765cc68d29e767991d0f2cbd0d36b284fd96eec84269d811f8a25ec2482",
+        "raw_output_sha256": "aa2dbb2491a7b2e32cbe6d28796bae87aa36e57443870c72a3b4274f5273ae04"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8d68e765cc68d29e",
+        "normalized_envelope_id": "env-8d68e765cc68d29e"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-structure-20260901T134026Z-bb50bbe9.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-structure-20260901T134026Z-bb50bbe9.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r9-v2-structure-20260901T134026Z-bb50bbe9",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+      "frame_id": "20260901T134026Z-bb50bbe9",
+      "frame_origin": "operator_minute_frames",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.001274,
+      "latency_ms": 5594,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "176014d02453f508708a122a334c12ca06249f55593571d37815c38ac7ddc34a"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8d12d081fc8885a3",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_161010_d03010",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8d12d081fc8885a3f89ee62f970f3f4d4fa0b429cd38bda67d9e429aee2f0542",
+        "raw_output_sha256": "176014d02453f508708a122a334c12ca06249f55593571d37815c38ac7ddc34a"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8d12d081fc8885a3",
+        "normalized_envelope_id": "env-8d12d081fc8885a3"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-structure-20260901T143431Z-534fefd5.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-structure-20260901T143431Z-534fefd5.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r9-v2-structure-20260901T143431Z-534fefd5",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+      "frame_id": "20260901T143431Z-534fefd5",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.001321,
+      "latency_ms": 6047,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "2edb5ade43a6dc3356365a5cc7798da9b105c27a304e2a7559947e0b9deb62e6"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-1e829c3158feff4d",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_161046_866586",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "1e829c3158feff4d39c01bba19391726095ac4c0889a49142f593b555c79678d",
+        "raw_output_sha256": "2edb5ade43a6dc3356365a5cc7798da9b105c27a304e2a7559947e0b9deb62e6"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-1e829c3158feff4d",
+        "normalized_envelope_id": "env-1e829c3158feff4d"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-structure-20260901T150823Z-d7908a55.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-structure-20260901T150823Z-d7908a55.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r9-v2-structure-20260901T150823Z-d7908a55",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+      "frame_id": "20260901T150823Z-d7908a55",
+      "frame_origin": "operator_minute_frames",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.00125,
+      "latency_ms": 6061,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "ddfa75086099f203d0c3356e38e34a5fc385521335d2539dbaf0290a82d58d01"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-d6b73e4e5dacbc1b",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_161113_c7c94d",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "d6b73e4e5dacbc1bbca736b57de5ccfe069bbb25643ff7cd4e064992437895bf",
+        "raw_output_sha256": "ddfa75086099f203d0c3356e38e34a5fc385521335d2539dbaf0290a82d58d01"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-d6b73e4e5dacbc1b",
+        "normalized_envelope_id": "env-d6b73e4e5dacbc1b"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    },
+    {
+      "artifact_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\scenario-live-2026-09-01-r9-v2-structure-20260901T182843Z-b06d9a93.json",
+      "artifact_name": "scenario-live-2026-09-01-r9-v2-structure-20260901T182843Z-b06d9a93.json",
+      "run_id_prefix": "scenario-live-2026-09-01-r9-v2",
+      "profile_id": "structure",
+      "invocation_id": "eval-scenario-live-2026-09-01-r9-v2-structure-20260901T182843Z-b06d9a93",
+      "prompt_version": "glitch-topstep-v17.1",
+      "adapter_version": "2026-09-01-v1",
+      "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+      "registry_version": "2026-09-01-v2",
+      "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+      "aggregator_rules_version": "2026-09-01-v2",
+      "snapshot_hash": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+      "frame_id": "20260901T182843Z-b06d9a93",
+      "frame_origin": "prac_soak_2026-08-31",
+      "normalization_version": null,
+      "drift_reason": null,
+      "matches_stored_normalized": true,
+      "cost_usd": 0.001273,
+      "latency_ms": 7202,
+      "raw_output_integrity": {
+        "hash_present": true,
+        "sha256": "cb791be29dec76e42590b35631da0ddcf932ce1ef4c8faca4538d3c9b9935008"
+      },
+      "no_cross_run_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "reason": null
+      },
+      "known_historical_drift": false,
+      "envelope_id": "env-8ffdc3e1a920e0c1",
+      "hermes_home": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+      "session_id": "20260901_161059_cc1596",
+      "hash_integrity": {
+        "ok": true,
+        "issues": [],
+        "snapshot_hash": "8ffdc3e1a920e0c1c2ba910dbf3f58dc7a1dacd246916a3d1d07e6cf642e4c64",
+        "raw_output_sha256": "cb791be29dec76e42590b35631da0ddcf932ce1ef4c8faca4538d3c9b9935008"
+      },
+      "version_alignment": {
+        "aligned": true,
+        "issues": [],
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "envelope_identity": {
+        "ok": true,
+        "issues": [],
+        "envelope_id": "env-8ffdc3e1a920e0c1",
+        "normalized_envelope_id": "env-8ffdc3e1a920e0c1"
+      },
+      "raw_normalized_integrity": {
+        "adapter_stable": true,
+        "matches_stored_normalized": true,
+        "envelope_hash_stable": true,
+        "snapshot_hash_stable": true,
+        "pipeline_passed": true
+      },
+      "post_collection_mutation": {
+        "flagged": false,
+        "artifact_rewritten": false,
+        "known_historical_drift": false,
+        "matches_stored_normalized": true,
+        "drift_reason": null
+      },
+      "frame_origin_known": true
+    }
+  ]
+}

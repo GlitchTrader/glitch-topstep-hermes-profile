@@ -1,0 +1,469 @@
+{
+  "schema_version": "glitch.topstep.evaluation_cost_audit.v1",
+  "budget_reference": "evaluation/ensemble_config.json",
+  "limits": {
+    "max_cost_usd_per_session": 2.5,
+    "max_tokens_per_call": 50000,
+    "max_tokens_per_session": 500000,
+    "max_calls_per_session": 36,
+    "max_calls_per_snapshot": 6,
+    "per_profile_timeout_ms": 35000,
+    "total_timeout_ms": 120000,
+    "total_latency_budget_ms": 180000,
+    "per_profile_limits_configured": false
+  },
+  "invocation_count": 12,
+  "unknown_pricing_count": 0,
+  "cost_basis_counts": {
+    "estimated_tokens": 12
+  },
+  "cost_breakdown": {
+    "estimated_total_usd": 0.135218,
+    "confirmed_total_usd": 0.0,
+    "unknown_invocation_count": 0
+  },
+  "estimated_vs_provider": {
+    "estimated_total_usd": 0.135218,
+    "provider_reported_total_usd": 0.0,
+    "confirmed_total_usd": 0.0,
+    "unknown_invocation_count": 0
+  },
+  "calls_audit": {
+    "20260901_192847_a4f4a0": {
+      "invocation_count": 1,
+      "max_calls_per_session": 36,
+      "within_session_call_limit": true
+    },
+    "20260901_192857_78cfd9": {
+      "invocation_count": 1,
+      "max_calls_per_session": 36,
+      "within_session_call_limit": true
+    },
+    "20260901_192913_b4a2e1": {
+      "invocation_count": 1,
+      "max_calls_per_session": 36,
+      "within_session_call_limit": true
+    },
+    "20260901_192927_0207c4": {
+      "invocation_count": 1,
+      "max_calls_per_session": 36,
+      "within_session_call_limit": true
+    },
+    "20260901_192938_933f32": {
+      "invocation_count": 1,
+      "max_calls_per_session": 36,
+      "within_session_call_limit": true
+    },
+    "20260901_192954_4709aa": {
+      "invocation_count": 1,
+      "max_calls_per_session": 36,
+      "within_session_call_limit": true
+    },
+    "20260901_193009_9d0014": {
+      "invocation_count": 1,
+      "max_calls_per_session": 36,
+      "within_session_call_limit": true
+    },
+    "20260901_193020_1c0d4c": {
+      "invocation_count": 1,
+      "max_calls_per_session": 36,
+      "within_session_call_limit": true
+    },
+    "20260901_193031_534f8a": {
+      "invocation_count": 1,
+      "max_calls_per_session": 36,
+      "within_session_call_limit": true
+    },
+    "20260901_193047_e98092": {
+      "invocation_count": 1,
+      "max_calls_per_session": 36,
+      "within_session_call_limit": true
+    },
+    "20260901_193101_d41cbe": {
+      "invocation_count": 1,
+      "max_calls_per_session": 36,
+      "within_session_call_limit": true
+    },
+    "20260901_193111_729872": {
+      "invocation_count": 1,
+      "max_calls_per_session": 36,
+      "within_session_call_limit": true
+    }
+  },
+  "execution_time_audit": {
+    "per_profile_timeout_ms": 35000,
+    "total_timeout_ms": 120000,
+    "total_latency_budget_ms": 180000,
+    "latency_sum_ms": 156387,
+    "within_total_latency_budget": true,
+    "latency_p50_ms": 13672,
+    "latency_count": 12
+  },
+  "per_invocation": [
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2-baseline-current-20260901T134026Z-bb50bbe9",
+      "profile_id": "baseline-current",
+      "session_id": "20260901_192847_a4f4a0",
+      "cost_basis": "estimated_tokens",
+      "cost_usd": 0.011122,
+      "estimated_cost_usd": 0.011122,
+      "provider_reported_cost_usd": null,
+      "cost_unknown": false,
+      "cost_gate_passed": true,
+      "model": "gpt-5.6-luna",
+      "total_tokens": 8351,
+      "latency_ms": 9750
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2-structure-20260901T134026Z-bb50bbe9",
+      "profile_id": "structure",
+      "session_id": "20260901_192857_78cfd9",
+      "cost_basis": "estimated_tokens",
+      "cost_usd": 0.011312,
+      "estimated_cost_usd": 0.011312,
+      "provider_reported_cost_usd": null,
+      "cost_unknown": false,
+      "cost_gate_passed": true,
+      "model": "gpt-5.6-luna",
+      "total_tokens": 8370,
+      "latency_ms": 16000
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2-baseline-current-20260901T150823Z-d7908a55",
+      "profile_id": "baseline-current",
+      "session_id": "20260901_192913_b4a2e1",
+      "cost_basis": "estimated_tokens",
+      "cost_usd": 0.011069,
+      "estimated_cost_usd": 0.011069,
+      "provider_reported_cost_usd": null,
+      "cost_unknown": false,
+      "cost_gate_passed": true,
+      "model": "gpt-5.6-luna",
+      "total_tokens": 8190,
+      "latency_ms": 13672
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2-structure-20260901T150823Z-d7908a55",
+      "profile_id": "structure",
+      "session_id": "20260901_192927_0207c4",
+      "cost_basis": "estimated_tokens",
+      "cost_usd": 0.011029,
+      "estimated_cost_usd": 0.011029,
+      "provider_reported_cost_usd": null,
+      "cost_unknown": false,
+      "cost_gate_passed": true,
+      "model": "gpt-5.6-luna",
+      "total_tokens": 8186,
+      "latency_ms": 10703
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2-baseline-current-20260901T000528Z-041dc508",
+      "profile_id": "baseline-current",
+      "session_id": "20260901_192938_933f32",
+      "cost_basis": "estimated_tokens",
+      "cost_usd": 0.011052,
+      "estimated_cost_usd": 0.011052,
+      "provider_reported_cost_usd": null,
+      "cost_unknown": false,
+      "cost_gate_passed": true,
+      "model": "gpt-5.6-luna",
+      "total_tokens": 8232,
+      "latency_ms": 15422
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2-structure-20260901T000528Z-041dc508",
+      "profile_id": "structure",
+      "session_id": "20260901_192954_4709aa",
+      "cost_basis": "estimated_tokens",
+      "cost_usd": 0.011172,
+      "estimated_cost_usd": 0.011172,
+      "provider_reported_cost_usd": null,
+      "cost_unknown": false,
+      "cost_gate_passed": true,
+      "model": "gpt-5.6-luna",
+      "total_tokens": 8244,
+      "latency_ms": 14718
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2-baseline-current-20260831T235211Z-cdbf204f",
+      "profile_id": "baseline-current",
+      "session_id": "20260901_193009_9d0014",
+      "cost_basis": "estimated_tokens",
+      "cost_usd": 0.011145,
+      "estimated_cost_usd": 0.011145,
+      "provider_reported_cost_usd": null,
+      "cost_unknown": false,
+      "cost_gate_passed": true,
+      "model": "gpt-5.6-luna",
+      "total_tokens": 8216,
+      "latency_ms": 11000
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2-structure-20260831T235211Z-cdbf204f",
+      "profile_id": "structure",
+      "session_id": "20260901_193020_1c0d4c",
+      "cost_basis": "estimated_tokens",
+      "cost_usd": 0.011105,
+      "estimated_cost_usd": 0.011105,
+      "provider_reported_cost_usd": null,
+      "cost_unknown": false,
+      "cost_gate_passed": true,
+      "model": "gpt-5.6-luna",
+      "total_tokens": 8212,
+      "latency_ms": 10078
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2-baseline-current-20260901T143431Z-534fefd5",
+      "profile_id": "baseline-current",
+      "session_id": "20260901_193031_534f8a",
+      "cost_basis": "estimated_tokens",
+      "cost_usd": 0.011679,
+      "estimated_cost_usd": 0.011679,
+      "provider_reported_cost_usd": null,
+      "cost_unknown": false,
+      "cost_gate_passed": true,
+      "model": "gpt-5.6-luna",
+      "total_tokens": 8622,
+      "latency_ms": 15827
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2-structure-20260901T143431Z-534fefd5",
+      "profile_id": "structure",
+      "session_id": "20260901_193047_e98092",
+      "cost_basis": "estimated_tokens",
+      "cost_usd": 0.011979,
+      "estimated_cost_usd": 0.011979,
+      "provider_reported_cost_usd": null,
+      "cost_unknown": false,
+      "cost_gate_passed": true,
+      "model": "gpt-5.6-luna",
+      "total_tokens": 8652,
+      "latency_ms": 13484
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2-baseline-current-20260901T182843Z-b06d9a93",
+      "profile_id": "baseline-current",
+      "session_id": "20260901_193101_d41cbe",
+      "cost_basis": "estimated_tokens",
+      "cost_usd": 0.011352,
+      "estimated_cost_usd": 0.011352,
+      "provider_reported_cost_usd": null,
+      "cost_unknown": false,
+      "cost_gate_passed": true,
+      "model": "gpt-5.6-luna",
+      "total_tokens": 8269,
+      "latency_ms": 10686
+    },
+    {
+      "run_id": "scenario-live-2026-09-01-r11-v2-structure-20260901T182843Z-b06d9a93",
+      "profile_id": "structure",
+      "session_id": "20260901_193111_729872",
+      "cost_basis": "estimated_tokens",
+      "cost_usd": 0.011202,
+      "estimated_cost_usd": 0.011202,
+      "provider_reported_cost_usd": null,
+      "cost_unknown": false,
+      "cost_gate_passed": true,
+      "model": "gpt-5.6-luna",
+      "total_tokens": 8254,
+      "latency_ms": 15047
+    }
+  ],
+  "sessions": {
+    "20260901_192847_a4f4a0": {
+      "session_id": "20260901_192847_a4f4a0",
+      "invocation_count": 1,
+      "accumulated_cost_usd": 0.011122,
+      "accumulated_tokens": 8351,
+      "unknown_pricing_count": 0,
+      "within_session_cost_limit": true,
+      "within_session_token_limit": true
+    },
+    "20260901_192857_78cfd9": {
+      "session_id": "20260901_192857_78cfd9",
+      "invocation_count": 1,
+      "accumulated_cost_usd": 0.011312,
+      "accumulated_tokens": 8370,
+      "unknown_pricing_count": 0,
+      "within_session_cost_limit": true,
+      "within_session_token_limit": true
+    },
+    "20260901_192913_b4a2e1": {
+      "session_id": "20260901_192913_b4a2e1",
+      "invocation_count": 1,
+      "accumulated_cost_usd": 0.011069,
+      "accumulated_tokens": 8190,
+      "unknown_pricing_count": 0,
+      "within_session_cost_limit": true,
+      "within_session_token_limit": true
+    },
+    "20260901_192927_0207c4": {
+      "session_id": "20260901_192927_0207c4",
+      "invocation_count": 1,
+      "accumulated_cost_usd": 0.011029,
+      "accumulated_tokens": 8186,
+      "unknown_pricing_count": 0,
+      "within_session_cost_limit": true,
+      "within_session_token_limit": true
+    },
+    "20260901_192938_933f32": {
+      "session_id": "20260901_192938_933f32",
+      "invocation_count": 1,
+      "accumulated_cost_usd": 0.011052,
+      "accumulated_tokens": 8232,
+      "unknown_pricing_count": 0,
+      "within_session_cost_limit": true,
+      "within_session_token_limit": true
+    },
+    "20260901_192954_4709aa": {
+      "session_id": "20260901_192954_4709aa",
+      "invocation_count": 1,
+      "accumulated_cost_usd": 0.011172,
+      "accumulated_tokens": 8244,
+      "unknown_pricing_count": 0,
+      "within_session_cost_limit": true,
+      "within_session_token_limit": true
+    },
+    "20260901_193009_9d0014": {
+      "session_id": "20260901_193009_9d0014",
+      "invocation_count": 1,
+      "accumulated_cost_usd": 0.011145,
+      "accumulated_tokens": 8216,
+      "unknown_pricing_count": 0,
+      "within_session_cost_limit": true,
+      "within_session_token_limit": true
+    },
+    "20260901_193020_1c0d4c": {
+      "session_id": "20260901_193020_1c0d4c",
+      "invocation_count": 1,
+      "accumulated_cost_usd": 0.011105,
+      "accumulated_tokens": 8212,
+      "unknown_pricing_count": 0,
+      "within_session_cost_limit": true,
+      "within_session_token_limit": true
+    },
+    "20260901_193031_534f8a": {
+      "session_id": "20260901_193031_534f8a",
+      "invocation_count": 1,
+      "accumulated_cost_usd": 0.011679,
+      "accumulated_tokens": 8622,
+      "unknown_pricing_count": 0,
+      "within_session_cost_limit": true,
+      "within_session_token_limit": true
+    },
+    "20260901_193047_e98092": {
+      "session_id": "20260901_193047_e98092",
+      "invocation_count": 1,
+      "accumulated_cost_usd": 0.011979,
+      "accumulated_tokens": 8652,
+      "unknown_pricing_count": 0,
+      "within_session_cost_limit": true,
+      "within_session_token_limit": true
+    },
+    "20260901_193101_d41cbe": {
+      "session_id": "20260901_193101_d41cbe",
+      "invocation_count": 1,
+      "accumulated_cost_usd": 0.011352,
+      "accumulated_tokens": 8269,
+      "unknown_pricing_count": 0,
+      "within_session_cost_limit": true,
+      "within_session_token_limit": true
+    },
+    "20260901_193111_729872": {
+      "session_id": "20260901_193111_729872",
+      "invocation_count": 1,
+      "accumulated_cost_usd": 0.011202,
+      "accumulated_tokens": 8254,
+      "unknown_pricing_count": 0,
+      "within_session_cost_limit": true,
+      "within_session_token_limit": true
+    }
+  },
+  "per_profile": {
+    "baseline-current": {
+      "limits_configured": false,
+      "max_cost_usd_per_session": null,
+      "sessions": {
+        "20260901_192847_a4f4a0": {
+          "accumulated_cost_usd": 0.011122,
+          "invocation_count": 1,
+          "within_profile_cost_limit": null
+        },
+        "20260901_192913_b4a2e1": {
+          "accumulated_cost_usd": 0.011069,
+          "invocation_count": 1,
+          "within_profile_cost_limit": null
+        },
+        "20260901_192938_933f32": {
+          "accumulated_cost_usd": 0.011052,
+          "invocation_count": 1,
+          "within_profile_cost_limit": null
+        },
+        "20260901_193009_9d0014": {
+          "accumulated_cost_usd": 0.011145,
+          "invocation_count": 1,
+          "within_profile_cost_limit": null
+        },
+        "20260901_193031_534f8a": {
+          "accumulated_cost_usd": 0.011679,
+          "invocation_count": 1,
+          "within_profile_cost_limit": null
+        },
+        "20260901_193101_d41cbe": {
+          "accumulated_cost_usd": 0.011352,
+          "invocation_count": 1,
+          "within_profile_cost_limit": null
+        }
+      }
+    },
+    "structure": {
+      "limits_configured": false,
+      "max_cost_usd_per_session": null,
+      "sessions": {
+        "20260901_192857_78cfd9": {
+          "accumulated_cost_usd": 0.011312,
+          "invocation_count": 1,
+          "within_profile_cost_limit": null
+        },
+        "20260901_192927_0207c4": {
+          "accumulated_cost_usd": 0.011029,
+          "invocation_count": 1,
+          "within_profile_cost_limit": null
+        },
+        "20260901_192954_4709aa": {
+          "accumulated_cost_usd": 0.011172,
+          "invocation_count": 1,
+          "within_profile_cost_limit": null
+        },
+        "20260901_193020_1c0d4c": {
+          "accumulated_cost_usd": 0.011105,
+          "invocation_count": 1,
+          "within_profile_cost_limit": null
+        },
+        "20260901_193047_e98092": {
+          "accumulated_cost_usd": 0.011979,
+          "invocation_count": 1,
+          "within_profile_cost_limit": null
+        },
+        "20260901_193111_729872": {
+          "accumulated_cost_usd": 0.011202,
+          "invocation_count": 1,
+          "within_profile_cost_limit": null
+        }
+      }
+    }
+  },
+  "session_cost_usd_max": 0.011979,
+  "latency_ms": {
+    "p50_ms": 13672,
+    "count": 12
+  },
+  "violations": [],
+  "audit_gate_passed": true,
+  "notes": [
+    "unknown_pricing (cost_usd null) fails audit_gate_passed.",
+    "per_profile limits enforced only when evaluation budget defines per_profile."
+  ],
+  "config_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\ensemble_config.json",
+  "timeout_policy_reference": "ensemble_config.timeout_policy"
+}

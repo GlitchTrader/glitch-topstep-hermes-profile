@@ -1,0 +1,66 @@
+{
+  "schema_version": "glitch.topstep.v8_preflight_integrity_audit.v1",
+  "audited_utc": "2026-09-02T17:12:00Z",
+  "sha256sums": {
+    "entries": 521,
+    "verified_by": "tests.test_sha256sums.Sha256sumsTests.test_manifest_matches_files",
+    "ok": true
+  },
+  "registry": {
+    "next_authorized_run_id": null,
+    "evaluation_cron_status": "live_validated",
+    "r14_canonical_execution": "scenario-live-2026-09-02-r14-v5.1",
+    "r14_authorization": "executed_2026-09-02_Ari",
+    "r15_canonical_execution": "scenario-live-2026-09-02-r15-v7",
+    "collection_policy_status": "STOP_RERUNS"
+  },
+  "cohort_manifests": {
+    "v6": {
+      "path": "evaluation/runs/stratified-cohort-manifest-v6-2026-09-02.json",
+      "envelope_count": 0,
+      "status": "pre_registered_offline",
+      "cohort_version": "v6-pre-registered"
+    },
+    "v7": {
+      "path": "evaluation/runs/stratified-cohort-manifest-v7-2026-09-02.json",
+      "envelope_count": 0,
+      "status": "pre_registered_offline",
+      "cohort_version": "v7-pre-registered"
+    }
+  },
+  "replay_exclusions": {
+    "v2_v7_excluded_from_v8_build": true,
+    "scenario_live_bundles_excluded": true,
+    "policy_source": "scripts/build-stratified-cohort.py --cohort-version v8"
+  },
+  "drift": {
+    "next_authorized_run_id_null": true,
+    "sha256sums_ok": true,
+    "v8_build_pre_prac_envelopes": 0,
+    "note": "0 envelopes pré-PRAC é esperado"
+  },
+  "parallel_trails": {
+    "A_ingest_outcome_class": {
+      "status": "fixture_tests_pass",
+      "tests": "tests/test_prac_ingest_outcomes.py",
+      "fields": [
+        "operator_frames_dir_status",
+        "ingest_outcome_class",
+        "exclusion_breakdown"
+      ],
+      "classes": {
+        "operator_minute_frames_dir_missing": "minute-frames ausente → frames_added: 0",
+        "all_frames_duplicate": "minute-frames encontrado, já no manifest → frames_added: 0",
+        "minute_frames_not_found_for_chain": "dir existe mas packet sem frame correspondente"
+      }
+    },
+    "B_integrity_audit": "this_artifact",
+    "C_report_template": "evaluation/reviews/V8-PRAC-SESSION-REPORT-TEMPLATE-2026-09-02.md",
+    "D_lease_smoke_v8": {
+      "preflight_ok": true,
+      "smoke_ok": true,
+      "report": "evaluation/runs/lease-smoke-v8-preflight.json",
+      "note": "não autoriza replay"
+    }
+  }
+}

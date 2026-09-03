@@ -1,0 +1,43 @@
+{
+  "schema_version": "glitch.topstep.evaluation_lease_smoke.v1",
+  "run_id": "lease-smoke-2026-09-02",
+  "recorded_utc": "2026-09-02T16:44:50.613520Z",
+  "profile_root": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep",
+  "modes": {
+    "fault": {
+      "schema_version": "glitch.topstep.evaluation_lease_smoke.v1",
+      "mode": "fault",
+      "run_id": "lease-smoke-2026-09-02",
+      "recorded_utc": "2026-09-02T16:44:51.525929Z",
+      "ok": true,
+      "faults": [
+        {
+          "fault": "abort",
+          "ok": true,
+          "lease_active_after_release": false
+        },
+        {
+          "fault": "timeout",
+          "ok": true
+        },
+        {
+          "fault": "crash",
+          "ok": true,
+          "orphan_cleaned": true
+        },
+        {
+          "fault": "recovery",
+          "ok": true,
+          "crash": {
+            "fault": "crash",
+            "ok": true,
+            "orphan_cleaned": true
+          },
+          "deferred_during_recovery": true,
+          "resumed_after_release": true
+        }
+      ]
+    }
+  },
+  "ok": true
+}

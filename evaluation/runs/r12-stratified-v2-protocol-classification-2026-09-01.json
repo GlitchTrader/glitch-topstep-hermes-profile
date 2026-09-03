@@ -1,0 +1,22 @@
+{
+  "schema_version": "glitch.topstep.run_protocol_classification.v1",
+  "run_id": "scenario-live-2026-09-01-r12-stratified-v2",
+  "classified_utc": "2026-09-01T23:59:00Z",
+  "provenance_integrity": "PASS",
+  "protocol_conformance": "PASS",
+  "promotion_eligible": false,
+  "canonical_evidence": true,
+  "reasons": [
+    "cohort_v2_digest_f8c212f6_matched",
+    "corpus_validation_9_of_9_without_skip_validation",
+    "frozen_manifest_verified_before_replay",
+    "operator_frames_a49c317a_c776a976_per_v2_manifest"
+  ],
+  "blocking_reasons": [
+    "aggregated_comparable_pairs_2_of_5_insufficient_sample"
+  ],
+  "audit_ref": "evaluation/runs/stratified-cohort-v1-v2-audit-2026-09-01.json",
+  "cohort_digest_ref": "evaluation/runs/stratified-cohort-digest-v2-2026-09-01.json",
+  "verdict": "canonical_v2_execution_complete",
+  "gate_aggregation": "included_in_canonical_gate_r7_r10_r11_r12_v2"
+}

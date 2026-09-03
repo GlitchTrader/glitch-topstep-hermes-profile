@@ -1,0 +1,209 @@
+{
+  "schema_version": "glitch.topstep.profile_capability_matrix.v1",
+  "matrix_version": "2026-09-02-v3",
+  "common_context": [
+    "immutable snapshot and snapshot_hash",
+    "current and prior bars",
+    "quote and timestamp",
+    "instrument and exact contract",
+    "session and market phase",
+    "position and exposure",
+    "read-only risk context",
+    "temporal validity",
+    "data quality and alignment",
+    "bounded recent history",
+    "long, short, hold, or flat eligibility",
+    "normalized output contract"
+  ],
+  "source_catalog": {
+    "ohlc": {
+      "description": "Completed and partial bars across observation timeframes",
+      "packet_paths": [
+        "market_observation.observation.timeframes",
+        "market_observation.timeframes",
+        "market.session_high",
+        "market.session_low"
+      ]
+    },
+    "quote": {
+      "description": "Live quote and spread",
+      "packet_paths": ["market.last", "market.bid", "market.ask", "market.quote_timestamp"]
+    },
+    "structure": {
+      "description": "Swing structure and named levels",
+      "packet_paths": [
+        "structural_levels",
+        "market_observation.observation.timeframes",
+        "market_observation.timeframes"
+      ]
+    },
+    "session": {
+      "description": "Session phase and playbook context",
+      "packet_paths": ["policy", "market.session_levels", "market_alignment"]
+    },
+    "orderflow": {
+      "description": "Prints, delta, depth, and tape",
+      "packet_paths": ["order_flow", "price_delta_relationship"]
+    },
+    "indicators": {
+      "description": "Derived indicator fields in observation frames",
+      "packet_paths": [
+        "market_observation.observation.timeframes",
+        "market_observation.timeframes"
+      ]
+    },
+    "risk_context": {
+      "description": "Read-only account and policy context",
+      "packet_paths": ["account", "policy", "data_quality"]
+    }
+  },
+  "profiles": {
+    "baseline-current": {
+      "profile_id": "baseline-current",
+      "description": "Frozen production cognition reference; no challenger enrichments",
+      "skills": [
+        "topstep-observe-market",
+        "topstep-market-scan",
+        "topstep-assess-risk",
+        "topstep-form-thesis",
+        "topstep-build-intent",
+        "topstep-position-management"
+      ],
+      "required_sources": ["ohlc", "quote", "session", "risk_context"],
+      "optional_sources": ["structure", "orderflow", "indicators"],
+      "forbidden_inference": ["inferring absent orderflow as directional proof"],
+      "horizon_bars": { "min": 5, "max": 10 },
+      "tools": [
+        { "name": "market_observation", "version": "1" },
+        { "name": "scanner_contract", "version": "1" }
+      ],
+      "comparability": {
+        "comparable_when": ["ohlc.available", "quote.available"],
+        "incomparable_when": ["ohlc.missing_required", "quote.missing_required"]
+      },
+      "comparability_notes": "Reference lane; must use production prompt_version from registry"
+    },
+    "structure": {
+      "profile_id": "structure",
+      "description": "Trend, breakout, pullback, levels, and swing structure",
+      "skills": [
+        "topstep-observe-market",
+        "topstep-setup-state",
+        "topstep-form-thesis",
+        "topstep-build-intent"
+      ],
+      "required_sources": ["ohlc", "quote", "structure", "session"],
+      "optional_sources": ["risk_context", "indicators"],
+      "forbidden_inference": ["inferring orderflow or tape not present in packet"],
+      "horizon_bars": { "min": 5, "max": 10 },
+      "tools": [
+        { "name": "structural_levels", "version": "1" },
+        { "name": "setup_state", "version": "1" }
+      ],
+      "comparability": {
+        "comparable_when": ["structure.available", "session.available"],
+        "incomparable_when": ["structure.missing_required"]
+      },
+      "comparability_notes": "Comparable when structure and session sources are available or explicitly partial"
+    },
+    "adversarial-risk": {
+      "profile_id": "adversarial-risk",
+      "description": "Invalidation, missing evidence, late entry, and geometry contest",
+      "skills": [
+        "topstep-assess-risk",
+        "topstep-form-thesis"
+      ],
+      "required_sources": ["ohlc", "quote", "risk_context"],
+      "optional_sources": ["structure", "orderflow", "session"],
+      "forbidden_inference": ["implicit execution veto", "silent NOTHING substitution"],
+      "horizon_bars": { "min": 1, "max": 10 },
+      "tools": [
+        { "name": "risk_assessment", "version": "1" },
+        { "name": "entry_candidate_geometry", "version": "1" }
+      ],
+      "comparability": {
+        "comparable_when": ["quote.available", "risk_context.available"],
+        "incomparable_when": ["quote.missing_required"]
+      },
+      "comparability_notes": "Evaluates other candidates; not a directional quality score by itself"
+    },
+    "smart-money": {
+      "profile_id": "smart-money",
+      "description": "Liquidity pools, displacement, absorption, FVG, order blocks, and sweeps",
+      "skills": [
+        "topstep-observe-market",
+        "topstep-setup-state",
+        "topstep-form-thesis"
+      ],
+      "required_sources": ["ohlc", "quote", "structure", "session"],
+      "optional_sources": ["orderflow", "risk_context", "indicators"],
+      "forbidden_inference": [
+        "pattern names as directional proof",
+        "execution authority or intent submission"
+      ],
+      "execution_authority": false,
+      "horizon_bars": { "min": 5, "max": 12 },
+      "tools": [
+        { "name": "structural_levels", "version": "1" },
+        { "name": "setup_state", "version": "1" }
+      ],
+      "comparability": {
+        "comparable_when": ["structure.available", "session.available"],
+        "incomparable_when": ["structure.missing_required"]
+      },
+      "comparability_notes": "Liquidity narrative requires structure; absent structure is missing evidence not abstention"
+    },
+    "indicators": {
+      "profile_id": "indicators",
+      "description": "VWAP, moving averages, ATR, momentum, RSI/MACD, and divergences",
+      "skills": [
+        "topstep-observe-market",
+        "topstep-setup-state",
+        "topstep-form-thesis"
+      ],
+      "required_sources": ["ohlc", "quote", "indicators"],
+      "optional_sources": ["session", "risk_context", "structure"],
+      "forbidden_inference": [
+        "indicators as automatic entry triggers",
+        "execution authority or intent submission"
+      ],
+      "execution_authority": false,
+      "horizon_bars": { "min": 5, "max": 10 },
+      "tools": [
+        { "name": "market_observation", "version": "1" },
+        { "name": "scanner_contract", "version": "1" }
+      ],
+      "comparability": {
+        "comparable_when": ["indicators.available", "ohlc.available"],
+        "incomparable_when": ["indicators.missing_required", "ohlc.missing_required"]
+      },
+      "comparability_notes": "Comparable when indicator frame present; partial OHLC yields partial not veto"
+    },
+    "orderflow": {
+      "profile_id": "orderflow",
+      "description": "Aggression, delta, depth, tape, and liquidity interpretation",
+      "skills": [
+        "topstep-observe-market",
+        "orderflow-liquidity",
+        "topstep-form-thesis"
+      ],
+      "required_sources": ["ohlc", "quote", "orderflow"],
+      "optional_sources": ["session", "risk_context", "structure"],
+      "forbidden_inference": [
+        "absent depth as execution veto",
+        "execution authority or intent submission"
+      ],
+      "execution_authority": false,
+      "horizon_bars": { "min": 3, "max": 8 },
+      "tools": [
+        { "name": "market_observation", "version": "1" },
+        { "name": "scanner_contract", "version": "1" }
+      ],
+      "comparability": {
+        "comparable_when": ["orderflow.available", "quote.available"],
+        "incomparable_when": ["orderflow.missing_required"]
+      },
+      "comparability_notes": "Missing tape/depth is missing_required_evidence, not silent NOTHING"
+    }
+  }
+}

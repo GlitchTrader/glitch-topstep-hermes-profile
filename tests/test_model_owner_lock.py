@@ -60,5 +60,23 @@ class ModelOwnerLockTests(unittest.TestCase):
             )
 
 
+    def test_evaluation_acquires_and_releases(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            state = Path(root)
+            self.assertTrue(
+                acquire_model_owner(
+                    state,
+                    owner_kind="evaluation",
+                    invocation_id="run-eval",
+                )
+            )
+            owner = read_model_owner(model_owner_lock_path(state))
+            assert isinstance(owner, dict)
+            self.assertEqual(owner["owner_kind"], "evaluation")
+            self.assertEqual(owner["priority"], 40)
+            release_model_owner(state, owner_kind="evaluation", invocation_id="run-eval")
+            self.assertIsNone(read_model_owner(model_owner_lock_path(state)))
+
+
 if __name__ == "__main__":
     unittest.main()

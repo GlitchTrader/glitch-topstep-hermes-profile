@@ -1,0 +1,121 @@
+{
+  "schema_version": "glitch.topstep.ensemble_registry.v1",
+  "registry_version": "2026-09-02-v3",
+  "evaluation_only": true,
+  "promotion_status": "blocked",
+  "execution_mode": "offline_parallel_evaluation",
+  "storage_root": "evaluation/runs",
+  "runner": "scripts/run-parallel-ensemble-evaluation.py",
+  "baseline_policy": "baseline-current",
+  "capability_matrix_version": "2026-09-02-v3",
+  "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+  "candidate_schema": "glitch.topstep.normalized_candidate.v1",
+  "selection_schema": "glitch.topstep.ensemble_selection.v1",
+  "aggregator_rules_version": "2026-09-01-v2",
+  "config_version": "2026-09-02-v3",
+  "profiles": [
+    {
+      "profile_id": "baseline-current",
+      "profile_version": "1.0.0",
+      "profile_kind": "baseline",
+      "role": "baseline",
+      "prompt_version": "glitch-topstep-v17.1",
+      "enabled": true,
+      "evaluation_enabled": true,
+      "execution_authority": false,
+      "skills": [
+        "topstep-observe-market",
+        "topstep-market-scan",
+        "topstep-assess-risk",
+        "topstep-form-thesis",
+        "topstep-build-intent",
+        "topstep-position-management"
+      ],
+      "evidence_requirements_ref": "evaluation/capability-matrix.json#profiles.baseline-current"
+    },
+    {
+      "profile_id": "structure",
+      "profile_version": "1.0.0",
+      "profile_kind": "directional",
+      "role": "challenger",
+      "prompt_version": "glitch-topstep-v17.1",
+      "enabled": true,
+      "evaluation_enabled": true,
+      "execution_authority": false,
+      "skills": [
+        "topstep-observe-market",
+        "topstep-setup-state",
+        "topstep-form-thesis",
+        "topstep-build-intent"
+      ],
+      "evidence_requirements_ref": "evaluation/capability-matrix.json#profiles.structure"
+    },
+    {
+      "profile_id": "adversarial-risk",
+      "profile_version": "1.0.0",
+      "profile_kind": "reviewer",
+      "role": "observer",
+      "prompt_version": "glitch-topstep-v17.1",
+      "enabled": true,
+      "evaluation_enabled": true,
+      "execution_authority": false,
+      "skills": [
+        "topstep-assess-risk",
+        "topstep-form-thesis"
+      ],
+      "evidence_requirements_ref": "evaluation/capability-matrix.json#profiles.adversarial-risk"
+    },
+    {
+      "profile_id": "smart-money",
+      "profile_version": "1.0.0",
+      "profile_kind": "directional",
+      "role": "challenger",
+      "prompt_version": "glitch-topstep-v17.1",
+      "enabled": true,
+      "evaluation_enabled": true,
+      "execution_authority": false,
+      "skills": [
+        "topstep-observe-market",
+        "topstep-setup-state",
+        "topstep-form-thesis"
+      ],
+      "evidence_requirements_ref": "evaluation/capability-matrix.json#profiles.smart-money",
+      "profile_kit_ref": "evaluation/profiles/smart-money.v1.json"
+    },
+    {
+      "profile_id": "indicators",
+      "profile_version": "1.0.0",
+      "profile_kind": "directional",
+      "role": "challenger",
+      "prompt_version": "glitch-topstep-v17.1",
+      "enabled": true,
+      "evaluation_enabled": true,
+      "execution_authority": false,
+      "skills": [
+        "topstep-observe-market",
+        "topstep-setup-state",
+        "topstep-form-thesis"
+      ],
+      "evidence_requirements_ref": "evaluation/capability-matrix.json#profiles.indicators",
+      "profile_kit_ref": "evaluation/profiles/indicators.v1.json"
+    },
+    {
+      "profile_id": "orderflow",
+      "profile_version": "1.0.0",
+      "profile_kind": "directional",
+      "role": "challenger",
+      "prompt_version": "glitch-topstep-v17.1",
+      "enabled": true,
+      "evaluation_enabled": true,
+      "execution_authority": false,
+      "skills": [
+        "topstep-observe-market",
+        "orderflow-liquidity",
+        "topstep-form-thesis"
+      ],
+      "evidence_requirements_ref": "evaluation/capability-matrix.json#profiles.orderflow",
+      "profile_kit_ref": "evaluation/profiles/orderflow.v1.json"
+    }
+  ],
+  "deferred_profiles": []
+}

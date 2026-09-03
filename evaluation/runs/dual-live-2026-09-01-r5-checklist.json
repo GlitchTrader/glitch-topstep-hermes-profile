@@ -1,0 +1,42 @@
+{
+  "run_id": "dual-live-2026-09-01-r5",
+  "credentials_present": true,
+  "production_lane_was_active": false,
+  "operational_artifacts_unchanged": true,
+  "bundle_status": "completed",
+  "invocation_count": 4,
+  "expected_invocations": 4,
+  "all_cost_gates_passed": true,
+  "session_cost_usd": 0.000609,
+  "frame_comparisons": [
+    {
+      "frame_id": "20260820T1200Z",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "missing_required_evidence",
+      "challenger_category": "missing_required_evidence",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ]
+    },
+    {
+      "frame_id": "20260820T1201Z",
+      "baseline_profile_id": "baseline-current",
+      "challenger_profile_id": "structure",
+      "baseline_category": "missing_required_evidence",
+      "challenger_category": "missing_required_evidence",
+      "comparable_pair": false,
+      "direction_delta": null,
+      "thesis_delta": null,
+      "notes": [
+        "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+        "not_comparable preserves audit direction without thesis-quality comparison."
+      ]
+    }
+  ],
+  "bundle_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\dual-live-2026-09-01-r5.json"
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": "glitch.topstep.r16_canonical_artifacts_index.v1",
+  "run_id": "scenario-live-2026-09-02-r16-v8",
+  "cohort_version": "v8-pre-registered",
+  "cohort_digest_sha256": "b4e9289b3a0a57b3a158f8de21fc11cadb1993e1d1d6c678faaade340e043cba",
+  "executed_utc": "2026-09-02T17:36:54Z",
+  "authorized_by": "Ari",
+  "status": "canonical_execution_complete",
+  "provenance_addendum": "evaluation/reviews/R16-PROVENANCE-ADDENDUM-2026-09-02.md",
+  "provenance_classification": "change_before_first_invocation",
+  "gate_post_execution": {
+    "comparable_pairs_run": 0,
+    "comparable_pairs_envelopes": "0/3",
+    "required_min": 5,
+    "aggregated_comparable_pairs": 2,
+    "insufficient_sample": true,
+    "new_pairs_from_r16": 0
+  },
+  "collection_policy": "STOP_RERUNS_v8",
+  "bundle": "evaluation/runs/scenario-live-2026-09-02-r16-v8.json",
+  "reports": {
+    "post_execution": "evaluation/reviews/R16-POST-EXECUTION-REPORT-2026-09-02.md",
+    "provenance_addendum": "evaluation/reviews/R16-PROVENANCE-ADDENDUM-2026-09-02.md",
+    "checklist": "evaluation/runs/scenario-live-2026-09-02-r16-v8-checklist.json",
+    "qc_checklist": "evaluation/reviews/V8-REPLAY-QC-CHECKLIST-2026-09-02.md",
+    "corpus_validation": "evaluation/runs/scenario-live-2026-09-02-r16-v8-corpus-validation.json",
+    "quality": "evaluation/runs/scenario-live-2026-09-02-r16-v8-quality-report.json",
+    "diversity": "evaluation/runs/scenario-live-2026-09-02-r16-v8-diversity-metrics.json",
+    "preflight": "evaluation/runs/scenario-live-2026-09-02-r16-v8-preflight.json",
+    "authorization": "evaluation/reviews/V8-TECHNICAL-REVIEW-AUTHORIZATION-CHECKLIST-2026-09-02.md",
+    "abstention_consolidation": "evaluation/reviews/R15-R16-ABSTENTION-CONSOLIDATION-2026-09-02.md"
+  },
+  "cohort": {
+    "manifest": "evaluation/runs/stratified-cohort-manifest-v8-2026-09-02.json",
+    "digest": "evaluation/runs/stratified-cohort-digest-v8-2026-09-02.json",
+    "scenarios": "evaluation/stratified_scenarios.v8.json"
+  },
+  "invocation_count": 6,
+  "invalid_count": 0,
+  "session_cost_usd": 0.06705,
+  "cognitive_outcome": "abstention_aligned_no_edge_6_of_6"
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": "glitch.topstep.prac_capture_cost_latency.v1",
+  "session_id": "PRAC-LIMITED-2026-09-02",
+  "generated_utc": "2026-09-02T20:08:30Z",
+  "spontaneous_cycles": 8,
+  "cycle_interval_seconds": {
+    "min": 240,
+    "max": 373,
+    "median": 294,
+    "samples": [281, 298, 301, 294, 294, 373, 240]
+  },
+  "actions": {
+    "NOTHING": 8
+  },
+  "instrument_decided": ["MNQ"],
+  "note": "PRAC capture latency only — cognitive replay cost not applicable until authorized run."
+}

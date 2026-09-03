@@ -1,0 +1,478 @@
+{
+  "schema_version": "glitch.topstep.aggregator_decision_cases.v1",
+  "rules_version": "2026-09-01-v2",
+  "status": "spec_review_only",
+  "spec_reference": "evaluation/AGGREGATOR-RULES-SPEC.md",
+  "notes": [
+    "Artificial cases for spec review; no executor.",
+    "expected.result and expected.decision_code are normative per AGGREGATOR-RULES-SPEC.md."
+  ],
+  "cases": [
+    {
+      "case_id": "AGG-EQUIV-01",
+      "description": "Dois candidatos geometricamente equivalentes (thesis_quality); desempate por evidence_score.",
+      "scenario_tags": ["equivalence", "thesis_quality", "evidence_score"],
+      "inputs": {
+        "envelope_id": "env-fixture-equiv",
+        "snapshot_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "instrument": "MNQ",
+        "profiles": [
+          {
+            "profile_id": "baseline-current",
+            "normalized_state": "candidate",
+            "category": "thesis_quality",
+            "direction": "long",
+            "entry": 29394.625,
+            "stop": 29186.5,
+            "target": 29413.75,
+            "horizon_bars": 12,
+            "evidence_score": 45
+          },
+          {
+            "profile_id": "structure",
+            "normalized_state": "candidate",
+            "category": "thesis_quality",
+            "direction": "long",
+            "entry": 29394.625,
+            "stop": 29186.5,
+            "target": 29413.75,
+            "horizon_bars": 12,
+            "evidence_score": 30
+          }
+        ],
+        "objections": []
+      },
+      "expected": {
+        "result": "selected",
+        "decision_code": "EVIDENCE_SCORE_WIN",
+        "selected_profile_id": "baseline-current",
+        "failure_class": null
+      }
+    },
+    {
+      "case_id": "AGG-DIR-OPP-01",
+      "description": "Direções opostas LONG vs SHORT ambas elegíveis; nunca agrupar.",
+      "scenario_tags": ["direction_conflict", "opposite_direction"],
+      "inputs": {
+        "envelope_id": "env-fixture-dir-opp",
+        "snapshot_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "instrument": "MNQ",
+        "profiles": [
+          {
+            "profile_id": "baseline-current",
+            "normalized_state": "candidate",
+            "category": "thesis_quality",
+            "direction": "long",
+            "entry": 100.0,
+            "stop": 99.0,
+            "target": 102.0,
+            "evidence_score": 40
+          },
+          {
+            "profile_id": "structure",
+            "normalized_state": "candidate",
+            "category": "thesis_quality",
+            "direction": "short",
+            "entry": 100.0,
+            "stop": 101.0,
+            "target": 98.0,
+            "evidence_score": 50
+          }
+        ],
+        "objections": []
+      },
+      "expected": {
+        "result": "no_selection",
+        "decision_code": "DIRECTION_CONFLICT",
+        "selected_profile_id": null,
+        "failure_class": null
+      }
+    },
+    {
+      "case_id": "AGG-THESIS-QUAL-01",
+      "description": "Baseline e challenger ambos thesis_quality com thesis_delta; geometria equivalente.",
+      "scenario_tags": ["thesis_quality", "thesis_delta", "equivalence"],
+      "inputs": {
+        "envelope_id": "env-fixture-thesis-delta",
+        "snapshot_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "instrument": "MNQ",
+        "profiles": [
+          {
+            "profile_id": "baseline-current",
+            "normalized_state": "candidate",
+            "category": "thesis_quality",
+            "direction": "long",
+            "entry": 29394.625,
+            "stop": 29186.5,
+            "target": 29413.75,
+            "thesis_delta": false,
+            "evidence_score": 35
+          },
+          {
+            "profile_id": "structure",
+            "normalized_state": "candidate",
+            "category": "thesis_quality",
+            "direction": "long",
+            "entry": 29394.625,
+            "stop": 29186.5,
+            "target": 29413.75,
+            "thesis_delta": true,
+            "evidence_score": 35
+          }
+        ],
+        "objections": []
+      },
+      "expected": {
+        "result": "selected",
+        "decision_code": "PREFER_BASELINE_ON_TIE",
+        "selected_profile_id": "baseline-current",
+        "failure_class": null
+      }
+    },
+    {
+      "case_id": "AGG-CAT-DIV-01",
+      "description": "thesis_quality (candidate) vs no_edge no mesmo envelope — r7 midsession pattern.",
+      "scenario_tags": ["category_divergence", "no_edge_vs_candidate"],
+      "inputs": {
+        "envelope_id": "env-fixture-cat-div",
+        "snapshot_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "instrument": "MNQ",
+        "profiles": [
+          {
+            "profile_id": "baseline-current",
+            "normalized_state": "candidate",
+            "category": "thesis_quality",
+            "direction": "flat",
+            "entry": 29516.75,
+            "stop": 29500.75,
+            "target": 29530.0
+          },
+          {
+            "profile_id": "structure",
+            "normalized_state": "no_edge",
+            "category": "no_edge",
+            "direction": "flat"
+          }
+        ],
+        "objections": []
+      },
+      "expected": {
+        "result": "no_selection",
+        "decision_code": "ENSEMBLE_CATEGORY_DIVERGENCE",
+        "selected_profile_id": null,
+        "failure_class": null
+      }
+    },
+    {
+      "case_id": "AGG-MISS-EVID-01",
+      "description": "Um perfil missing_required_evidence excluído; outro elegível mas pool insuficiente.",
+      "scenario_tags": ["missing_required_evidence", "insufficient_agreement"],
+      "inputs": {
+        "envelope_id": "env-fixture-miss-evid",
+        "snapshot_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "instrument": "MNQ",
+        "profiles": [
+          {
+            "profile_id": "baseline-current",
+            "normalized_state": "candidate",
+            "category": "thesis_quality",
+            "direction": "long",
+            "entry": 100.0,
+            "stop": 99.0,
+            "target": 102.0,
+            "comparability": "comparable"
+          },
+          {
+            "profile_id": "structure",
+            "normalized_state": "missing_required_evidence",
+            "category": "missing_required_evidence",
+            "comparability": "not_comparable"
+          }
+        ],
+        "objections": []
+      },
+      "expected": {
+        "result": "no_selection",
+        "decision_code": "INSUFFICIENT_ENSEMBLE_AGREEMENT",
+        "selected_profile_id": null,
+        "failure_class": null,
+        "decision_trace_contains": ["MISSING_REQUIRED_EVIDENCE"]
+      }
+    },
+    {
+      "case_id": "AGG-ADV-CRIT-OBJ-01",
+      "description": "Quatro perfis concordam + adversarial critical com regra objetiva — eliminação.",
+      "scenario_tags": ["adversarial", "critical_objective"],
+      "inputs": {
+        "envelope_id": "env-fixture-adv-obj",
+        "snapshot_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "instrument": "MNQ",
+        "profiles": [
+          {
+            "profile_id": "baseline-current",
+            "normalized_state": "candidate",
+            "category": "thesis_quality",
+            "direction": "long",
+            "entry": 100.0,
+            "stop": 99.0,
+            "target": 102.0
+          },
+          {
+            "profile_id": "structure",
+            "normalized_state": "candidate",
+            "category": "thesis_quality",
+            "direction": "long",
+            "entry": 100.0,
+            "stop": 99.0,
+            "target": 102.0
+          }
+        ],
+        "objections": [
+          {
+            "severity": "critical",
+            "risk_code": "invalid_stop_geometry",
+            "objective_rule_match": true,
+            "target_profile_id": "baseline-current"
+          },
+          {
+            "severity": "critical",
+            "risk_code": "invalid_stop_geometry",
+            "objective_rule_match": true,
+            "target_profile_id": "structure"
+          }
+        ]
+      },
+      "expected": {
+        "result": "no_selection",
+        "decision_code": "ADVERSARIAL_CRITICAL_OBJECTIVE_ELIMINATION",
+        "selected_profile_id": null,
+        "failure_class": null
+      }
+    },
+    {
+      "case_id": "AGG-ADV-CRIT-NORULE-01",
+      "description": "Quatro perfis concordam + adversarial critical sem regra objetiva — normaliza para warning.",
+      "scenario_tags": ["adversarial", "critical_downgraded"],
+      "inputs": {
+        "envelope_id": "env-fixture-adv-norule",
+        "snapshot_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+        "instrument": "MNQ",
+        "profiles": [
+          {
+            "profile_id": "baseline-current",
+            "normalized_state": "candidate",
+            "category": "thesis_quality",
+            "direction": "long",
+            "entry": 100.0,
+            "stop": 99.0,
+            "target": 102.0,
+            "evidence_score": 30
+          },
+          {
+            "profile_id": "structure",
+            "normalized_state": "candidate",
+            "category": "thesis_quality",
+            "direction": "long",
+            "entry": 100.0,
+            "stop": 99.0,
+            "target": 102.0,
+            "evidence_score": 30
+          }
+        ],
+        "objections": [
+          {
+            "severity": "critical",
+            "risk_code": "subjective_narrative_concern",
+            "objective_rule_match": false,
+            "target_profile_id": "baseline-current"
+          }
+        ]
+      },
+      "expected": {
+        "result": "selected",
+        "decision_code": "ADVERSARIAL_CRITICAL_DOWNGRADED",
+        "selected_profile_id": "baseline-current",
+        "failure_class": null
+      }
+    },
+    {
+      "case_id": "AGG-TIE-BASELINE-01",
+      "description": "Empate perfeito evidence_score e warning_penalty — prefer_baseline_on_tie.",
+      "scenario_tags": ["tie", "prefer_baseline_on_tie"],
+      "inputs": {
+        "envelope_id": "env-fixture-tie",
+        "snapshot_hash": "2222222222222222222222222222222222222222222222222222222222222222",
+        "instrument": "MNQ",
+        "profiles": [
+          {
+            "profile_id": "baseline-current",
+            "normalized_state": "candidate",
+            "category": "thesis_quality",
+            "direction": "long",
+            "entry": 100.0,
+            "stop": 99.0,
+            "target": 102.0,
+            "evidence_score": 25,
+            "warning_priority_penalty": 0
+          },
+          {
+            "profile_id": "structure",
+            "normalized_state": "candidate",
+            "category": "thesis_quality",
+            "direction": "long",
+            "entry": 100.0,
+            "stop": 99.0,
+            "target": 102.0,
+            "evidence_score": 25,
+            "warning_priority_penalty": 0
+          }
+        ],
+        "objections": []
+      },
+      "expected": {
+        "result": "selected",
+        "decision_code": "PREFER_BASELINE_ON_TIE",
+        "selected_profile_id": "baseline-current",
+        "failure_class": null
+      }
+    },
+    {
+      "case_id": "AGG-TIMEOUT-01",
+      "description": "Budget global esgotado / todos perfis timeout — classified_failure.",
+      "scenario_tags": ["timeout", "classified_failure"],
+      "inputs": {
+        "envelope_id": "env-fixture-timeout",
+        "snapshot_hash": "3333333333333333333333333333333333333333333333333333333333333333",
+        "instrument": "MNQ",
+        "process": {
+          "ensemble_timeout": true,
+          "budget_exhausted_before_final_candidates": true
+        },
+        "profiles": [
+          {
+            "profile_id": "baseline-current",
+            "normalized_state": "timeout",
+            "category": "timeout"
+          },
+          {
+            "profile_id": "structure",
+            "normalized_state": "timeout",
+            "category": "timeout"
+          }
+        ],
+        "objections": []
+      },
+      "expected": {
+        "result": "classified_failure",
+        "decision_code": "ENSEMBLE_TIMEOUT",
+        "selected_profile_id": null,
+        "failure_class": "ensemble_timeout"
+      }
+    },
+    {
+      "case_id": "AGG-PROFILE-MISSING-01",
+      "description": "Perfil exigido pelo registry ausente no bundle de invocação.",
+      "scenario_tags": ["profile_missing", "classified_failure"],
+      "inputs": {
+        "envelope_id": "env-fixture-missing-profile",
+        "snapshot_hash": "4444444444444444444444444444444444444444444444444444444444444444",
+        "instrument": "MNQ",
+        "registry_required_profiles": ["baseline-current", "structure", "orderflow", "regime"],
+        "profiles": [
+          {
+            "profile_id": "baseline-current",
+            "normalized_state": "candidate",
+            "category": "thesis_quality",
+            "direction": "long",
+            "entry": 100.0,
+            "stop": 99.0,
+            "target": 102.0
+          },
+          {
+            "profile_id": "structure",
+            "normalized_state": "candidate",
+            "category": "thesis_quality",
+            "direction": "long",
+            "entry": 100.0,
+            "stop": 99.0,
+            "target": 102.0
+          }
+        ],
+        "missing_profiles": ["orderflow", "regime"],
+        "objections": []
+      },
+      "expected": {
+        "result": "classified_failure",
+        "decision_code": "PROFILE_MISSING",
+        "selected_profile_id": null,
+        "failure_class": null
+      }
+    },
+    {
+      "case_id": "AGG-INSUFFICIENT-01",
+      "description": "Único perfil elegível após exclusões (r7 041dc508 pattern) — sem consenso.",
+      "scenario_tags": ["insufficient_agreement", "schema_invalid"],
+      "inputs": {
+        "envelope_id": "env-fixture-insufficient",
+        "snapshot_hash": "5555555555555555555555555555555555555555555555555555555555555555",
+        "instrument": "MNQ",
+        "profiles": [
+          {
+            "profile_id": "baseline-current",
+            "normalized_state": "candidate",
+            "category": "thesis_quality",
+            "direction": "long",
+            "entry": 100.0,
+            "stop": 99.0,
+            "target": 102.0
+          },
+          {
+            "profile_id": "structure",
+            "normalized_state": "invalid",
+            "category": "schema_invalid",
+            "error_code": "directional_without_geometry"
+          }
+        ],
+        "objections": []
+      },
+      "expected": {
+        "result": "no_selection",
+        "decision_code": "INSUFFICIENT_ENSEMBLE_AGREEMENT",
+        "selected_profile_id": null,
+        "failure_class": null,
+        "decision_trace_contains": ["SCHEMA_INVALID"]
+      }
+    },
+    {
+      "case_id": "AGG-UNANIMOUS-ABSTAIN-01",
+      "description": "Ambos perfis no_edge — consenso de abstinência.",
+      "scenario_tags": ["no_edge", "unanimous_abstention"],
+      "inputs": {
+        "envelope_id": "env-fixture-unanimous",
+        "snapshot_hash": "6666666666666666666666666666666666666666666666666666666666666666",
+        "instrument": "MNQ",
+        "profiles": [
+          {
+            "profile_id": "baseline-current",
+            "normalized_state": "no_edge",
+            "category": "no_edge",
+            "direction": "flat"
+          },
+          {
+            "profile_id": "structure",
+            "normalized_state": "no_edge",
+            "category": "no_edge",
+            "direction": "hold"
+          }
+        ],
+        "objections": []
+      },
+      "expected": {
+        "result": "no_selection",
+        "decision_code": "ENSEMBLE_UNANIMOUS_ABSTENTION",
+        "selected_profile_id": null,
+        "failure_class": null
+      }
+    }
+  ]
+}

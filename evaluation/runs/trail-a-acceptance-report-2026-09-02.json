@@ -1,0 +1,284 @@
+{
+  "schema_version": "glitch.topstep.trail_a_acceptance.v1",
+  "generated_utc": "2026-09-02T21:39:13.994233Z",
+  "trail": "A",
+  "acceptance_id": "a1cc811e-b99b-4917-a74e-0b5fc7972798",
+  "verdict": "PASS",
+  "parallel_evaluation_acceptance": "PASS",
+  "promotion_gate": false,
+  "corpus_hash": "526e0a6aeaf2c6d6de946b548397b450a2b653fb7cc90f80649b027ef2dde443",
+  "parallel_run_id": "287eb3d7-e877-4867-9d8c-702c43b4c867",
+  "sequential_run_id": "9b345847-53df-447d-9136-df0e6ac455dc",
+  "gate_checks": {
+    "parallel_evaluation_only": true,
+    "max_parallel_slots_2": true,
+    "three_profiles": true,
+    "isolation_work_dirs_unique": true,
+    "hermes_home_markers": true,
+    "sequential_parallel_normalized_match": true,
+    "aggregator_order_invariant": true,
+    "aggregator_rules_validated": true,
+    "zero_production_writes": true,
+    "failures_classified": true,
+    "within_cost_budget": true,
+    "within_latency_budget": true,
+    "unittest_suite_pass": true
+  },
+  "aggregator_battery": {
+    "baseline_signature": {
+      "outcome": "no_selection",
+      "decision_code": "ENSEMBLE_CATEGORY_DIVERGENCE",
+      "selected_profile_id": null,
+      "failure_class": null
+    },
+    "permutations": [
+      {
+        "order": "original",
+        "signature": {
+          "outcome": "no_selection",
+          "decision_code": "ENSEMBLE_CATEGORY_DIVERGENCE",
+          "selected_profile_id": null,
+          "failure_class": null
+        }
+      },
+      {
+        "order": "reversed",
+        "signature": {
+          "outcome": "no_selection",
+          "decision_code": "ENSEMBLE_CATEGORY_DIVERGENCE",
+          "selected_profile_id": null,
+          "failure_class": null
+        }
+      },
+      {
+        "order": "random_0",
+        "signature": {
+          "outcome": "no_selection",
+          "decision_code": "ENSEMBLE_CATEGORY_DIVERGENCE",
+          "selected_profile_id": null,
+          "failure_class": null
+        }
+      },
+      {
+        "order": "random_1",
+        "signature": {
+          "outcome": "no_selection",
+          "decision_code": "ENSEMBLE_CATEGORY_DIVERGENCE",
+          "selected_profile_id": null,
+          "failure_class": null
+        }
+      },
+      {
+        "order": "random_2",
+        "signature": {
+          "outcome": "no_selection",
+          "decision_code": "ENSEMBLE_CATEGORY_DIVERGENCE",
+          "selected_profile_id": null,
+          "failure_class": null
+        }
+      },
+      {
+        "order": "random_3",
+        "signature": {
+          "outcome": "no_selection",
+          "decision_code": "ENSEMBLE_CATEGORY_DIVERGENCE",
+          "selected_profile_id": null,
+          "failure_class": null
+        }
+      },
+      {
+        "order": "random_4",
+        "signature": {
+          "outcome": "no_selection",
+          "decision_code": "ENSEMBLE_CATEGORY_DIVERGENCE",
+          "selected_profile_id": null,
+          "failure_class": null
+        }
+      }
+    ],
+    "scenarios": {
+      "all_no_edge": {
+        "outcome": "no_selection",
+        "decision_code": "ENSEMBLE_UNANIMOUS_ABSTENTION",
+        "selected_profile_id": null,
+        "failure_class": null
+      },
+      "one_candidate": {
+        "outcome": "no_selection",
+        "decision_code": "ENSEMBLE_CATEGORY_DIVERGENCE",
+        "selected_profile_id": null,
+        "failure_class": null
+      },
+      "equivalent": {
+        "outcome": "no_selection",
+        "decision_code": "ENSEMBLE_CATEGORY_DIVERGENCE",
+        "selected_profile_id": null,
+        "failure_class": null
+      },
+      "opposite": {
+        "outcome": "no_selection",
+        "decision_code": "DIRECTION_CONFLICT",
+        "selected_profile_id": null,
+        "failure_class": null
+      },
+      "critical_objective": {
+        "outcome": "no_selection",
+        "decision_code": "ADVERSARIAL_CRITICAL_OBJECTIVE_ELIMINATION",
+        "selected_profile_id": null,
+        "failure_class": null
+      },
+      "critical_no_rule": {
+        "outcome": "selected",
+        "decision_code": "ADVERSARIAL_CRITICAL_DOWNGRADED",
+        "selected_profile_id": "baseline-current",
+        "failure_class": null
+      },
+      "missing_profile": {
+        "outcome": "classified_failure",
+        "decision_code": "PROFILE_MISSING",
+        "selected_profile_id": null,
+        "failure_class": null
+      }
+    },
+    "checks": {
+      "order_invariance": true,
+      "all_no_edge_no_selection": true,
+      "missing_profile_classified_failure": true,
+      "critical_no_rule_does_not_eliminate": true
+    },
+    "pass": true
+  },
+  "sequential_vs_parallel": {
+    "frame_count": 2,
+    "normalized_state_match": true,
+    "mismatches": [],
+    "sequential_total_latency_ms": 9,
+    "parallel_total_latency_ms": 9,
+    "sequential_invocations": 6,
+    "parallel_invocations": 6,
+    "parallel_faster": true,
+    "metrics": {
+      "schema_version": "glitch.topstep.ensemble_metrics.v1",
+      "frame_count": 2,
+      "total_latency_ms": 9,
+      "session_cost_usd": 0.06,
+      "failure_rate": 0.0,
+      "no_edge_rate": 0.0,
+      "candidate_rate": 0.0,
+      "profile_divergence_frames": 0,
+      "aggregator_outcomes": {
+        "no_selection": 2
+      },
+      "state_counts": {
+        "missing_required_evidence": 6
+      },
+      "per_profile": {
+        "structure": {
+          "invocation_count": 2,
+          "latency_ms_p50": 2,
+          "latency_ms_total": 3,
+          "cost_usd_total": 0.02,
+          "no_edge_rate": 0.0,
+          "candidate_rate": 0.0
+        },
+        "baseline-current": {
+          "invocation_count": 2,
+          "latency_ms_p50": 2,
+          "latency_ms_total": 3,
+          "cost_usd_total": 0.02,
+          "no_edge_rate": 0.0,
+          "candidate_rate": 0.0
+        },
+        "adversarial-risk": {
+          "invocation_count": 2,
+          "latency_ms_p50": 2,
+          "latency_ms_total": 3,
+          "cost_usd_total": 0.02,
+          "no_edge_rate": 0.0,
+          "candidate_rate": 0.0
+        }
+      },
+      "evaluation_only": true,
+      "promotion_gate": false
+    }
+  },
+  "execution_metrics": {
+    "session_cost_usd": 0.06,
+    "total_latency_ms": 9,
+    "max_parallel_slots": 2,
+    "slot_peak_observed": 2,
+    "cancellations": 0,
+    "classified_failures": 0,
+    "per_profile": {
+      "structure": {
+        "invocation_count": 2,
+        "latency_ms_p50": 2,
+        "latency_ms_total": 3,
+        "cost_usd_total": 0.02,
+        "no_edge_rate": 0.0,
+        "candidate_rate": 0.0
+      },
+      "baseline-current": {
+        "invocation_count": 2,
+        "latency_ms_p50": 2,
+        "latency_ms_total": 3,
+        "cost_usd_total": 0.02,
+        "no_edge_rate": 0.0,
+        "candidate_rate": 0.0
+      },
+      "adversarial-risk": {
+        "invocation_count": 2,
+        "latency_ms_p50": 2,
+        "latency_ms_total": 3,
+        "cost_usd_total": 0.02,
+        "no_edge_rate": 0.0,
+        "candidate_rate": 0.0
+      }
+    },
+    "aggregator_outcomes": {
+      "no_selection": 2
+    },
+    "no_edge_rate": 0.0,
+    "profile_divergence_frames": 0,
+    "promotion_gate": false
+  },
+  "production_audit": {
+    "production_root": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep",
+    "runner_touches_forbidden_paths": false,
+    "forbidden_paths_exist_pre_run": [
+      "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state\\outbox",
+      "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state\\receipts"
+    ],
+    "forbidden_path_check": false
+  },
+  "unittest": {
+    "runs": [
+      {
+        "command": "unittest tests.test_ensemble_parallel_aggregator -v",
+        "exit_code": 0,
+        "pass": true
+      },
+      {
+        "command": "unittest tests.test_evaluation_lease -v",
+        "exit_code": 0,
+        "pass": true
+      },
+      {
+        "command": "unittest discover -s tests -p test_*.py",
+        "exit_code": 0,
+        "pass": true
+      }
+    ],
+    "full_suite_pass": true,
+    "tests_run": 581
+  },
+  "hashes": {
+    "parallel_run_digest": "9710e0fbc8bd4519bcc1acd35af12bce6593b58277c2e5bed5ccd43973d61f51",
+    "aggregator_baseline": {
+      "outcome": "no_selection",
+      "decision_code": "ENSEMBLE_CATEGORY_DIVERGENCE",
+      "selected_profile_id": null,
+      "failure_class": null
+    }
+  }
+}

@@ -1,0 +1,187 @@
+{
+  "schema_version": "glitch.topstep.frozen_measurement_audit.v1",
+  "recorded_utc": "2026-09-01T23:25:13.224404Z",
+  "track": "J",
+  "ok": true,
+  "cohort_output": "evaluation/runs/cohort-provenance-audit-2026-09-01-r10.json",
+  "steps": [
+    {
+      "script": "audit-artifact-provenance.py",
+      "command": [
+        "C:\\Users\\arifr\\AppData\\Local\\hermes\\hermes-agent\\venv\\Scripts\\python.exe",
+        "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\scripts\\audit-artifact-provenance.py",
+        "--runs-dir",
+        "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs",
+        "--cohort-output",
+        "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\cohort-provenance-audit-2026-09-01-r10.json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"output\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\runs\\\\artifact-provenance-audit.json\",\n  \"scanned_artifact_count\": 40,\n  \"historical_drift_total\": 3,\n  \"sidecars\": [],\n  \"decision_output\": null,\n  \"cohort_output\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\runs\\\\cohort-provenance-audit-2026-09-01-r10.json\"\n}",
+      "stderr": null,
+      "parsed_stdout": {
+        "output": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\artifact-provenance-audit.json",
+        "scanned_artifact_count": 40,
+        "historical_drift_total": 3,
+        "sidecars": [],
+        "decision_output": null,
+        "cohort_output": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\cohort-provenance-audit-2026-09-01-r10.json"
+      }
+    },
+    {
+      "script": "verify-frozen-cohort.py",
+      "command": [
+        "C:\\Users\\arifr\\AppData\\Local\\hermes\\hermes-agent\\venv\\Scripts\\python.exe",
+        "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\scripts\\verify-frozen-cohort.py",
+        "--manifest",
+        "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\frozen-cohort-manifest-2026-09-01.json",
+        "--repo-root",
+        "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"schema_version\": \"glitch.topstep.frozen_cohort_verify.v1\",\n  \"manifest_path\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\runs\\\\frozen-cohort-manifest-2026-09-01.json\",\n  \"ok\": true,\n  \"file_hash_drifts\": [],\n  \"version_drifts\": [],\n  \"checked_files\": [\n    {\n      \"path\": \"evaluation/evaluation_output_contract.v1.json\",\n      \"sha256\": \"da1ae8715edf3bfc5fc79ae8646891a72fedfeeaa7cd0944291d849246375b7c\"\n    },\n    {\n      \"path\": \"evaluation/registry.json\",\n      \"sha256\": \"a5088e2215ad5d33decdeeea520ab6091d1a7442fc51f882406d0963143e164d\"\n    },\n    {\n      \"path\": \"evaluation/sample_quality_gate.v1.json\",\n      \"sha256\": \"df1352877a8e3303100865f4f640796a2f7ec24c128f63a112f48dfb3d60547b\"\n    },\n    {\n      \"path\": \"evaluation/SAMPLING-PLAN-2026-09-01.md\",\n      \"sha256\": \"4456a61f67be4bd13b7ea90dd46ca3279070ce32cc802f0b82346f88fa57d01f\"\n    },\n    {\n      \"path\": \"evaluation/comparable_scenarios.v2.json\",\n      \"sha256\": \"187b9aaf54db35f91e648d8eb758091bdbb64b28a9619bb1886b8e0836cdbedc\"\n    }\n  ],\n  \"frozen_versions\": {\n    \"prompt_version\": \"glitch-topstep-v17.1\",\n    \"adapter_version\": \"2026-09-01-v1\",\n    \"schema_version\": \"glitch.topstep.evaluation_output_contract.v1\",\n    \"registry_version\": \"2026-09-01-v2\",\n    \"normalization_version\": \"2026-09-01-post-candidate-flat-rule\"\n  },\n  \"collection_queue_count\": 6\n}",
+      "stderr": null,
+      "parsed_stdout": {
+        "schema_version": "glitch.topstep.frozen_cohort_verify.v1",
+        "manifest_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\frozen-cohort-manifest-2026-09-01.json",
+        "ok": true,
+        "file_hash_drifts": [],
+        "version_drifts": [],
+        "checked_files": [
+          {
+            "path": "evaluation/evaluation_output_contract.v1.json",
+            "sha256": "da1ae8715edf3bfc5fc79ae8646891a72fedfeeaa7cd0944291d849246375b7c"
+          },
+          {
+            "path": "evaluation/registry.json",
+            "sha256": "a5088e2215ad5d33decdeeea520ab6091d1a7442fc51f882406d0963143e164d"
+          },
+          {
+            "path": "evaluation/sample_quality_gate.v1.json",
+            "sha256": "df1352877a8e3303100865f4f640796a2f7ec24c128f63a112f48dfb3d60547b"
+          },
+          {
+            "path": "evaluation/SAMPLING-PLAN-2026-09-01.md",
+            "sha256": "4456a61f67be4bd13b7ea90dd46ca3279070ce32cc802f0b82346f88fa57d01f"
+          },
+          {
+            "path": "evaluation/comparable_scenarios.v2.json",
+            "sha256": "187b9aaf54db35f91e648d8eb758091bdbb64b28a9619bb1886b8e0836cdbedc"
+          }
+        ],
+        "frozen_versions": {
+          "prompt_version": "glitch-topstep-v17.1",
+          "adapter_version": "2026-09-01-v1",
+          "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+          "registry_version": "2026-09-01-v2",
+          "normalization_version": "2026-09-01-post-candidate-flat-rule"
+        },
+        "collection_queue_count": 6
+      },
+      "status": "ran",
+      "manifest": "evaluation/runs/frozen-cohort-manifest-2026-09-01.json"
+    }
+  ],
+  "cohort_provenance": {
+    "schema_version": "glitch.topstep.cohort_provenance_audit.v1",
+    "cohort": "r7+r8+r9",
+    "scanned_invocation_count": 40,
+    "hashes": {
+      "hash_integrity_ok_count": 40,
+      "envelope_identity_ok_count": 40
+    },
+    "versions": {
+      "version_alignment_ok_count": 40,
+      "normalization_context": {
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "prompt_versions": [
+          "glitch-topstep-v17.1"
+        ],
+        "registry_version": "2026-09-01-v2",
+        "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
+        "aggregator_rules_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      }
+    },
+    "duplicates": {
+      "within_run_duplicate_count": 0,
+      "cross_run_snapshot_groups": 7
+    },
+    "timestamps": {
+      "temporal_leakage_flag_count": 0,
+      "suspicious_temporal_leakage_count": 0,
+      "suspicious_flags": []
+    },
+    "snapshot_integrity": {
+      "pipeline_repeatability_pass_count": 40,
+      "post_collection_mutation_flagged_count": 3
+    },
+    "r7_r8_r9_drift": {
+      "known_historical_drift_count": 3,
+      "known_historical_drift_artifacts": [
+        "scenario-live-2026-09-01-r7-contract-baseline-current-20260901T000528Z-041dc508.json",
+        "scenario-live-2026-09-01-r7-contract-baseline-current-20260901T134026Z-bb50bbe9.json",
+        "scenario-live-2026-09-01-r7-contract-structure-20260901T000528Z-041dc508.json"
+      ],
+      "drift_by_run_prefix": {
+        "r7": 3,
+        "r8": 0,
+        "r9": 0,
+        "r10": 0
+      }
+    }
+  },
+  "verify_frozen_cohort": {
+    "script": "verify-frozen-cohort.py",
+    "command": [
+      "C:\\Users\\arifr\\AppData\\Local\\hermes\\hermes-agent\\venv\\Scripts\\python.exe",
+      "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\scripts\\verify-frozen-cohort.py",
+      "--manifest",
+      "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\frozen-cohort-manifest-2026-09-01.json",
+      "--repo-root",
+      "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"schema_version\": \"glitch.topstep.frozen_cohort_verify.v1\",\n  \"manifest_path\": \"C:\\\\Users\\\\arifr\\\\Projects\\\\glitch-topstep-hermes-profile\\\\evaluation\\\\runs\\\\frozen-cohort-manifest-2026-09-01.json\",\n  \"ok\": true,\n  \"file_hash_drifts\": [],\n  \"version_drifts\": [],\n  \"checked_files\": [\n    {\n      \"path\": \"evaluation/evaluation_output_contract.v1.json\",\n      \"sha256\": \"da1ae8715edf3bfc5fc79ae8646891a72fedfeeaa7cd0944291d849246375b7c\"\n    },\n    {\n      \"path\": \"evaluation/registry.json\",\n      \"sha256\": \"a5088e2215ad5d33decdeeea520ab6091d1a7442fc51f882406d0963143e164d\"\n    },\n    {\n      \"path\": \"evaluation/sample_quality_gate.v1.json\",\n      \"sha256\": \"df1352877a8e3303100865f4f640796a2f7ec24c128f63a112f48dfb3d60547b\"\n    },\n    {\n      \"path\": \"evaluation/SAMPLING-PLAN-2026-09-01.md\",\n      \"sha256\": \"4456a61f67be4bd13b7ea90dd46ca3279070ce32cc802f0b82346f88fa57d01f\"\n    },\n    {\n      \"path\": \"evaluation/comparable_scenarios.v2.json\",\n      \"sha256\": \"187b9aaf54db35f91e648d8eb758091bdbb64b28a9619bb1886b8e0836cdbedc\"\n    }\n  ],\n  \"frozen_versions\": {\n    \"prompt_version\": \"glitch-topstep-v17.1\",\n    \"adapter_version\": \"2026-09-01-v1\",\n    \"schema_version\": \"glitch.topstep.evaluation_output_contract.v1\",\n    \"registry_version\": \"2026-09-01-v2\",\n    \"normalization_version\": \"2026-09-01-post-candidate-flat-rule\"\n  },\n  \"collection_queue_count\": 6\n}",
+    "stderr": null,
+    "parsed_stdout": {
+      "schema_version": "glitch.topstep.frozen_cohort_verify.v1",
+      "manifest_path": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\evaluation\\runs\\frozen-cohort-manifest-2026-09-01.json",
+      "ok": true,
+      "file_hash_drifts": [],
+      "version_drifts": [],
+      "checked_files": [
+        {
+          "path": "evaluation/evaluation_output_contract.v1.json",
+          "sha256": "da1ae8715edf3bfc5fc79ae8646891a72fedfeeaa7cd0944291d849246375b7c"
+        },
+        {
+          "path": "evaluation/registry.json",
+          "sha256": "a5088e2215ad5d33decdeeea520ab6091d1a7442fc51f882406d0963143e164d"
+        },
+        {
+          "path": "evaluation/sample_quality_gate.v1.json",
+          "sha256": "df1352877a8e3303100865f4f640796a2f7ec24c128f63a112f48dfb3d60547b"
+        },
+        {
+          "path": "evaluation/SAMPLING-PLAN-2026-09-01.md",
+          "sha256": "4456a61f67be4bd13b7ea90dd46ca3279070ce32cc802f0b82346f88fa57d01f"
+        },
+        {
+          "path": "evaluation/comparable_scenarios.v2.json",
+          "sha256": "187b9aaf54db35f91e648d8eb758091bdbb64b28a9619bb1886b8e0836cdbedc"
+        }
+      ],
+      "frozen_versions": {
+        "prompt_version": "glitch-topstep-v17.1",
+        "adapter_version": "2026-09-01-v1",
+        "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+        "registry_version": "2026-09-01-v2",
+        "normalization_version": "2026-09-01-post-candidate-flat-rule"
+      },
+      "collection_queue_count": 6
+    },
+    "status": "ran",
+    "manifest": "evaluation/runs/frozen-cohort-manifest-2026-09-01.json"
+  }
+}

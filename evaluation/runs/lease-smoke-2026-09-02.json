@@ -1,0 +1,89 @@
+{
+  "schema_version": "glitch.topstep.evaluation_lease_smoke.v1",
+  "run_id": "lease-smoke-2026-09-02",
+  "recorded_utc": "2026-09-02T16:46:35.206311Z",
+  "profile_root": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep",
+  "modes": {
+    "smoke": {
+      "schema_version": "glitch.topstep.evaluation_lease_smoke.v1",
+      "mode": "smoke",
+      "run_id": "lease-smoke-2026-09-02",
+      "recorded_utc": "2026-09-02T16:47:53.166814Z",
+      "ok": true,
+      "production_profile": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep",
+      "operational_artifacts_unchanged": true,
+      "steps": [
+        {
+          "step": "lease_acquired",
+          "ok": true,
+          "run_id": "lease-smoke-2026-09-02"
+        },
+        {
+          "step": "cron_defer_direct_cycle",
+          "ok": true,
+          "exit_code": 0,
+          "status": {
+            "schema_version": "glitch.topstep.direct_worker_status.v2",
+            "run_id": "d7fd7fe1-53f6-40aa-b2a6-1c80a810f9a9",
+            "recorded_utc": "2026-09-02T16:46:35.408111Z",
+            "status": "deferred",
+            "phase": "evaluation_lease_active",
+            "retryable": true,
+            "blocking_evaluation_run_id": "lease-smoke-2026-09-02",
+            "worker_kind": "direct_cycle"
+          },
+          "stdout_tail": "",
+          "stderr_tail": ""
+        },
+        {
+          "step": "cron_defer_learning",
+          "ok": true,
+          "exit_code": 0,
+          "status": {
+            "schema_version": "glitch.topstep.learning_worker_status.v2",
+            "run_id": "f8c509d3-64b6-5bb4-931c-5890c7cf3632",
+            "recorded_utc": "2026-09-02T16:46:35.650591Z",
+            "status": "deferred",
+            "phase": "evaluation_lease_active",
+            "retryable": true,
+            "blocking_evaluation_run_id": "lease-smoke-2026-09-02",
+            "worker_kind": "learning"
+          },
+          "stdout_tail": "",
+          "stderr_tail": ""
+        },
+        {
+          "step": "cron_defer_wake_monitor",
+          "ok": true,
+          "exit_code": 0,
+          "status": {
+            "schema_version": "glitch.topstep.wake_monitor_status.v1",
+            "recorded_utc": "2026-09-02T16:46:35.898564Z",
+            "status": "deferred",
+            "phase": "evaluation_lease_active",
+            "retryable": true
+          },
+          "stdout_tail": "{\"polled\":false,\"reason\":\"evaluation_lease_active\",\"deferred\":true}",
+          "stderr_tail": ""
+        },
+        {
+          "step": "hold_with_active_cron_window",
+          "ok": true,
+          "hold_seconds": 12.0,
+          "wait_cron_seconds": 65.0,
+          "cron_defer_observed_during_window": true
+        },
+        {
+          "step": "lease_released",
+          "ok": true
+        },
+        {
+          "step": "cron_resume_probe",
+          "ok": true,
+          "defer_after_release": false
+        }
+      ]
+    }
+  },
+  "ok": true
+}

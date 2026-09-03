@@ -1,0 +1,80 @@
+{
+  "schema_version": "glitch.topstep.ensemble_config.v1",
+  "config_version": "2026-09-02-v3",
+  "status": "proposed_operator_approval",
+  "budget": {
+    "max_calls_per_snapshot": 6,
+    "max_calls_per_session": 36,
+    "max_cost_usd_per_session": 2.5,
+    "total_latency_budget_ms": 180000,
+    "per_profile_timeout_ms": 35000,
+    "total_timeout_ms": 120000,
+    "aggregation_budget_ms": 10000,
+    "max_parallel_slots": 2,
+    "max_replays_per_profile": 2,
+    "max_process_memory_mb": 2048,
+    "max_tokens_per_call": 50000,
+    "max_tokens_per_session": 500000
+  },
+  "timeout_policy": {
+    "mode": "sequential_global_cap",
+    "on_global_timeout": "cancel_remaining_profiles",
+    "record_state": "timeout"
+  },
+  "promotion_thresholds": {
+    "intra_profile_direction_agreement_min": 0.75,
+    "intra_profile_state_agreement_min": 0.8,
+    "entry_distance_ticks_max": 4,
+    "stop_distance_ticks_max": 6,
+    "latency_p95_ms_max": 90000,
+    "timeout_rate_max": 0.05,
+    "cost_usd_per_session_max": 2.5,
+    "min_samples_per_regime": 30,
+    "min_samples_per_instrument": 20,
+    "max_pairwise_direction_correlation": 0.92,
+    "max_regression_vs_baseline_net_return": 0.15
+  },
+  "promotion_threshold_semantics": {
+    "intra_profile_direction_agreement_min": {
+      "fields": ["direction"],
+      "denominator": "replays_with_comparable_envelope",
+      "exclude_states": [
+        "missing_required_evidence",
+        "error",
+        "timeout",
+        "invalid",
+        "data_quality_insufficient"
+      ],
+      "confidence_interval": null,
+      "notes": "Agreement across replays of the same envelope by the same profile."
+    },
+    "intra_profile_state_agreement_min": {
+      "fields": ["state"],
+      "denominator": "replays_with_comparable_envelope",
+      "exclude_states": ["error", "timeout", "invalid"],
+      "confidence_interval": null
+    },
+    "max_regression_vs_baseline_net_return": {
+      "measure": "net_return_ratio",
+      "relative_to": "baseline-current",
+      "interpretation": "relative_fraction_not_absolute_dollars",
+      "gate_role": "promotion_blocker_not_diagnostic_only"
+    },
+    "max_pairwise_direction_correlation": {
+      "gate_role": "diagnostic_warning_only",
+      "notes": "Above threshold triggers review; does not auto-disable a profile in v1."
+    },
+    "min_samples_per_instrument": {
+      "conclusion_allowed": "instrument_level_stability_review_only",
+      "notes": "20 samples is insufficient for promotion by itself."
+    }
+  },
+  "rollback": {
+    "enabled_modes": [
+      "baseline-current",
+      "previous_aggregator",
+      "shadow-only",
+      "disabled"
+    ]
+  }
+}

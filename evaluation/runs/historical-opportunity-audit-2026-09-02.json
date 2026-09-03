@@ -1,0 +1,889 @@
+{
+  "schema_version": "glitch.topstep.historical_opportunity_audit.v1",
+  "recorded_utc": "2026-09-02T21:01:43.056377Z",
+  "evidence_root": "C:\\Users\\arifr\\Projects\\glitch-topstep\\docs\\evidence",
+  "session_count": 11,
+  "source_status": "historical_opportunity_source_unavailable",
+  "minimum_usable_spontaneous_real_with_outcome": 3,
+  "counts": {
+    "espont\u00e2neo": 49,
+    "dirigido": 0,
+    "candidato_real": 0,
+    "NOTHING": 49,
+    "daily_capture_locked": 25,
+    "data_degradation": 0,
+    "exact_join": 48,
+    "outcome_posterior_available": 44,
+    "usable_spontaneous_real_with_outcome": 0
+  },
+  "sessions": [
+    {
+      "session_id": "PRAC-LIMITED-2026-09-02",
+      "status": "audited",
+      "chain_count": 8,
+      "exact_join_count": 8,
+      "chains": [
+        {
+          "session_id": "PRAC-LIMITED-2026-09-02",
+          "packet_id": "b5fd08f8-dd0b-499a-9d5a-be05ac247fef",
+          "snapshot_hash": "2157c91874e31e627c0e45940542e34d2e17637141d6655bd5516539329efc04",
+          "intent_id": "04d05df9-ca39-514c-b023-08dd55ce46c4",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-LIMITED-2026-09-02",
+          "packet_id": "3dd35e83-a202-46c9-81dd-9d5ef1f6ff68",
+          "snapshot_hash": "8bb17040e5c45c6bd72a14c18a834fa29c962eb204ea250c18864a9519ea5617",
+          "intent_id": "dc06bbaf-091c-58ef-bcbe-9365e19b60ee",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-LIMITED-2026-09-02",
+          "packet_id": "0d305fc5-24a6-42fe-a137-00c77ae848e6",
+          "snapshot_hash": "5c6ae6859c0ff5436580798bf64c5eae7b3baa8fee3878a9c625e834d12fc962",
+          "intent_id": "3a1c869c-62f9-5837-9ef5-35259cad9321",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-LIMITED-2026-09-02",
+          "packet_id": "d7d1b4fb-ef40-49c4-a502-5c6e793fff59",
+          "snapshot_hash": "ab13b33dc98b4a8d793ff61daffee29cbec93f781ffafb0dc5a14bf344f95130",
+          "intent_id": "27e4e0a1-f3cb-5037-aba8-6ded4e5add7f",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-LIMITED-2026-09-02",
+          "packet_id": "b7219c00-7b8e-4d33-a569-a397d39cc757",
+          "snapshot_hash": "b3014dca8b63d0dc1b1a12c93f504c3a25587a58d4768f960d7e9fd80e4b00d7",
+          "intent_id": "1a46de7d-68e2-551c-bd91-6838778ebab8",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-LIMITED-2026-09-02",
+          "packet_id": "b071ff79-a8e4-4dbc-a188-b1fc982eddca",
+          "snapshot_hash": "c7f6f6e814bab822976411c2267e63dc238ff700a26d3903fea3ff64d54d7bc4",
+          "intent_id": "08d84d1c-437c-51b4-9450-1a2a69b52c93",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-LIMITED-2026-09-02",
+          "packet_id": "7800e8c3-dc4d-440b-aa6a-2433057418a7",
+          "snapshot_hash": "0437b984991052ee95825b932eea388698524bc4a17a7b4bfd39e0b13f04237d",
+          "intent_id": "dbbc29e1-1de1-5eb1-9cd2-80e43e8ba038",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-LIMITED-2026-09-02",
+          "packet_id": "ce29fef7-3080-490c-aadf-f7934b63e39c",
+          "snapshot_hash": "eb1c990b60629bc411425fb854d61d7ca0f0bb307aa020f81a3c85b8a377b06d",
+          "intent_id": "498d1be5-a1dc-5987-a055-fb73379a9f08",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        }
+      ]
+    },
+    {
+      "session_id": "PRAC-SOAK-2026-08-21",
+      "status": "skipped",
+      "reason": "no_evidence_chain_manifest"
+    },
+    {
+      "session_id": "PRAC-SOAK-2026-08-25-post-audit-wave",
+      "status": "skipped",
+      "reason": "no_evidence_chain_manifest"
+    },
+    {
+      "session_id": "PRAC-SOAK-2026-08-31",
+      "status": "skipped",
+      "reason": "no_evidence_chain_manifest"
+    },
+    {
+      "session_id": "PRAC-SOAK-2026-09-01",
+      "status": "audited",
+      "chain_count": 9,
+      "exact_join_count": 9,
+      "chains": [
+        {
+          "session_id": "PRAC-SOAK-2026-09-01",
+          "packet_id": "59375017-e83b-4198-9c77-93fddcb223c8",
+          "snapshot_hash": "9e33d2a1658598c78add4a8e4b6d0f73981cf97e9ea14cf839382aeee6cf6a3c",
+          "intent_id": "47fd4ae1-d87e-5c08-a848-57aef46db21e",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-01",
+          "packet_id": "4bd5490f-95c7-46f3-a54c-525679468c30",
+          "snapshot_hash": "a32122808716fcbeead30258f8590e4c4c7f199df28b37e4183f52d7720d2c61",
+          "intent_id": "f988a89b-9acb-5bb3-92dd-5619603bc48f",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-01",
+          "packet_id": "065ef854-9063-41c4-8f92-611f78248c51",
+          "snapshot_hash": "b38c9a3403baf9a4787baf556e85af4d9e911d6d305638d326401537e90e24c7",
+          "intent_id": "08fbc188-90f4-5f80-af22-c174fdf3887e",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-01",
+          "packet_id": "e8df6b82-5df7-4a46-9c0d-cc01e0ab147d",
+          "snapshot_hash": "ed2a59e84e5fbfc906c78adfe2b92e1191eb52cf6c846bb26f605b6606cdbe83",
+          "intent_id": "c0ea9abc-0ae6-564b-8582-274c7f6123c9",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-01",
+          "packet_id": "aba921ec-7fcf-4a40-98d8-c1c9e4fa7134",
+          "snapshot_hash": "19abe58f252897b2d27678ecff74a1e1483e87e09c219caa941874bef52cdb80",
+          "intent_id": "08a20613-e7cc-5599-827a-d0890f55502a",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-01",
+          "packet_id": "c88c2945-f9c7-4e51-8b07-5228b8dc6de5",
+          "snapshot_hash": "eaca9be20a9fe911b276846cd4e9e61fccdfe487b688d221cb0dff5d04748d1f",
+          "intent_id": "919d1f5b-3fca-56c7-b8b7-959d183411cc",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-01",
+          "packet_id": "2a71dbe9-4cc2-4bce-917b-28a791fe5ed8",
+          "snapshot_hash": "1de28b4f7d3187141b93576f5b0e3924b4f7f329854be62f090e4fb2ddaa7a80",
+          "intent_id": "a9f1364f-21c5-5d2c-90f9-e91660347667",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-01",
+          "packet_id": "2e035875-57f2-4033-aa6f-86694fdb83b2",
+          "snapshot_hash": "6401976439d31c5e5594c0ac9e61995380ead9f62dcdcbef2defe3fb8dde4b6c",
+          "intent_id": "10e758d7-f42a-5441-b7cb-63769cb8effa",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-01",
+          "packet_id": "1d6d2774-ae59-4432-a7a3-167ab334b6d2",
+          "snapshot_hash": "874955ebf6c7e6887e37b979090c75701efe40bc06d77e71840db246026fca01",
+          "intent_id": "702c1eb7-aa09-5f91-a168-5cffda67d6f7",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        }
+      ]
+    },
+    {
+      "session_id": "PRAC-SOAK-2026-09-01-session-filtered",
+      "status": "audited",
+      "chain_count": 13,
+      "exact_join_count": 12,
+      "chains": [
+        {
+          "session_id": "PRAC-SOAK-2026-09-01-session-filtered",
+          "packet_id": "31275ddd-c8b9-4329-a648-4eb5902d3aa5",
+          "snapshot_hash": "d8550a6f011c3b7c683d7e868b3ebded2ff992590594e359049d8cb798534da8",
+          "intent_id": "a2667083-c297-5540-95b1-5f0a5a6b4a81",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": false,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-01-session-filtered",
+          "packet_id": "d3ee2039-2a54-4268-884f-146dcf9f4490",
+          "snapshot_hash": "0ed4bc1e351d98a4c390849a6a7a83b256b74d96de5028c0f0fc04057e8d6fb5",
+          "intent_id": "22f52c9d-97fd-5581-a690-06f5918d1ea2",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": false,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-01-session-filtered",
+          "packet_id": "6e798737-1afb-4314-9602-1a2437cc48fd",
+          "snapshot_hash": "ecccf8833a5081bc6e0391a5916325aee1726fbc85baf694ca23f1745df069f8",
+          "intent_id": "082a9640-9195-5d53-92d1-8c39260c0693",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": false,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-01-session-filtered",
+          "packet_id": "1dbfb38d-d154-4cda-80e6-4889634febdb",
+          "snapshot_hash": "0c2c9df90e87d8edac09181673407e704270d60a50f8c926df251f7c030f7925",
+          "intent_id": "bd409803-7cbe-535c-95d1-aeaac1c135cf",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": false,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-01-session-filtered",
+          "packet_id": "80b58aae-1fb5-44c9-9c24-5faf60be083f",
+          "snapshot_hash": "3ba24ac3221ee706a0b5b1c1e4845a34f0c4370e373508c463e35f7eae8ea79f",
+          "intent_id": "66fea34a-1a1c-5d44-9f3c-1036ec78c836",
+          "action": "NOTHING",
+          "join_exact": false,
+          "receipt_present": false,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": false,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-01-session-filtered",
+          "packet_id": "59375017-e83b-4198-9c77-93fddcb223c8",
+          "snapshot_hash": "9e33d2a1658598c78add4a8e4b6d0f73981cf97e9ea14cf839382aeee6cf6a3c",
+          "intent_id": "47fd4ae1-d87e-5c08-a848-57aef46db21e",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-01-session-filtered",
+          "packet_id": "4bd5490f-95c7-46f3-a54c-525679468c30",
+          "snapshot_hash": "a32122808716fcbeead30258f8590e4c4c7f199df28b37e4183f52d7720d2c61",
+          "intent_id": "f988a89b-9acb-5bb3-92dd-5619603bc48f",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-01-session-filtered",
+          "packet_id": "065ef854-9063-41c4-8f92-611f78248c51",
+          "snapshot_hash": "b38c9a3403baf9a4787baf556e85af4d9e911d6d305638d326401537e90e24c7",
+          "intent_id": "08fbc188-90f4-5f80-af22-c174fdf3887e",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-01-session-filtered",
+          "packet_id": "e8df6b82-5df7-4a46-9c0d-cc01e0ab147d",
+          "snapshot_hash": "ed2a59e84e5fbfc906c78adfe2b92e1191eb52cf6c846bb26f605b6606cdbe83",
+          "intent_id": "c0ea9abc-0ae6-564b-8582-274c7f6123c9",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-01-session-filtered",
+          "packet_id": "aba921ec-7fcf-4a40-98d8-c1c9e4fa7134",
+          "snapshot_hash": "19abe58f252897b2d27678ecff74a1e1483e87e09c219caa941874bef52cdb80",
+          "intent_id": "08a20613-e7cc-5599-827a-d0890f55502a",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-01-session-filtered",
+          "packet_id": "c88c2945-f9c7-4e51-8b07-5228b8dc6de5",
+          "snapshot_hash": "eaca9be20a9fe911b276846cd4e9e61fccdfe487b688d221cb0dff5d04748d1f",
+          "intent_id": "919d1f5b-3fca-56c7-b8b7-959d183411cc",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-01-session-filtered",
+          "packet_id": "2a71dbe9-4cc2-4bce-917b-28a791fe5ed8",
+          "snapshot_hash": "1de28b4f7d3187141b93576f5b0e3924b4f7f329854be62f090e4fb2ddaa7a80",
+          "intent_id": "a9f1364f-21c5-5d2c-90f9-e91660347667",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-01-session-filtered",
+          "packet_id": "2e035875-57f2-4033-aa6f-86694fdb83b2",
+          "snapshot_hash": "6401976439d31c5e5594c0ac9e61995380ead9f62dcdcbef2defe3fb8dde4b6c",
+          "intent_id": "10e758d7-f42a-5441-b7cb-63769cb8effa",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        }
+      ]
+    },
+    {
+      "session_id": "PRAC-SOAK-2026-09-02",
+      "status": "audited",
+      "chain_count": 3,
+      "exact_join_count": 3,
+      "chains": [
+        {
+          "session_id": "PRAC-SOAK-2026-09-02",
+          "packet_id": "cb1139d6-2bae-441e-a7ba-25b13d96ca2d",
+          "snapshot_hash": "497bef614b690280833eef2a3d05eb574120c588f187544424d7d9680ae65fc6",
+          "intent_id": "212af0b7-b886-5dd8-a950-bf3d93d8b4a9",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-02",
+          "packet_id": "1a8dbc33-f305-4762-8616-ba05b4a6de06",
+          "snapshot_hash": "823bf6b6d2a0a7b01aa6b68cfb49b8ef4244cc18a515bd87db2e55b42952a5f4",
+          "intent_id": "dbb6daad-6b29-5274-a3a4-2bf0ff923d6d",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "clean"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-02",
+          "packet_id": "b7730ea3-dadc-4a15-82c3-9d710d880a64",
+          "snapshot_hash": "9fe91fe3ffea1ac74422b31c819cbf7adedb022684c851095bfb60a5c5826a15",
+          "intent_id": "7a5a4af8-bb18-58cd-bb1b-df36c9ba2bea",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        }
+      ]
+    },
+    {
+      "session_id": "PRAC-SOAK-2026-09-02-diversity",
+      "status": "audited",
+      "chain_count": 3,
+      "exact_join_count": 3,
+      "chains": [
+        {
+          "session_id": "PRAC-SOAK-2026-09-02-diversity",
+          "packet_id": "fedf09de-e202-44b8-8618-117ece849e09",
+          "snapshot_hash": "d7f72492e33de045c1e2955bdcd8749c7c5a828eb4cd5256b54b1ddc98fb707b",
+          "intent_id": "9f2c514a-cd7c-5dbf-8a23-df9f4f413522",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-02-diversity",
+          "packet_id": "8ff26413-9767-4f92-bd5a-bc8b6bc50bfb",
+          "snapshot_hash": "fd75870773b33e3ba44ce36e87f5cbe785e705f92106710307ae3b8a6655ec3d",
+          "intent_id": "af67f82c-6d74-5001-be4f-58eecb8f9e3c",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-02-diversity",
+          "packet_id": "56090490-104c-4560-be45-8fa73def1cf8",
+          "snapshot_hash": "653e875f311f2f76524f0429a9461eb37cd80e691ce5a22087824dc62826c43f",
+          "intent_id": "ad2293ec-e0a4-502d-a354-93a3301a43dd",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        }
+      ]
+    },
+    {
+      "session_id": "PRAC-SOAK-2026-09-02-long",
+      "status": "audited",
+      "chain_count": 4,
+      "exact_join_count": 4,
+      "chains": [
+        {
+          "session_id": "PRAC-SOAK-2026-09-02-long",
+          "packet_id": "358cec55-5c3e-4df6-b851-1560806b8de0",
+          "snapshot_hash": "932dff16483120219127758edceed9c65c7d75c455e2637bd54f93ea2773bc78",
+          "intent_id": "96890c9e-8d0b-5884-8eed-7e6e2336e0dc",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-02-long",
+          "packet_id": "db31fa40-e6ba-4c75-8f81-a9d8ac41ea25",
+          "snapshot_hash": "c6373da7a7743072304caee27e495a3baa2c2f516f6b0b9de0d232b20d6edf4e",
+          "intent_id": "654e7e9b-249c-5baa-90ab-6aea74efa2b9",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-02-long",
+          "packet_id": "8c4e5912-f9b0-487f-94be-98b99d02a90d",
+          "snapshot_hash": "001bc34f604771bbe3abb900f37cb466621732ea2d07bf9ed20a5b68ba761482",
+          "intent_id": "2ede5631-3156-5db8-9275-00beb77eff31",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-02-long",
+          "packet_id": "4d39411f-9e77-4d51-abb0-02139af4be08",
+          "snapshot_hash": "287d7edb764955aed4211c529b770fd63a88b07e07aeb38bb10b170f436f06f2",
+          "intent_id": "581f4057-6e9d-5fdf-9c1c-76a27c0a8951",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        }
+      ]
+    },
+    {
+      "session_id": "PRAC-SOAK-2026-09-02-v8",
+      "status": "audited",
+      "chain_count": 3,
+      "exact_join_count": 3,
+      "chains": [
+        {
+          "session_id": "PRAC-SOAK-2026-09-02-v8",
+          "packet_id": "4fdd308c-7422-4d28-a889-2ffbe9150ff6",
+          "snapshot_hash": "756baed891c9d5595a9cdb5ab90f6da346d7f6df897e5d9fb41a5c83c6abe98f",
+          "intent_id": "01f3d0a0-5df1-53c0-8158-b227c8f46c0d",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-02-v8",
+          "packet_id": "86a52bbc-63a2-42f6-ae8c-c776ddc164c2",
+          "snapshot_hash": "5d990d1ce8ccef9df530807cad35300426f6462ae4876d46732967b8afb03eb3",
+          "intent_id": "18123780-cecf-5703-9938-ee7a91827229",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-02-v8",
+          "packet_id": "c62a7390-3332-4910-b358-6b83d9214277",
+          "snapshot_hash": "ef1d19a3a46635be27346b657b728787a8240cfe44984dab6645093fd541c8de",
+          "intent_id": "d58d822c-afa8-5ef7-bfbd-17431e8ec77a",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        }
+      ]
+    },
+    {
+      "session_id": "PRAC-SOAK-2026-09-02-v9",
+      "status": "audited",
+      "chain_count": 6,
+      "exact_join_count": 6,
+      "chains": [
+        {
+          "session_id": "PRAC-SOAK-2026-09-02-v9",
+          "packet_id": "c5f24442-ae33-472d-ac87-1595ec04ac75",
+          "snapshot_hash": "90419eacb08fa2e25c30aa7f86c92c06a2e43b7a5f8edbe1ad7f8563a6681298",
+          "intent_id": "e39033dd-8c87-5141-b8d5-618f4b01dba2",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-02-v9",
+          "packet_id": "ab6e5383-d15d-4677-818a-a50e7dfdd83e",
+          "snapshot_hash": "f2ed26d48a1285854eaa485091c9d39b160a9fafc4ee2541ee74497ced9fd61c",
+          "intent_id": "0bde6c27-8f71-53f6-8379-6453844840a3",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-02-v9",
+          "packet_id": "79fa9dae-f4f7-4b47-af96-bd457d1c8048",
+          "snapshot_hash": "85af31f83af552361a33b0f6eecd734a44d646f9246610db4a1efb1a10198acb",
+          "intent_id": "e5f32907-d621-5861-a38a-f830eb7bfe5d",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-02-v9",
+          "packet_id": "08066af5-82e2-44dd-8755-babe2446fab8",
+          "snapshot_hash": "dcf95b6eae0ac48e377c759d77218c5501218720a81c350783eca9469f48bee9",
+          "intent_id": "e1e9f7f2-11f1-5e43-91b7-26cede5be2ff",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-02-v9",
+          "packet_id": "54dde640-6b37-4472-82cf-ba5306a94eb7",
+          "snapshot_hash": "107e71bd11b573b7e04100390d52d63bf652ac8d7381a7b0d9c6c3f0222f435d",
+          "intent_id": "62c03c79-db15-5aa1-b06b-9a593a9487e7",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        },
+        {
+          "session_id": "PRAC-SOAK-2026-09-02-v9",
+          "packet_id": "92f0a8a8-f057-4685-929a-425ca876d521",
+          "snapshot_hash": "0a49ef5a3e53f69dc3b1b639b8b16aabc635a85550e1efec746a973b6c2c9313",
+          "intent_id": "cacbf6a3-d9c3-5cd0-a87d-94dffeab6e07",
+          "action": "NOTHING",
+          "join_exact": true,
+          "receipt_present": true,
+          "classification": {
+            "origin": "espont\u00e2neo",
+            "decision_class": "NOTHING",
+            "operational": "daily_capture_locked"
+          },
+          "outcome_posterior_available": true,
+          "usable_for_directional_superiority": false
+        }
+      ]
+    }
+  ],
+  "policy": {
+    "no_approximate_timestamp_join": true,
+    "directed_tests_not_superiority_evidence": true,
+    "fabricate_data": false
+  }
+}

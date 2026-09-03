@@ -19,7 +19,7 @@ from common import (
     utc_now,
 )
 
-OwnerKind = Literal["direct_cycle", "learning", "wake_monitor", "repair"]
+OwnerKind = Literal["direct_cycle", "learning", "wake_monitor", "repair", "evaluation"]
 OwnerState = Literal[
     "waiting",
     "active",
@@ -34,6 +34,7 @@ PRIORITY = {
     "direct_cycle": 100,
     "repair": 90,
     "wake_monitor": 80,
+    "evaluation": 40,
     "learning": 10,
 }
 

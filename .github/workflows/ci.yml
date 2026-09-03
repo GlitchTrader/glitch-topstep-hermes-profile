@@ -17,6 +17,8 @@ jobs:
           python-version: '3.12'
       - run: python -m py_compile scripts/*.py plugins/topstep-control/__init__.py
       - run: python scripts/check_profile_quality.py
+      - name: Ensemble evaluation gate tests
+        run: python -m unittest tests.test_ensemble_evaluation -v
       - run: python -m unittest discover -s tests -p 'test_*.py'
       - name: Validate SHA256SUMS
         run: python -c "from pathlib import Path; import sys; sys.path.insert(0,'scripts'); from distribution_manifest import verify_sha256sums; errors=verify_sha256sums(Path('.')); assert not errors, errors"

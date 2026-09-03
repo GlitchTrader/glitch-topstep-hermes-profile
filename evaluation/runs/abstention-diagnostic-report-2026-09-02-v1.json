@@ -1,0 +1,100 @@
+{
+  "schema_version": "glitch.topstep.abstention_diagnostic_report.v1",
+  "report_version": "2026-09-02-v1",
+  "recorded_utc": "2026-09-02T19:14:46.492502Z",
+  "classification": {
+    "track": "abstention_diagnostic",
+    "diagnostic_only": true,
+    "promotion_use_allowed": false
+  },
+  "metrics": {
+    "no_edge_rate": {
+      "numerator": 85,
+      "denominator": 105,
+      "rate": 0.8095238095238095
+    },
+    "no_edge_rate_by_profile": {
+      "structure": {
+        "numerator": 43,
+        "denominator": 52,
+        "rate": 0.8269230769230769
+      },
+      "baseline-current": {
+        "numerator": 42,
+        "denominator": 52,
+        "rate": 0.8076923076923077
+      }
+    },
+    "no_edge_with_complete_evidence": {
+      "numerator": 0,
+      "denominator": 0,
+      "rate": null
+    },
+    "no_edge_with_partial_evidence": {
+      "numerator": 74,
+      "denominator": 74,
+      "rate": 1.0
+    },
+    "intra_profile_state_agreement": {
+      "numerator": 8,
+      "denominator": 14,
+      "rate": 0.5714285714285714
+    },
+    "baseline_structure_divergence": {
+      "bilateral_thesis": 2,
+      "category_divergence": 12,
+      "aligned_abstention": 38
+    },
+    "opportunity_coverage": {
+      "numerator": 11,
+      "denominator": 47,
+      "rate": 0.23404255319148937
+    },
+    "candidate_rate_by_profile": {
+      "baseline-current": {
+        "numerator": 6,
+        "denominator": 52,
+        "rate": 0.11538461538461539
+      },
+      "structure": {
+        "numerator": 7,
+        "denominator": 52,
+        "rate": 0.1346153846153846
+      }
+    },
+    "no_edge_rate_by_instrument": {
+      "MNQ": {
+        "numerator": 85,
+        "denominator": 105,
+        "rate": 0.8095238095238095
+      }
+    },
+    "no_edge_rate_by_completeness": {
+      "partial": {
+        "numerator": 74,
+        "denominator": 85,
+        "rate": 0.8705882352941177
+      },
+      "unknown": {
+        "numerator": 11,
+        "denominator": 85,
+        "rate": 0.12941176470588237
+      }
+    },
+    "cost_per_decision_usd": 0.009526,
+    "cost_per_no_edge_usd": 0.011767,
+    "latency_p50_ms": 11922,
+    "latency_p95_ms": 16422
+  },
+  "runs_included": [
+    "r7",
+    "r10",
+    "r11",
+    "r12-v2",
+    "r13-v3",
+    "r14",
+    "r15",
+    "r16",
+    "r17"
+  ]
+}

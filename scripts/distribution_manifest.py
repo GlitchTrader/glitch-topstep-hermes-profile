@@ -21,6 +21,19 @@ SHA256SUMS_FILENAME = "SHA256SUMS"
 STAGING_ARTIFACTS = frozenset({".git", ".gitattributes"})
 
 
+def _git_tracked_relative_paths(root: Path) -> set[str]:
+    import subprocess
+
+    try:
+        out = subprocess.check_output(
+            ["git", "-C", str(root), "ls-files", "-z"],
+            stderr=subprocess.DEVNULL,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return set()
+    return {part.decode("utf-8", "surrogateescape") for part in out.split(b"\0") if part}
+
+
 
 def read_distribution_version(root: Path | None = None) -> str:
     root = root or DISTRIBUTION_ROOT
@@ -74,6 +87,7 @@ def regenerate_sha256sums(root: Path | None = None) -> list[str]:
         "config.yaml", "distribution.yaml", "docs", "operator.json", "paired-contract.json",
         "plugins", "scripts", "setup.ps1", "skills", "tests",
     }
+    tracked = _git_tracked_relative_paths(root)
     paths = sorted(
         path for path in root.rglob("*")
         if path.is_file()
@@ -82,6 +96,7 @@ def regenerate_sha256sums(root: Path | None = None) -> list[str]:
         and ".git" not in path.parts
         and "__pycache__" not in path.parts
         and path.suffix not in {".pyc", ".pyo"}
+        and path.relative_to(root).as_posix() in tracked
     )
     for path in paths:
         relative = path.relative_to(root).as_posix()

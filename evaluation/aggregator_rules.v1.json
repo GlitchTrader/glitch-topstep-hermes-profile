@@ -1,0 +1,160 @@
+{
+  "schema_version": "glitch.topstep.aggregator_rules.v1",
+  "rules_version": "2026-09-01-v2",
+  "status": "approved_for_technical_review",
+  "outputs": {
+    "selected": "One candidate passed validation, capacity gate, expiry check, and adversarial rules",
+    "no_selection": "No eligible candidate after filtering; not equivalent to NOTHING analytics",
+    "classified_failure": "Envelope, version, or process failure prevented comparison"
+  },
+  "candidate_equivalence": {
+    "version": "2026-09-01-v2",
+    "same_instrument_required": true,
+    "same_direction_required": true,
+    "opposite_direction_never_groups": true,
+    "group_by": [
+      "instrument",
+      "contract_id",
+      "contract_generation",
+      "direction",
+      "horizon_bars"
+    ],
+    "require_stop_for_directional": true,
+    "target_optional_with_reason_field": "target_absence_reason",
+    "entry_range_vs_point": "use_range_midpoint_for_distance",
+    "tick_tolerance_by_instrument": {
+      "DEFAULT": {
+        "entry_ticks": 4,
+        "stop_ticks": 6,
+        "target_ticks": 8
+      },
+      "MNQ": {
+        "entry_ticks": 4,
+        "stop_ticks": 6,
+        "target_ticks": 8
+      },
+      "MES": {
+        "entry_ticks": 4,
+        "stop_ticks": 6,
+        "target_ticks": 8
+      }
+    },
+    "notes": [
+      "Distances are expressed in native contract ticks from envelope.contract.tick_size.",
+      "Candidates without stop are never equivalent for directional grouping.",
+      "Different contract_id or contract_generation never group together.",
+      "LONG and SHORT candidates never share an equivalence group."
+    ]
+  },
+  "evidence_score": {
+    "version": "2026-09-01-v2",
+    "required_source_available": 10,
+    "optional_source_available": 5,
+    "missing_required_penalty": -20,
+    "stale_or_inconsistent_penalty": -10,
+    "evidence_ref_bonus_each": 1,
+    "evidence_ref_bonus_cap": 5,
+    "notes": [
+      "Derived from normalized.completeness_used and evidence_refs only.",
+      "Does not use raw LLM confidence."
+    ]
+  },
+  "adversarial_severity": {
+    "info": {
+      "eliminates_candidate": false,
+      "priority_penalty": 0
+    },
+    "warning": {
+      "eliminates_candidate": false,
+      "priority_penalty": 1
+    },
+    "critical": {
+      "eliminates_candidate": "only_when_objective_rule_matches",
+      "priority_penalty": 3
+    }
+  },
+  "critical_normalization": {
+    "no_objective_rule_match": {
+      "action": "normalize_to_warning",
+      "decision_code": "ADVERSARIAL_CRITICAL_DOWNGRADED",
+      "retain_audit_trail": true,
+      "effective_severity": "warning",
+      "effective_priority_penalty": 1,
+      "notes": "critical + no_objective_rule_match -> normalize_to_warning -> retain audit trail"
+    }
+  },
+  "objective_elimination_rules": [
+    {
+      "risk_code": "invalid_stop_geometry",
+      "severity": "critical",
+      "validator": "validate_entry_candidate_geometry",
+      "description": "Entry/stop/target geometry incompatible with direction and envelope reference price"
+    },
+    {
+      "risk_code": "invalid_target_geometry",
+      "severity": "critical",
+      "validator": "validate_entry_candidate_geometry",
+      "description": "Target geometry incompatible with direction"
+    },
+    {
+      "risk_code": "identity_mismatch",
+      "severity": "critical",
+      "validator": "validate_candidate_identity",
+      "description": "Instrument or contract identity differs from envelope"
+    },
+    {
+      "risk_code": "contradictory_required_evidence",
+      "severity": "critical",
+      "validator": "validate_candidate_evidence_consistency",
+      "description": "Candidate cites evidence that contradicts envelope facts"
+    }
+  ],
+  "tiebreak_order": [
+    "drop_invalid_and_expired",
+    "drop_missing_required_evidence_for_directional_claim",
+    "apply_critical_objective_eliminations",
+    "apply_critical_normalization_without_objective_rule",
+    "prefer_higher_evidence_score",
+    "apply_warning_priority_penalty",
+    "prefer_baseline_on_tie",
+    "no_selection"
+  ],
+  "decision_table_four_agree_adversarial_rejects": [
+    {
+      "case": "four_directional_profiles_agree_adversarial_critical_with_objective_rule",
+      "result": "no_selection",
+      "selected_profile_id": null,
+      "decision_code": "ADVERSARIAL_CRITICAL_OBJECTIVE_ELIMINATION",
+      "notes": "critical + objective_rule_match -> eliminate"
+    },
+    {
+      "case": "four_directional_profiles_agree_adversarial_critical_without_objective_rule",
+      "result": "selected",
+      "selected_profile_id": "baseline-current",
+      "decision_code": "ADVERSARIAL_CRITICAL_DOWNGRADED",
+      "notes": "critical + no_objective_rule_match -> normalize_to_warning -> baseline wins tie"
+    },
+    {
+      "case": "four_directional_profiles_agree_adversarial_warning_only",
+      "result": "selected",
+      "selected_profile_id": "baseline-current",
+      "decision_code": "ADVERSARIAL_WARNING_PENALTY",
+      "notes": "warning objections reduce priority but do not eliminate without objective rule"
+    }
+  ],
+  "failure_classes": [
+    "ensemble_timeout",
+    "decision_expired",
+    "schema_invalid",
+    "version_incompatible",
+    "snapshot_divergence"
+  ],
+  "failure_class_to_output": {
+    "ensemble_timeout": "classified_failure",
+    "decision_expired": "classified_failure",
+    "schema_invalid": "classified_failure",
+    "version_incompatible": "classified_failure",
+    "snapshot_divergence": "classified_failure"
+  },
+  "spec_reference": "evaluation/AGGREGATOR-RULES-SPEC.md"
+}

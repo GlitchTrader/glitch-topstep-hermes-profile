@@ -1,0 +1,474 @@
+{
+  "schema_version": "glitch.topstep.comparable_corpus_validation.v1",
+  "scenarios_version": "2026-09-01-stratified-v2",
+  "corpus_root": "C:\\Users\\arifr\\Projects\\glitch-topstep-hermes-profile\\tests\\fixtures\\frozen_corpus\\enriched",
+  "scenario_count": 9,
+  "valid_count": 9,
+  "all_valid": true,
+  "scenarios": [
+    {
+      "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-cbb5cee1",
+      "frame_id": "20260831T233830Z-cbb5cee1",
+      "scenario_tag": "prac_directed_test",
+      "packet_id": "cbb5cee1-9ab9-478d-8ea5-6c2c434c07ea",
+      "created_utc": "2026-08-31T23:38:30.774Z",
+      "captured_utc": "2026-08-31T23:38:30.774Z",
+      "computed_snapshot_hash": "c96861f7b6334b6a2f611d564462752b7c8eb757c3cba86185cc85f584668238",
+      "packet_market_snapshot_hash": "ba8ab6194948825d5f1b4221b8a194ef214e868c8b50d52244d51eb137dde35a",
+      "manifest_snapshot_hash": "7baec005c8ed46574987e7f4511ae32c8d4ee591560a187d6c9f9d7c79d0c4ed",
+      "envelope_id": "env-c96861f7b6334b6a",
+      "envelope_hash": "826c816cbd6cdb193dc8c39caba24f94f97ae8bd93f752f42f181f6f94f2a8a6",
+      "manifest_trust": "degraded_metadata",
+      "profile_gates": {
+        "baseline-current": {
+          "profile_id": "baseline-current",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        },
+        "structure": {
+          "profile_id": "structure",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        }
+      },
+      "valid": true,
+      "issues": [
+        "manifest_snapshot_hash_stale"
+      ],
+      "blocking_issues": []
+    },
+    {
+      "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-a9c3eb80",
+      "frame_id": "20260831T234106Z-a9c3eb80",
+      "scenario_tag": "prac_directed_test",
+      "packet_id": "a9c3eb80-f05a-4041-958b-21781f35c5a0",
+      "created_utc": "2026-08-31T23:41:06.184Z",
+      "captured_utc": "2026-08-31T23:41:06.184Z",
+      "computed_snapshot_hash": "fb8c0d8daeb0fe3e883af4b61545466ba8b0805ea1f0f83ff9a26bd0c2e5bf4b",
+      "packet_market_snapshot_hash": "b523baf232b513bc96b7b455415b46977169c024ae4dd8e184e649554068d663",
+      "manifest_snapshot_hash": "068280cc25320c43e2a0f6d5f6aa0548080ae3e8bcac3f0f0e7a6dd606de98c7",
+      "envelope_id": "env-fb8c0d8daeb0fe3e",
+      "envelope_hash": "a6c22bf05b372ef292b1f6270609c5ca0a5943193735ee39c35a6d9a96e13f1b",
+      "manifest_trust": "degraded_metadata",
+      "profile_gates": {
+        "baseline-current": {
+          "profile_id": "baseline-current",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        },
+        "structure": {
+          "profile_id": "structure",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        }
+      },
+      "valid": true,
+      "issues": [
+        "manifest_snapshot_hash_stale"
+      ],
+      "blocking_issues": []
+    },
+    {
+      "scenario_id": "SCN-STRAT-PRAC-DIRECTED-TEST-818c9e79",
+      "frame_id": "20260901T002738Z-818c9e79",
+      "scenario_tag": "prac_directed_test",
+      "packet_id": "818c9e79-06dd-4ade-ba04-bf38cda7ccad",
+      "created_utc": "2026-09-01T00:27:38.229Z",
+      "captured_utc": "2026-09-01T00:27:38.229Z",
+      "computed_snapshot_hash": "b804929bd500f3933d55a58f139c81bf18e94a2c15a7d58a5e3cb7692d2d0f85",
+      "packet_market_snapshot_hash": "9008e4405cdc6e5592a0599d02c430f67256e1f3d61295421bf3b46b5ca34172",
+      "manifest_snapshot_hash": "c8316b702860037f8795d0562d5536f008e1b4bc3bbf227d737ff6dc2464de23",
+      "envelope_id": "env-b804929bd500f393",
+      "envelope_hash": "cb53fd8f915a03f84d0e78ae89abf1356e528750e730ae7d6f60c8454a3efce9",
+      "manifest_trust": "degraded_metadata",
+      "profile_gates": {
+        "baseline-current": {
+          "profile_id": "baseline-current",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        },
+        "structure": {
+          "profile_id": "structure",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        }
+      },
+      "valid": true,
+      "issues": [
+        "manifest_snapshot_hash_stale"
+      ],
+      "blocking_issues": []
+    },
+    {
+      "scenario_id": "SCN-STRAT-RECONCILIATION-5e80e1ac",
+      "frame_id": "20260901T002738Z-5e80e1ac",
+      "scenario_tag": "reconciliation",
+      "packet_id": "5e80e1ac-b6cb-4603-9fe4-c1f78247837d",
+      "created_utc": "2026-09-01T00:27:38.017Z",
+      "captured_utc": "2026-09-01T00:27:38.017Z",
+      "computed_snapshot_hash": "5f493512dad3b755d4abdf0cae0dd1510d5ea56fefd3ee6f2ba466bc02012e8a",
+      "packet_market_snapshot_hash": "445b49f68f7867958abe8a0e81eaa7c5c81afdbf6567238c9efe17e86534cacf",
+      "manifest_snapshot_hash": "a5c0507d9da5b54ba7a41fca8d03960cf5875b21113506f8c84ba07d0341c294",
+      "envelope_id": "env-5f493512dad3b755",
+      "envelope_hash": "66b16e6194645090657b09c6d94711d4bfcd198b6e9be556190e8c3e6c8006a7",
+      "manifest_trust": "degraded_metadata",
+      "profile_gates": {
+        "baseline-current": {
+          "profile_id": "baseline-current",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        },
+        "structure": {
+          "profile_id": "structure",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        }
+      },
+      "valid": true,
+      "issues": [
+        "manifest_snapshot_hash_stale"
+      ],
+      "blocking_issues": []
+    },
+    {
+      "scenario_id": "SCN-STRAT-RECONCILIATION-9866a0f9",
+      "frame_id": "20260901T020441Z-9866a0f9",
+      "scenario_tag": "reconciliation",
+      "packet_id": "9866a0f9-408e-4dcc-b8e8-eb46f3d9f791",
+      "created_utc": "2026-09-01T02:04:41.069Z",
+      "captured_utc": "2026-09-01T02:04:41.069Z",
+      "computed_snapshot_hash": "01125ccec1d9c60ad1506b96c57e6a0e3516891ff4a9034b89f5ba98713cae85",
+      "packet_market_snapshot_hash": "1c784db88eccf9e71e44610b9edff26ac20c9a269a28107dcea62fbe6523f0ae",
+      "manifest_snapshot_hash": "623132158266503f3be782840578e8ef07b6aa8f76eb88064a4c0b4b25f35f11",
+      "envelope_id": "env-01125ccec1d9c60a",
+      "envelope_hash": "3e992b026492fc9883fb4cdaec687e412a38e43fae3f3776b59d97982e124a8b",
+      "manifest_trust": "degraded_metadata",
+      "profile_gates": {
+        "baseline-current": {
+          "profile_id": "baseline-current",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        },
+        "structure": {
+          "profile_id": "structure",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        }
+      },
+      "valid": true,
+      "issues": [
+        "manifest_snapshot_hash_stale"
+      ],
+      "blocking_issues": []
+    },
+    {
+      "scenario_id": "SCN-STRAT-RESTART-8c371231",
+      "frame_id": "20260831T235211Z-8c371231",
+      "scenario_tag": "restart",
+      "packet_id": "8c371231-5b0e-433a-8f2c-4ae83478aa45",
+      "created_utc": "2026-08-31T23:52:11.587Z",
+      "captured_utc": "2026-08-31T23:52:11.587Z",
+      "computed_snapshot_hash": "5aae82b9b20f48337c3aa97a8f8f89a8caba2c9f59572d9ca99ba445cd51fa54",
+      "packet_market_snapshot_hash": "90a85b18a413b5582f0c0f3c7b4caba6fac243ed15bf796b265faf3be6fbb035",
+      "manifest_snapshot_hash": "3b1782af923808ebbf6b70152078f4f4c353ffafe23bccc7d6d6c7f025fbdc66",
+      "envelope_id": "env-5aae82b9b20f4833",
+      "envelope_hash": "87c554f599fb0b1d5bec3896dbc7e09b2268b99edb5388e596289d014f5e5017",
+      "manifest_trust": "degraded_metadata",
+      "profile_gates": {
+        "baseline-current": {
+          "profile_id": "baseline-current",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        },
+        "structure": {
+          "profile_id": "structure",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        }
+      },
+      "valid": true,
+      "issues": [
+        "manifest_snapshot_hash_stale"
+      ],
+      "blocking_issues": []
+    },
+    {
+      "scenario_id": "SCN-STRAT-RESTART-fd331ad4",
+      "frame_id": "20260831T235620Z-fd331ad4",
+      "scenario_tag": "restart",
+      "packet_id": "fd331ad4-af46-46f2-97a7-c459075e0e75",
+      "created_utc": "2026-08-31T23:56:20.872Z",
+      "captured_utc": "2026-08-31T23:56:20.872Z",
+      "computed_snapshot_hash": "f30f18d55f8c45dfcf572866b1c3a64c65d61dce43974525c433d0d228b2edce",
+      "packet_market_snapshot_hash": "c9da70dfbdd56e9a2ee568c0e356cc04c62e0c5043dbcd4cf61fa645e07106a2",
+      "manifest_snapshot_hash": "8d4f1b3050c380f533df4655bcc1e94fb0b60202b48f74eeff75f29e13893e72",
+      "envelope_id": "env-f30f18d55f8c45df",
+      "envelope_hash": "c7457e5320192686e1a55848f0743ca64031ab8a603b71bcac09b276f8191afa",
+      "manifest_trust": "degraded_metadata",
+      "profile_gates": {
+        "baseline-current": {
+          "profile_id": "baseline-current",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        },
+        "structure": {
+          "profile_id": "structure",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        }
+      },
+      "valid": true,
+      "issues": [
+        "manifest_snapshot_hash_stale"
+      ],
+      "blocking_issues": []
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-a49c317a",
+      "frame_id": "20260901T143311Z-a49c317a",
+      "scenario_tag": "operator_minute_frame",
+      "packet_id": "a49c317a-6671-43d7-90c7-99a6a412873b",
+      "created_utc": "2026-09-01T14:33:11.936Z",
+      "captured_utc": "2026-09-01T14:33:11.936Z",
+      "computed_snapshot_hash": "cc57aed5a417c7b699e9136920cc92c5d81feb5247031181bcca38b876dc430a",
+      "packet_market_snapshot_hash": "ef3c87b19720c8cfa4bdf88b28059e3ff0eff083e5219efad15654cec529e96d",
+      "manifest_snapshot_hash": "cc57aed5a417c7b699e9136920cc92c5d81feb5247031181bcca38b876dc430a",
+      "envelope_id": "env-cc57aed5a417c7b6",
+      "envelope_hash": "32fb31cf93eee01ad78ef6ece8764c8711b97fe3fbd01085cfa0a57ce6f6434c",
+      "manifest_trust": "ok",
+      "profile_gates": {
+        "baseline-current": {
+          "profile_id": "baseline-current",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        },
+        "structure": {
+          "profile_id": "structure",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        }
+      },
+      "valid": true,
+      "issues": [],
+      "blocking_issues": []
+    },
+    {
+      "scenario_id": "SCN-STRAT-OPERATOR-MINUTE-FRAME-c776a976",
+      "frame_id": "20260901T145322Z-c776a976",
+      "scenario_tag": "operator_minute_frame",
+      "packet_id": "c776a976-3bc1-4969-b760-9653eaf2d700",
+      "created_utc": "2026-09-01T14:53:22.146Z",
+      "captured_utc": "2026-09-01T14:53:22.146Z",
+      "computed_snapshot_hash": "33005ecf9096ba98bef196acdefac0c2c1156e7157c146794552ee23b217943d",
+      "packet_market_snapshot_hash": "e13a13d1a7290a0c1513551e58fc9eb88c1f1ff3627988caa09853c0f827de92",
+      "manifest_snapshot_hash": "33005ecf9096ba98bef196acdefac0c2c1156e7157c146794552ee23b217943d",
+      "envelope_id": "env-33005ecf9096ba98",
+      "envelope_hash": "6e1ef87ab183c557a7da51c799ee7b7edbba1ccc4f32368556c40ebe4e0ac505",
+      "manifest_trust": "ok",
+      "profile_gates": {
+        "baseline-current": {
+          "profile_id": "baseline-current",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "orderflow": "available",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        },
+        "structure": {
+          "profile_id": "structure",
+          "completeness_used": {
+            "indicators": "partial",
+            "ohlc": "partial",
+            "quote": "available",
+            "risk_context": "available",
+            "session": "available",
+            "structure": "partial"
+          },
+          "missing_required": [],
+          "stale_or_inconsistent": [],
+          "comparable": true,
+          "allows_directional_evaluation": true
+        }
+      },
+      "valid": true,
+      "issues": [],
+      "blocking_issues": []
+    }
+  ]
+}

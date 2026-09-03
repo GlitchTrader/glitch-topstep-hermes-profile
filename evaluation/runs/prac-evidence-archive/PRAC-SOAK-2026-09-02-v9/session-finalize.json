@@ -1,0 +1,29 @@
+{
+  "schema_version": "glitch.topstep.prac_session_finalize.v1",
+  "finalized_utc": "2026-09-02T18:33:56.555384Z",
+  "session_id": "PRAC-SOAK-2026-09-02-v9",
+  "scenario_tag": "prac_session",
+  "state_dir": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep\\state",
+  "output_dir": "C:\\Users\\arifr\\Projects\\glitch-topstep\\docs\\evidence\\PRAC-SOAK-2026-09-02-v9",
+  "export": {
+    "output_dir": "C:\\Users\\arifr\\Projects\\glitch-topstep\\docs\\evidence\\PRAC-SOAK-2026-09-02-v9",
+    "copied_files": {
+      "decisions.jsonl": "C:\\Users\\arifr\\Projects\\glitch-topstep\\docs\\evidence\\PRAC-SOAK-2026-09-02-v9\\decisions.jsonl",
+      "receipts.jsonl": "C:\\Users\\arifr\\Projects\\glitch-topstep\\docs\\evidence\\PRAC-SOAK-2026-09-02-v9\\receipts.jsonl"
+    },
+    "manifest_path": "C:\\Users\\arifr\\Projects\\glitch-topstep\\docs\\evidence\\PRAC-SOAK-2026-09-02-v9\\evidence-chain-manifest.json",
+    "manifest_row_count": 6,
+    "since_utc": "2026-09-02T18:10:06.807382Z",
+    "until_utc": null,
+    "decisions_exported": 6,
+    "receipts_exported": 6
+  },
+  "since_utc": "2026-09-02T18:10:06.807382Z",
+  "until_utc": null,
+  "validation": {
+    "valid": true,
+    "manifest_row_count": 6,
+    "issues": []
+  },
+  "chain_complete": true
+}

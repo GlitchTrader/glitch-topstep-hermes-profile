@@ -1,0 +1,73 @@
+{
+  "schema_version": "glitch.topstep.capability_matrix_audit.v1",
+  "generated_utc": "2026-09-01T20:13:06.331427Z",
+  "matrix_version": "2026-09-01-v2",
+  "registry_version": "2026-09-01-v2",
+  "registry_skill_count": 7,
+  "declared_tool_count": 6,
+  "profile_count": 3,
+  "valid": true,
+  "issues": [],
+  "profile_flags": [
+    {
+      "profile_id": "baseline-current",
+      "flag": "comparability_missing_required_source_coverage",
+      "missing_sources": [
+        "risk_context",
+        "session"
+      ],
+      "required_sources": [
+        "ohlc",
+        "quote",
+        "session",
+        "risk_context"
+      ],
+      "comparability_sources": [
+        "ohlc",
+        "quote"
+      ]
+    },
+    {
+      "profile_id": "structure",
+      "flag": "comparability_missing_required_source_coverage",
+      "missing_sources": [
+        "ohlc",
+        "quote"
+      ],
+      "required_sources": [
+        "ohlc",
+        "quote",
+        "structure",
+        "session"
+      ],
+      "comparability_sources": [
+        "session",
+        "structure"
+      ]
+    },
+    {
+      "profile_id": "adversarial-risk",
+      "flag": "comparability_missing_required_source_coverage",
+      "missing_sources": [
+        "ohlc"
+      ],
+      "required_sources": [
+        "ohlc",
+        "quote",
+        "risk_context"
+      ],
+      "comparability_sources": [
+        "quote",
+        "risk_context"
+      ]
+    }
+  ],
+  "checks": {
+    "registry_skills_on_disk": true,
+    "matrix_sources_in_catalog": true,
+    "required_optional_disjoint": true,
+    "packet_paths_dotted_syntax": true,
+    "tools_documented": true,
+    "comparability_covers_required_sources": false
+  }
+}

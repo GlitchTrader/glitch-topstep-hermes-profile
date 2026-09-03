@@ -1,0 +1,61 @@
+{
+  "schema_version": "glitch.topstep.prac_evidence_chain.v1",
+  "chain_version": "2026-09-01-v1",
+  "required_chain": [
+    "packet_id",
+    "market_snapshot_hash",
+    "intent_id",
+    "decision_record",
+    "receipt"
+  ],
+  "session_exports": {
+    "decisions_jsonl": {
+      "required": true,
+      "path_in_evidence_dir": "decisions.jsonl",
+      "description": "Snapshot append-only do journal cognitivo da sessão"
+    },
+    "receipts_jsonl": {
+      "required": true,
+      "path_in_evidence_dir": "receipts.jsonl"
+    },
+    "intent_receipts_jsonl": {
+      "required": false,
+      "path_in_evidence_dir": "intent-receipts.jsonl",
+      "note": "Complementar para testes dirigidos; cada linha deve incluir intent_id e preferencialmente packet_id"
+    },
+    "evidence_chain_manifest": {
+      "required": true,
+      "path_in_evidence_dir": "evidence-chain-manifest.json",
+      "row_fields": [
+        "packet_id",
+        "market_snapshot_hash",
+        "intent_id",
+        "decision_recorded_utc",
+        "action",
+        "receipt_recorded_utc",
+        "scenario_tag",
+        "directed_test_id",
+        "join_status"
+      ]
+    }
+  },
+  "directed_test_rules": {
+    "scenario_tag": "prac_directed_execution",
+    "counts_for_spontaneous_thesis_quality": false,
+    "must_still_record_full_chain": true
+  },
+  "join_status_values": [
+    "exact_cognitive_decision",
+    "NOTHING",
+    "spontaneous_ENTER",
+    "directed_test_intent",
+    "missing_snapshot",
+    "snapshot_mismatch",
+    "decision_without_frame"
+  ],
+  "capture_at_source": [
+    "Export decisions.jsonl ao fechar sessão PRAC (copy from state, read-only)",
+    "Append intent-receipts com packet_id quando disponível no submit",
+    "Link test summaries via intent_id + packet_id from gateway snapshot used"
+  ]
+}

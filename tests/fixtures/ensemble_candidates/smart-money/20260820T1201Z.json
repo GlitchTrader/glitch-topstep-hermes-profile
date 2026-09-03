@@ -1,0 +1,6 @@
+{
+  "state": "no_edge",
+  "direction": "flat",
+  "thesis": "No FVG or order-block trigger within horizon.",
+  "latency_ms": 1
+}

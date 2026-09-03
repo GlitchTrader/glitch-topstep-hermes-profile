@@ -1,0 +1,18 @@
+{
+  "schema_version": "glitch.topstep.phase5_opportunity_audit.v1",
+  "recorded_utc": "2026-09-02T19:22:00Z",
+  "funnel": {
+    "directed_envelope": 7,
+    "unilateral_candidate": 3,
+    "directional_signal_no_bilateral_pair": 3,
+    "valid_abstention_bilateral": 31,
+    "valid_abstention_or_divergence": 2,
+    "bilateral_thesis_quality_possible": 1,
+    "insufficient_capacity": 6
+  },
+  "total_frames": 53,
+  "bilateral_pairs": 2,
+  "frames_per_bilateral_pair": 26.5,
+  "spontaneous_frames": 53,
+  "directed_frames": 7
+}

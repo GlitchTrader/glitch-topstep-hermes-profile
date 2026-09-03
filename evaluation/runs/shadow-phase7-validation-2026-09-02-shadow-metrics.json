@@ -1,0 +1,35 @@
+{
+  "schema_version": "glitch.topstep.shadow_metrics_report.v1",
+  "generated_utc": "2026-09-02T22:19:49.913697Z",
+  "session_count": 2,
+  "latency_ms": {
+    "p50": 6,
+    "p95": 6,
+    "p99": 6
+  },
+  "cost_usd": {
+    "total": 0.06,
+    "mean_per_session": 0.03
+  },
+  "error_rate": 0.0,
+  "no_selection_rate": 1.0,
+  "divergence_events": 0,
+  "profile_direction_correlation": {
+    "adversarial-risk": 1.0,
+    "indicators": 1.0,
+    "orderflow": 1.0,
+    "smart-money": 1.0,
+    "structure": 1.0
+  },
+  "evidence_availability_rate": 1.0,
+  "snapshot_age_ms": {
+    "mean": 1160175649.0,
+    "max": 1160389904
+  },
+  "operational_writes_total": 0,
+  "aggregator_outcomes": {
+    "no_selection": 2
+  },
+  "promotion_use_allowed": false,
+  "production_parallelism": "blocked"
+}

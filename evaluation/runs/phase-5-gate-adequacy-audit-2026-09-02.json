@@ -1,0 +1,64 @@
+{
+  "schema_version": "glitch.topstep.phase5_gate_adequacy_audit.v1",
+  "recorded_utc": "2026-09-02T19:10:00Z",
+  "gate_version": "2026-09-01-v1",
+  "gate_status_unchanged": true,
+  "current_gate": {
+    "aggregated_comparable_pairs": 2,
+    "required_min": 5,
+    "insufficient_sample": true,
+    "blocked_conclusions": [
+      "profile_promotion",
+      "aggregator_executable",
+      "parallel_execution",
+      "armed_shadow_promotion"
+    ]
+  },
+  "thesis_quality_bilateral_observability": {
+    "observable_at_current_no_edge_rate": false,
+    "no_edge_invocation_rate": {
+      "numerator": 85,
+      "denominator": 105,
+      "rate": 0.8095,
+      "source": "sample-quality-gate-result-2026-09-02-r17-v9.json aggregated"
+    },
+    "comparable_pair_count_total": 2,
+    "comparable_pair_runs": ["r7", "r10"],
+    "runs_since_last_new_pair": ["r11", "r12-v2", "r13-v3", "r14", "r15", "r16", "r17"],
+    "runs_since_last_new_pair_count": 7,
+    "frames_since_r10_without_new_pair": 39,
+    "interpretation": "thesis_quality bilateral requires both profiles in comparable thesis categories; ~81% no_edge collapses observability"
+  },
+  "spontaneous_frames_per_valid_pair": {
+    "total_frames_across_r7_r17": 53,
+    "valid_bilateral_pairs": 2,
+    "frames_per_pair_historical": 26.5,
+    "spontaneous_operator_frames_r14_r17": 20,
+    "new_pairs_from_spontaneous_r14_r17": 0,
+    "prac_directed_frames_with_pairs": 2,
+    "interpretation": "valid pairs concentrated in early directed corpus; recent spontaneous PRAC frames yield 0 pairs"
+  },
+  "capture_opportunity_assessment": {
+    "sufficient_for_bilateral_gate": false,
+    "instrument_diversity_observed": false,
+    "instrument_counts": { "MNQ": 106 },
+    "recent_prac_sessions": {
+      "v7_r15": { "window_hours": ["15Z"], "comparable_pairs": 0, "no_edge_bilateral_frames": 4 },
+      "v8_r16": { "window_hours": ["17Z"], "comparable_pairs": 0, "no_edge_bilateral_frames": 3 },
+      "v9_r17": { "window_hours": ["18Z"], "comparable_pairs": 0, "no_edge_bilateral_frames": 4, "scenario_tags": ["operator_minute_frame"] }
+    },
+    "nothing_decision_dominance": "PRAC v8/v9: MNQ NOTHING 6/6 cycles",
+    "completeness_pattern": "indicators/ohlc/structure partial in r15-r17; capacity_gate comparable"
+  },
+  "no_edge_diagnostic_track_recommended": true,
+  "no_edge_diagnostic_scope": [
+    "no_edge_rate_by_profile",
+    "bilateral_alignment_rate",
+    "no_edge_by_instrument",
+    "no_edge_by_scenario_tag",
+    "no_edge_by_completeness_tier",
+    "prudence_vs_no_opportunity_classifier_offline"
+  ],
+  "official_gate_altered": false,
+  "recommended_verdict": "option_b_measurement_strategy_review"
+}

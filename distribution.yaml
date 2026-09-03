@@ -16,6 +16,7 @@ distribution_owned:
   - scripts
   - tests
   - docs
+  - evaluation
   - setup.ps1
   - README.md
   - .gitignore

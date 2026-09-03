@@ -1,0 +1,159 @@
+{
+  "schema_version": "glitch.topstep.evaluation_metrics_report.v1",
+  "run_id": "scenario-live-2026-09-01-r7-contract",
+  "artifact_count": 6,
+  "contract_validity": {
+    "invocation_count": 6,
+    "invalid_count": 1,
+    "invalid_rate": 0.16666666666666666,
+    "error_code_counts": {
+      "directional_without_geometry": 1
+    },
+    "state_counts": {
+      "candidate": 4,
+      "no_edge": 1,
+      "invalid": 1
+    }
+  },
+  "evidence_completeness": {
+    "by_profile": {
+      "baseline-current": {
+        "comparable_count": 3,
+        "not_comparable_count": 0,
+        "completeness_state_counts": {
+          "indicators:partial": 3,
+          "ohlc:partial": 3,
+          "orderflow:available": 3,
+          "quote:available": 3,
+          "risk_context:available": 3,
+          "session:available": 3,
+          "structure:partial": 3
+        },
+        "missing_required_counts": {}
+      },
+      "structure": {
+        "comparable_count": 3,
+        "not_comparable_count": 0,
+        "completeness_state_counts": {
+          "indicators:partial": 3,
+          "ohlc:partial": 3,
+          "quote:available": 3,
+          "risk_context:available": 3,
+          "session:available": 3,
+          "structure:partial": 3
+        },
+        "missing_required_counts": {}
+      }
+    }
+  },
+  "comparability": {
+    "comparable_count": 6,
+    "not_comparable_count": 0,
+    "comparable_rate": 1.0
+  },
+  "cognitive_divergence": {
+    "frame_count": 3,
+    "comparable_pair_count": 1,
+    "direction_delta_count": 0,
+    "thesis_delta_count": 1,
+    "direction_deltas": [],
+    "thesis_deltas": [
+      {
+        "frame_id": "4ac91997",
+        "scenario_id": null,
+        "thesis_delta": true
+      }
+    ]
+  },
+  "stability": {
+    "groups_with_multiple_reruns": 0,
+    "agreements": [],
+    "placeholder": "no_intra_profile_reruns; invoke run-intra-profile-repeatability.py for stability data"
+  },
+  "cost_latency": {
+    "p50_ms": 6187.0,
+    "p95_ms": 7250.0,
+    "session_cost_usd_max": 0.007681,
+    "cost_gate_failures": 0,
+    "cost_basis_counts": {
+      "estimated_tokens": 6
+    }
+  },
+  "evidence_availability": {
+    "baseline-current": {
+      "thesis_quality": 3
+    },
+    "structure": {
+      "thesis_quality": 1,
+      "no_edge": 1,
+      "schema_invalid": 1
+    }
+  },
+  "baseline_comparison": {
+    "frame_comparisons": [
+      {
+        "frame_id": "041dc508",
+        "baseline_profile_id": "baseline-current",
+        "challenger_profile_id": "structure",
+        "baseline_category": "thesis_quality",
+        "challenger_category": "schema_invalid",
+        "comparable_pair": false,
+        "direction_delta": null,
+        "thesis_delta": null,
+        "notes": [
+          "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+          "not_comparable preserves audit direction without thesis-quality comparison."
+        ]
+      },
+      {
+        "frame_id": "4ac91997",
+        "baseline_profile_id": "baseline-current",
+        "challenger_profile_id": "structure",
+        "baseline_category": "thesis_quality",
+        "challenger_category": "thesis_quality",
+        "comparable_pair": true,
+        "direction_delta": null,
+        "thesis_delta": true,
+        "notes": [
+          "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+          "not_comparable preserves audit direction without thesis-quality comparison."
+        ]
+      },
+      {
+        "frame_id": "bb50bbe9",
+        "baseline_profile_id": "baseline-current",
+        "challenger_profile_id": "structure",
+        "baseline_category": "thesis_quality",
+        "challenger_category": "no_edge",
+        "comparable_pair": false,
+        "direction_delta": null,
+        "thesis_delta": null,
+        "notes": [
+          "Categories are mutually tracked; missing_required_evidence is not counted as no_edge.",
+          "not_comparable preserves audit direction without thesis-quality comparison."
+        ]
+      }
+    ],
+    "comparable_pair_count": 1,
+    "comparable_pair_rate": 0.3333333333333333
+  },
+  "intra_profile_stability": {
+    "groups_with_multiple_reruns": 0,
+    "agreements": []
+  },
+  "decision_correlation": {
+    "pairwise_direction_agreement": [
+      {
+        "profile_a": "baseline-current",
+        "profile_b": "structure",
+        "frames_compared": 3,
+        "direction_match_rate": 1.0,
+        "diagnostic_only": true
+      }
+    ]
+  },
+  "notes": [
+    "decision_correlation is diagnostic_only; does not gate promotion in v1.",
+    "stability.placeholder set when no intra-profile reruns exist."
+  ]
+}

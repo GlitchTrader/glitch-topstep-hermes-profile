@@ -1,0 +1,6 @@
+{
+  "state": "no_edge",
+  "direction": "flat",
+  "thesis": "Baseline reference abstains on thin fixture packet.",
+  "latency_ms": 1
+}
