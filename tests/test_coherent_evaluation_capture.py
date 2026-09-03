@@ -254,7 +254,11 @@ class CoherentCaptureTests(CoherentCaptureStateMixin, unittest.TestCase):
         self.assertEqual(result["capture_mode"], "delivery_complete")
         self.assertIsNotNone(result["anchor"])
         self.assertEqual(result["anchor"]["packet_id"], "pkt-delivery-ok")
-        self.assertIn(str(frame_path), result["anchor"]["minute_frame_path"])
+        # ponytail: Windows CI may shorten temp paths (RUNNER~1 vs runneradmin)
+        self.assertEqual(
+            Path(result["anchor"]["minute_frame_path"]).resolve(),
+            frame_path.resolve(),
+        )
         self.assertEqual(result["methods_used"], [])
 
     @patch.object(MEASUREMENT, "_capacity_ok", return_value=(True, "ok"))
