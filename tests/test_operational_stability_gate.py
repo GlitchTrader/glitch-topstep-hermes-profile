@@ -15,9 +15,11 @@ from operational_stability_gate import (  # noqa: E402
     BLOCKED_BAR_CLOSE_WINDOW,
     BLOCKED_CLASSIFICATION,
     BarCloseContext,
+    _civil_minute_close_after,
     evaluate_operational_stability_sample,
     extract_bar_close_context,
     is_post_close_sample,
+    is_target_post_close_sample,
     resolve_post_close_window_seconds,
     resolve_provider_roll_latency_seconds,
     run_bar_close_aware_stability_window,
@@ -69,6 +71,37 @@ def _packet_at(now: datetime) -> dict:
                         "timeframe_minutes": 1,
                         "latest_bar_utc": latest.isoformat().replace("+00:00", "Z"),
                         "latest_bar_partial": partial,
+                        "prior_completed_bar": {
+                            "timestamp": prior.isoformat().replace("+00:00", "Z"),
+                            "open": 1,
+                            "high": 2,
+                            "low": 1,
+                            "close": 2,
+                            "volume": 10,
+                        },
+                        "bars_accepted": 500,
+                    }
+                ],
+            }
+        },
+    }
+
+
+def _stale_partial_packet(now: datetime, latest_minute: datetime) -> dict:
+    """Packet stuck on partial bar after its close — v11 warmup_sync_timeout reproduction."""
+    prior = latest_minute - timedelta(minutes=1)
+    return {
+        "data_quality": {"state_complete": True, "issues": []},
+        "account": {"instrument_open_contracts": 0},
+        "market": {"quote_timestamp": now.isoformat().replace("+00:00", "Z")},
+        "market_observation": {
+            "observation": {
+                "source": "projectx_bars",
+                "timeframes": [
+                    {
+                        "timeframe_minutes": 1,
+                        "latest_bar_utc": latest_minute.isoformat().replace("+00:00", "Z"),
+                        "latest_bar_partial": True,
                         "prior_completed_bar": {
                             "timestamp": prior.isoformat().replace("+00:00", "Z"),
                             "open": 1,
@@ -251,6 +284,245 @@ class WaitForBarCompleteTests(unittest.TestCase):
         )
         self.assertFalse(result["ready"])
         self.assertIn(result["reason"], {"bar_still_partial", "bar_close_alignment_timeout"})
+
+    def test_late_bar_roll_after_22s_abandons_boundary(self) -> None:
+        """v11 evidence: bar_roll_confirmed ~22s late must not count as ready."""
+        start = _utc(2026, 9, 8, 22, 16, 36)
+        late_roll = _utc(2026, 9, 8, 22, 17, 22)
+        clock = {"t": start}
+        fetches = {"n": 0}
+        mono = {"v": 0.0}
+
+        def now_fn() -> datetime:
+            return clock["t"]
+
+        def packet_fetcher() -> dict:
+            fetches["n"] += 1
+            if clock["t"] < late_roll:
+                return _stale_partial_packet(clock["t"], _utc(2026, 9, 8, 22, 16, 0))
+            return _stale_partial_packet(late_roll, _utc(2026, 9, 8, 22, 17, 0))
+
+        def sleep_fn(seconds: float) -> None:
+            step = max(seconds, 0.1)
+            mono["v"] += step
+            clock["t"] = clock["t"] + timedelta(seconds=step)
+
+        result = wait_for_bar_complete(
+            packet_fetcher,
+            timeout_seconds=5.0,
+            poll_seconds=0.0,
+            sleep_fn=sleep_fn,
+            monotonic_fn=lambda: mono["v"],
+            now_fn=now_fn,
+        )
+        self.assertFalse(result["ready"])
+        missed = result.get("missed_boundaries") or []
+        self.assertGreaterEqual(len(missed), 1)
+        self.assertEqual(missed[0]["reason"], "missed_post_close_window")
+
+    def test_civil_minute_close_after_aligns_with_scheduler(self) -> None:
+        self.assertEqual(
+            _civil_minute_close_after(_utc(2026, 9, 8, 22, 17, 28)),
+            _utc(2026, 9, 8, 22, 18, 0),
+        )
+        self.assertEqual(
+            _civil_minute_close_after(_utc(2026, 9, 8, 22, 18, 1)),
+            _utc(2026, 9, 8, 22, 19, 0),
+        )
+
+    def test_target_post_close_rejects_late_roll_without_prior_alignment(self) -> None:
+        now = _utc(2026, 9, 8, 22, 17, 22)
+        ctx = extract_bar_close_context(
+            _stale_partial_packet(now, _utc(2026, 9, 8, 22, 17, 0)),
+            now=now,
+        )
+        assert ctx is not None
+        target = _utc(2026, 9, 8, 22, 17, 0)
+        self.assertFalse(
+            is_target_post_close_sample(
+                now,
+                target,
+                ctx,
+                post_close_window_seconds=5.0,
+                provider_roll_latency_seconds=10.0,
+            )
+        )
+
+
+@mock.patch("operational_stability_gate._measurement_helpers")
+class MissedBoundaryRealignTests(unittest.TestCase):
+    def test_v11_stale_packet_advances_to_next_civil_close(self, helpers: mock.MagicMock) -> None:
+        """Warmup must not loop on expired 22:17 boundary when packet is stale."""
+        helpers.return_value = (lambda _p: [], lambda _p: (True, "capacity_gate"))
+        clock = {"t": _utc(2026, 9, 8, 22, 17, 28)}
+        mono = {"v": 0.0}
+        stale_minute = _utc(2026, 9, 8, 22, 17, 0)
+
+        def now_fn() -> datetime:
+            return clock["t"]
+
+        def sleep_fn(seconds: float) -> None:
+            mono["v"] += seconds
+            clock["t"] = clock["t"] + timedelta(seconds=seconds)
+
+        result = run_bar_close_aware_stability_window(
+            health_fetcher=lambda: _good_health(now_fn()),
+            packet_fetcher=lambda: _stale_partial_packet(now_fn(), stale_minute),
+            required_samples=5,
+            max_duration_seconds=600.0,
+            max_warmup_seconds=90.0,
+            post_close_poll_seconds=0.0,
+            sleep_fn=sleep_fn,
+            monotonic_fn=lambda: mono["v"],
+            now_fn=now_fn,
+        )
+        closes = [e["expected_close_utc"] for e in result.get("warmup_events") or []]
+        self.assertIn("2026-09-08T22:17:00Z", closes)
+        self.assertEqual(closes.count("2026-09-08T22:17:00Z"), 1)
+        self.assertGreater(clock["t"], _utc(2026, 9, 8, 22, 17, 28))
+
+    def test_multiple_missed_boundaries_then_success(self, helpers: mock.MagicMock) -> None:
+        helpers.return_value = (lambda _p: [], lambda _p: (True, "capacity_gate"))
+        clock = {"t": _utc(2026, 9, 8, 14, 0, 50)}
+        mono = {"v": 0.0}
+        phase = {"stale_until": _utc(2026, 9, 8, 14, 2, 0)}
+
+        def now_fn() -> datetime:
+            return clock["t"]
+
+        def sleep_fn(seconds: float) -> None:
+            mono["v"] += seconds
+            clock["t"] = clock["t"] + timedelta(seconds=seconds)
+
+        def packet_fetcher() -> dict:
+            if clock["t"] < phase["stale_until"]:
+                return _stale_partial_packet(clock["t"], _utc(2026, 9, 8, 14, 0, 0))
+            return _packet_at(clock["t"])
+
+        result = run_bar_close_aware_stability_window(
+            health_fetcher=lambda: _good_health(now_fn()),
+            packet_fetcher=packet_fetcher,
+            required_samples=3,
+            max_duration_seconds=600.0,
+            max_warmup_seconds=180.0,
+            post_close_poll_seconds=0.0,
+            sleep_fn=sleep_fn,
+            monotonic_fn=lambda: mono["v"],
+            now_fn=now_fn,
+        )
+        self.assertTrue(result["confirmed"])
+        self.assertGreaterEqual(len(result["samples"]), 3)
+        missed = [e["expected_close_utc"] for e in result.get("warmup_events") or []]
+        self.assertGreaterEqual(len(set(missed)), 1)
+
+    def test_bounded_valid_window_timeout(self, helpers: mock.MagicMock) -> None:
+        helpers.return_value = (lambda _p: [], lambda _p: (True, "capacity_gate"))
+        clock = {"t": _utc(2026, 9, 8, 14, 1, 2)}
+        mono = {"v": 0.0}
+
+        def sleep_fn(seconds: float) -> None:
+            mono["v"] += max(seconds, 0.05)
+
+        result = run_bar_close_aware_stability_window(
+            health_fetcher=lambda: _good_health(clock["t"]),
+            packet_fetcher=lambda: _packet_at(clock["t"]),
+            required_samples=5,
+            max_duration_seconds=10.0,
+            max_warmup_seconds=5.0,
+            post_close_poll_seconds=0.0,
+            sleep_fn=sleep_fn,
+            monotonic_fn=lambda: mono["v"],
+            now_fn=lambda: clock["t"],
+        )
+        self.assertFalse(result["confirmed"])
+        self.assertLessEqual(result.get("valid_window_elapsed_seconds") or 0, 10.5)
+
+    def test_packet_timeout_recorded(self, helpers: mock.MagicMock) -> None:
+        helpers.return_value = (lambda _p: [], lambda _p: (True, "capacity_gate"))
+        calls = {"n": 0}
+
+        def packet_fetcher() -> dict:
+            calls["n"] += 1
+            if calls["n"] == 1:
+                raise TimeoutError("packet timeout")
+            return _packet_at(_utc(2026, 9, 8, 14, 1, 2))
+
+        result = run_bar_close_aware_stability_window(
+            health_fetcher=lambda: _good_health(_utc(2026, 9, 8, 14, 1, 2)),
+            packet_fetcher=packet_fetcher,
+            required_samples=1,
+            max_duration_seconds=60.0,
+            post_close_poll_seconds=0.0,
+            sleep_fn=lambda _s: None,
+            monotonic_fn=lambda: 0.0,
+            now_fn=lambda: _utc(2026, 9, 8, 14, 1, 2),
+        )
+        self.assertGreaterEqual(len(result.get("gateway_timeouts") or []), 1)
+
+    def test_no_infinite_retry_on_same_boundary(self, helpers: mock.MagicMock) -> None:
+        helpers.return_value = (lambda _p: [], lambda _p: (True, "capacity_gate"))
+        clock = {"t": _utc(2026, 9, 8, 22, 17, 28)}
+        mono = {"v": 0.0}
+        iterations = {"n": 0}
+
+        def packet_fetcher() -> dict:
+            iterations["n"] += 1
+            return _stale_partial_packet(clock["t"], _utc(2026, 9, 8, 22, 17, 0))
+
+        def sleep_fn(seconds: float) -> None:
+            mono["v"] += seconds
+            clock["t"] = clock["t"] + timedelta(seconds=seconds)
+
+        result = run_bar_close_aware_stability_window(
+            health_fetcher=lambda: _good_health(clock["t"]),
+            packet_fetcher=packet_fetcher,
+            required_samples=5,
+            max_duration_seconds=600.0,
+            max_warmup_seconds=30.0,
+            post_close_poll_seconds=0.0,
+            sleep_fn=sleep_fn,
+            monotonic_fn=lambda: mono["v"],
+            now_fn=lambda: clock["t"],
+        )
+        self.assertFalse(result["confirmed"])
+        self.assertLess(iterations["n"], 50)
+        closes = [e["expected_close_utc"] for e in result.get("warmup_events") or []]
+        if len(closes) >= 2:
+            self.assertNotEqual(closes[0], closes[-1])
+
+
+@mock.patch("operational_stability_gate._measurement_helpers")
+class MissingPriorBarTests(unittest.TestCase):
+    def test_partial_without_prior_completed_bar_fails(self, helpers: mock.MagicMock) -> None:
+        helpers.return_value = (lambda _p: ["bar_1m_partial"], lambda _p: (True, "capacity_gate"))
+        now = _utc(2026, 9, 8, 14, 1, 3)
+        cur_min = now.replace(second=0, microsecond=0)
+        packet = {
+            "data_quality": {"state_complete": True, "issues": []},
+            "account": {"instrument_open_contracts": 0},
+            "market_observation": {
+                "observation": {
+                    "source": "projectx_bars",
+                    "timeframes": [
+                        {
+                            "timeframe_minutes": 1,
+                            "latest_bar_utc": cur_min.isoformat().replace("+00:00", "Z"),
+                            "latest_bar_partial": True,
+                            "bars_accepted": 500,
+                        }
+                    ],
+                }
+            },
+        }
+        verdict = evaluate_operational_stability_sample(
+            health=_good_health(now),
+            packet=packet,
+            fetched_utc=now.isoformat().replace("+00:00", "Z"),
+            now=now,
+            require_closed_bar=True,
+        )
+        self.assertFalse(verdict.ok)
+        self.assertIn("bar_1m_partial", verdict.reasons)
 
 
 @mock.patch("operational_stability_gate._measurement_helpers")

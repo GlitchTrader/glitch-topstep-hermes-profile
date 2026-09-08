@@ -137,6 +137,74 @@ def expected_close_for_context(ctx: BarCloseContext) -> datetime:
     return ref + timedelta(minutes=1)
 
 
+def _civil_minute_close_after(now: datetime) -> datetime:
+    """Next UTC civil minute close strictly after now (v11-schedule alignment)."""
+    floored = now.replace(second=0, microsecond=0)
+    return floored + timedelta(minutes=1)
+
+
+def _close_iso(close_dt: datetime) -> str:
+    return close_dt.isoformat().replace("+00:00", "Z")
+
+
+def _sample_window_end(
+    close_dt: datetime,
+    *,
+    post_close_window_seconds: float,
+    provider_roll_latency_seconds: float,
+    ctx: BarCloseContext | None = None,
+) -> datetime:
+    grace = post_close_window_seconds
+    if (
+        provider_roll_latency_seconds > 0
+        and ctx is not None
+        and ctx.latest_bar_partial
+        and ctx.prior_completed_bar_utc
+    ):
+        grace += provider_roll_latency_seconds
+    return close_dt + timedelta(seconds=grace)
+
+
+def _prior_bar_closes_at(ctx: BarCloseContext, target_close: datetime) -> bool:
+    if not ctx.prior_completed_bar_utc:
+        return False
+    try:
+        prior_close = parse_utc(ctx.prior_completed_bar_utc.replace("+00:00", "Z")) + timedelta(minutes=1)
+    except (TypeError, ValueError):
+        return False
+    return abs((prior_close - target_close).total_seconds()) < 1.0
+
+
+def is_target_post_close_sample(
+    sample_utc: datetime,
+    target_close: datetime,
+    ctx: BarCloseContext | None,
+    *,
+    post_close_window_seconds: float = DEFAULT_POST_CLOSE_WINDOW_SECONDS,
+    provider_roll_latency_seconds: float | None = None,
+) -> bool:
+    """Post-close window anchored on explicit civil close — not stale packet close."""
+    roll_latency = (
+        provider_roll_latency_seconds
+        if provider_roll_latency_seconds is not None
+        else resolve_provider_roll_latency_seconds()
+    )
+    strict_end = target_close + timedelta(seconds=post_close_window_seconds)
+    if target_close <= sample_utc <= strict_end:
+        return True
+    if (
+        roll_latency > 0
+        and ctx is not None
+        and ctx.latest_bar_partial
+        and ctx.prior_completed_bar_utc
+        and _prior_bar_closes_at(ctx, target_close)
+        and sample_utc > strict_end
+    ):
+        roll_end = target_close + timedelta(seconds=post_close_window_seconds + roll_latency)
+        return sample_utc <= roll_end
+    return False
+
+
 def is_post_close_sample(
     sample_utc: datetime,
     ctx: BarCloseContext,
@@ -458,13 +526,46 @@ def _bar_wait_ready(
     now: datetime,
     *,
     post_close_window_seconds: float = DEFAULT_POST_CLOSE_WINDOW_SECONDS,
+    provider_roll_latency_seconds: float | None = None,
+    target_close: datetime | None = None,
 ) -> bool:
     """True when sample is in post-close window with closed-bar evidence — never raw partial alone."""
-    if not is_post_close_sample(now, ctx, post_close_window_seconds=post_close_window_seconds):
+    close_dt = target_close or expected_close_for_context(ctx)
+    if not is_target_post_close_sample(
+        now,
+        close_dt,
+        ctx,
+        post_close_window_seconds=post_close_window_seconds,
+        provider_roll_latency_seconds=provider_roll_latency_seconds,
+    ):
         return False
     if not ctx.latest_bar_partial:
         return True
     return bool(ctx.prior_completed_bar_utc)
+
+
+def _record_missed_boundary(
+    bucket: list[dict[str, Any]],
+    *,
+    phase: str,
+    expected_close_utc: str,
+    fetched_utc: str,
+    ctx: BarCloseContext,
+    provider_roll_latency_seconds: float,
+    bar_roll_confirmed: bool = False,
+) -> None:
+    row: dict[str, Any] = {
+        "reason": "missed_post_close_window",
+        "phase": phase,
+        "expected_close_utc": expected_close_utc,
+        "fetched_utc": fetched_utc,
+        "latest_bar_utc": ctx.latest_bar_utc,
+        "bar_age_ms": ctx.bar_age_ms,
+        "provider_roll_latency_seconds": provider_roll_latency_seconds,
+    }
+    if bar_roll_confirmed:
+        row["bar_roll_confirmed"] = True
+    bucket.append(row)
 
 
 def wait_for_bar_complete(
@@ -472,6 +573,7 @@ def wait_for_bar_complete(
     *,
     timeout_seconds: float = 300.0,
     post_close_window_seconds: float = DEFAULT_POST_CLOSE_WINDOW_SECONDS,
+    provider_roll_latency_seconds: float | None = None,
     poll_seconds: float = 0.25,
     sleep_fn: Callable[[float], None] = time.sleep,
     monotonic_fn: Callable[[], float] = time.monotonic,
@@ -479,10 +581,17 @@ def wait_for_bar_complete(
 ) -> dict[str, Any]:
     """Wait until clock-aligned post-close window — does not poll for partial=false."""
     now_fn = now_fn or (lambda: datetime.now(timezone.utc))
+    roll_latency = (
+        provider_roll_latency_seconds
+        if provider_roll_latency_seconds is not None
+        else resolve_provider_roll_latency_seconds()
+    )
     started = monotonic_fn()
     deadline = started + timeout_seconds
     polls: list[dict[str, Any]] = []
     initial_ctx: BarCloseContext | None = None
+    abandoned_boundaries: set[str] = set()
+    missed_events: list[dict[str, Any]] = []
 
     while monotonic_fn() < deadline:
         now = now_fn()
@@ -517,12 +626,21 @@ def wait_for_bar_complete(
         if initial_ctx is None:
             initial_ctx = ctx
 
-        expected_close = expected_close_for_context(ctx)
-        window_end = expected_close + timedelta(seconds=post_close_window_seconds)
+        packet_close = expected_close_for_context(ctx)
+        packet_close_iso = _close_iso(packet_close)
+        target_close = packet_close
+        if packet_close_iso in abandoned_boundaries:
+            target_close = _civil_minute_close_after(now)
+        window_end = _sample_window_end(
+            target_close,
+            post_close_window_seconds=post_close_window_seconds,
+            provider_roll_latency_seconds=roll_latency,
+            ctx=ctx if target_close == packet_close else None,
+        )
 
-        if now < expected_close:
+        if now < target_close:
             if not _sleep_until(
-                expected_close,
+                target_close,
                 sleep_fn=sleep_fn,
                 now_fn=now_fn,
                 monotonic_fn=monotonic_fn,
@@ -546,42 +664,116 @@ def wait_for_bar_complete(
             if ctx is None:
                 sleep_fn(poll_seconds)
                 continue
-            expected_close = expected_close_for_context(ctx)
-            window_end = expected_close + timedelta(seconds=post_close_window_seconds)
+            packet_close = expected_close_for_context(ctx)
+            packet_close_iso = _close_iso(packet_close)
+            target_close = packet_close
+            if packet_close_iso in abandoned_boundaries:
+                target_close = _civil_minute_close_after(now)
+            window_end = _sample_window_end(
+                target_close,
+                post_close_window_seconds=post_close_window_seconds,
+                provider_roll_latency_seconds=roll_latency,
+                ctx=ctx if target_close == packet_close else None,
+            )
             poll_row = {
                 "fetched_utc": now.isoformat().replace("+00:00", "Z"),
                 "latest_bar_utc": ctx.latest_bar_utc,
                 "prior_completed_bar_utc": ctx.prior_completed_bar_utc,
                 "latest_bar_partial": ctx.latest_bar_partial,
-                "expected_close_utc": expected_close.isoformat().replace("+00:00", "Z"),
+                "expected_close_utc": _close_iso(target_close),
                 "phase": "post_sleep",
             }
             polls.append(poll_row)
 
-        if _bar_wait_ready(ctx, now, post_close_window_seconds=post_close_window_seconds):
+        if now > window_end:
+            abandon_iso = _close_iso(packet_close)
+            if abandon_iso not in abandoned_boundaries:
+                abandoned_boundaries.add(abandon_iso)
+                _record_missed_boundary(
+                    missed_events,
+                    phase="wait",
+                    expected_close_utc=abandon_iso,
+                    fetched_utc=now.isoformat().replace("+00:00", "Z"),
+                    ctx=ctx,
+                    provider_roll_latency_seconds=roll_latency,
+                    bar_roll_confirmed=bool(initial_ctx and _bar_roll_confirmed(initial_ctx, ctx)),
+                )
+            next_close = _civil_minute_close_after(now)
+            if not _sleep_until(
+                next_close,
+                sleep_fn=sleep_fn,
+                now_fn=now_fn,
+                monotonic_fn=monotonic_fn,
+                monotonic_deadline=deadline,
+            ):
+                break
+            initial_ctx = ctx
+            sleep_fn(poll_seconds)
+            continue
+
+        if _bar_wait_ready(
+            ctx,
+            now,
+            post_close_window_seconds=post_close_window_seconds,
+            provider_roll_latency_seconds=roll_latency,
+            target_close=target_close,
+        ):
             return {
                 "ready": True,
                 "waited_seconds": round(monotonic_fn() - started, 2),
-                "expected_close_utc": expected_close.isoformat().replace("+00:00", "Z"),
+                "expected_close_utc": _close_iso(target_close),
                 "latest_bar_utc": ctx.latest_bar_utc,
                 "prior_completed_bar_utc": ctx.prior_completed_bar_utc,
                 "latest_bar_partial": ctx.latest_bar_partial,
                 "close_reference_utc": _close_reference_utc(ctx),
                 "polls": polls,
+                "missed_boundaries": missed_events,
             }
 
         if initial_ctx and _bar_roll_confirmed(initial_ctx, ctx):
-            return {
-                "ready": True,
-                "waited_seconds": round(monotonic_fn() - started, 2),
-                "expected_close_utc": expected_close.isoformat().replace("+00:00", "Z"),
-                "latest_bar_utc": ctx.latest_bar_utc,
-                "prior_completed_bar_utc": ctx.prior_completed_bar_utc,
-                "latest_bar_partial": ctx.latest_bar_partial,
-                "close_reference_utc": _close_reference_utc(ctx),
-                "bar_roll_confirmed": True,
-                "polls": polls,
-            }
+            if _bar_wait_ready(
+                ctx,
+                now,
+                post_close_window_seconds=post_close_window_seconds,
+                provider_roll_latency_seconds=roll_latency,
+                target_close=packet_close,
+            ):
+                return {
+                    "ready": True,
+                    "waited_seconds": round(monotonic_fn() - started, 2),
+                    "expected_close_utc": _close_iso(packet_close),
+                    "latest_bar_utc": ctx.latest_bar_utc,
+                    "prior_completed_bar_utc": ctx.prior_completed_bar_utc,
+                    "latest_bar_partial": ctx.latest_bar_partial,
+                    "close_reference_utc": _close_reference_utc(ctx),
+                    "bar_roll_confirmed": True,
+                    "polls": polls,
+                    "missed_boundaries": missed_events,
+                }
+            abandon_iso = _close_iso(packet_close)
+            if abandon_iso not in abandoned_boundaries:
+                abandoned_boundaries.add(abandon_iso)
+                _record_missed_boundary(
+                    missed_events,
+                    phase="wait",
+                    expected_close_utc=abandon_iso,
+                    fetched_utc=now.isoformat().replace("+00:00", "Z"),
+                    ctx=ctx,
+                    provider_roll_latency_seconds=roll_latency,
+                    bar_roll_confirmed=True,
+                )
+            next_close = _civil_minute_close_after(now)
+            if not _sleep_until(
+                next_close,
+                sleep_fn=sleep_fn,
+                now_fn=now_fn,
+                monotonic_fn=monotonic_fn,
+                monotonic_deadline=deadline,
+            ):
+                break
+            initial_ctx = ctx
+            sleep_fn(poll_seconds)
+            continue
 
         sleep_fn(poll_seconds)
 
@@ -595,6 +787,7 @@ def wait_for_bar_complete(
         "prior_completed_bar_utc": last.get("prior_completed_bar_utc"),
         "latest_bar_partial": last.get("latest_bar_partial"),
         "polls": polls,
+        "missed_boundaries": missed_events,
     }
 
 
@@ -626,6 +819,7 @@ def run_bar_close_aware_stability_window(
     skipped: list[dict[str, Any]] = []
     gateway_timeouts: list[dict[str, Any]] = []
     seen_closed_bars: set[str] = set()
+    abandoned_boundaries: set[str] = set()
     stop_reason: str | None = None
     classification: str | None = None
     now_fn = now_fn or (lambda: datetime.now(timezone.utc))
@@ -685,14 +879,6 @@ def run_bar_close_aware_stability_window(
             )
             return None
 
-        nonlocal counting_started, valid_window_started_mono, valid_deadline, counting_started_at_utc
-        if counting_started:
-            return
-        counting_started = True
-        counting_started_at_utc = utc_now()
-        valid_window_started_mono = monotonic_fn()
-        valid_deadline = valid_window_started_mono + max_duration_seconds
-
     while len(samples) < required_samples and not _valid_budget_exhausted():
         if not counting_started and (monotonic_fn() - overall_started) > max_warmup_seconds:
             stop_reason = "warmup_sync_timeout"
@@ -711,20 +897,24 @@ def run_bar_close_aware_stability_window(
             sleep_fn(1.0)
             continue
 
-        expected_close = expected_close_for_context(ctx)
-        window_end = expected_close + timedelta(seconds=post_close_window_seconds)
-        sample_window_end = window_end
-        if roll_latency > 0 and ctx.latest_bar_partial and ctx.prior_completed_bar_utc:
-            sample_window_end = expected_close + timedelta(
-                seconds=post_close_window_seconds + roll_latency
-            )
         now = now_fn()
+        packet_close = expected_close_for_context(ctx)
+        packet_close_iso = _close_iso(packet_close)
+        target_close = packet_close
+        if packet_close_iso in abandoned_boundaries:
+            target_close = _civil_minute_close_after(now)
         phase = "warmup" if not counting_started else "valid"
-        expected_close_iso = expected_close.isoformat().replace("+00:00", "Z")
+        target_close_iso = _close_iso(target_close)
+        sample_window_end = _sample_window_end(
+            target_close,
+            post_close_window_seconds=post_close_window_seconds,
+            provider_roll_latency_seconds=roll_latency,
+            ctx=ctx if target_close == packet_close else None,
+        )
 
-        if now < expected_close:
+        if now < target_close:
             if not _sleep_until(
-                expected_close,
+                target_close,
                 sleep_fn=sleep_fn,
                 now_fn=now_fn,
                 monotonic_fn=monotonic_fn,
@@ -733,24 +923,51 @@ def run_bar_close_aware_stability_window(
                 break
             now = now_fn()
 
-        if not is_post_close_sample(
+        if now > sample_window_end:
+            abandon_iso = packet_close_iso if target_close == packet_close else target_close_iso
+            if abandon_iso not in abandoned_boundaries:
+                abandoned_boundaries.add(abandon_iso)
+                _record_missed_boundary(
+                    warmup_events if not counting_started else skipped,
+                    phase=phase,
+                    expected_close_utc=abandon_iso,
+                    fetched_utc=now.isoformat().replace("+00:00", "Z"),
+                    ctx=ctx,
+                    provider_roll_latency_seconds=roll_latency,
+                )
+            next_close = _civil_minute_close_after(now)
+            _sleep_until(
+                next_close,
+                sleep_fn=sleep_fn,
+                now_fn=now_fn,
+                monotonic_fn=monotonic_fn,
+                monotonic_deadline=(
+                    (overall_started + max_warmup_seconds)
+                    if not counting_started
+                    else valid_deadline
+                ),
+            )
+            sleep_fn(1.0)
+            continue
+
+        if not is_target_post_close_sample(
             now,
+            target_close,
             ctx,
             post_close_window_seconds=post_close_window_seconds,
             provider_roll_latency_seconds=roll_latency,
         ):
-            warmup_events.append(
-                {
-                    "reason": "missed_post_close_window",
-                    "phase": phase,
-                    "expected_close_utc": expected_close_iso,
-                    "fetched_utc": now.isoformat().replace("+00:00", "Z"),
-                    "latest_bar_utc": ctx.latest_bar_utc,
-                    "bar_age_ms": ctx.bar_age_ms,
-                    "provider_roll_latency_seconds": roll_latency,
-                }
-            )
-            next_close = expected_close + timedelta(minutes=1)
+            if target_close_iso not in abandoned_boundaries:
+                abandoned_boundaries.add(target_close_iso)
+                _record_missed_boundary(
+                    warmup_events if not counting_started else skipped,
+                    phase=phase,
+                    expected_close_utc=target_close_iso,
+                    fetched_utc=now.isoformat().replace("+00:00", "Z"),
+                    ctx=ctx,
+                    provider_roll_latency_seconds=roll_latency,
+                )
+            next_close = _civil_minute_close_after(now)
             _sleep_until(
                 next_close,
                 sleep_fn=sleep_fn,
@@ -780,12 +997,12 @@ def run_bar_close_aware_stability_window(
                     phase="valid",
                     endpoint="/health",
                     exc=exc,
-                    expected_close_utc=expected_close_iso,
+                    expected_close_utc=target_close_iso,
                 )
                 sleep_fn(post_close_poll_seconds)
                 continue
 
-            packet = _fetch_packet("valid", expected_close_iso)
+            packet = _fetch_packet("valid", target_close_iso)
             if packet is None:
                 sleep_fn(post_close_poll_seconds)
                 continue
@@ -819,8 +1036,9 @@ def run_bar_close_aware_stability_window(
                 "phase": "valid",
             }
 
-            if not is_post_close_sample(
+            if not is_target_post_close_sample(
                 sample_dt,
+                target_close,
                 ctx,
                 post_close_window_seconds=post_close_window_seconds,
                 provider_roll_latency_seconds=roll_latency,
@@ -849,7 +1067,7 @@ def run_bar_close_aware_stability_window(
             row["sample_index"] = len(samples)
             samples.append(row)
             captured = True
-            next_bar_close = expected_close + timedelta(minutes=1)
+            next_bar_close = target_close + timedelta(minutes=1)
             _sleep_until(
                 next_bar_close,
                 sleep_fn=sleep_fn,
@@ -866,10 +1084,11 @@ def run_bar_close_aware_stability_window(
                 {
                     "reason": "missed_post_close_window",
                     "phase": "valid",
-                    "expected_close_utc": expected_close_iso,
+                    "expected_close_utc": target_close_iso,
                     "fetched_utc": utc_now(),
                 }
             )
+            abandoned_boundaries.add(target_close_iso)
 
     confirmed = len(samples) >= required_samples and stop_reason is None
     if not confirmed and classification is None:
