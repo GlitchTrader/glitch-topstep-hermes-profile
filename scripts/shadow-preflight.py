@@ -194,7 +194,8 @@ def shadow_preflight(
         blocking.append("cron_active_without_coordination")
 
     home = evaluation_hermes_home()
-    bootstrap_evaluation_hermes_home()
+    bootstrap_meta: dict[str, Any] = {}
+    bootstrap_evaluation_hermes_home(metadata=bootstrap_meta)
     auth_ok, auth_err = ensure_evaluation_auth_ready(home)
     checks.append(
         {
@@ -284,6 +285,7 @@ def shadow_preflight(
         "checks": checks,
         "promotion_use_allowed": False,
         "production_parallelism": "blocked",
+        "hermes_bootstrap": bootstrap_meta,
     }
 
 

@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
 EVAL = ROOT / "evaluation"
 FIXTURES = ROOT / "tests" / "fixtures"
+sys.path.insert(0, str(SCRIPTS))
 
 
 def _load(name: str, filename: str):

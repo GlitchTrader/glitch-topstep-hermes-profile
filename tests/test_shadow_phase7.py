@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import sys
+import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -14,6 +16,48 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
 EVAL = ROOT / "evaluation"
 FIXTURES = ROOT / "tests" / "fixtures"
+sys.path.insert(0, str(SCRIPTS))
+
+_HERMES_TMP: tempfile.TemporaryDirectory[str] | None = None
+_PREV_EVAL_HERMES_HOME: str | None = None
+
+
+def setUpModule() -> None:
+    global _HERMES_TMP, _PREV_EVAL_HERMES_HOME
+    _PREV_EVAL_HERMES_HOME = os.environ.get("EVALUATION_HERMES_HOME")
+    _HERMES_TMP = tempfile.TemporaryDirectory(prefix="glitch-eval-shadow-")
+    eval_home = Path(_HERMES_TMP.name) / "glitch-topstep-evaluation"
+    eval_home.mkdir(parents=True, exist_ok=True)
+    os.environ["EVALUATION_HERMES_HOME"] = str(eval_home)
+
+
+def tearDownModule() -> None:
+    global _HERMES_TMP, _PREV_EVAL_HERMES_HOME
+    if _HERMES_TMP is not None:
+        _HERMES_TMP.cleanup()
+        _HERMES_TMP = None
+    if _PREV_EVAL_HERMES_HOME is None:
+        os.environ.pop("EVALUATION_HERMES_HOME", None)
+    else:
+        os.environ["EVALUATION_HERMES_HOME"] = _PREV_EVAL_HERMES_HOME
+    _PREV_EVAL_HERMES_HOME = None
+
+
+def _assert_zero_write_session(session: dict) -> None:
+    obs = session["observation"]
+    self_assert = (
+        session.get("intents_sent", obs.get("intents_sent")) == 0
+        and session.get("orders_sent", obs.get("orders_sent")) == 0
+        and session.get("writes_operacionais", obs.get("writes_operacionais")) == 0
+    )
+    if not self_assert:
+        raise AssertionError(f"non_zero_writes:{session}")
+    preflight = session.get("preflight") or {}
+    bootstrap = preflight.get("hermes_bootstrap") or {}
+    deferred = bootstrap.get("cleanup_deferred") or []
+    if deferred:
+        # ponytail: record deferred cleanup without masking zero-write proof
+        print(json.dumps({"cleanup_deferred": deferred}, sort_keys=True))
 FRAME = FIXTURES / "frozen_corpus" / "minute-frames" / "20260820T1200Z.json"
 
 
@@ -161,6 +205,7 @@ class ShadowPreflightTests(unittest.TestCase):
 class ShadowObserverTests(unittest.TestCase):
     def test_fixture_offline_six_profiles_zero_writes(self) -> None:
         session = SHADOW_LIVE.run_shadow_session(run_id="test-shadow-offline-six", mode=SHADOW_LIVE.MODE_FIXTURE_OFFLINE)
+        _assert_zero_write_session(session)
         self.assertEqual(session["status"], "completed")
         self.assertTrue(session["evaluation_offline"])
         self.assertFalse(session["shadow_live"])
