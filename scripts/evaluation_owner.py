@@ -240,17 +240,71 @@ def resolve_evaluation_model_provider(hermes_home: Path) -> tuple[str, str]:
     return model, provider
 
 
+def _chmod_writable(path: Path) -> None:
+    import stat
+
+    if not path.exists():
+        return
+    try:
+        if path.is_dir():
+            for child in path.rglob("*"):
+                try:
+                    child.chmod(stat.S_IWRITE)
+                except OSError:
+                    pass
+        path.chmod(stat.S_IWRITE)
+    except OSError:
+        pass
+
+
+def _tolerant_rmtree(path: Path) -> list[str]:
+    """Remove tree; on Windows lock return deferred path instead of raising."""
+    import gc
+    import shutil
+    import time
+
+    if not path.exists():
+        return []
+    for attempt in range(3):
+        try:
+            if os.name == "nt":
+                _chmod_writable(path)
+                gc.collect()
+            shutil.rmtree(path)
+            return []
+        except OSError:
+            if attempt < 2:
+                time.sleep(0.05 * (attempt + 1))
+    return [str(path)]
+
+
+def _merge_tree(src: Path, dst: Path) -> None:
+    """ponytail: merge when rmtree blocked — ceiling: stale files may remain."""
+    import shutil
+
+    for item in src.rglob("*"):
+        rel = item.relative_to(src)
+        target = dst / rel
+        if item.is_dir():
+            target.mkdir(parents=True, exist_ok=True)
+        else:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(item, target)
+
+
 def bootstrap_evaluation_hermes_home(
     *,
     source_repo: Path | None = None,
     target: Path | None = None,
+    metadata: dict[str, Any] | None = None,
 ) -> Path:
     """Copy skills + config from profile repo into isolated evaluation HERMES_HOME."""
     import shutil
 
     repo = source_repo or evaluation_repo_root()
-    home = target or _canonical_evaluation_hermes_home()
+    home = target or evaluation_hermes_home()
     home.mkdir(parents=True, exist_ok=True)
+    cleanup_deferred: list[str] = []
     for name in ("config.yaml", "SOUL.md", "operator.json", "paired-contract.json"):
         src = repo / name
         if src.is_file():
@@ -259,9 +313,15 @@ def bootstrap_evaluation_hermes_home(
     skills_dst = home / "skills"
     if skills_src.is_dir():
         if skills_dst.exists():
-            shutil.rmtree(skills_dst)
-        shutil.copytree(skills_src, skills_dst)
+            cleanup_deferred.extend(_tolerant_rmtree(skills_dst))
+        if skills_dst.exists():
+            _merge_tree(skills_src, skills_dst)
+        else:
+            shutil.copytree(skills_src, skills_dst)
     (home / "state").mkdir(parents=True, exist_ok=True)
+    if metadata is not None:
+        metadata["cleanup_deferred"] = cleanup_deferred
+        metadata["hermes_home"] = str(home)
     return home
 
 
