@@ -133,9 +133,17 @@
       "id": "gateway_check",
       "phase": "evaluation_offline",
       "mode": "offline",
-      "description": "Gateway npm run check",
-      "timeout_s": 240,
-      "depends_on": [],
+      "description": "Gateway npm run check (serial after lightweight offline gates; set GLITCH_GATEWAY_ROOT to clean worktree)",
+      "timeout_s": 600,
+      "depends_on": [
+        "delivery_complete",
+        "sha256_integrity",
+        "wave5_offline",
+        "zero_write_isolation",
+        "lease_coordination",
+        "process_identity",
+        "profile_quality"
+      ],
       "requires_gateway": true,
       "command": ["{npm}", "run", "check"],
       "cwd": "gateway"
