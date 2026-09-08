@@ -25,6 +25,12 @@ DEFAULT_HEALTH_FRESHNESS_SECONDS = 90.0
 DEFAULT_MARKET_OBS_FRESHNESS_SECONDS = 120.0
 MINUTE_MS = 60_000
 
+# Operational stability treats these optional packet issues as blocking — degraded
+# cache fallback must not count as a valid sample.
+PACKET_OPERATIONAL_BLOCKING_OPTIONAL_ISSUES = frozenset({
+    "market_observation_refresh_timeout",
+})
+
 _SCRIPTS = Path(__file__).resolve().parent
 
 
@@ -207,6 +213,7 @@ def evaluate_operational_stability_sample(
     packet_dq = (packet or {}).get("data_quality") if isinstance((packet or {}).get("data_quality"), dict) else {}
     packet_sc = packet_dq.get("state_complete") if packet else None
     packet_issues = sorted(packet_dq.get("issues") or []) if packet else []
+    packet_optional_issues = sorted(packet_dq.get("optional_issues") or []) if packet else []
 
     detail: dict[str, Any] = {
         "status": health.get("status"),
@@ -217,6 +224,7 @@ def evaluate_operational_stability_sample(
         ),
         "health_issues": health_issues,
         "packet_issues": packet_issues,
+        "packet_optional_issues": packet_optional_issues,
         "account_state_stale": (
             "account_state_stale" in health_issues or "account_state_stale" in packet_issues
         ),
@@ -238,6 +246,13 @@ def evaluate_operational_stability_sample(
         reasons.append("packet_state_complete_false")
     if packet is not None and health_sc is not packet_sc:
         reasons.append("health_packet_state_complete_divergence")
+    if "market_observation_stale" in packet_issues:
+        reasons.append("packet_market_observation_stale")
+    for issue in PACKET_OPERATIONAL_BLOCKING_OPTIONAL_ISSUES:
+        if issue in packet_optional_issues:
+            reasons.append(f"packet_optional_{issue}")
+    if "quote_geometry_invalid" in packet_issues:
+        reasons.append("packet_quote_geometry_invalid")
     if "account_state_stale" in health_issues:
         reasons.append("account_state_stale")
 

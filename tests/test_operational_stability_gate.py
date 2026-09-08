@@ -226,6 +226,66 @@ class EvaluateSampleTests(unittest.TestCase):
         self.assertIn("account_state_stale", verdict.reasons)
         self.assertIn("health_packet_state_complete_divergence", verdict.reasons)
 
+    def test_degraded_refresh_timeout_blocks_valid_sample(self, helpers: mock.MagicMock) -> None:
+        helpers.return_value = (lambda _p: [], lambda _p: (True, "capacity_gate"))
+        now = _utc(2026, 9, 8, 14, 1, 2)
+        packet = _packet_at(now)
+        packet["data_quality"] = {
+            "state_complete": True,
+            "issues": [],
+            "optional_issues": ["market_observation_refresh_timeout"],
+        }
+        verdict = evaluate_operational_stability_sample(
+            health=_good_health(now),
+            packet=packet,
+            fetched_utc=now.isoformat().replace("+00:00", "Z"),
+            now=now,
+            require_closed_bar=True,
+        )
+        self.assertFalse(verdict.ok)
+        self.assertIn("packet_optional_market_observation_refresh_timeout", verdict.reasons)
+
+    def test_stale_observation_blocks_valid_sample(self, helpers: mock.MagicMock) -> None:
+        helpers.return_value = (lambda _p: [], lambda _p: (True, "capacity_gate"))
+        now = _utc(2026, 9, 8, 14, 1, 2)
+        packet = _packet_at(now)
+        packet["data_quality"] = {
+            "state_complete": False,
+            "issues": ["market_observation_stale"],
+            "optional_issues": ["market_observation_refresh_timeout"],
+        }
+        verdict = evaluate_operational_stability_sample(
+            health=_good_health(now),
+            packet=packet,
+            fetched_utc=now.isoformat().replace("+00:00", "Z"),
+            now=now,
+            require_closed_bar=True,
+        )
+        self.assertFalse(verdict.ok)
+        self.assertIn("packet_market_observation_stale", verdict.reasons)
+        self.assertIn("packet_state_complete_false", verdict.reasons)
+        self.assertIn("health_packet_state_complete_divergence", verdict.reasons)
+
+    def test_crossed_bbo_blocks_valid_sample(self, helpers: mock.MagicMock) -> None:
+        helpers.return_value = (lambda _p: [], lambda _p: (True, "capacity_gate"))
+        now = _utc(2026, 9, 8, 14, 1, 2)
+        packet = _packet_at(now)
+        packet["data_quality"] = {
+            "state_complete": False,
+            "issues": ["quote_geometry_invalid"],
+            "optional_issues": [],
+        }
+        verdict = evaluate_operational_stability_sample(
+            health=_good_health(now),
+            packet=packet,
+            fetched_utc=now.isoformat().replace("+00:00", "Z"),
+            now=now,
+            require_closed_bar=True,
+        )
+        self.assertFalse(verdict.ok)
+        self.assertIn("packet_quote_geometry_invalid", verdict.reasons)
+        self.assertIn("packet_state_complete_false", verdict.reasons)
+
     def test_circuit_breaker_open_fails(self, helpers: mock.MagicMock) -> None:
         helpers.return_value = (lambda _p: [], lambda _p: (True, "capacity_gate"))
         now = _utc(2026, 9, 8, 14, 1, 2)
