@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import importlib.util
+import os
 import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -21,6 +22,7 @@ DEFAULT_MAX_DURATION_SECONDS = 600.0  # 10 minutes bounded (valid-sample window 
 DEFAULT_POLL_INTERVAL_SECONDS = 30.0  # legacy poll mode only
 DEFAULT_MAX_WARMUP_SECONDS = 120.0
 DEFAULT_POST_CLOSE_WINDOW_SECONDS = 5.0
+DEFAULT_PROVIDER_ROLL_LATENCY_SECONDS = 10.0
 DEFAULT_HEALTH_FRESHNESS_SECONDS = 90.0
 DEFAULT_MARKET_OBS_FRESHNESS_SECONDS = 120.0
 MINUTE_MS = 60_000
@@ -32,6 +34,22 @@ PACKET_OPERATIONAL_BLOCKING_OPTIONAL_ISSUES = frozenset({
 })
 
 _SCRIPTS = Path(__file__).resolve().parent
+
+
+def resolve_post_close_window_seconds() -> float:
+    """Explicit operator config — default remains 5s; never silently widened in code."""
+    raw = os.environ.get("GLITCH_OPERATIONAL_POST_CLOSE_WINDOW_SECONDS", "").strip()
+    if not raw:
+        return DEFAULT_POST_CLOSE_WINDOW_SECONDS
+    return float(raw)
+
+
+def resolve_provider_roll_latency_seconds() -> float:
+    """Grace after clock close while provider roll lands; anchors on prior_completed_bar."""
+    raw = os.environ.get("GLITCH_PROVIDER_ROLL_LATENCY_SECONDS", "").strip()
+    if not raw:
+        return DEFAULT_PROVIDER_ROLL_LATENCY_SECONDS
+    return float(raw)
 
 
 def _measurement_helpers() -> tuple[Any, Any]:
@@ -124,10 +142,27 @@ def is_post_close_sample(
     ctx: BarCloseContext,
     *,
     post_close_window_seconds: float = DEFAULT_POST_CLOSE_WINDOW_SECONDS,
+    provider_roll_latency_seconds: float | None = None,
 ) -> bool:
     close_dt = expected_close_for_context(ctx)
-    window_end = close_dt + timedelta(seconds=post_close_window_seconds)
-    return close_dt <= sample_utc <= window_end
+    strict_end = close_dt + timedelta(seconds=post_close_window_seconds)
+    if close_dt <= sample_utc <= strict_end:
+        return True
+    roll_latency = (
+        provider_roll_latency_seconds
+        if provider_roll_latency_seconds is not None
+        else resolve_provider_roll_latency_seconds()
+    )
+    # ponytail: provider roll often lands after clock close — anchor on prior_completed_bar
+    if (
+        roll_latency > 0
+        and ctx.latest_bar_partial
+        and ctx.prior_completed_bar_utc
+        and sample_utc > strict_end
+    ):
+        roll_end = close_dt + timedelta(seconds=post_close_window_seconds + roll_latency)
+        return sample_utc <= roll_end
+    return False
 
 
 def _circuit_breaker_closed(health: dict[str, Any]) -> tuple[bool, str]:
@@ -197,6 +232,7 @@ def evaluate_operational_stability_sample(
     require_closed_bar: bool = False,
     bar_close_context: BarCloseContext | None = None,
     post_close_window_seconds: float = DEFAULT_POST_CLOSE_WINDOW_SECONDS,
+    provider_roll_latency_seconds: float | None = None,
 ) -> StabilitySampleVerdict:
     """Single-sample gate — records health/packet separately; never masks health incompleteness."""
     reasons: list[str] = []
@@ -317,6 +353,7 @@ def evaluate_operational_stability_sample(
                 sample_dt,
                 ctx,
                 post_close_window_seconds=post_close_window_seconds,
+                provider_roll_latency_seconds=provider_roll_latency_seconds,
             ):
                 reasons.append("sample_before_bar_close_window")
             elif not ctx.latest_bar_partial:
@@ -333,7 +370,12 @@ def evaluate_operational_stability_sample(
     if (
         require_closed_bar
         and ctx
-        and is_post_close_sample(sample_dt, ctx, post_close_window_seconds=post_close_window_seconds)
+        and is_post_close_sample(
+            sample_dt,
+            ctx,
+            post_close_window_seconds=post_close_window_seconds,
+            provider_roll_latency_seconds=provider_roll_latency_seconds,
+        )
         and ctx.latest_bar_partial
         and ctx.prior_completed_bar_utc
     ):
@@ -563,6 +605,7 @@ def run_bar_close_aware_stability_window(
     required_samples: int = DEFAULT_REQUIRED_SAMPLES,
     max_duration_seconds: float = DEFAULT_MAX_DURATION_SECONDS,
     post_close_window_seconds: float = DEFAULT_POST_CLOSE_WINDOW_SECONDS,
+    provider_roll_latency_seconds: float | None = None,
     post_close_poll_seconds: float = 0.25,
     max_warmup_seconds: float = DEFAULT_MAX_WARMUP_SECONDS,
     health_freshness_seconds: float = DEFAULT_HEALTH_FRESHNESS_SECONDS,
@@ -590,6 +633,11 @@ def run_bar_close_aware_stability_window(
     counting_started_at_utc: str | None = None
     valid_window_started_mono: float | None = None
     valid_deadline: float | None = None
+    roll_latency = (
+        provider_roll_latency_seconds
+        if provider_roll_latency_seconds is not None
+        else resolve_provider_roll_latency_seconds()
+    )
 
     if lease_checker is not None:
         lease_ok, lease_reason = lease_checker()
@@ -665,6 +713,11 @@ def run_bar_close_aware_stability_window(
 
         expected_close = expected_close_for_context(ctx)
         window_end = expected_close + timedelta(seconds=post_close_window_seconds)
+        sample_window_end = window_end
+        if roll_latency > 0 and ctx.latest_bar_partial and ctx.prior_completed_bar_utc:
+            sample_window_end = expected_close + timedelta(
+                seconds=post_close_window_seconds + roll_latency
+            )
         now = now_fn()
         phase = "warmup" if not counting_started else "valid"
         expected_close_iso = expected_close.isoformat().replace("+00:00", "Z")
@@ -680,7 +733,12 @@ def run_bar_close_aware_stability_window(
                 break
             now = now_fn()
 
-        if now > window_end:
+        if not is_post_close_sample(
+            now,
+            ctx,
+            post_close_window_seconds=post_close_window_seconds,
+            provider_roll_latency_seconds=roll_latency,
+        ):
             warmup_events.append(
                 {
                     "reason": "missed_post_close_window",
@@ -689,6 +747,7 @@ def run_bar_close_aware_stability_window(
                     "fetched_utc": now.isoformat().replace("+00:00", "Z"),
                     "latest_bar_utc": ctx.latest_bar_utc,
                     "bar_age_ms": ctx.bar_age_ms,
+                    "provider_roll_latency_seconds": roll_latency,
                 }
             )
             next_close = expected_close + timedelta(minutes=1)
@@ -710,7 +769,7 @@ def run_bar_close_aware_stability_window(
             _begin_valid_window()
 
         captured = False
-        while now_fn() <= window_end and not captured and not _valid_budget_exhausted():
+        while now_fn() <= sample_window_end and not captured and not _valid_budget_exhausted():
             sample_dt = now_fn()
             sample_utc = sample_dt.isoformat().replace("+00:00", "Z")
             try:
@@ -747,6 +806,7 @@ def run_bar_close_aware_stability_window(
                 require_closed_bar=True,
                 bar_close_context=ctx,
                 post_close_window_seconds=post_close_window_seconds,
+                provider_roll_latency_seconds=roll_latency,
             )
 
             row = {
@@ -760,7 +820,10 @@ def run_bar_close_aware_stability_window(
             }
 
             if not is_post_close_sample(
-                sample_dt, ctx, post_close_window_seconds=post_close_window_seconds
+                sample_dt,
+                ctx,
+                post_close_window_seconds=post_close_window_seconds,
+                provider_roll_latency_seconds=roll_latency,
             ):
                 skipped.append({**row, "sample_index": None, "reason": "sample_before_bar_close_window"})
                 sleep_fn(post_close_poll_seconds)
@@ -834,6 +897,7 @@ def run_bar_close_aware_stability_window(
         classification=None if confirmed else classification,
         sampling_mode="bar_close_aware",
         post_close_window_seconds=post_close_window_seconds,
+        provider_roll_latency_seconds=roll_latency,
         counting_started_at_utc=counting_started_at_utc_out,
         valid_window_elapsed_seconds=(
             round(monotonic_fn() - valid_window_started_mono, 3)
@@ -859,6 +923,7 @@ def _finalize_window(
     classification: str | None,
     sampling_mode: str,
     post_close_window_seconds: float | None = None,
+    provider_roll_latency_seconds: float | None = None,
     poll_interval_seconds: float | None = None,
     counting_started_at_utc: str | None = None,
     valid_window_elapsed_seconds: float | None = None,
@@ -885,6 +950,8 @@ def _finalize_window(
         doc["valid_window_elapsed_seconds"] = valid_window_elapsed_seconds
     if post_close_window_seconds is not None:
         doc["post_close_window_seconds"] = post_close_window_seconds
+    if provider_roll_latency_seconds is not None:
+        doc["provider_roll_latency_seconds"] = provider_roll_latency_seconds
     if poll_interval_seconds is not None:
         doc["poll_interval_seconds"] = poll_interval_seconds
     return doc
@@ -898,6 +965,7 @@ def run_operational_stability_window(
     max_duration_seconds: float = DEFAULT_MAX_DURATION_SECONDS,
     poll_interval_seconds: float = DEFAULT_POLL_INTERVAL_SECONDS,
     post_close_window_seconds: float = DEFAULT_POST_CLOSE_WINDOW_SECONDS,
+    provider_roll_latency_seconds: float | None = None,
     health_freshness_seconds: float = DEFAULT_HEALTH_FRESHNESS_SECONDS,
     market_obs_freshness_seconds: float = DEFAULT_MARKET_OBS_FRESHNESS_SECONDS,
     sleep_fn: Callable[[float], None] = time.sleep,
@@ -914,6 +982,7 @@ def run_operational_stability_window(
             required_samples=required_samples,
             max_duration_seconds=max_duration_seconds,
             post_close_window_seconds=post_close_window_seconds,
+            provider_roll_latency_seconds=provider_roll_latency_seconds,
             health_freshness_seconds=health_freshness_seconds,
             market_obs_freshness_seconds=market_obs_freshness_seconds,
             sleep_fn=sleep_fn,
