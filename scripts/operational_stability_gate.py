@@ -393,6 +393,24 @@ def _record_fetch_failure(
     bucket.append(row)
 
 
+def _bar_roll_confirmed(initial: BarCloseContext, current: BarCloseContext) -> bool:
+    """True when provider rolled bars after expected close (prior or latest advanced)."""
+    if (
+        current.prior_completed_bar_utc
+        and current.prior_completed_bar_utc != initial.prior_completed_bar_utc
+        and current.prior_completed_bar_utc >= _close_reference_utc(initial)
+    ):
+        return True
+    if current.latest_bar_utc != initial.latest_bar_utc:
+        try:
+            rolled = parse_utc(current.latest_bar_utc.replace("+00:00", "Z"))
+            ref_close = expected_close_for_context(initial)
+            return rolled is not None and rolled >= ref_close - timedelta(minutes=1)
+        except (TypeError, ValueError):
+            return True
+    return False
+
+
 def _bar_wait_ready(
     ctx: BarCloseContext,
     now: datetime,
@@ -498,18 +516,6 @@ def wait_for_bar_complete(
             }
             polls.append(poll_row)
 
-        if now > window_end:
-            next_close = expected_close + timedelta(minutes=1)
-            _sleep_until(
-                next_close,
-                sleep_fn=sleep_fn,
-                now_fn=now_fn,
-                monotonic_fn=monotonic_fn,
-                monotonic_deadline=deadline,
-            )
-            sleep_fn(poll_seconds)
-            continue
-
         if _bar_wait_ready(ctx, now, post_close_window_seconds=post_close_window_seconds):
             return {
                 "ready": True,
@@ -519,6 +525,19 @@ def wait_for_bar_complete(
                 "prior_completed_bar_utc": ctx.prior_completed_bar_utc,
                 "latest_bar_partial": ctx.latest_bar_partial,
                 "close_reference_utc": _close_reference_utc(ctx),
+                "polls": polls,
+            }
+
+        if initial_ctx and _bar_roll_confirmed(initial_ctx, ctx):
+            return {
+                "ready": True,
+                "waited_seconds": round(monotonic_fn() - started, 2),
+                "expected_close_utc": expected_close.isoformat().replace("+00:00", "Z"),
+                "latest_bar_utc": ctx.latest_bar_utc,
+                "prior_completed_bar_utc": ctx.prior_completed_bar_utc,
+                "latest_bar_partial": ctx.latest_bar_partial,
+                "close_reference_utc": _close_reference_utc(ctx),
+                "bar_roll_confirmed": True,
                 "polls": polls,
             }
 
