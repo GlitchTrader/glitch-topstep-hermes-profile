@@ -393,6 +393,169 @@ def _record_fetch_failure(
     bucket.append(row)
 
 
+def _bar_roll_confirmed(initial: BarCloseContext, current: BarCloseContext) -> bool:
+    """True when provider rolled bars after expected close (prior or latest advanced)."""
+    if (
+        current.prior_completed_bar_utc
+        and current.prior_completed_bar_utc != initial.prior_completed_bar_utc
+        and current.prior_completed_bar_utc >= _close_reference_utc(initial)
+    ):
+        return True
+    if current.latest_bar_utc != initial.latest_bar_utc:
+        try:
+            rolled = parse_utc(current.latest_bar_utc.replace("+00:00", "Z"))
+            ref_close = expected_close_for_context(initial)
+            return rolled is not None and rolled >= ref_close - timedelta(minutes=1)
+        except (TypeError, ValueError):
+            return True
+    return False
+
+
+def _bar_wait_ready(
+    ctx: BarCloseContext,
+    now: datetime,
+    *,
+    post_close_window_seconds: float = DEFAULT_POST_CLOSE_WINDOW_SECONDS,
+) -> bool:
+    """True when sample is in post-close window with closed-bar evidence — never raw partial alone."""
+    if not is_post_close_sample(now, ctx, post_close_window_seconds=post_close_window_seconds):
+        return False
+    if not ctx.latest_bar_partial:
+        return True
+    return bool(ctx.prior_completed_bar_utc)
+
+
+def wait_for_bar_complete(
+    packet_fetcher: Callable[[], dict[str, Any]],
+    *,
+    timeout_seconds: float = 300.0,
+    post_close_window_seconds: float = DEFAULT_POST_CLOSE_WINDOW_SECONDS,
+    poll_seconds: float = 0.25,
+    sleep_fn: Callable[[float], None] = time.sleep,
+    monotonic_fn: Callable[[], float] = time.monotonic,
+    now_fn: Callable[[], datetime] | None = None,
+) -> dict[str, Any]:
+    """Wait until clock-aligned post-close window — does not poll for partial=false."""
+    now_fn = now_fn or (lambda: datetime.now(timezone.utc))
+    started = monotonic_fn()
+    deadline = started + timeout_seconds
+    polls: list[dict[str, Any]] = []
+    initial_ctx: BarCloseContext | None = None
+
+    while monotonic_fn() < deadline:
+        now = now_fn()
+        try:
+            packet = packet_fetcher()
+        except Exception as exc:
+            polls.append(
+                {
+                    "fetched_utc": now.isoformat().replace("+00:00", "Z"),
+                    "error": str(exc),
+                }
+            )
+            sleep_fn(poll_seconds)
+            continue
+
+        ctx = extract_bar_close_context(packet, now=now)
+        poll_row: dict[str, Any] = {
+            "fetched_utc": now.isoformat().replace("+00:00", "Z"),
+            "latest_bar_utc": ctx.latest_bar_utc if ctx else None,
+            "prior_completed_bar_utc": ctx.prior_completed_bar_utc if ctx else None,
+            "latest_bar_partial": ctx.latest_bar_partial if ctx else None,
+            "expected_close_utc": (
+                expected_close_for_context(ctx).isoformat().replace("+00:00", "Z") if ctx else None
+            ),
+        }
+        polls.append(poll_row)
+
+        if ctx is None:
+            sleep_fn(poll_seconds)
+            continue
+
+        if initial_ctx is None:
+            initial_ctx = ctx
+
+        expected_close = expected_close_for_context(ctx)
+        window_end = expected_close + timedelta(seconds=post_close_window_seconds)
+
+        if now < expected_close:
+            if not _sleep_until(
+                expected_close,
+                sleep_fn=sleep_fn,
+                now_fn=now_fn,
+                monotonic_fn=monotonic_fn,
+                monotonic_deadline=deadline,
+            ):
+                break
+            now = now_fn()
+            try:
+                packet = packet_fetcher()
+            except Exception as exc:
+                polls.append(
+                    {
+                        "fetched_utc": now.isoformat().replace("+00:00", "Z"),
+                        "error": str(exc),
+                        "phase": "post_sleep",
+                    }
+                )
+                sleep_fn(poll_seconds)
+                continue
+            ctx = extract_bar_close_context(packet, now=now)
+            if ctx is None:
+                sleep_fn(poll_seconds)
+                continue
+            expected_close = expected_close_for_context(ctx)
+            window_end = expected_close + timedelta(seconds=post_close_window_seconds)
+            poll_row = {
+                "fetched_utc": now.isoformat().replace("+00:00", "Z"),
+                "latest_bar_utc": ctx.latest_bar_utc,
+                "prior_completed_bar_utc": ctx.prior_completed_bar_utc,
+                "latest_bar_partial": ctx.latest_bar_partial,
+                "expected_close_utc": expected_close.isoformat().replace("+00:00", "Z"),
+                "phase": "post_sleep",
+            }
+            polls.append(poll_row)
+
+        if _bar_wait_ready(ctx, now, post_close_window_seconds=post_close_window_seconds):
+            return {
+                "ready": True,
+                "waited_seconds": round(monotonic_fn() - started, 2),
+                "expected_close_utc": expected_close.isoformat().replace("+00:00", "Z"),
+                "latest_bar_utc": ctx.latest_bar_utc,
+                "prior_completed_bar_utc": ctx.prior_completed_bar_utc,
+                "latest_bar_partial": ctx.latest_bar_partial,
+                "close_reference_utc": _close_reference_utc(ctx),
+                "polls": polls,
+            }
+
+        if initial_ctx and _bar_roll_confirmed(initial_ctx, ctx):
+            return {
+                "ready": True,
+                "waited_seconds": round(monotonic_fn() - started, 2),
+                "expected_close_utc": expected_close.isoformat().replace("+00:00", "Z"),
+                "latest_bar_utc": ctx.latest_bar_utc,
+                "prior_completed_bar_utc": ctx.prior_completed_bar_utc,
+                "latest_bar_partial": ctx.latest_bar_partial,
+                "close_reference_utc": _close_reference_utc(ctx),
+                "bar_roll_confirmed": True,
+                "polls": polls,
+            }
+
+        sleep_fn(poll_seconds)
+
+    last = polls[-1] if polls else {}
+    return {
+        "ready": False,
+        "reason": "bar_still_partial" if last.get("latest_bar_partial") else "bar_close_alignment_timeout",
+        "waited_seconds": round(monotonic_fn() - started, 2),
+        "expected_close_utc": last.get("expected_close_utc"),
+        "latest_bar_utc": last.get("latest_bar_utc"),
+        "prior_completed_bar_utc": last.get("prior_completed_bar_utc"),
+        "latest_bar_partial": last.get("latest_bar_partial"),
+        "polls": polls,
+    }
+
+
 def run_bar_close_aware_stability_window(
     *,
     health_fetcher: Callable[[], dict[str, Any]],
