@@ -1,0 +1,112 @@
+{
+  "schema_version": "glitch.topstep.paper_simulation.v1",
+  "paper_only": true,
+  "promotion_use_allowed": false,
+  "run_count": 1,
+  "status_counts": {
+    "paper_outcome": 1
+  },
+  "operational_writes_total": 0,
+  "runs": [
+    {
+      "schema_version": "glitch.topstep.paper_simulation.v1",
+      "run_id": "paper-sim-demo-2026-09-02",
+      "envelope_id": "env-1545fbe44615e07d",
+      "envelope_hash": "1d9e8260c824a598747322b4159e5cb4b9146100f15e7d07fc7ea6344fcf7a30",
+      "paper_only": true,
+      "promotion_use_allowed": false,
+      "operational_writes": 0,
+      "simulated_utc": "2026-09-03T03:20:18.723615Z",
+      "paper_status": "paper_outcome",
+      "selection": {
+        "schema_version": "glitch.topstep.ensemble_selection.v1",
+        "run_id": "paper-sim-demo-2026-09-02",
+        "envelope_id": "env-1545fbe44615e07d",
+        "envelope_hash": "1d9e8260c824a598747322b4159e5cb4b9146100f15e7d07fc7ea6344fcf7a30",
+        "aggregator_version": "2026-09-01-v2",
+        "outcome": "selected",
+        "decision_code": "EVIDENCE_SCORE_WIN",
+        "selected_profile_id": "baseline-current",
+        "selected_candidate": {
+          "profile_id": "baseline-current",
+          "invocation_id": "620f097c-700c-4af3-bb08-ebaf28d345c3",
+          "state": "candidate"
+        },
+        "candidates_considered": [
+          "baseline-current",
+          "structure"
+        ],
+        "candidates_preserved": [
+          {
+            "profile_id": "baseline-current",
+            "invocation_id": "620f097c-700c-4af3-bb08-ebaf28d345c3",
+            "state": "candidate",
+            "comparability": "comparable",
+            "instrument": "MNQ",
+            "direction": "long",
+            "entry": 20020.0,
+            "entry_range": null,
+            "stop": 20010.0,
+            "target": 20035.0,
+            "horizon_bars": 8,
+            "evidence_score": 50,
+            "warning_priority_penalty": null,
+            "error_code": null,
+            "envelope_hash": "1d9e8260c824a598747322b4159e5cb4b9146100f15e7d07fc7ea6344fcf7a30",
+            "completeness_used": null,
+            "evidence_refs": null
+          },
+          {
+            "profile_id": "structure",
+            "invocation_id": "92290db8-d385-4eaa-8d20-5ca9dc8fcee7",
+            "state": "candidate",
+            "comparability": "comparable",
+            "instrument": "MNQ",
+            "direction": "long",
+            "entry": 20020.0,
+            "entry_range": null,
+            "stop": 20010.0,
+            "target": 20035.0,
+            "horizon_bars": 8,
+            "evidence_score": 30,
+            "warning_priority_penalty": null,
+            "error_code": null,
+            "envelope_hash": "1d9e8260c824a598747322b4159e5cb4b9146100f15e7d07fc7ea6344fcf7a30",
+            "completeness_used": null,
+            "evidence_refs": null
+          }
+        ],
+        "objections": [],
+        "decision_trace": [
+          "EVIDENCE_SCORE_WIN"
+        ],
+        "failure_class": null,
+        "evaluation_only": true,
+        "armed_promotion_allowed": false
+      },
+      "trade_path": {
+        "chronology_available": true,
+        "first_touch": "target",
+        "exit_cause": "target",
+        "intra_bar_evidence_missing": false,
+        "entry_price": 20020.0,
+        "exit_price": 20035.0,
+        "mfe_points": 20.0,
+        "mae_points": 5.0,
+        "mfe_ticks": 80.0,
+        "mae_ticks": 20.0,
+        "pnl_points": 15.0,
+        "pnl_ticks": 60.0,
+        "pnl_usd": 30.0,
+        "counterfactual": true
+      },
+      "hypothetical_entry": {
+        "profile_id": "baseline-current",
+        "direction": "long",
+        "entry": 20020.0,
+        "stop": 20010.0,
+        "target": 20035.0
+      }
+    }
+  ]
+}
