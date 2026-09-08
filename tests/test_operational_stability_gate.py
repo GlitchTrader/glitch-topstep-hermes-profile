@@ -20,6 +20,7 @@ from operational_stability_gate import (  # noqa: E402
     is_post_close_sample,
     run_bar_close_aware_stability_window,
     run_operational_stability_window,
+    wait_for_bar_complete,
 )
 
 
@@ -130,6 +131,49 @@ class BarCloseContextTests(unittest.TestCase):
         outside = _utc(2026, 9, 8, 14, 1, 6)
         self.assertTrue(is_post_close_sample(inside, ctx, post_close_window_seconds=5.0))
         self.assertFalse(is_post_close_sample(outside, ctx, post_close_window_seconds=5.0))
+
+
+class WaitForBarCompleteTests(unittest.TestCase):
+    def test_succeeds_post_close_with_always_partial_feed(self) -> None:
+        """Provider keeps latest_bar_partial=true after roll — clock alignment must still pass."""
+        post_close = _utc(2026, 9, 8, 14, 1, 1)
+        times = [_utc(2026, 9, 8, 14, 0, 45), post_close, post_close, post_close]
+
+        def now_fn() -> datetime:
+            if len(times) > 1:
+                return times.pop(0)
+            return times[0]
+
+        result = wait_for_bar_complete(
+            lambda: _partial_packet(post_close),
+            timeout_seconds=30.0,
+            poll_seconds=0.0,
+            sleep_fn=lambda _s: None,
+            monotonic_fn=lambda: 0.0,
+            now_fn=now_fn,
+        )
+        self.assertTrue(result["ready"])
+        self.assertEqual(result["expected_close_utc"], "2026-09-08T14:01:00Z")
+        self.assertTrue(result["latest_bar_partial"])
+
+    def test_fails_when_window_missed_before_timeout(self) -> None:
+        t0 = _utc(2026, 9, 8, 14, 1, 10)
+        mono = {"v": 0.0}
+
+        def monotonic_fn() -> float:
+            mono["v"] += 1.0
+            return mono["v"]
+
+        result = wait_for_bar_complete(
+            lambda: _partial_packet(t0),
+            timeout_seconds=5.0,
+            poll_seconds=0.0,
+            sleep_fn=lambda _s: None,
+            monotonic_fn=monotonic_fn,
+            now_fn=lambda: t0,
+        )
+        self.assertFalse(result["ready"])
+        self.assertIn(result["reason"], {"bar_still_partial", "bar_close_alignment_timeout"})
 
 
 @mock.patch("operational_stability_gate._measurement_helpers")
