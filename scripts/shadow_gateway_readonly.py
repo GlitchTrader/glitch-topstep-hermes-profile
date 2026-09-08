@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import os
+import time
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Callable
 from urllib.error import URLError
@@ -15,6 +17,25 @@ from ensemble_envelope_seal import envelope_validity_seconds, sealed_envelope_id
 
 READONLY_SCHEMA = "glitch.topstep.shadow_gateway_readonly.v1"
 DEFAULT_GATEWAY = "http://127.0.0.1:8790"
+DEFAULT_HEALTH_TIMEOUT_S = 5.0
+DEFAULT_PACKET_TIMEOUT_S = 8.0
+DEFAULT_PACKET_MAX_ATTEMPTS = 3
+DEFAULT_PACKET_RETRY_DELAY_S = 0.25
+
+
+@dataclass
+class GatewayHttpAttempt:
+    endpoint: str
+    attempt: int
+    duration_ms: int
+    error: str | None = None
+
+
+@dataclass
+class GatewayHttpResult:
+    status: int
+    body: dict[str, Any]
+    attempts: list[GatewayHttpAttempt] = field(default_factory=list)
 
 
 class ShadowGatewayError(RuntimeError):
@@ -32,17 +53,72 @@ def gateway_base_url() -> str:
     return os.environ.get("GLITCH_GATEWAY_URL", DEFAULT_GATEWAY).rstrip("/")
 
 
-def _http_get_json(path: str, *, token: str, timeout_s: float = 5.0) -> tuple[int, dict[str, Any]]:
+def _http_get_json_once(path: str, *, token: str, timeout_s: float) -> tuple[int, dict[str, Any]]:
     url = f"{gateway_base_url()}{path}"
     req = Request(url, headers={"Authorization": f"Bearer {token}"}, method="GET")
+    with urlopen(req, timeout=timeout_s) as resp:
+        body = resp.read().decode("utf-8")
+        return resp.status, json.loads(body) if body else {}
+
+
+def _http_get_json_bounded(
+    path: str,
+    *,
+    token: str,
+    timeout_s: float,
+    max_attempts: int = 1,
+    retry_delay_s: float = 0.0,
+) -> GatewayHttpResult:
+    attempts: list[GatewayHttpAttempt] = []
+    last_code = "gateway_timeout"
+    last_detail = ""
+    for attempt in range(1, max(1, max_attempts) + 1):
+        started = time.monotonic()
+        try:
+            status, body = _http_get_json_once(path, token=token, timeout_s=timeout_s)
+            duration_ms = int((time.monotonic() - started) * 1000)
+            attempts.append(
+                GatewayHttpAttempt(endpoint=path, attempt=attempt, duration_ms=duration_ms),
+            )
+            return GatewayHttpResult(status=status, body=body, attempts=attempts)
+        except URLError as exc:
+            duration_ms = int((time.monotonic() - started) * 1000)
+            last_code = "gateway_unavailable"
+            last_detail = str(exc)
+            attempts.append(
+                GatewayHttpAttempt(
+                    endpoint=path,
+                    attempt=attempt,
+                    duration_ms=duration_ms,
+                    error=last_code,
+                ),
+            )
+        except (TimeoutError, json.JSONDecodeError) as exc:
+            duration_ms = int((time.monotonic() - started) * 1000)
+            last_code = "gateway_timeout"
+            last_detail = str(exc)
+            attempts.append(
+                GatewayHttpAttempt(
+                    endpoint=path,
+                    attempt=attempt,
+                    duration_ms=duration_ms,
+                    error=last_code,
+                ),
+            )
+        if attempt < max_attempts:
+            time.sleep(retry_delay_s)
+    raise ShadowGatewayError(
+        last_code,
+        json.dumps({"attempts": [a.__dict__ for a in attempts], "detail": last_detail}),
+    )
+
+
+def _http_get_json(path: str, *, token: str, timeout_s: float = 5.0) -> tuple[int, dict[str, Any]]:
     try:
-        with urlopen(req, timeout=timeout_s) as resp:
-            body = resp.read().decode("utf-8")
-            return resp.status, json.loads(body) if body else {}
-    except URLError as exc:
-        raise ShadowGatewayError("gateway_unavailable", str(exc)) from exc
-    except (TimeoutError, json.JSONDecodeError) as exc:
-        raise ShadowGatewayError("gateway_timeout", str(exc)) from exc
+        result = _http_get_json_bounded(path, token=token, timeout_s=timeout_s, max_attempts=1)
+        return result.status, result.body
+    except ShadowGatewayError as exc:
+        raise exc
 
 
 def _maintenance_window(health: dict[str, Any]) -> bool:
@@ -81,6 +157,20 @@ def _snapshot_expired(packet: dict[str, Any], *, max_age_ms: int) -> bool:
     return False
 
 
+def fetch_gateway_health_raw(
+    *,
+    token: str | None = None,
+    http_get: Callable[[str, str, float], tuple[int, dict[str, Any]]] | None = None,
+) -> dict[str, Any]:
+    """GET /health without maintenance classification — for stability window sampling."""
+    tok = token if token is not None else local_token()
+    getter = http_get or (lambda path, t, timeout: _http_get_json(path, token=t, timeout_s=timeout))
+    status, health = getter("/health", tok, 5.0)
+    if status != 200:
+        raise ShadowGatewayError("gateway_unavailable", f"health_status_{status}")
+    return health
+
+
 def fetch_gateway_health_readonly(
     *,
     token: str | None = None,
@@ -95,6 +185,35 @@ def fetch_gateway_health_readonly(
     if _maintenance_window(health):
         raise ShadowGatewayError("maintenance_window")
     return health
+
+
+def fetch_gateway_packet_readonly(
+    *,
+    token: str | None = None,
+    http_get: Callable[[str, str, float], tuple[int, dict[str, Any]]] | None = None,
+    timeout_s: float = DEFAULT_PACKET_TIMEOUT_S,
+    max_attempts: int = DEFAULT_PACKET_MAX_ATTEMPTS,
+    retry_delay_s: float = DEFAULT_PACKET_RETRY_DELAY_S,
+) -> dict[str, Any]:
+    tok = token if token is not None else local_token()
+    if http_get is not None:
+        status, packet = http_get("/packet", tok, timeout_s)
+        if status != 200 or not isinstance(packet, dict):
+            raise ShadowGatewayError("gateway_unavailable", f"packet_status_{status}")
+        return packet
+    result = _http_get_json_bounded(
+        "/packet",
+        token=tok,
+        timeout_s=timeout_s,
+        max_attempts=max_attempts,
+        retry_delay_s=retry_delay_s,
+    )
+    if result.status != 200 or not isinstance(result.body, dict):
+        raise ShadowGatewayError(
+            "gateway_unavailable",
+            json.dumps({"status": result.status, "attempts": [a.__dict__ for a in result.attempts]}),
+        )
+    return result.body
 
 
 def fetch_gateway_readonly_snapshot(
