@@ -1,0 +1,243 @@
+{
+  "schema_version": "glitch.topstep.gate_manifest.v1",
+  "status_enum": ["PASS", "FAIL", "BLOCKED", "SKIP", "CONDITIONAL"],
+  "canonical_inventory": "evaluation/runs/product-acceptance-report-20260908T170710Z.json",
+  "mappings": {
+    "process_identity": ["tests.test_model_owner_lock", "tests.test_evaluation_ownership"],
+    "paper_offline": ["tests.test_shadow_phase7.ShadowObserverTests", "tests.test_expanded_evaluation_milestone"],
+    "wave5": ["tests.test_evaluation_measurement_ready", "wave5_offline_delivery_gate"],
+    "delivery_complete": ["tests.test_coherent_evaluation_capture"]
+  },
+  "gates": [
+    {
+      "id": "profile_quality",
+      "phase": "evaluation_offline",
+      "mode": "offline",
+      "description": "Profile syntax and regression presence",
+      "timeout_s": 120,
+      "depends_on": [],
+      "command": ["{python}", "scripts/check_profile_quality.py"],
+      "cwd": "profile"
+    },
+    {
+      "id": "profile_unittest_full",
+      "phase": "evaluation_offline",
+      "mode": "offline",
+      "description": "Full profile unittest discover",
+      "timeout_s": 300,
+      "depends_on": ["profile_quality"],
+      "command": ["{python}", "-m", "unittest", "discover", "-s", "tests", "-p", "test_*.py"],
+      "cwd": "profile"
+    },
+    {
+      "id": "sha256_integrity",
+      "phase": "evaluation_offline",
+      "mode": "offline",
+      "description": "SHA256SUMS integrity",
+      "timeout_s": 60,
+      "depends_on": [],
+      "command": ["{python}", "-m", "unittest", "tests.test_sha256sums", "-q"],
+      "cwd": "profile"
+    },
+    {
+      "id": "release_package",
+      "phase": "evaluation_offline",
+      "mode": "offline",
+      "description": "Six-profile release package validation",
+      "timeout_s": 120,
+      "depends_on": [],
+      "command": ["{python}", "scripts/build-evaluation-release-package.py", "--package-id", "six-profile-evaluation-package-2026-09-02"],
+      "cwd": "profile"
+    },
+    {
+      "id": "six_profile_milestone",
+      "phase": "evaluation_offline",
+      "mode": "offline",
+      "description": "Six-profile milestone (run-evaluation-milestone.py)",
+      "timeout_s": 180,
+      "depends_on": ["release_package"],
+      "command": ["{python}", "scripts/run-evaluation-milestone.py", "--run-id", "{run_id}-milestone"],
+      "cwd": "profile"
+    },
+    {
+      "id": "shadow_fixture_offline",
+      "phase": "shadow",
+      "mode": "offline",
+      "description": "Shadow phase7 fixture offline validation",
+      "timeout_s": 180,
+      "depends_on": ["release_package"],
+      "command": ["{python}", "scripts/run-shadow-phase7-validation.py", "--run-id", "{run_id}-shadow-phase7"],
+      "cwd": "profile"
+    },
+    {
+      "id": "delivery_complete",
+      "phase": "delivery_complete",
+      "mode": "offline",
+      "description": "Coherent delivery_complete capture (test_coherent_evaluation_capture)",
+      "timeout_s": 120,
+      "depends_on": [],
+      "command": ["{python}", "-m", "unittest", "tests.test_coherent_evaluation_capture", "-q"],
+      "cwd": "profile"
+    },
+    {
+      "id": "lease_coordination",
+      "phase": "evaluation_offline",
+      "mode": "offline",
+      "description": "Evaluation lease coordination",
+      "timeout_s": 60,
+      "depends_on": [],
+      "command": ["{python}", "-m", "unittest", "tests.test_evaluation_lease", "-q"],
+      "cwd": "profile"
+    },
+    {
+      "id": "process_identity",
+      "phase": "evaluation_offline",
+      "mode": "offline",
+      "description": "Model owner lock + identity/outbox staging (test_model_owner_lock + test_evaluation_owner_implementation)",
+      "timeout_s": 120,
+      "depends_on": [],
+      "command": ["{python}", "-m", "unittest", "tests.test_model_owner_lock", "tests.test_evaluation_ownership", "-q"],
+      "cwd": "profile"
+    },
+    {
+      "id": "zero_write_isolation",
+      "phase": "shadow",
+      "mode": "offline",
+      "description": "Zero-write isolation audit (audit-shadow-isolation + unit)",
+      "timeout_s": 120,
+      "depends_on": [],
+      "command": ["{python}", "-m", "unittest", "tests.test_shadow_phase7.ShadowSafetyScenarioTests.test_build_shadow_observation_zero_writes", "tests.test_shadow_phase7.ShadowSafetyScenarioTests.test_operational_write_detection", "-q"],
+      "cwd": "profile"
+    },
+    {
+      "id": "paper_simulator_offline",
+      "phase": "paper",
+      "mode": "offline",
+      "description": "Paper offline via shadow fixture_offline + shadow offline tests",
+      "timeout_s": 180,
+      "depends_on": ["shadow_fixture_offline"],
+      "command": ["{python}", "-m", "unittest", "tests.test_expanded_evaluation_milestone.ShadowOfflineTests", "-q"],
+      "cwd": "profile"
+    },
+    {
+      "id": "wave5_offline",
+      "phase": "evaluation_offline",
+      "mode": "offline",
+      "description": "Wave 5 Phase 5 adequacy + offline delivery gate (test_evaluation_measurement_ready)",
+      "timeout_s": 90,
+      "depends_on": [],
+      "command": ["{python}", "-m", "unittest", "tests.test_evaluation_measurement_ready", "-q"],
+      "cwd": "profile"
+    },
+    {
+      "id": "gateway_check",
+      "phase": "evaluation_offline",
+      "mode": "offline",
+      "description": "Gateway npm run check (serial after lightweight offline gates; set GLITCH_GATEWAY_ROOT to clean worktree)",
+      "timeout_s": 600,
+      "depends_on": [
+        "delivery_complete",
+        "sha256_integrity",
+        "wave5_offline",
+        "zero_write_isolation",
+        "lease_coordination",
+        "process_identity",
+        "profile_quality"
+      ],
+      "requires_gateway": true,
+      "command": ["{npm}", "run", "check"],
+      "cwd": "gateway"
+    },
+    {
+      "id": "fault_matrix",
+      "phase": "evaluation_offline",
+      "mode": "offline",
+      "description": "Cross-repo fault matrix (npm run reaudit:fault-matrix)",
+      "timeout_s": 120,
+      "depends_on": ["gateway_check"],
+      "requires_gateway": true,
+      "command": ["{npm}", "run", "reaudit:fault-matrix"],
+      "cwd": "gateway"
+    },
+    {
+      "id": "operational_stability",
+      "phase": "stability",
+      "mode": "live",
+      "description": "Bar-close-aware operational stability window (v6)",
+      "timeout_s": 720,
+      "depends_on": [],
+      "live_gate": true,
+      "blocked_detail": "Requires v6 PASS with gateway health, credentials, and explicit --authorize-live"
+    },
+    {
+      "id": "delivery_complete_live",
+      "phase": "delivery_complete",
+      "mode": "live",
+      "description": "Live coherent delivery_complete capture",
+      "timeout_s": 300,
+      "depends_on": ["operational_stability"],
+      "live_gate": true,
+      "blocked_detail": "Requires operational stability PASS and --authorize-live"
+    },
+    {
+      "id": "shadow_live",
+      "phase": "shadow",
+      "mode": "live",
+      "description": "Shadow live read-only lanes",
+      "timeout_s": 600,
+      "depends_on": ["operational_stability"],
+      "live_gate": true,
+      "blocked_detail": "Requires evaluation soak review and --authorize-live"
+    },
+    {
+      "id": "prac",
+      "phase": "prac",
+      "mode": "live",
+      "description": "PRAC spontaneous capture",
+      "timeout_s": 600,
+      "depends_on": ["operational_stability"],
+      "live_gate": true,
+      "blocked_detail": "Blocked until v6 stability PASS"
+    },
+    {
+      "id": "soak",
+      "phase": "soak_72h",
+      "mode": "live",
+      "description": "Evaluation soak 72h parallel",
+      "timeout_s": 259200,
+      "depends_on": ["prac"],
+      "live_gate": true,
+      "blocked_detail": "Blocked until PRAC first valid spontaneous cycle"
+    },
+    {
+      "id": "paper_live",
+      "phase": "paper",
+      "mode": "live",
+      "description": "Paper live controlled lane",
+      "timeout_s": 600,
+      "depends_on": ["shadow_live"],
+      "live_gate": true,
+      "blocked_detail": "Requires shadow 001/002/003 PASS and --authorize-live"
+    },
+    {
+      "id": "canary",
+      "phase": "canary",
+      "mode": "live",
+      "description": "Canary promotion",
+      "timeout_s": 300,
+      "depends_on": ["paper_live"],
+      "live_gate": true,
+      "blocked_detail": "Future lane — not in scope"
+    },
+    {
+      "id": "promotion",
+      "phase": "armed_production",
+      "mode": "live",
+      "description": "Armed production promotion",
+      "timeout_s": 300,
+      "depends_on": ["canary"],
+      "live_gate": true,
+      "blocked_detail": "Requires canary + human sign-off"
+    }
+  ]
+}
