@@ -18,6 +18,8 @@ from operational_stability_gate import (  # noqa: E402
     evaluate_operational_stability_sample,
     extract_bar_close_context,
     is_post_close_sample,
+    resolve_post_close_window_seconds,
+    resolve_provider_roll_latency_seconds,
     run_bar_close_aware_stability_window,
     run_operational_stability_window,
     wait_for_bar_complete,
@@ -132,6 +134,46 @@ class BarCloseContextTests(unittest.TestCase):
         self.assertTrue(is_post_close_sample(inside, ctx, post_close_window_seconds=5.0))
         self.assertFalse(is_post_close_sample(outside, ctx, post_close_window_seconds=5.0))
 
+    def test_roll_anchored_sample_after_provider_latency(self) -> None:
+        """v10 evidence: provider roll ~9s after clock close with prior_completed_bar."""
+        now = _utc(2026, 9, 8, 20, 11, 9)
+        packet = {
+            "data_quality": {"state_complete": True, "issues": []},
+            "account": {"instrument_open_contracts": 0},
+            "market_observation": {
+                "observation": {
+                    "source": "projectx_bars",
+                    "timeframes": [
+                        {
+                            "timeframe_minutes": 1,
+                            "latest_bar_utc": "2026-09-08T20:11:00.000Z",
+                            "latest_bar_partial": True,
+                            "prior_completed_bar": {
+                                "timestamp": "2026-09-08T20:10:00.000Z",
+                                "open": 1,
+                                "high": 2,
+                                "low": 1,
+                                "close": 2,
+                                "volume": 10,
+                            },
+                        }
+                    ],
+                }
+            },
+        }
+        ctx = extract_bar_close_context(packet, now=now)
+        assert ctx is not None
+        self.assertFalse(is_post_close_sample(now, ctx, post_close_window_seconds=5.0, provider_roll_latency_seconds=0.0))
+        self.assertTrue(
+            is_post_close_sample(now, ctx, post_close_window_seconds=5.0, provider_roll_latency_seconds=10.0)
+        )
+
+    def test_resolve_window_config_from_env(self) -> None:
+        with mock.patch.dict("os.environ", {"GLITCH_OPERATIONAL_POST_CLOSE_WINDOW_SECONDS": "7"}):
+            self.assertEqual(resolve_post_close_window_seconds(), 7.0)
+        with mock.patch.dict("os.environ", {"GLITCH_PROVIDER_ROLL_LATENCY_SECONDS": "12"}):
+            self.assertEqual(resolve_provider_roll_latency_seconds(), 12.0)
+
 
 class WaitForBarCompleteTests(unittest.TestCase):
     def test_succeeds_post_close_with_always_partial_feed(self) -> None:
@@ -191,7 +233,8 @@ class WaitForBarCompleteTests(unittest.TestCase):
         self.assertTrue(result.get("bar_roll_confirmed") or result.get("expected_close_utc"))
 
     def test_fails_when_window_missed_before_timeout(self) -> None:
-        t0 = _utc(2026, 9, 8, 14, 1, 10)
+        # 16s past close exceeds strict 5s + default 10s provider roll grace
+        t0 = _utc(2026, 9, 8, 14, 1, 16)
         mono = {"v": 0.0}
 
         def monotonic_fn() -> float:
