@@ -16,6 +16,9 @@ from typing import Any
 
 REPO = Path(__file__).resolve().parents[1]
 SCRIPTS = REPO / "scripts"
+sys.path.insert(0, str(SCRIPTS))
+from parallel_gate_isolation import cleanup_isolated_gate, prepare_isolated_gate_env
+
 MANIFEST_PATH = REPO / "evaluation" / "gate-manifest.v1.json"
 REPORT_SCHEMA = "glitch.topstep.gate_report.v1"
 
@@ -170,6 +173,7 @@ def _run_gate(
         prefix = str(SCRIPTS)
         env["PYTHONPATH"] = prefix if not env.get("PYTHONPATH") else f"{prefix}{os.pathsep}{env['PYTHONPATH']}"
 
+    iso_env, iso_ctx = prepare_isolated_gate_env(gate_id, env)
     try:
         proc = subprocess.run(
             resolved,
@@ -178,7 +182,7 @@ def _run_gate(
             text=True,
             timeout=float(gate.get("timeout_s", 600)),
             check=False,
-            env=env,
+            env=iso_env,
         )
         stdout_path.write_text(proc.stdout or "", encoding="utf-8")
         stderr_path.write_text(proc.stderr or "", encoding="utf-8")
@@ -194,6 +198,10 @@ def _run_gate(
             else:
                 base["status"] = FAIL
             base["detail"] = combined[-2000:] or f"exit_{proc.returncode}"
+        base["isolation"] = {
+            "evaluation_hermes_home": iso_env.get("EVALUATION_HERMES_HOME"),
+            "glitch_data_dir": iso_env.get("GLITCH_DATA_DIR"),
+        }
         return base
     except subprocess.TimeoutExpired as exc:
         stdout_path.write_text(exc.stdout or "", encoding="utf-8")
@@ -205,6 +213,8 @@ def _run_gate(
         base.update(status=BLOCKED, detail=str(exc))
         base["duration_s"] = round(time.monotonic() - started, 3)
         return base
+    finally:
+        cleanup_isolated_gate(iso_ctx)
 
 
 def run_gates(

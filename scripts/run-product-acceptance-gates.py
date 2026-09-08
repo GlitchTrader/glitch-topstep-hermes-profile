@@ -17,6 +17,9 @@ from typing import Any, Callable
 
 REPO = Path(__file__).resolve().parents[1]
 SCRIPTS = REPO / "scripts"
+sys.path.insert(0, str(SCRIPTS))
+from parallel_gate_isolation import cleanup_isolated_gate, prepare_isolated_gate_env
+
 REPORT_SCHEMA = "glitch.topstep.product_acceptance_report.v1"
 
 PASS = "PASS"
@@ -82,6 +85,7 @@ def _run_command(spec: CheckSpec) -> dict[str, Any]:
         prefix = str(SCRIPTS)
         env["PYTHONPATH"] = prefix if not env.get("PYTHONPATH") else f"{prefix}{os.pathsep}{env['PYTHONPATH']}"
         env.setdefault("GLITCH_HERMES_PROFILE_ROOT", str(REPO))
+    iso_env, iso_ctx = prepare_isolated_gate_env(spec.check_id, env)
     try:
         proc = subprocess.run(
             spec.command,
@@ -90,7 +94,7 @@ def _run_command(spec: CheckSpec) -> dict[str, Any]:
             text=True,
             timeout=spec.timeout_s,
             check=False,
-            env=env,
+            env=iso_env,
         )
         duration = time.monotonic() - started
         if proc.returncode == 0:
@@ -108,6 +112,10 @@ def _run_command(spec: CheckSpec) -> dict[str, Any]:
             "detail": detail,
             "duration_s": round(duration, 3),
             "exit_code": proc.returncode,
+            "isolation": {
+                "evaluation_hermes_home": iso_env.get("EVALUATION_HERMES_HOME"),
+                "glitch_data_dir": iso_env.get("GLITCH_DATA_DIR"),
+            },
         }
     except subprocess.TimeoutExpired as exc:
         return {
@@ -131,6 +139,8 @@ def _run_command(spec: CheckSpec) -> dict[str, Any]:
             "duration_s": round(time.monotonic() - started, 3),
             "exit_code": None,
         }
+    finally:
+        cleanup_isolated_gate(iso_ctx)
 
 
 def build_checks(gw: Path | None) -> list[CheckSpec]:
