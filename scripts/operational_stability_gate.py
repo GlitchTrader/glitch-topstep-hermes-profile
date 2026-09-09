@@ -1151,7 +1151,7 @@ def run_bar_close_aware_stability_window(
             break
         if not counting_started and (monotonic_fn() - overall_started) > max_warmup_seconds:
             stop_reason = "warmup_sync_timeout"
-            classification = BLOCKED_BAR_CLOSE_WINDOW
+            classification = BLOCKED_DATA_QUALITY if v2_enabled else BLOCKED_BAR_CLOSE_WINDOW
             break
 
         packet = _fetch_packet("warmup" if not counting_started else "valid", None)
@@ -1219,8 +1219,26 @@ def run_bar_close_aware_stability_window(
                 break
             now = now_fn()
 
+        target_matches_packet = abs((target_close - packet_close).total_seconds()) < 0.5
+
         if now > sample_window_end:
-            abandon_iso = packet_close_iso if abs((target_close - packet_close).total_seconds()) < 0.5 else target_close_iso
+            # Cursor ahead of provider roll: keep polling as warmup — do not abandon yet.
+            if not target_matches_packet:
+                warmup_events.append(
+                    {
+                        "reason": "sample_before_bar_close_window",
+                        "phase": "warmup",
+                        "expected_close_utc": target_close_iso,
+                        "packet_close_utc": packet_close_iso,
+                        "fetched_utc": now.isoformat().replace("+00:00", "Z"),
+                        "latest_bar_utc": ctx.latest_bar_utc,
+                        "bar_age_ms": ctx.bar_age_ms,
+                        "provider_roll_latency_seconds": roll_latency,
+                    }
+                )
+                sleep_fn(max(post_close_poll_seconds, 0.25))
+                continue
+            abandon_iso = packet_close_iso if target_matches_packet else target_close_iso
             if (
                 abandon_iso not in abandoned_boundaries
                 and not cursor.already_seen(bar_key)
@@ -1256,6 +1274,21 @@ def run_bar_close_aware_stability_window(
             post_close_window_seconds=post_close_window_seconds,
             provider_roll_latency_seconds=roll_latency,
         ):
+            if not target_matches_packet:
+                warmup_events.append(
+                    {
+                        "reason": "sample_before_bar_close_window",
+                        "phase": "warmup",
+                        "expected_close_utc": target_close_iso,
+                        "packet_close_utc": packet_close_iso,
+                        "fetched_utc": now.isoformat().replace("+00:00", "Z"),
+                        "latest_bar_utc": ctx.latest_bar_utc,
+                        "bar_age_ms": ctx.bar_age_ms,
+                        "provider_roll_latency_seconds": roll_latency,
+                    }
+                )
+                sleep_fn(max(post_close_poll_seconds, 0.25))
+                continue
             if target_close_iso not in abandoned_boundaries and not cursor.already_seen(bar_key):
                 abandoned_boundaries.add(target_close_iso)
                 _record_missed_boundary(
@@ -1281,8 +1314,27 @@ def run_bar_close_aware_stability_window(
             sleep_fn(1.0)
             continue
 
-        if not counting_started:
-            _begin_valid_window()
+        # Packet-anchored window must agree with scheduler target before valid sampling.
+        if not is_post_close_sample(
+            now,
+            ctx,
+            post_close_window_seconds=post_close_window_seconds,
+            provider_roll_latency_seconds=roll_latency,
+        ):
+            warmup_events.append(
+                {
+                    "reason": "sample_before_bar_close_window",
+                    "phase": "warmup",
+                    "expected_close_utc": target_close_iso,
+                    "packet_close_utc": packet_close_iso,
+                    "fetched_utc": now.isoformat().replace("+00:00", "Z"),
+                    "latest_bar_utc": ctx.latest_bar_utc,
+                    "bar_age_ms": ctx.bar_age_ms,
+                    "provider_roll_latency_seconds": roll_latency,
+                }
+            )
+            sleep_fn(max(post_close_poll_seconds, 0.25))
+            continue
 
         if target_close_iso not in attempted_boundaries:
             attempted_boundaries.add(target_close_iso)
@@ -1292,6 +1344,7 @@ def run_bar_close_aware_stability_window(
                 break
 
         captured = False
+        # Sample only while both scheduler target and packet close windows remain open.
         while now_fn() <= sample_window_end and not captured and not _valid_budget_exhausted():
             sample_dt = now_fn()
             sample_utc = sample_dt.isoformat().replace("+00:00", "Z")
@@ -1300,7 +1353,7 @@ def run_bar_close_aware_stability_window(
             except Exception as exc:
                 _record_fetch_failure(
                     gateway_timeouts,
-                    phase="valid",
+                    phase="valid" if counting_started else "warmup",
                     endpoint="/health",
                     exc=exc,
                     expected_close_utc=target_close_iso,
@@ -1308,7 +1361,7 @@ def run_bar_close_aware_stability_window(
                 sleep_fn(post_close_poll_seconds)
                 continue
 
-            packet = _fetch_packet("valid", target_close_iso)
+            packet = _fetch_packet("valid" if counting_started else "warmup", target_close_iso)
             if packet is None:
                 sleep_fn(post_close_poll_seconds)
                 continue
@@ -1333,23 +1386,43 @@ def run_bar_close_aware_stability_window(
             )
 
             row = {
-                "sample_index": len(samples),
+                "sample_index": None,
                 "fetched_utc": sample_utc,
                 "ok": verdict.ok,
                 "reasons": verdict.reasons,
                 "detail": verdict.detail,
                 "closed_bar_utc": closed_bar_key,
-                "phase": "valid",
+                "phase": "valid" if counting_started else "warmup",
             }
 
-            if not is_target_post_close_sample(
+            packet_window_ok = is_post_close_sample(
+                sample_dt,
+                ctx,
+                post_close_window_seconds=post_close_window_seconds,
+                provider_roll_latency_seconds=roll_latency,
+            )
+            target_window_ok = is_target_post_close_sample(
                 sample_dt,
                 target_close,
                 ctx,
                 post_close_window_seconds=post_close_window_seconds,
                 provider_roll_latency_seconds=roll_latency,
+            )
+            # Pre-close / misaligned polls are warmup only — never terminal, never consume valid slots.
+            if (
+                not target_window_ok
+                or not packet_window_ok
+                or "sample_before_bar_close_window" in verdict.reasons
             ):
-                skipped.append({**row, "sample_index": None, "reason": "sample_before_bar_close_window"})
+                warmup_events.append(
+                    {
+                        **row,
+                        "reason": "sample_before_bar_close_window",
+                        "phase": "warmup",
+                        "expected_close_utc": target_close_iso,
+                        "packet_close_utc": _close_iso(expected_close_for_context(ctx)),
+                    }
+                )
                 sleep_fn(post_close_poll_seconds)
                 continue
 
@@ -1358,13 +1431,23 @@ def run_bar_close_aware_stability_window(
                     invalid_quote_samples.append(
                         {
                             **row,
-                            "sample_index": None,
                             "reason": "invalid_quote_sample",
                         }
                     )
                     sleep_fn(post_close_poll_seconds)
                     continue
-                samples.append(row)
+                # Partial without prior anchor never counts and never maps to no_edge.
+                if "bar_1m_partial" in verdict.reasons and not ctx.prior_completed_bar_utc:
+                    warmup_events.append(
+                        {
+                            **row,
+                            "reason": "bar_1m_partial_without_anchor",
+                            "phase": "warmup",
+                        }
+                    )
+                    sleep_fn(post_close_poll_seconds)
+                    continue
+                samples.append({**row, "sample_index": len(samples), "phase": "valid"})
                 stop_reason = verdict.reasons[0] if verdict.reasons else "sample_failed"
                 if any(r.startswith("status_degraded") or r == "degraded" for r in verdict.reasons):
                     stop_reason = "degraded_during_window"
@@ -1379,8 +1462,12 @@ def run_bar_close_aware_stability_window(
                 sleep_fn(post_close_poll_seconds)
                 continue
 
+            # Start the valid-sample budget only on the first packet-aligned accepted sample.
+            if not counting_started:
+                _begin_valid_window()
             cursor.mark_captured(target_close, closed_bar_key)
             row["sample_index"] = len(samples)
+            row["phase"] = "valid"
             samples.append(row)
             captured = True
             next_bar_close = cursor.next_target_close or (target_close + timedelta(minutes=1))

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 import tempfile
 import unittest
@@ -538,7 +539,273 @@ class CanonicalOrchestrationIntegrationTests(unittest.TestCase):
                 }
             )
 
+    def test_start_before_close_preclose_is_warmup_not_terminal(self, helpers: mock.MagicMock) -> None:
+        """Start mid-minute: pre-close polls are warmup; later post-close sample confirms."""
+        self._patch_helpers(helpers)
+        start = _utc(2026, 9, 8, 14, 0, 50)
+        _state, now_fn, sleep_fn, mono_fn = _clock(start)
+        result = run_canonical_live_stability_window(
+            health_fetcher=lambda: _good_health(now_fn()),
+            packet_fetcher=lambda: _packet_roll_delay(now_fn(), roll_delay_seconds=9.0),
+            required_samples=1,
+            max_duration_seconds=120.0,
+            max_warmup_seconds=180.0,
+            max_total_duration_seconds=300.0,
+            post_close_poll_seconds=0.0,
+            sleep_fn=sleep_fn,
+            monotonic_fn=mono_fn,
+            now_fn=now_fn,
+            provider_roll_latency_seconds=10.0,
+            post_close_window_seconds=5.0,
+        )
+        self.assertTrue(result["confirmed"], msg=result.get("stop_reason"))
+        self.assertNotEqual(result.get("stop_reason"), "sample_before_bar_close_window")
+        self.assertFalse(
+            any(
+                s.get("ok") is False and "sample_before_bar_close_window" in (s.get("reasons") or [])
+                for s in result.get("samples") or []
+            )
+        )
 
+    def test_start_exactly_on_boundary(self, helpers: mock.MagicMock) -> None:
+        self._patch_helpers(helpers)
+        start = _utc(2026, 9, 8, 14, 1, 0)
+        _state, now_fn, sleep_fn, mono_fn = _clock(start)
+        result = run_canonical_live_stability_window(
+            health_fetcher=lambda: _good_health(now_fn()),
+            packet_fetcher=lambda: _packet_roll_delay(now_fn(), roll_delay_seconds=9.0),
+            required_samples=1,
+            max_duration_seconds=90.0,
+            post_close_poll_seconds=0.0,
+            sleep_fn=sleep_fn,
+            monotonic_fn=mono_fn,
+            now_fn=now_fn,
+            provider_roll_latency_seconds=10.0,
+            post_close_window_seconds=5.0,
+        )
+        self.assertTrue(result["confirmed"], msg=result.get("stop_reason"))
+        captured = result["bar_close_cursor"]["last_captured_close"]
+        self.assertIsNotNone(captured)
+        self.assertTrue(str(captured).startswith("2026-09-08T14:01:00"))
+
+    def test_start_after_boundary(self, helpers: mock.MagicMock) -> None:
+        self._patch_helpers(helpers)
+        start = _utc(2026, 9, 8, 14, 1, 2)
+        _state, now_fn, sleep_fn, mono_fn = _clock(start)
+        result = run_canonical_live_stability_window(
+            health_fetcher=lambda: _good_health(now_fn()),
+            packet_fetcher=lambda: _packet_roll_delay(now_fn(), roll_delay_seconds=9.0),
+            required_samples=1,
+            max_duration_seconds=90.0,
+            post_close_poll_seconds=0.0,
+            sleep_fn=sleep_fn,
+            monotonic_fn=mono_fn,
+            now_fn=now_fn,
+            provider_roll_latency_seconds=10.0,
+            post_close_window_seconds=5.0,
+        )
+        self.assertTrue(result["confirmed"], msg=result.get("stop_reason"))
+
+    def test_delayed_rolls_10_to_75s_confirm(self, helpers: mock.MagicMock) -> None:
+        self._patch_helpers(helpers)
+        for delay in (10.0, 22.0, 45.0, 60.0, 75.0):
+            with self.subTest(delay=delay):
+                start = _utc(2026, 9, 8, 14, 1, 2)
+                _state, now_fn, sleep_fn, mono_fn = _clock(start)
+                result = run_canonical_live_stability_window(
+                    health_fetcher=lambda: _good_health(now_fn()),
+                    packet_fetcher=lambda d=delay: _packet_roll_delay(now_fn(), roll_delay_seconds=d),
+                    required_samples=1,
+                    max_duration_seconds=180.0,
+                    max_total_duration_seconds=300.0,
+                    post_close_poll_seconds=0.0,
+                    sleep_fn=sleep_fn,
+                    monotonic_fn=mono_fn,
+                    now_fn=now_fn,
+                    provider_roll_latency_seconds=max(10.0, delay),
+                    post_close_window_seconds=5.0,
+                )
+                self.assertTrue(result["confirmed"], msg=f"delay={delay} stop={result.get('stop_reason')}")
+
+    def test_repeated_preclose_polls_are_warmup_only(self, helpers: mock.MagicMock) -> None:
+        """Provider lag behind civil cursor: many pre-close polls → warmup, not terminal fail."""
+        self._patch_helpers(helpers)
+        start = _utc(2026, 9, 8, 14, 0, 31)
+        _state, now_fn, sleep_fn, mono_fn = _clock(start)
+
+        def lagged_packet() -> dict:
+            now = now_fn()
+            if now < _utc(2026, 9, 8, 14, 1, 20):
+                latest = _utc(2026, 9, 8, 13, 59, 0)
+                prior = _utc(2026, 9, 8, 13, 58, 0)
+                partial = False
+            else:
+                return _packet_roll_delay(now, roll_delay_seconds=0.0)
+            return {
+                "data_quality": {
+                    "state_complete": True,
+                    "issues": [],
+                    "quote_state": "normal",
+                    "execution_eligibility": "eligible",
+                },
+                "account": {"instrument_open_contracts": 0},
+                "market": {"quote_timestamp": now.isoformat().replace("+00:00", "Z")},
+                "market_observation": {
+                    "observation": {
+                        "source": "projectx_bars",
+                        "timeframes": [
+                            {
+                                "timeframe_minutes": 1,
+                                "latest_bar_utc": latest.isoformat().replace("+00:00", "Z"),
+                                "latest_bar_partial": partial,
+                                "prior_completed_bar": {
+                                    "timestamp": prior.isoformat().replace("+00:00", "Z"),
+                                    "open": 1,
+                                    "high": 2,
+                                    "low": 1,
+                                    "close": 2,
+                                    "volume": 10,
+                                },
+                                "bars_accepted": 500,
+                            }
+                        ],
+                    }
+                },
+            }
+
+        result = run_canonical_live_stability_window(
+            health_fetcher=lambda: _good_health(now_fn()),
+            packet_fetcher=lagged_packet,
+            required_samples=1,
+            max_duration_seconds=180.0,
+            max_warmup_seconds=240.0,
+            max_total_duration_seconds=360.0,
+            post_close_poll_seconds=0.0,
+            sleep_fn=sleep_fn,
+            monotonic_fn=mono_fn,
+            now_fn=now_fn,
+            provider_roll_latency_seconds=10.0,
+            post_close_window_seconds=5.0,
+        )
+        self.assertNotEqual(result.get("stop_reason"), "sample_before_bar_close_window")
+        warm = [
+            w for w in (result.get("warmup_events") or []) if w.get("reason") == "sample_before_bar_close_window"
+        ]
+        self.assertGreaterEqual(len(warm), 1)
+        bad_samples = [
+            s
+            for s in (result.get("samples") or [])
+            if "sample_before_bar_close_window" in (s.get("reasons") or [])
+        ]
+        self.assertEqual(bad_samples, [])
+        self.assertTrue(result["confirmed"], msg=result.get("stop_reason"))
+
+    def test_total_timeout_returns_blocked_data_quality(self, helpers: mock.MagicMock) -> None:
+        self._patch_helpers(helpers)
+        start = _utc(2026, 9, 8, 14, 0, 50)
+        _state, now_fn, sleep_fn, mono_fn = _clock(start)
+
+        def never_roll() -> dict:
+            now = now_fn()
+            latest = now.replace(second=0, microsecond=0) - timedelta(minutes=2)
+            prior = latest - timedelta(minutes=1)
+            return {
+                "data_quality": {
+                    "state_complete": True,
+                    "issues": [],
+                    "quote_state": "normal",
+                    "execution_eligibility": "eligible",
+                },
+                "account": {"instrument_open_contracts": 0},
+                "market": {"quote_timestamp": now.isoformat().replace("+00:00", "Z")},
+                "market_observation": {
+                    "observation": {
+                        "source": "projectx_bars",
+                        "timeframes": [
+                            {
+                                "timeframe_minutes": 1,
+                                "latest_bar_utc": latest.isoformat().replace("+00:00", "Z"),
+                                "latest_bar_partial": False,
+                                "prior_completed_bar": {
+                                    "timestamp": prior.isoformat().replace("+00:00", "Z"),
+                                    "open": 1,
+                                    "high": 2,
+                                    "low": 1,
+                                    "close": 2,
+                                    "volume": 10,
+                                },
+                                "bars_accepted": 500,
+                            }
+                        ],
+                    }
+                },
+            }
+
+        result = run_canonical_live_stability_window(
+            health_fetcher=lambda: _good_health(now_fn()),
+            packet_fetcher=never_roll,
+            required_samples=5,
+            max_duration_seconds=30.0,
+            max_warmup_seconds=20.0,
+            max_total_duration_seconds=25.0,
+            post_close_poll_seconds=0.0,
+            sleep_fn=sleep_fn,
+            monotonic_fn=mono_fn,
+            now_fn=now_fn,
+            provider_roll_latency_seconds=10.0,
+            post_close_window_seconds=5.0,
+        )
+        self.assertFalse(result["confirmed"])
+        self.assertEqual(result.get("classification"), "blocked_data_quality")
+        self.assertNotIn("no_edge", str(result).lower())
+
+    def test_locked_invalid_never_no_edge_during_canonical(self, helpers: mock.MagicMock) -> None:
+        self._patch_helpers(helpers)
+        for qstate in ("locked", "invalid"):
+            with self.subTest(qstate=qstate):
+                start = _utc(2026, 9, 8, 14, 1, 2)
+                _state, now_fn, sleep_fn, mono_fn = _clock(start)
+                result = run_canonical_live_stability_window(
+                    health_fetcher=lambda: _good_health(now_fn()),
+                    packet_fetcher=lambda qs=qstate: _packet_roll_delay(
+                        now_fn(), roll_delay_seconds=9.0, quote_state=qs
+                    ),
+                    required_samples=1,
+                    max_duration_seconds=90.0,
+                    max_total_duration_seconds=120.0,
+                    post_close_poll_seconds=0.0,
+                    sleep_fn=sleep_fn,
+                    monotonic_fn=mono_fn,
+                    now_fn=now_fn,
+                    provider_roll_latency_seconds=10.0,
+                    post_close_window_seconds=5.0,
+                )
+                self.assertNotEqual(result.get("stop_reason"), "no_edge")
+                self.assertNotIn("no_edge", json.dumps(result.get("invalid_quote_samples") or []))
+
+    def test_scheduler_and_runner_share_target_boundary(self, helpers: mock.MagicMock) -> None:
+        self._patch_helpers(helpers)
+        start = _utc(2026, 9, 8, 14, 1, 2)
+        _state, now_fn, sleep_fn, mono_fn = _clock(start)
+        result = run_canonical_live_stability_window(
+            health_fetcher=lambda: _good_health(now_fn()),
+            packet_fetcher=lambda: _packet_roll_delay(now_fn(), roll_delay_seconds=9.0),
+            required_samples=1,
+            max_duration_seconds=90.0,
+            post_close_poll_seconds=0.0,
+            sleep_fn=sleep_fn,
+            monotonic_fn=mono_fn,
+            now_fn=now_fn,
+            provider_roll_latency_seconds=10.0,
+            post_close_window_seconds=5.0,
+        )
+        self.assertTrue(result["confirmed"])
+        sample = (result.get("samples") or [])[0]
+        detail_close = ((sample.get("detail") or {}).get("bar_close") or {}).get("expected_close_utc")
+        captured = result["bar_close_cursor"]["last_captured_close"]
+        self.assertIsNotNone(detail_close)
+        self.assertIsNotNone(captured)
+        self.assertEqual(str(captured)[:16], str(detail_close)[:16])
 
 
 if __name__ == "__main__":
