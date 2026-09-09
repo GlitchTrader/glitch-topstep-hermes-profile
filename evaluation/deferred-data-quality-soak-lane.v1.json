@@ -1,0 +1,51 @@
+{
+  "schema_version": "glitch.topstep.deferred_data_quality_soak_lane.v1",
+  "config_version": "2026-09-09-v1",
+  "evaluation_only": true,
+  "execution_authority": false,
+  "same_envelope_per_cycle": true,
+  "t0_after_first_valid_cycle": true,
+  "resume_strategy": "checkpoint",
+  "invalid_quote_cycle_status": "deferred_data_quality",
+  "invalid_quote_never_maps_to": "no_edge",
+  "auto_start_prac": false,
+  "auto_start_live_validation": false,
+  "reuses_existing_lane": {
+    "runner": "scripts/run-trail-a-parallel-live-evaluation.py",
+    "shadow_observer": "scripts/shadow-observe-live.py",
+    "lease": "scripts/evaluation_lease.py",
+    "owner": "scripts/evaluation_owner.py",
+    "aggregator": "scripts/ensemble_aggregator.py",
+    "acceptance_gates": "scripts/run-product-acceptance-gates.py"
+  },
+  "profiles": [
+    { "profile_id": "baseline-current", "execution_authority": false },
+    { "profile_id": "structure", "execution_authority": false },
+    { "profile_id": "adversarial-risk", "execution_authority": false },
+    { "profile_id": "smart-money", "execution_authority": false },
+    { "profile_id": "indicators", "execution_authority": false },
+    { "profile_id": "orderflow", "execution_authority": false }
+  ],
+  "budget": {
+    "max_parallel_slots": 2,
+    "total_duration_hours": 72
+  },
+  "bar_close_acceptance_v2_defaults": {
+    "required_samples": 5,
+    "post_close_window_seconds": 5,
+    "provider_roll_latency_seconds": 10,
+    "max_duration_seconds": 600,
+    "max_warmup_seconds": 120,
+    "max_total_boundaries": 12,
+    "max_total_duration_seconds": 720
+  },
+  "isolation": {
+    "lease_required": true,
+    "hermes_home_isolated": true
+  },
+  "guards": {
+    "zero_intents": true,
+    "zero_orders": true,
+    "zero_writes": true
+  }
+}

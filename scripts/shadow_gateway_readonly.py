@@ -156,6 +156,26 @@ def _snapshot_expired(packet: dict[str, Any], *, max_age_ms: int) -> bool:
     return False
 
 
+def _deferred_data_quality_detail(health: dict[str, Any], packet: dict[str, Any]) -> dict[str, Any] | None:
+    health_dq = health.get("data_quality") if isinstance(health.get("data_quality"), dict) else {}
+    packet_dq = packet.get("data_quality") if isinstance(packet.get("data_quality"), dict) else {}
+    health_issues = set(health_dq.get("issues") or [])
+    packet_issues = set(packet_dq.get("issues") or [])
+    if "quote_geometry_invalid" not in health_issues and "quote_geometry_invalid" not in packet_issues:
+        return None
+    market = packet.get("market") if isinstance(packet.get("market"), dict) else {}
+    return {
+        "reason": "quote_geometry_invalid",
+        "health_state_complete": health_dq.get("state_complete"),
+        "packet_state_complete": packet_dq.get("state_complete"),
+        "health_issues": sorted(health_issues),
+        "packet_issues": sorted(packet_issues),
+        "quote_timestamp": market.get("quote_timestamp"),
+        "quote_valid": market.get("quote_valid"),
+        "last_invalid": health_dq.get("quote_geometry_last_invalid"),
+    }
+
+
 def fetch_gateway_health_raw(
     *,
     token: str | None = None,
@@ -236,6 +256,10 @@ def fetch_gateway_readonly_snapshot(
     pstatus, packet = getter("/packet", tok, 5.0)
     if pstatus != 200 or not isinstance(packet, dict):
         raise ShadowGatewayError("gateway_unavailable", f"packet_status_{pstatus}")
+
+    deferred = _deferred_data_quality_detail(health, packet)
+    if deferred is not None:
+        raise ShadowGatewayError("deferred_data_quality", json.dumps(deferred, sort_keys=True))
 
     if not _state_complete(health, packet):
         raise ShadowGatewayError("state_incomplete")

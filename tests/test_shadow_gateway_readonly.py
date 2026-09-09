@@ -126,6 +126,24 @@ class ShadowGatewayReadonlyTests(unittest.TestCase):
             )
         self.assertEqual(ctx.exception.code, "state_incomplete")
 
+    def test_quote_geometry_invalid_becomes_deferred_data_quality(self) -> None:
+        matrix = __import__("json").loads((ROOT / "evaluation/capability-matrix.json").read_text(encoding="utf-8"))
+        mapping = __import__("json").loads((ROOT / "evaluation/packet_envelope_mapping.v1.json").read_text(encoding="utf-8"))
+        health = _good_health()
+        health["data_quality"]["state_complete"] = False
+        health["data_quality"]["issues"] = ["quote_geometry_invalid"]
+        packet = _good_packet()
+        packet["data_quality"]["state_complete"] = False
+        packet["data_quality"]["issues"] = ["quote_geometry_invalid"]
+        with self.assertRaises(GW.ShadowGatewayError) as ctx:
+            GW.fetch_gateway_readonly_snapshot(
+                matrix=matrix,
+                mapping=mapping,
+                token="t",
+                http_get=self._mock_get(health, packet),
+            )
+        self.assertEqual(ctx.exception.code, "deferred_data_quality")
+
     def test_valid_response(self) -> None:
         matrix = __import__("json").loads((ROOT / "evaluation/capability-matrix.json").read_text(encoding="utf-8"))
         mapping = __import__("json").loads((ROOT / "evaluation/packet_envelope_mapping.v1.json").read_text(encoding="utf-8"))
@@ -225,6 +243,20 @@ class ShadowModeSemanticsTests(unittest.TestCase):
         self.assertTrue(session["shadow_live_read_only"])
         self.assertFalse(session["shadow_live"])
         self.assertFalse(session["evaluation_offline"])
+
+    @patch.object(SHADOW, "fetch_gateway_readonly_snapshot", side_effect=GW.ShadowGatewayError("deferred_data_quality"))
+    @patch.object(SHADOW, "_load_preflight")
+    def test_gateway_mode_deferred_data_quality(self, mock_load_preflight, _fetch) -> None:
+        preflight_mod = type("M", (), {})()
+        preflight_mod.shadow_preflight = lambda **_: {"ready": True, "status": "shadow_ready"}
+        mock_load_preflight.return_value = preflight_mod
+        session = SHADOW.run_shadow_session(
+            run_id="gw-deferred",
+            mode=SHADOW.MODE_GATEWAY_READ_ONLY_LIVE,
+            authorize=True,
+        )
+        self.assertEqual(session["status"], "deferred_data_quality")
+        self.assertEqual(session["deferred_reason"], "deferred_data_quality")
 
     def test_gateway_mode_without_authorize_blocked(self) -> None:
         session = SHADOW.run_shadow_session(
