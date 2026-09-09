@@ -276,23 +276,109 @@ def compare_sequential_parallel(seq_run: dict, par_run: dict) -> dict[str, Any]:
     }
 
 
-def audit_production_writes() -> dict[str, Any]:
+def _fingerprint_forbidden_paths(prod_root: Path) -> dict[str, float]:
+    """mtime fingerprint for production write surfaces the runner must not touch."""
+    fingerprints: dict[str, float] = {}
+    for rel in ("state/outbox", "state/receipts", "state/intents.sqlite"):
+        target = prod_root / rel
+        if target.is_file():
+            fingerprints[str(target)] = target.stat().st_mtime
+        elif target.is_dir():
+            for child in target.rglob("*"):
+                if child.is_file():
+                    fingerprints[str(child)] = child.stat().st_mtime
+    return fingerprints
+
+
+def audit_production_writes(
+    *,
+    before: dict[str, float] | None = None,
+    after: dict[str, float] | None = None,
+    runner_hermes_homes: list[str] | None = None,
+) -> dict[str, Any]:
     from evaluation_owner import is_forbidden_production_path, production_profile_root
 
     prod_root = production_profile_root()
-    forbidden_touched: list[str] = []
-    for rel in ("state/outbox", "state/receipts", "state/intents.sqlite"):
-        path = prod_root / rel
-        if path.exists():
-            forbidden_touched.append(str(path))
+    before_fp = before if before is not None else _fingerprint_forbidden_paths(prod_root)
+    after_fp = after if after is not None else _fingerprint_forbidden_paths(prod_root)
+
+    modified = sorted(
+        key
+        for key, mtime in after_fp.items()
+        if key not in before_fp or after_fp[key] > before_fp[key]
+    )
+    created = sorted(set(after_fp) - set(before_fp))
+    touched_paths = sorted(set(modified) | set(created))
+
+    homes = [Path(h).resolve() for h in (runner_hermes_homes or []) if h]
+    runner_used_production_home = any(home == prod_root.resolve() for home in homes)
+
+    # Real computation — never hardcode False/True.
+    runner_touches_forbidden_paths = bool(touched_paths) or runner_used_production_home
+    verification_executed = before is not None and after is not None
 
     return {
         "production_root": str(prod_root),
-        "runner_touches_forbidden_paths": False,
-        "forbidden_paths_exist_pre_run": forbidden_touched,
+        "runner_touches_forbidden_paths": runner_touches_forbidden_paths,
+        "verification_executed": verification_executed,
+        "forbidden_paths_modified": touched_paths,
+        "forbidden_paths_exist_pre_run": sorted(before_fp),
+        "runner_hermes_homes": [str(h) for h in homes],
+        "runner_used_production_home": runner_used_production_home,
         "forbidden_path_check": all(
             is_forbidden_production_path(Path(p)) for p in ["state/outbox", "state/receipts"]
         ),
+    }
+
+
+def classify_parallel_failures(parallel_run: dict[str, Any]) -> dict[str, Any]:
+    """Every errored/cancelled/failed slot must carry a concrete failure classification."""
+    slots: list[dict[str, Any]] = []
+    if parallel_run.get("frame_results") is None:
+        return {
+            "status": "unknown",
+            "failure_slots": [],
+            "unclassified": [],
+            "failures_classified": None,
+            "verification_executed": False,
+        }
+    for frame in parallel_run.get("frame_results") or []:
+        selection = frame.get("selection") or {}
+        if selection.get("outcome") == "classified_failure":
+            slots.append(
+                {
+                    "scope": "selection",
+                    "frame_id": frame.get("frame_id"),
+                    "error": True,
+                    "failure_class": selection.get("failure_class") or selection.get("decision_code"),
+                }
+            )
+        for slot in frame.get("profile_slots") or []:
+            errored = bool(slot.get("error") or slot.get("cancelled") or slot.get("failed"))
+            if not errored:
+                continue
+            failure_class = (
+                slot.get("failure_class")
+                or slot.get("error_class")
+                or (slot.get("normalized") or {}).get("failure_class")
+            )
+            slots.append(
+                {
+                    "scope": "profile_slot",
+                    "frame_id": frame.get("frame_id"),
+                    "profile_id": slot.get("profile_id"),
+                    "error": True,
+                    "failure_class": failure_class,
+                }
+            )
+
+    unclassified = [s for s in slots if not s.get("failure_class")]
+    return {
+        "status": "ok",
+        "failure_slots": slots,
+        "unclassified": unclassified,
+        "failures_classified": len(unclassified) == 0,
+        "verification_executed": True,
     }
 
 
@@ -342,12 +428,44 @@ def build_acceptance_report(*, frames_dir: Path, candidate_fixtures_dir: Path) -
         candidate_fixtures_dir=candidate_fixtures_dir,
     )
 
-    parallel_run = run_parallel.build_parallel_run(**kwargs)
-    sequential_run = run_sequential.build_run(**kwargs)
-    comparison = compare_sequential_parallel(sequential_run, parallel_run)
-    aggregator = run_aggregator_permutation_battery(agg, rules)
-    production_audit = audit_production_writes()
-    unittest_results = run_unittest_suite()
+    from evaluation_owner import production_profile_root
+
+    before_forbidden = _fingerprint_forbidden_paths(production_profile_root())
+    try:
+        parallel_run = run_parallel.build_parallel_run(**kwargs)
+        sequential_run = run_sequential.build_run(**kwargs)
+        comparison = compare_sequential_parallel(sequential_run, parallel_run)
+        aggregator = run_aggregator_permutation_battery(agg, rules)
+        unittest_results = run_unittest_suite()
+        execution_error = None
+    except Exception as exc:  # noqa: BLE001 — acceptance must classify execution errors
+        parallel_run = {
+            "frame_results": None,
+            "evaluation_only": None,
+            "production_parallelism": None,
+            "isolation_audit": [],
+            "profile_ids": [],
+            "metrics": {},
+        }
+        sequential_run = {"frame_results": []}
+        comparison = {
+            "normalized_state_match": False,
+            "mismatches": [f"execution_error:{exc}"],
+        }
+        aggregator = {"pass": False, "checks": {}}
+        unittest_results = {"full_suite_pass": False, "runs": [], "tests_run": 0}
+        execution_error = f"{type(exc).__name__}:{exc}"
+    after_forbidden = _fingerprint_forbidden_paths(production_profile_root())
+    runner_homes = [
+        str(row.get("hermes_home") or row.get("work_dir") or "")
+        for row in (parallel_run.get("isolation_audit") or [])
+    ]
+    production_audit = audit_production_writes(
+        before=before_forbidden,
+        after=after_forbidden,
+        runner_hermes_homes=runner_homes,
+    )
+    failure_audit = classify_parallel_failures(parallel_run)
 
     cancellations = sum(
         1
@@ -374,26 +492,39 @@ def build_acceptance_report(*, frames_dir: Path, candidate_fixtures_dir: Path) -
     within_budget = session_cost <= float(budget.get("max_cost_usd_per_session") or 2.5)
     within_latency = total_latency <= int(budget.get("total_latency_budget_ms") or 180000)
 
+    checks = aggregator.get("checks") or {}
     gate_checks = {
         "parallel_evaluation_only": parallel_run.get("evaluation_only") is True
         and parallel_run.get("production_parallelism") is False,
         "max_parallel_slots_2": parallel_run.get("max_parallel_slots") == 2,
         "three_profiles": len(parallel_run.get("profile_ids") or []) == 3,
-        "isolation_work_dirs_unique": len(slot_dirs) == len(set(slot_dirs)),
+        "isolation_work_dirs_unique": len(slot_dirs) == len(set(slot_dirs)) if slot_dirs else False,
         "hermes_home_markers": hermes_markers == len(slot_dirs) and hermes_markers > 0,
         "sequential_parallel_normalized_match": comparison["normalized_state_match"],
-        "aggregator_order_invariant": aggregator["pass"],
-        "aggregator_rules_validated": aggregator["checks"]["all_no_edge_no_selection"]
-        and aggregator["checks"]["missing_profile_classified_failure"]
-        and aggregator["checks"]["critical_no_rule_does_not_eliminate"],
-        "zero_production_writes": production_audit["runner_touches_forbidden_paths"] is False,
-        "failures_classified": True,
+        "aggregator_order_invariant": aggregator.get("pass") is True,
+        "aggregator_rules_validated": bool(
+            checks.get("all_no_edge_no_selection")
+            and checks.get("missing_profile_classified_failure")
+            and checks.get("critical_no_rule_does_not_eliminate")
+        ),
+        "zero_production_writes": (
+            production_audit.get("verification_executed") is True
+            and production_audit.get("runner_touches_forbidden_paths") is False
+        ),
+        "failures_classified": failure_audit.get("failures_classified") is True,
         "within_cost_budget": within_budget,
         "within_latency_budget": within_latency,
-        "unittest_suite_pass": unittest_results["full_suite_pass"],
+        "unittest_suite_pass": unittest_results.get("full_suite_pass") is True,
+        "verification_complete": (
+            production_audit.get("verification_executed") is True
+            and failure_audit.get("verification_executed") is True
+            and execution_error is None
+        ),
     }
 
-    gate_pass = all(gate_checks.values())
+    # Unknown/unexecuted checks must fail closed — never PASS via hardcoded True.
+    unknown_or_missing = [name for name, value in gate_checks.items() if value is not True]
+    gate_pass = len(unknown_or_missing) == 0
 
     corpus_hash = parallel_run.get("corpus_hash")
     report = {
@@ -424,6 +555,9 @@ def build_acceptance_report(*, frames_dir: Path, candidate_fixtures_dir: Path) -
             "promotion_gate": False,
         },
         "production_audit": production_audit,
+        "failure_audit": failure_audit,
+        "execution_error": execution_error,
+        "gate_failures": unknown_or_missing,
         "unittest": unittest_results,
         "hashes": {
             "parallel_run_digest": hashlib.sha256(
