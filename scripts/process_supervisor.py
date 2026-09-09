@@ -1,4 +1,4 @@
-"""Hermes subprocess supervisor — identity-safe tree kill (audit C3 / Wave 0)."""
+"""Hermes subprocess supervisor â€” identity-safe tree kill (audit C3 / Wave 0)."""
 
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ class ProcessResult:
 
 @dataclass(frozen=True)
 class LaunchIdentity:
-    """Exact launch identity — never match by bare substring."""
+    """Exact launch identity â€” never match by bare substring."""
 
     pid: int
     executable_path: str
@@ -361,7 +361,7 @@ def run_supervised(
                     stream.close()
                 except OSError:
                     pass
-        # Timeout path uses the Popen handle we launched — identity already bound to PID.
+        # Timeout path uses the Popen handle we launched â€” identity already bound to PID.
         terminate_process_tree(process)
         try:
             process.wait(timeout=10)
@@ -375,5 +375,6 @@ def run_supervised(
         stderr = stderr[:max_output_chars]
     # Keep identity available for callers via attribute for tests/debug.
     result = ProcessResult(returncode=process.returncode or 0, stdout=stdout, stderr=stderr)
-    setattr(result, "launch_identity", identity)
+    # Frozen dataclass: setattr() raises FrozenInstanceError on 3.11+.
+    object.__setattr__(result, "launch_identity", identity)
     return result

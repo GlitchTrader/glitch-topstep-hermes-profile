@@ -1,4 +1,4 @@
-"""Gateway read-only snapshot fetch for shadow observation — GET only, zero mutations."""
+"""Gateway read-only snapshot fetch for shadow observation â€” GET only, zero mutations."""
 
 from __future__ import annotations
 
@@ -181,7 +181,7 @@ def fetch_gateway_health_raw(
     token: str | None = None,
     http_get: Callable[[str, str, float], tuple[int, dict[str, Any]]] | None = None,
 ) -> dict[str, Any]:
-    """GET /health without maintenance classification — for stability window sampling."""
+    """GET /health without maintenance classification â€” for stability window sampling."""
     tok = token if token is not None else local_token()
     getter = http_get or (lambda path, t, timeout: _http_get_json(path, token=t, timeout_s=timeout))
     status, health = getter("/health", tok, 5.0)
@@ -195,7 +195,7 @@ def fetch_gateway_health_readonly(
     token: str | None = None,
     http_get: Callable[[str, str, float], tuple[int, dict[str, Any]]] | None = None,
 ) -> dict[str, Any]:
-    """GET /health only — market gate without minting a new packet_id."""
+    """GET /health only â€” market gate without minting a new packet_id."""
     tok = token if token is not None else local_token()
     getter = http_get or (lambda path, t, timeout: _http_get_json(path, token=t, timeout_s=timeout))
     status, health = getter("/health", tok, 5.0)
@@ -272,7 +272,21 @@ def fetch_gateway_readonly_snapshot(
 
     market = packet.get("market") if isinstance(packet.get("market"), dict) else {}
     if market.get("quote_valid") is False:
-        raise ShadowGatewayError("market_not_valid")
+        # Invalid executable quote is deferred data-quality — never PASS/no_edge.
+        raise ShadowGatewayError(
+            "deferred_data_quality",
+            json.dumps(
+                {
+                    "reason": "market_quote_invalid",
+                    "quote_valid": False,
+                    "quote_timestamp": market.get("quote_timestamp"),
+                    "last_invalid": (
+                        health.get("data_quality") if isinstance(health.get("data_quality"), dict) else {}
+                    ).get("quote_geometry_last_invalid"),
+                },
+                sort_keys=True,
+            ),
+        )
 
     envelope = build_evaluation_envelope(
         packet=packet,
