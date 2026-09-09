@@ -1,4 +1,4 @@
-﻿"""Gateway read-only snapshot fetch for shadow observation â€” GET only, zero mutations."""
+"""Gateway read-only snapshot fetch for shadow observation â€” GET only, zero mutations."""
 
 from __future__ import annotations
 

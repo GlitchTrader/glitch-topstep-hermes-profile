@@ -1,4 +1,4 @@
-﻿"""Hermes subprocess supervisor â€” identity-safe tree kill (audit C3 / Wave 0)."""
+"""Hermes subprocess supervisor â€” identity-safe tree kill (audit C3 / Wave 0)."""
 
 from __future__ import annotations
 
