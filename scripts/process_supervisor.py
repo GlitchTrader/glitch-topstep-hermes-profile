@@ -38,9 +38,22 @@ def _utc_now() -> str:
 
 
 def _norm_path(value: str | None) -> str:
+    """Stable path key for identity compare (Windows + Linux CI fixtures)."""
     if not value:
         return ""
-    return os.path.normcase(os.path.abspath(value))
+    # Preserve Windows drive literals on non-Windows runners (unit-test fixtures).
+    compact = value.replace("\\", "/")
+    if sys.platform != "win32" and len(compact) >= 2 and compact[1] == ":":
+        return compact.lower()
+    try:
+        absolute = os.path.abspath(value)
+    except (OSError, ValueError):
+        absolute = value
+    return os.path.normcase(absolute).replace("\\", "/")
+
+
+def _paths_equal(left: str | None, right: str | None) -> bool:
+    return _norm_path(left) == _norm_path(right)
 
 
 def process_start_utc(pid: int) -> str | None:
@@ -140,7 +153,7 @@ def identities_match(
         return False
     if not process_is_alive(pid):
         return False
-    if expected.executable_path and _norm_path(executable_path) != expected.executable_path:
+    if expected.executable_path and not _paths_equal(executable_path, expected.executable_path):
         return False
     if expected.command_line and (command_line or "") != expected.command_line:
         # Allow exact argv reconstruction mismatches only when argv tokens all present in order.
@@ -160,7 +173,7 @@ def identities_match(
             return False
         if abs((exp - act).total_seconds()) > start_skew_seconds:
             return False
-    if expected.cwd and cwd and _norm_path(cwd) != expected.cwd:
+    if expected.cwd and cwd and not _paths_equal(cwd, expected.cwd):
         return False
     if expected.launch_anchor and command_line and expected.launch_anchor not in command_line:
         # Anchor must appear as a full path token, not an editor buffer substring alone.
