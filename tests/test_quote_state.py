@@ -83,6 +83,8 @@ class QuoteStateClassificationTests(unittest.TestCase):
         self.assertFalse(axes["directional_opportunity"])
         self.assertFalse(axes["execution_authority"])
         self.assertIsNone(axes["deferred_reason"])
+        self.assertTrue(axes["action_matrix"]["new_exposure"])
+        self.assertTrue(axes["action_matrix"]["flatten"])
 
     def test_locked_is_deferred_not_no_edge(self) -> None:
         axes = QS.classify_evaluation_axes(
@@ -95,6 +97,30 @@ class QuoteStateClassificationTests(unittest.TestCase):
         self.assertFalse(axes["directional_opportunity"])
         self.assertEqual(axes["deferred_reason"], "no_trade_locked_market")
         self.assertTrue(axes["blocks_no_edge"])
+        self.assertFalse(axes["action_matrix"]["new_exposure"])
+        self.assertTrue(axes["action_matrix"]["exit_reduction"])
+        self.assertTrue(axes["action_matrix"]["flatten"])
+        self.assertTrue(axes["action_matrix"]["protective_action"])
+        self.assertTrue(axes["action_matrix"]["recovery"])
+        self.assertEqual(axes["risk_reduction_eligibility"], "eligible")
+        # data_completeness must not authorize execution
+        self.assertTrue(axes["data_completeness"])
+        self.assertNotEqual(axes["execution_eligibility"], "eligible")
+
+    def test_action_matrix_matches_spec(self) -> None:
+        for state, expected in QS.ACTION_MATRIX.items():
+            for action, allowed in expected.items():
+                eligibility = {
+                    "normal": "eligible",
+                    "locked": "blocked_locked",
+                    "invalid": "blocked_invalid",
+                    "stale": "blocked_incomplete",
+                }[state]
+                self.assertEqual(
+                    QS.action_allowed(action, quote_state=state if state != "stale" else "normal", execution_eligibility=eligibility),
+                    allowed,
+                    f"{state}/{action}",
+                )
 
     def test_invalid_blocks(self) -> None:
         axes = QS.classify_evaluation_axes(

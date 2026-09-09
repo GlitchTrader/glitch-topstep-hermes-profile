@@ -60,7 +60,7 @@ class ControlPluginTests(unittest.TestCase):
             "compatibility": {
                 "gateway_name": "glitch-topstep",
                 "protocol_revision": "glitch.topstep.paired.v3",
-                "gateway_version": "0.2.0",
+                "gateway_version": "0.2.6",
                 "intent_schemas": ["glitch.intent.v2", "glitch.intent.v3"],
                 "decision_packet_schemas": [
                     "glitch.direct.decision_packet.v1",
@@ -76,6 +76,7 @@ class ControlPluginTests(unittest.TestCase):
                     "revisioned_outcome_feed_v1",
                     "multi_instrument_observation_v1",
                     "protected_reduction_saga_v1",
+                    "quote_state_v1",
                 ],
                 "semantic_revisions": {
                     "bounded_entry_range": "glitch.topstep.entry_range.v1",
