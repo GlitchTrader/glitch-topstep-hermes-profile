@@ -24,6 +24,7 @@ FAIL_CODE = "FAIL_CODE"
 BLOCKED_OPERATIONAL = "BLOCKED_OPERATIONAL"
 BLOCKED_EXTERNAL = "BLOCKED_EXTERNAL"
 NOT_APPLICABLE = "NOT_APPLICABLE"
+UNKNOWN = "UNKNOWN"
 
 
 def utc_now() -> str:
@@ -284,7 +285,7 @@ def build_checks(gw: Path | None) -> list[CheckSpec]:
 
 def summarize_phase(results: list[dict[str, Any]], phase_id: str) -> dict[str, Any]:
     phase_rows = [r for r in results if r["phase"] == phase_id]
-    counts = {c: 0 for c in (PASS, FAIL_CODE, BLOCKED_OPERATIONAL, BLOCKED_EXTERNAL, NOT_APPLICABLE)}
+    counts = {c: 0 for c in (PASS, FAIL_CODE, BLOCKED_OPERATIONAL, BLOCKED_EXTERNAL, NOT_APPLICABLE, UNKNOWN)}
     for row in phase_rows:
         counts[row["classification"]] = counts.get(row["classification"], 0) + 1
     applicable = [r for r in phase_rows if r["classification"] not in (NOT_APPLICABLE,)]
@@ -292,14 +293,21 @@ def summarize_phase(results: list[dict[str, Any]], phase_id: str) -> dict[str, A
     pct = round(100.0 * pass_count / len(applicable), 1) if applicable else None
     blocked = any(r["classification"] in (BLOCKED_OPERATIONAL, BLOCKED_EXTERNAL) for r in phase_rows)
     failed = any(r["classification"] == FAIL_CODE for r in phase_rows)
+    unknown = any(r["classification"] == UNKNOWN for r in phase_rows)
     if failed:
         phase_verdict = FAIL_CODE
-    elif blocked and pass_count < len([r for r in applicable if r["classification"] != BLOCKED_EXTERNAL]):
-        phase_verdict = BLOCKED_OPERATIONAL if any(r["classification"] == BLOCKED_OPERATIONAL for r in phase_rows) else BLOCKED_EXTERNAL
+    elif unknown:
+        phase_verdict = UNKNOWN
+    elif blocked:
+        phase_verdict = (
+            BLOCKED_OPERATIONAL
+            if any(r["classification"] == BLOCKED_OPERATIONAL for r in phase_rows)
+            else BLOCKED_EXTERNAL
+        )
     elif applicable and pass_count == len(applicable):
         phase_verdict = PASS
     else:
-        phase_verdict = BLOCKED_OPERATIONAL
+        phase_verdict = UNKNOWN
     return {
         "phase_id": phase_id,
         "checks": len(phase_rows),
@@ -379,6 +387,11 @@ def main() -> int:
 
     if report["sections"]["code_failures"]:
         return 1
+    # Relevant BLOCKED must not look like PASS to CI / operators.
+    if report["sections"]["operational_blocks"] or report["sections"]["external_blocks"]:
+        return 2
+    if any(r.get("classification") == UNKNOWN for r in results):
+        return 3
     return 0
 
 

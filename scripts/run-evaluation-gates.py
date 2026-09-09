@@ -189,8 +189,9 @@ def _run_gate(
             base["detail"] = (proc.stdout or "").strip()[-500:] or "ok"
         else:
             combined = ((proc.stderr or "") + (proc.stdout or "")).strip()
-            if "WinError" in combined or "gateway_repo_not_found" in combined:
-                base["status"] = CONDITIONAL
+            # Do not downgrade Failures via substring matches (WinError, path text, etc.).
+            if "gateway_repo_not_found" in combined:
+                base["status"] = BLOCKED
             else:
                 base["status"] = FAIL
             base["detail"] = combined[-2000:] or f"exit_{proc.returncode}"
@@ -375,6 +376,8 @@ def main() -> int:
 
     if report["offline_verdict"] == FAIL:
         return 1
+    if report["offline_verdict"] in {BLOCKED, CONDITIONAL}:
+        return 2
     return 0
 
 

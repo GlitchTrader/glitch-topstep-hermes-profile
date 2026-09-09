@@ -252,9 +252,12 @@ def is_post_close_sample(
 def _circuit_breaker_closed(health: dict[str, Any]) -> tuple[bool, str]:
     cb = health.get("read_circuit_breaker")
     if not isinstance(cb, dict):
-        return True, "absent"
-    for key in ("bars", "quotes", "orders"):
-        section = cb.get(key)
+        # Fail closed: missing breaker state is unknown, not "closed".
+        return False, "absent"
+    # Empty dict means no open families recorded by gateway (all closed).
+    if len(cb) == 0:
+        return True, "closed"
+    for key, section in cb.items():
         if isinstance(section, dict) and section.get("open") is True:
             return False, f"{key}_open"
     if cb.get("open") is True:
@@ -277,32 +280,47 @@ def _market_observation_fresh(health: dict[str, Any], *, max_age_s: float, now: 
 
 
 def _account_flat(health: dict[str, Any], packet: dict[str, Any] | None) -> tuple[bool, int | None]:
+    def _as_qty(value: Any) -> int | None:
+        if value is None:
+            return None
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return None
+
     if packet:
         account = packet.get("account") if isinstance(packet.get("account"), dict) else {}
-        open_qty = account.get("instrument_open_contracts")
-        if open_qty is not None:
-            try:
-                qty = int(open_qty)
-                return qty == 0, qty
-            except (TypeError, ValueError):
-                pass
+        qty = _as_qty(account.get("instrument_open_contracts"))
+        if qty is None:
+            qty = _as_qty(account.get("total_open_contracts"))
+        if qty is not None:
+            return qty == 0, qty
     pos = health.get("position") if isinstance(health.get("position"), dict) else {}
-    open_qty = pos.get("open_quantity") or pos.get("instrument_open_contracts")
-    if open_qty is not None:
-        try:
-            qty = int(open_qty)
-            return qty == 0, qty
-        except (TypeError, ValueError):
-            pass
+    qty = _as_qty(pos.get("open_quantity"))
+    if qty is None:
+        qty = _as_qty(pos.get("instrument_open_contracts"))
+    if qty is not None:
+        return qty == 0, qty
     inv = health.get("invariant_metrics") if isinstance(health.get("invariant_metrics"), dict) else {}
-    open_qty = inv.get("open_quantity")
-    if open_qty is not None:
-        try:
-            qty = int(open_qty)
-            return qty == 0, qty
-        except (TypeError, ValueError):
-            pass
-    return True, None
+    qty = _as_qty(inv.get("open_quantity"))
+    if qty is not None:
+        return qty == 0, qty
+    # Fail closed: missing open-qty fields are UNKNOWN, not flat.
+    return False, None
+
+
+def _streams_connected(health: dict[str, Any]) -> tuple[bool, str]:
+    dq = health.get("data_quality") if isinstance(health.get("data_quality"), dict) else {}
+    op = dq.get("operational") if isinstance(dq.get("operational"), dict) else None
+    if not isinstance(op, dict):
+        return False, "operational_absent"
+    for stream_key in ("marketStream", "userStream"):
+        stream = op.get(stream_key)
+        if not isinstance(stream, dict):
+            return False, f"{stream_key}_absent"
+        if str(stream.get("state") or "").lower() != "connected":
+            return False, f"{stream_key}_not_connected"
+    return True, "connected"
 
 
 def evaluate_operational_stability_sample(
@@ -381,6 +399,11 @@ def evaluate_operational_stability_sample(
     if not cb_ok:
         reasons.append(f"circuit_breaker_{cb_reason}")
 
+    streams_ok, streams_reason = _streams_connected(health)
+    detail["streams"] = streams_reason
+    if not streams_ok:
+        reasons.append(f"streams_{streams_reason}")
+
     mo_ok, mo_reason = _market_observation_fresh(
         health, max_age_s=market_obs_freshness_seconds, now=now_dt
     )
@@ -397,7 +420,9 @@ def evaluate_operational_stability_sample(
 
     flat_ok, open_qty = _account_flat(health, packet)
     detail["account_open_contracts"] = open_qty
-    if not flat_ok:
+    if open_qty is None and not flat_ok:
+        reasons.append("account_open_unknown")
+    elif not flat_ok:
         reasons.append("account_not_flat")
 
     ctx = bar_close_context or (extract_bar_close_context(packet, now=sample_dt) if packet else None)

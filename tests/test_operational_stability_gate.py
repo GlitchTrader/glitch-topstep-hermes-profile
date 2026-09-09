@@ -39,13 +39,22 @@ def _good_health(now: datetime | None = None) -> dict:
     return {
         "status": "ok",
         "recorded_utc": stamp,
-        "data_quality": {"state_complete": True, "issues": []},
+        "data_quality": {
+            "state_complete": True,
+            "issues": [],
+            "operational": {
+                "generation": 1,
+                "marketStream": {"state": "connected"},
+                "userStream": {"state": "connected"},
+                "reconciliation": {"state": "succeeded"},
+            },
+        },
         "execution_recovery": {"blockingNewExposure": False},
         "market_observation": {
             "last_succeeded_utc": stamp,
             "last_error": None,
         },
-        "read_circuit_breaker": {"bars": {"open": False}},
+        "read_circuit_breaker": {},
         "position": {"open_quantity": 0},
     }
 
@@ -991,7 +1000,8 @@ class PostCloseOfflineScenarioTests(unittest.TestCase):
     def test_health_stale_packet_fresh_fails_divergence(self) -> None:
         now = _utc(2026, 9, 8, 14, 1, 3)
         health = _good_health(now)
-        health["data_quality"] = {"state_complete": False, "issues": ["account_state_stale"]}
+        op = health["data_quality"]["operational"]
+        health["data_quality"] = {"state_complete": False, "issues": ["account_state_stale"], "operational": op}
         packet = _packet_at(now)
         verdict = self._evaluate(health, packet, now)
         self.assertFalse(verdict.ok)
@@ -1050,6 +1060,49 @@ class LegacyPollTests(unittest.TestCase):
         )
         self.assertTrue(result["confirmed"])
         self.assertEqual(len(result["samples"]), 5)
+
+
+class FailClosedUnknownFieldTests(unittest.TestCase):
+    def test_missing_open_qty_is_unknown_not_flat(self) -> None:
+        now = _utc(2026, 9, 8, 14, 1, 10)
+        health = _good_health(now)
+        del health["position"]
+        packet = _packet_at(now)
+        del packet["account"]
+        verdict = evaluate_operational_stability_sample(
+            health=health, packet=packet, now=now, fetched_utc=health["recorded_utc"]
+        )
+        self.assertFalse(verdict.ok)
+        self.assertIn("account_open_unknown", verdict.reasons)
+
+    def test_absent_circuit_breaker_is_not_closed(self) -> None:
+        now = _utc(2026, 9, 8, 14, 1, 10)
+        health = _good_health(now)
+        health["read_circuit_breaker"] = None
+        verdict = evaluate_operational_stability_sample(
+            health=health, packet=_packet_at(now), now=now, fetched_utc=health["recorded_utc"]
+        )
+        self.assertFalse(verdict.ok)
+        self.assertIn("circuit_breaker_absent", verdict.reasons)
+
+    def test_missing_market_stream_is_not_connected(self) -> None:
+        now = _utc(2026, 9, 8, 14, 1, 10)
+        health = _good_health(now)
+        del health["data_quality"]["operational"]["marketStream"]
+        verdict = evaluate_operational_stability_sample(
+            health=health, packet=_packet_at(now), now=now, fetched_utc=health["recorded_utc"]
+        )
+        self.assertFalse(verdict.ok)
+        self.assertIn("streams_marketStream_absent", verdict.reasons)
+
+    def test_empty_circuit_breaker_dict_is_closed(self) -> None:
+        now = _utc(2026, 9, 8, 14, 1, 10)
+        health = _good_health(now)
+        health["read_circuit_breaker"] = {}
+        verdict = evaluate_operational_stability_sample(
+            health=health, packet=_packet_at(now), now=now, fetched_utc=health["recorded_utc"]
+        )
+        self.assertNotIn("circuit_breaker_absent", verdict.reasons)
 
 
 if __name__ == "__main__":
