@@ -6,7 +6,7 @@ import json
 import importlib.util
 import os
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable
@@ -19,6 +19,7 @@ BLOCKED_BAR_CLOSE_WINDOW = "blocked_bar_close_window"
 BLOCKED_DATA_QUALITY = "blocked_data_quality"
 BAR_CLOSE_ACCEPTANCE_V1 = "bar_close_acceptance_v1"
 BAR_CLOSE_ACCEPTANCE_V2 = "bar_close_acceptance_v2"
+CANONICAL_LIVE_STABILITY_ENTRY = "run_canonical_live_stability_window"
 
 DEFAULT_REQUIRED_SAMPLES = 5
 DEFAULT_MAX_DURATION_SECONDS = 600.0  # 10 minutes bounded (valid-sample window only)
@@ -84,6 +85,52 @@ class BarCloseContext:
     prior_completed_bar_utc: str | None
     bar_age_ms: int | None
     source: str | None
+
+
+@dataclass
+class BarCloseCursor:
+    """Monotonic bar-close cursor — never reprocess a captured boundary as a miss."""
+
+    last_captured_close: datetime | None = None
+    next_target_close: datetime | None = None
+    seen_closed_bar_keys: set[str] = field(default_factory=set)
+
+    def already_seen(self, bar_key: str) -> bool:
+        return bar_key in self.seen_closed_bar_keys
+
+    def mark_captured(self, close_dt: datetime, bar_key: str) -> None:
+        self.seen_closed_bar_keys.add(bar_key)
+        self.last_captured_close = close_dt
+        self.next_target_close = close_dt + timedelta(minutes=1)
+
+    def resolve_target(self, packet_close: datetime) -> datetime:
+        """Prefer cursor next_target when it is ahead of the packet-derived close."""
+        if self.next_target_close is not None and self.next_target_close > packet_close:
+            return self.next_target_close
+        return packet_close
+
+    def advance_after_miss_or_skip(self, close_dt: datetime) -> datetime:
+        """Provider delayed / skip — move to the next minute boundary (bounded, no loop)."""
+        nxt = close_dt + timedelta(minutes=1)
+        if self.next_target_close is not None and self.next_target_close > nxt:
+            return self.next_target_close
+        self.next_target_close = nxt
+        return nxt
+
+    def snapshot(self) -> dict[str, Any]:
+        return {
+            "last_captured_close": (
+                self.last_captured_close.isoformat().replace("+00:00", "Z")
+                if self.last_captured_close
+                else None
+            ),
+            "next_target_close": (
+                self.next_target_close.isoformat().replace("+00:00", "Z")
+                if self.next_target_close
+                else None
+            ),
+            "seen_closed_bar_keys": sorted(self.seen_closed_bar_keys),
+        }
 
 
 def _quote_geometry_issue_present(detail: dict[str, Any]) -> bool:
@@ -717,9 +764,19 @@ def wait_for_bar_complete(
     sleep_fn: Callable[[float], None] = time.sleep,
     monotonic_fn: Callable[[], float] = time.monotonic,
     now_fn: Callable[[], datetime] | None = None,
+    cursor: BarCloseCursor | None = None,
 ) -> dict[str, Any]:
-    """Wait until clock-aligned post-close window — does not poll for partial=false."""
+    """Internal/helper wait only — NOT the canonical live entry point.
+
+    Canonical live validation must use ``run_canonical_live_stability_window`` (or
+    ``run_bar_close_aware_stability_window`` directly). Calling this before the
+    stability window splits clocks and contaminates warmup (missed_post_close_window).
+
+    When ``cursor`` is provided, shared seen/next state is honored so a boundary is
+    never reprocessed as a miss.
+    """
     now_fn = now_fn or (lambda: datetime.now(timezone.utc))
+    cursor = cursor or BarCloseCursor()
     roll_latency = (
         provider_roll_latency_seconds
         if provider_roll_latency_seconds is not None
@@ -767,9 +824,24 @@ def wait_for_bar_complete(
 
         packet_close = expected_close_for_context(ctx)
         packet_close_iso = _close_iso(packet_close)
-        target_close = packet_close
+        # Cursor: never treat an already-captured boundary as a fresh wait target.
+        if cursor.already_seen(_close_reference_utc(ctx)):
+            next_close = cursor.advance_after_miss_or_skip(packet_close)
+            if not _sleep_until(
+                next_close,
+                sleep_fn=sleep_fn,
+                now_fn=now_fn,
+                monotonic_fn=monotonic_fn,
+                monotonic_deadline=deadline,
+            ):
+                break
+            sleep_fn(poll_seconds)
+            continue
+
+        target_close = cursor.resolve_target(packet_close)
         if packet_close_iso in abandoned_boundaries:
             target_close = _target_close_after_abandon(ctx, now)
+            target_close = cursor.resolve_target(target_close)
         window_end = _sample_window_end(
             target_close,
             post_close_window_seconds=post_close_window_seconds,
@@ -805,9 +877,9 @@ def wait_for_bar_complete(
                 continue
             packet_close = expected_close_for_context(ctx)
             packet_close_iso = _close_iso(packet_close)
-            target_close = packet_close
+            target_close = cursor.resolve_target(packet_close)
             if packet_close_iso in abandoned_boundaries:
-                target_close = _target_close_after_abandon(ctx, now)
+                target_close = cursor.resolve_target(_target_close_after_abandon(ctx, now))
             window_end = _sample_window_end(
                 target_close,
                 post_close_window_seconds=post_close_window_seconds,
@@ -834,8 +906,11 @@ def wait_for_bar_complete(
                     provider_roll_latency_seconds=roll_latency,
                     target_close=packet_close,
                 ):
+                    confirmed_at = now.isoformat().replace("+00:00", "Z")
+                    cursor.mark_captured(packet_close, _close_reference_utc(ctx))
                     return {
                         "ready": True,
+                        "confirmed_at_utc": confirmed_at,
                         "waited_seconds": round(monotonic_fn() - started, 2),
                         "expected_close_utc": _close_iso(packet_close),
                         "latest_bar_utc": ctx.latest_bar_utc,
@@ -843,11 +918,12 @@ def wait_for_bar_complete(
                         "latest_bar_partial": ctx.latest_bar_partial,
                         "close_reference_utc": _close_reference_utc(ctx),
                         "bar_roll_confirmed": True,
+                        "cursor": cursor.snapshot(),
                         "polls": polls,
                         "missed_boundaries": missed_events,
                     }
             abandon_iso = _close_iso(packet_close)
-            if abandon_iso not in abandoned_boundaries:
+            if abandon_iso not in abandoned_boundaries and not cursor.already_seen(_close_reference_utc(ctx)):
                 abandoned_boundaries.add(abandon_iso)
                 _record_missed_boundary(
                     missed_events,
@@ -858,7 +934,7 @@ def wait_for_bar_complete(
                     provider_roll_latency_seconds=roll_latency,
                     bar_roll_confirmed=bool(initial_ctx and _bar_roll_confirmed(initial_ctx, ctx)),
                 )
-            next_close = _next_post_close_sample_target(ctx, now)
+            next_close = cursor.advance_after_miss_or_skip(packet_close)
             if not _sleep_until(
                 next_close,
                 sleep_fn=sleep_fn,
@@ -878,14 +954,18 @@ def wait_for_bar_complete(
             provider_roll_latency_seconds=roll_latency,
             target_close=target_close,
         ):
+            confirmed_at = now.isoformat().replace("+00:00", "Z")
+            cursor.mark_captured(target_close, _close_reference_utc(ctx))
             return {
                 "ready": True,
+                "confirmed_at_utc": confirmed_at,
                 "waited_seconds": round(monotonic_fn() - started, 2),
                 "expected_close_utc": _close_iso(target_close),
                 "latest_bar_utc": ctx.latest_bar_utc,
                 "prior_completed_bar_utc": ctx.prior_completed_bar_utc,
                 "latest_bar_partial": ctx.latest_bar_partial,
                 "close_reference_utc": _close_reference_utc(ctx),
+                "cursor": cursor.snapshot(),
                 "polls": polls,
                 "missed_boundaries": missed_events,
             }
@@ -899,8 +979,11 @@ def wait_for_bar_complete(
                 provider_roll_latency_seconds=roll_latency,
                 target_close=packet_close,
             ):
+                confirmed_at = now.isoformat().replace("+00:00", "Z")
+                cursor.mark_captured(packet_close, _close_reference_utc(ctx))
                 return {
                     "ready": True,
+                    "confirmed_at_utc": confirmed_at,
                     "waited_seconds": round(monotonic_fn() - started, 2),
                     "expected_close_utc": _close_iso(packet_close),
                     "latest_bar_utc": ctx.latest_bar_utc,
@@ -908,11 +991,12 @@ def wait_for_bar_complete(
                     "latest_bar_partial": ctx.latest_bar_partial,
                     "close_reference_utc": _close_reference_utc(ctx),
                     "bar_roll_confirmed": True,
+                    "cursor": cursor.snapshot(),
                     "polls": polls,
                     "missed_boundaries": missed_events,
                 }
             abandon_iso = _close_iso(packet_close)
-            if abandon_iso not in abandoned_boundaries:
+            if abandon_iso not in abandoned_boundaries and not cursor.already_seen(_close_reference_utc(ctx)):
                 abandoned_boundaries.add(abandon_iso)
                 _record_missed_boundary(
                     missed_events,
@@ -923,7 +1007,7 @@ def wait_for_bar_complete(
                     provider_roll_latency_seconds=roll_latency,
                     bar_roll_confirmed=True,
                 )
-            next_close = _next_post_close_sample_target(ctx, now)
+            next_close = cursor.advance_after_miss_or_skip(packet_close)
             if not _sleep_until(
                 next_close,
                 sleep_fn=sleep_fn,
@@ -947,6 +1031,7 @@ def wait_for_bar_complete(
         "latest_bar_utc": last.get("latest_bar_utc"),
         "prior_completed_bar_utc": last.get("prior_completed_bar_utc"),
         "latest_bar_partial": last.get("latest_bar_partial"),
+        "cursor": cursor.snapshot(),
         "polls": polls,
         "missed_boundaries": missed_events,
     }
@@ -976,6 +1061,9 @@ def run_bar_close_aware_stability_window(
 
     Warmup (missed windows, sync to next close) does not consume the valid-sample budget.
     Valid-sample counting starts on the first eligible post-close window.
+
+    Uses a monotonic ``BarCloseCursor`` so a captured boundary is never reprocessed as
+    ``missed_post_close_window``. Partial bars without ``prior_completed_bar`` never count.
     """
     overall_started = monotonic_fn()
     samples: list[dict[str, Any]] = []
@@ -983,7 +1071,7 @@ def run_bar_close_aware_stability_window(
     skipped: list[dict[str, Any]] = []
     gateway_timeouts: list[dict[str, Any]] = []
     invalid_quote_samples: list[dict[str, Any]] = []
-    seen_closed_bars: set[str] = set()
+    cursor = BarCloseCursor()
     abandoned_boundaries: set[str] = set()
     attempted_boundaries: set[str] = set()
     stop_reason: str | None = None
@@ -1081,16 +1169,43 @@ def run_bar_close_aware_stability_window(
         now = now_fn()
         packet_close = expected_close_for_context(ctx)
         packet_close_iso = _close_iso(packet_close)
-        target_close = packet_close
+        bar_key = _close_reference_utc(ctx)
+        # Already captured — advance cursor; never emit missed_post_close_window for reprocess.
+        if cursor.already_seen(bar_key):
+            next_close = cursor.advance_after_miss_or_skip(packet_close)
+            skipped.append(
+                {
+                    "reason": "boundary_already_captured",
+                    "phase": "warmup" if not counting_started else "valid",
+                    "closed_bar_utc": bar_key,
+                    "next_target_close": _close_iso(next_close),
+                    "fetched_utc": now.isoformat().replace("+00:00", "Z"),
+                }
+            )
+            _sleep_until(
+                next_close,
+                sleep_fn=sleep_fn,
+                now_fn=now_fn,
+                monotonic_fn=monotonic_fn,
+                monotonic_deadline=(
+                    (overall_started + max_warmup_seconds)
+                    if not counting_started
+                    else valid_deadline
+                ),
+            )
+            sleep_fn(0.25)
+            continue
+
+        target_close = cursor.resolve_target(packet_close)
         if packet_close_iso in abandoned_boundaries:
-            target_close = _target_close_after_abandon(ctx, now)
+            target_close = cursor.resolve_target(_target_close_after_abandon(ctx, now))
         phase = "warmup" if not counting_started else "valid"
         target_close_iso = _close_iso(target_close)
         sample_window_end = _sample_window_end(
             target_close,
             post_close_window_seconds=post_close_window_seconds,
             provider_roll_latency_seconds=roll_latency,
-            ctx=ctx if target_close == packet_close else None,
+            ctx=ctx if abs((target_close - packet_close).total_seconds()) < 0.5 else None,
         )
 
         if now < target_close:
@@ -1105,8 +1220,11 @@ def run_bar_close_aware_stability_window(
             now = now_fn()
 
         if now > sample_window_end:
-            abandon_iso = packet_close_iso if target_close == packet_close else target_close_iso
-            if abandon_iso not in abandoned_boundaries:
+            abandon_iso = packet_close_iso if abs((target_close - packet_close).total_seconds()) < 0.5 else target_close_iso
+            if (
+                abandon_iso not in abandoned_boundaries
+                and not cursor.already_seen(bar_key)
+            ):
                 abandoned_boundaries.add(abandon_iso)
                 _record_missed_boundary(
                     warmup_events if not counting_started else skipped,
@@ -1116,7 +1234,7 @@ def run_bar_close_aware_stability_window(
                     ctx=ctx,
                     provider_roll_latency_seconds=roll_latency,
                 )
-            next_close = _next_post_close_sample_target(ctx, now)
+            next_close = cursor.advance_after_miss_or_skip(target_close)
             _sleep_until(
                 next_close,
                 sleep_fn=sleep_fn,
@@ -1138,7 +1256,7 @@ def run_bar_close_aware_stability_window(
             post_close_window_seconds=post_close_window_seconds,
             provider_roll_latency_seconds=roll_latency,
         ):
-            if target_close_iso not in abandoned_boundaries:
+            if target_close_iso not in abandoned_boundaries and not cursor.already_seen(bar_key):
                 abandoned_boundaries.add(target_close_iso)
                 _record_missed_boundary(
                     warmup_events if not counting_started else skipped,
@@ -1148,7 +1266,7 @@ def run_bar_close_aware_stability_window(
                     ctx=ctx,
                     provider_roll_latency_seconds=roll_latency,
                 )
-            next_close = _next_post_close_sample_target(ctx, now)
+            next_close = cursor.advance_after_miss_or_skip(target_close)
             _sleep_until(
                 next_close,
                 sleep_fn=sleep_fn,
@@ -1257,15 +1375,15 @@ def run_bar_close_aware_stability_window(
                 classification = BLOCKED_CLASSIFICATION
                 break
 
-            if closed_bar_key in seen_closed_bars:
+            if cursor.already_seen(closed_bar_key):
                 sleep_fn(post_close_poll_seconds)
                 continue
 
-            seen_closed_bars.add(closed_bar_key)
+            cursor.mark_captured(target_close, closed_bar_key)
             row["sample_index"] = len(samples)
             samples.append(row)
             captured = True
-            next_bar_close = target_close + timedelta(minutes=1)
+            next_bar_close = cursor.next_target_close or (target_close + timedelta(minutes=1))
             _sleep_until(
                 next_bar_close,
                 sleep_fn=sleep_fn,
@@ -1278,15 +1396,27 @@ def run_bar_close_aware_stability_window(
             break
 
         if not captured:
-            skipped.append(
-                {
-                    "reason": "missed_post_close_window",
-                    "phase": "valid",
-                    "expected_close_utc": target_close_iso,
-                    "fetched_utc": utc_now(),
-                }
-            )
-            abandoned_boundaries.add(target_close_iso)
+            # Never turn reprocessing of an already-captured boundary into a miss.
+            if cursor.already_seen(bar_key):
+                skipped.append(
+                    {
+                        "reason": "boundary_already_captured",
+                        "phase": "valid",
+                        "expected_close_utc": target_close_iso,
+                        "fetched_utc": utc_now(),
+                    }
+                )
+            else:
+                skipped.append(
+                    {
+                        "reason": "missed_post_close_window",
+                        "phase": "valid",
+                        "expected_close_utc": target_close_iso,
+                        "fetched_utc": utc_now(),
+                    }
+                )
+                abandoned_boundaries.add(target_close_iso)
+                cursor.advance_after_miss_or_skip(target_close)
 
     confirmed = len(samples) >= required_samples and stop_reason is None
     if not confirmed and classification is None:
@@ -1326,6 +1456,8 @@ def run_bar_close_aware_stability_window(
             if valid_window_started_mono is not None
             else None
         ),
+        bar_close_cursor=cursor.snapshot(),
+        canonical_entry=False,
     )
 
 
@@ -1354,6 +1486,8 @@ def _finalize_window(
     poll_interval_seconds: float | None = None,
     counting_started_at_utc: str | None = None,
     valid_window_elapsed_seconds: float | None = None,
+    bar_close_cursor: dict[str, Any] | None = None,
+    canonical_entry: bool = False,
 ) -> dict[str, Any]:
     doc: dict[str, Any] = {
         "schema_version": GATE_SCHEMA,
@@ -1371,6 +1505,8 @@ def _finalize_window(
         "warmup_events": warmup_events or [],
         "gateway_timeouts": gateway_timeouts or [],
         "invalid_quote_samples": invalid_quote_samples or [],
+        "canonical_entry": canonical_entry,
+        "canonical_live_entry": CANONICAL_LIVE_STABILITY_ENTRY if canonical_entry else None,
     }
     if acceptance_policy is not None:
         doc["acceptance_policy"] = acceptance_policy
@@ -1390,7 +1526,63 @@ def _finalize_window(
         doc["provider_roll_latency_seconds"] = provider_roll_latency_seconds
     if poll_interval_seconds is not None:
         doc["poll_interval_seconds"] = poll_interval_seconds
+    if bar_close_cursor is not None:
+        doc["bar_close_cursor"] = bar_close_cursor
     return doc
+
+
+def run_canonical_live_stability_window(
+    *,
+    health_fetcher: Callable[[], dict[str, Any]],
+    packet_fetcher: Callable[[], dict[str, Any]],
+    required_samples: int = DEFAULT_REQUIRED_SAMPLES,
+    max_duration_seconds: float = DEFAULT_MAX_DURATION_SECONDS,
+    max_total_boundaries: int | None = None,
+    max_total_duration_seconds: float | None = None,
+    post_close_window_seconds: float | None = None,
+    provider_roll_latency_seconds: float | None = None,
+    post_close_poll_seconds: float = 0.25,
+    max_warmup_seconds: float = DEFAULT_MAX_WARMUP_SECONDS,
+    health_freshness_seconds: float = DEFAULT_HEALTH_FRESHNESS_SECONDS,
+    market_obs_freshness_seconds: float = DEFAULT_MARKET_OBS_FRESHNESS_SECONDS,
+    sleep_fn: Callable[[float], None] = time.sleep,
+    monotonic_fn: Callable[[], float] = time.monotonic,
+    now_fn: Callable[[], datetime] | None = None,
+    lease_checker: Callable[[], tuple[bool, str | None]] | None = None,
+) -> dict[str, Any]:
+    """Canonical live entry — one shared clock for warmup, roll, and sampling.
+
+    Do not call ``wait_for_bar_complete`` before this. That helper is internal-only;
+    pre-waiting splits clocks and contaminates ``missed_post_close_window``.
+    """
+    result = run_bar_close_aware_stability_window(
+        health_fetcher=health_fetcher,
+        packet_fetcher=packet_fetcher,
+        required_samples=required_samples,
+        max_duration_seconds=max_duration_seconds,
+        acceptance_policy=BAR_CLOSE_ACCEPTANCE_V2,
+        max_total_boundaries=max_total_boundaries,
+        max_total_duration_seconds=max_total_duration_seconds,
+        post_close_window_seconds=(
+            post_close_window_seconds
+            if post_close_window_seconds is not None
+            else resolve_post_close_window_seconds()
+        ),
+        provider_roll_latency_seconds=provider_roll_latency_seconds,
+        post_close_poll_seconds=post_close_poll_seconds,
+        max_warmup_seconds=max_warmup_seconds,
+        health_freshness_seconds=health_freshness_seconds,
+        market_obs_freshness_seconds=market_obs_freshness_seconds,
+        sleep_fn=sleep_fn,
+        monotonic_fn=monotonic_fn,
+        now_fn=now_fn,
+        lease_checker=lease_checker,
+    )
+    result["canonical_entry"] = True
+    result["canonical_live_entry"] = CANONICAL_LIVE_STABILITY_ENTRY
+    result["shared_clock"] = True
+    result["pre_wait_forbidden"] = True
+    return result
 
 
 def run_operational_stability_window(
