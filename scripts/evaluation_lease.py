@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import time
+import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -90,15 +91,19 @@ def acquire_evaluation_lease(
     expires = now + timedelta(seconds=max(30, int(ttl_seconds)))
     payload = {
         "schema_version": LEASE_SCHEMA,
+        "lease_id": str(uuid.uuid4()),
         "run_id": run_id,
         "invocation_id": invocation_id,
+        "owner": f"pid:{os.getpid()}:run:{run_id}",
         "pid": os.getpid(),
         "process_start_utc": (process_start_utc(os.getpid()) or now)
         .isoformat()
         .replace("+00:00", "Z"),
+        "ttl_seconds": max(30, int(ttl_seconds)),
         "acquired_utc": now.isoformat().replace("+00:00", "Z"),
         "expires_utc": expires.isoformat().replace("+00:00", "Z"),
         "renewed_utc": now.isoformat().replace("+00:00", "Z"),
+        "heartbeat_utc": now.isoformat().replace("+00:00", "Z"),
     }
     for _ in range(3):
         try:
@@ -143,14 +148,19 @@ def renew_evaluation_lease(
         return False
     now = datetime.now(timezone.utc)
     expires = now + timedelta(seconds=max(30, int(ttl_seconds)))
+    hb = now.isoformat().replace("+00:00", "Z")
     updated = {
         **current,
+        "lease_id": str(current.get("lease_id") or uuid.uuid4()),
+        "owner": str(current.get("owner") or f"pid:{os.getpid()}:run:{run_id}"),
         "invocation_id": invocation_id,
         "pid": os.getpid(),
         "process_start_utc": (process_start_utc(os.getpid()) or now)
         .isoformat()
         .replace("+00:00", "Z"),
-        "renewed_utc": now.isoformat().replace("+00:00", "Z"),
+        "ttl_seconds": max(30, int(ttl_seconds)),
+        "renewed_utc": hb,
+        "heartbeat_utc": hb,
         "expires_utc": expires.isoformat().replace("+00:00", "Z"),
     }
     write_json_atomic(evaluation_lease_path(state), updated)
