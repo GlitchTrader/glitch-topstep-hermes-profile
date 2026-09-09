@@ -177,16 +177,23 @@ def _maintenance_window(health: dict[str, Any] | None) -> bool:
 
 
 def _market_valid(packet: dict[str, Any] | None, health: dict[str, Any] | None) -> tuple[bool, str]:
-    if health:
-        dq = health.get("data_quality") if isinstance(health.get("data_quality"), dict) else {}
-        op = dq.get("operational") if isinstance(dq.get("operational"), dict) else {}
-        for stream_key in ("marketStream", "userStream"):
-            stream = op.get(stream_key) if isinstance(op.get(stream_key), dict) else {}
-            if stream and str(stream.get("state") or "").lower() != "connected":
-                return False, f"{stream_key}_not_connected"
-        recon = op.get("reconciliation") if isinstance(op.get("reconciliation"), dict) else {}
-        if recon and str(recon.get("state") or "").lower() not in {"", "succeeded"}:
-            return False, "reconciliation_not_succeeded"
+    if not health:
+        return False, "health_absent"
+    dq = health.get("data_quality") if isinstance(health.get("data_quality"), dict) else {}
+    op = dq.get("operational") if isinstance(dq.get("operational"), dict) else None
+    if not isinstance(op, dict):
+        return False, "operational_absent"
+    for stream_key in ("marketStream", "userStream"):
+        stream = op.get(stream_key)
+        if not isinstance(stream, dict):
+            return False, f"{stream_key}_absent"
+        if str(stream.get("state") or "").lower() != "connected":
+            return False, f"{stream_key}_not_connected"
+    recon = op.get("reconciliation")
+    if not isinstance(recon, dict):
+        return False, "reconciliation_absent"
+    if str(recon.get("state") or "").lower() not in {"succeeded"}:
+        return False, "reconciliation_not_succeeded"
     if packet:
         market = packet.get("market") if isinstance(packet.get("market"), dict) else {}
         if market.get("quote_valid") is False:

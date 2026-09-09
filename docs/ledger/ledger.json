@@ -250,6 +250,12 @@
       "residual": "PRAC soak execution; SQLite single-transaction authority (GTHP-REAUDIT-01)"
     },
     "validation": "P0 items 1-5 merged (#223/#177 2026-08-21). Outbox delivery states wired. PRAC soak pending operator.",
+    "acceptance_gates_hardening_2026_09_09": {
+      "status": "merged",
+      "summary": "Fail-closed missing flat/CB/streams; product acceptance exit!=0 on BLOCKED; remove WinError substring downgrade.",
+      "profile_pr": 236,
+      "date": "2026-09-09"
+    },
     "six_profile_aggregator_fixtures_2026_09_09": {
       "status": "implemented_local",
       "summary": "Six-profile fixtures exercise real selection/tie/conflict/objection/crash branches.",
