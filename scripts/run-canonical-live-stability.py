@@ -66,7 +66,7 @@ def _readonly_fetchers(base_url: str, token: str):
         return _get("/health")
 
     def packet() -> dict[str, Any]:
-        return _get("/hermes/packet")
+        return _get("/packet")
 
     return health, packet
 
