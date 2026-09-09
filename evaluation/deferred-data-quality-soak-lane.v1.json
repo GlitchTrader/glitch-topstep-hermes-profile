@@ -1,0 +1,32 @@
+{
+  "schema_version": "glitch.topstep.deferred_data_quality_soak_lane.v1",
+  "config_version": "2026-09-09-v1",
+  "evaluation_only": true,
+  "execution_authority": false,
+  "same_envelope_per_cycle": true,
+  "t0_after_first_valid_cycle": true,
+  "resume_strategy": "checkpoint",
+  "invalid_quote_cycle_status": "deferred_data_quality",
+  "invalid_quote_never_maps_to": "no_edge",
+  "profiles": [
+    { "profile_id": "baseline-current", "execution_authority": false },
+    { "profile_id": "structure", "execution_authority": false },
+    { "profile_id": "adversarial-risk", "execution_authority": false },
+    { "profile_id": "smart-money", "execution_authority": false },
+    { "profile_id": "indicators", "execution_authority": false },
+    { "profile_id": "orderflow", "execution_authority": false }
+  ],
+  "budget": {
+    "max_parallel_slots": 2,
+    "total_duration_hours": 72
+  },
+  "isolation": {
+    "lease_required": true,
+    "hermes_home_isolated": true
+  },
+  "guards": {
+    "zero_intents": true,
+    "zero_orders": true,
+    "zero_writes": true
+  }
+}

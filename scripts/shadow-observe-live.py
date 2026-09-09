@@ -357,6 +357,14 @@ def run_shadow_session(
                 return {**base, "status": "blocked", "reason": "snapshot_file_requires_frame"}
             sealed = _seal_frame(path, config=config, matrix=matrix, mapping=mapping)
     except ShadowGatewayError as exc:
+        if exc.code == "deferred_data_quality":
+            return {
+                **base,
+                "status": "deferred_data_quality",
+                "preflight": preflight,
+                "deferred_reason": exc.code,
+                "error": str(exc),
+            }
         status = f"shadow_not_ready:{exc.code}"
         return {**base, "status": status, "preflight": preflight, "error": str(exc)}
 

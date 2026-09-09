@@ -12,6 +12,8 @@ SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from operational_stability_gate import (  # noqa: E402
+    BAR_CLOSE_ACCEPTANCE_V2,
+    BLOCKED_DATA_QUALITY,
     BLOCKED_BAR_CLOSE_WINDOW,
     BLOCKED_CLASSIFICATION,
     BarCloseContext,
@@ -958,6 +960,174 @@ class BarCloseAwareWindowTests(unittest.TestCase):
         )
         self.assertFalse(result["confirmed"])
         self.assertEqual(result["stop_reason"], "lease_occupied")
+
+    def test_v2_discards_locked_bbo_and_accepts_next_valid_quote(self, helpers: mock.MagicMock) -> None:
+        helpers.return_value = (lambda _p: [], lambda _p: (True, "capacity_gate"))
+        clock = {"t": _utc(2026, 9, 8, 14, 1, 1)}
+
+        def now_fn() -> datetime:
+            return clock["t"]
+
+        def sleep_fn(seconds: float) -> None:
+            clock["t"] = clock["t"] + timedelta(seconds=max(seconds, 0.25))
+
+        def health_fetcher() -> dict:
+            return _good_health(now_fn())
+
+        def packet_fetcher() -> dict:
+            pkt = _packet_at(now_fn())
+            if now_fn().second < 2:
+                pkt["data_quality"] = {
+                    "state_complete": False,
+                    "issues": ["quote_geometry_invalid"],
+                    "optional_issues": [],
+                }
+            return pkt
+
+        result = run_bar_close_aware_stability_window(
+            health_fetcher=health_fetcher,
+            packet_fetcher=packet_fetcher,
+            required_samples=1,
+            max_duration_seconds=30.0,
+            acceptance_policy=BAR_CLOSE_ACCEPTANCE_V2,
+            post_close_window_seconds=5.0,
+            post_close_poll_seconds=0.25,
+            sleep_fn=sleep_fn,
+            monotonic_fn=lambda: 0.0,
+            now_fn=now_fn,
+        )
+        self.assertTrue(result["confirmed"])
+        self.assertEqual(result["acceptance_policy"], BAR_CLOSE_ACCEPTANCE_V2)
+        self.assertEqual(len(result["samples"]), 1)
+        self.assertGreaterEqual(len(result["invalid_quote_samples"]), 1)
+        self.assertEqual(result["invalid_quote_samples"][0]["reason"], "invalid_quote_sample")
+
+    def test_v2_five_valid_samples_can_be_interleaved_with_invalid_quotes(self, helpers: mock.MagicMock) -> None:
+        helpers.return_value = (lambda _p: [], lambda _p: (True, "capacity_gate"))
+        clock = {"t": _utc(2026, 9, 8, 14, 1, 1)}
+
+        def now_fn() -> datetime:
+            return clock["t"]
+
+        def monotonic_fn() -> float:
+            return (clock["t"] - _utc(2026, 9, 8, 14, 1, 1)).total_seconds()
+
+        def sleep_fn(seconds: float) -> None:
+            clock["t"] = clock["t"] + timedelta(seconds=max(seconds, 0.25))
+
+        def health_fetcher() -> dict:
+            return _good_health(now_fn())
+
+        def packet_fetcher() -> dict:
+            pkt = _packet_at(now_fn())
+            if now_fn().second <= 2:
+                pkt["data_quality"] = {
+                    "state_complete": False,
+                    "issues": ["quote_geometry_invalid"],
+                    "optional_issues": [],
+                }
+            return pkt
+
+        result = run_bar_close_aware_stability_window(
+            health_fetcher=health_fetcher,
+            packet_fetcher=packet_fetcher,
+            required_samples=5,
+            max_duration_seconds=600.0,
+            acceptance_policy=BAR_CLOSE_ACCEPTANCE_V2,
+            max_total_boundaries=10,
+            max_total_duration_seconds=320.0,
+            post_close_window_seconds=5.0,
+            post_close_poll_seconds=0.25,
+            sleep_fn=sleep_fn,
+            monotonic_fn=monotonic_fn,
+            now_fn=now_fn,
+        )
+        self.assertTrue(result["confirmed"])
+        self.assertEqual(len(result["samples"]), 5)
+        self.assertGreaterEqual(len(result["invalid_quote_samples"]), 5)
+        self.assertEqual(result["total_boundaries_observed"], 5)
+
+    def test_v2_blocks_when_invalid_boundaries_exhaust_limit(self, helpers: mock.MagicMock) -> None:
+        helpers.return_value = (lambda _p: [], lambda _p: (True, "capacity_gate"))
+        clock = {"t": _utc(2026, 9, 8, 14, 1, 1)}
+
+        def now_fn() -> datetime:
+            return clock["t"]
+
+        def monotonic_fn() -> float:
+            return (clock["t"] - _utc(2026, 9, 8, 14, 1, 1)).total_seconds()
+
+        def sleep_fn(seconds: float) -> None:
+            clock["t"] = clock["t"] + timedelta(seconds=max(seconds, 0.25))
+
+        def invalid_packet() -> dict:
+            pkt = _packet_at(now_fn())
+            pkt["data_quality"] = {
+                "state_complete": False,
+                "issues": ["quote_geometry_invalid"],
+                "optional_issues": [],
+            }
+            return pkt
+
+        result = run_bar_close_aware_stability_window(
+            health_fetcher=lambda: _good_health(now_fn()),
+            packet_fetcher=invalid_packet,
+            required_samples=1,
+            max_duration_seconds=60.0,
+            acceptance_policy=BAR_CLOSE_ACCEPTANCE_V2,
+            max_total_boundaries=2,
+            max_total_duration_seconds=120.0,
+            post_close_window_seconds=1.0,
+            post_close_poll_seconds=0.25,
+            sleep_fn=sleep_fn,
+            monotonic_fn=monotonic_fn,
+            now_fn=now_fn,
+        )
+        self.assertFalse(result["confirmed"])
+        self.assertEqual(result["classification"], BLOCKED_DATA_QUALITY)
+        self.assertEqual(result["stop_reason"], "valid_samples_not_completed_within_limits")
+        self.assertEqual(result["total_boundaries_observed"], 2)
+        self.assertGreaterEqual(len(result["invalid_quote_samples"]), 2)
+
+    def test_v2_total_time_limit_blocks_without_infinite_retry(self, helpers: mock.MagicMock) -> None:
+        helpers.return_value = (lambda _p: [], lambda _p: (True, "capacity_gate"))
+        clock = {"t": _utc(2026, 9, 8, 14, 1, 1)}
+
+        def now_fn() -> datetime:
+            return clock["t"]
+
+        def monotonic_fn() -> float:
+            return (clock["t"] - _utc(2026, 9, 8, 14, 1, 1)).total_seconds()
+
+        def sleep_fn(seconds: float) -> None:
+            clock["t"] = clock["t"] + timedelta(seconds=max(seconds, 0.25))
+
+        def invalid_packet() -> dict:
+            pkt = _packet_at(now_fn())
+            pkt["data_quality"] = {
+                "state_complete": False,
+                "issues": ["quote_geometry_invalid"],
+                "optional_issues": [],
+            }
+            return pkt
+
+        result = run_bar_close_aware_stability_window(
+            health_fetcher=lambda: _good_health(now_fn()),
+            packet_fetcher=invalid_packet,
+            required_samples=5,
+            max_duration_seconds=600.0,
+            acceptance_policy=BAR_CLOSE_ACCEPTANCE_V2,
+            max_total_boundaries=20,
+            max_total_duration_seconds=3.0,
+            post_close_window_seconds=5.0,
+            post_close_poll_seconds=0.25,
+            sleep_fn=sleep_fn,
+            monotonic_fn=monotonic_fn,
+            now_fn=now_fn,
+        )
+        self.assertFalse(result["confirmed"])
+        self.assertEqual(result["classification"], BLOCKED_DATA_QUALITY)
+        self.assertEqual(result["stop_reason"], "total_time_limit_exhausted")
 
 
 class PostCloseOfflineScenarioTests(unittest.TestCase):

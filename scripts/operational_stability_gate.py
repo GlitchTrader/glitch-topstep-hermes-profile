@@ -16,6 +16,9 @@ from common import parse_utc, utc_now
 GATE_SCHEMA = "glitch.topstep.operational_stability_gate.v1"
 BLOCKED_CLASSIFICATION = "blocked_operational_instability"
 BLOCKED_BAR_CLOSE_WINDOW = "blocked_bar_close_window"
+BLOCKED_DATA_QUALITY = "blocked_data_quality"
+BAR_CLOSE_ACCEPTANCE_V1 = "bar_close_acceptance_v1"
+BAR_CLOSE_ACCEPTANCE_V2 = "bar_close_acceptance_v2"
 
 DEFAULT_REQUIRED_SAMPLES = 5
 DEFAULT_MAX_DURATION_SECONDS = 600.0  # 10 minutes bounded (valid-sample window only)
@@ -25,6 +28,7 @@ DEFAULT_POST_CLOSE_WINDOW_SECONDS = 5.0
 DEFAULT_PROVIDER_ROLL_LATENCY_SECONDS = 10.0
 DEFAULT_HEALTH_FRESHNESS_SECONDS = 90.0
 DEFAULT_MARKET_OBS_FRESHNESS_SECONDS = 120.0
+DEFAULT_V2_MAX_TOTAL_BOUNDARIES = 12
 MINUTE_MS = 60_000
 
 # Operational stability treats these optional packet issues as blocking — degraded
@@ -78,6 +82,40 @@ class BarCloseContext:
     prior_completed_bar_utc: str | None
     bar_age_ms: int | None
     source: str | None
+
+
+def _quote_geometry_issue_present(detail: dict[str, Any]) -> bool:
+    packet_issues = set(detail.get("packet_issues") or [])
+    health_issues = set(detail.get("health_issues") or [])
+    return "quote_geometry_invalid" in packet_issues or "quote_geometry_invalid" in health_issues
+
+
+def _invalid_quote_sample(verdict: StabilitySampleVerdict) -> bool:
+    if not _quote_geometry_issue_present(verdict.detail):
+        return False
+    disallowed_prefixes = (
+        "circuit_breaker_",
+        "streams_",
+        "market_observation_",
+    )
+    disallowed_exact = {
+        "account_not_flat",
+        "account_open_unknown",
+        "account_state_stale",
+        "bar_close_context_missing",
+        "gateway_timeout",
+        "health_stale",
+        "packet_market_observation_stale",
+        "recovery_active",
+        "recovery_blocked",
+        "sample_before_bar_close_window",
+    }
+    for reason in verdict.reasons:
+        if reason in disallowed_exact:
+            return False
+        if reason.startswith(disallowed_prefixes):
+            return False
+    return True
 
 
 def _age_seconds(now: datetime, ts: str | None) -> float | None:
@@ -909,6 +947,9 @@ def run_bar_close_aware_stability_window(
     packet_fetcher: Callable[[], dict[str, Any]],
     required_samples: int = DEFAULT_REQUIRED_SAMPLES,
     max_duration_seconds: float = DEFAULT_MAX_DURATION_SECONDS,
+    acceptance_policy: str = BAR_CLOSE_ACCEPTANCE_V1,
+    max_total_boundaries: int | None = None,
+    max_total_duration_seconds: float | None = None,
     post_close_window_seconds: float = DEFAULT_POST_CLOSE_WINDOW_SECONDS,
     provider_roll_latency_seconds: float | None = None,
     post_close_poll_seconds: float = 0.25,
@@ -930,8 +971,10 @@ def run_bar_close_aware_stability_window(
     warmup_events: list[dict[str, Any]] = []
     skipped: list[dict[str, Any]] = []
     gateway_timeouts: list[dict[str, Any]] = []
+    invalid_quote_samples: list[dict[str, Any]] = []
     seen_closed_bars: set[str] = set()
     abandoned_boundaries: set[str] = set()
+    attempted_boundaries: set[str] = set()
     stop_reason: str | None = None
     classification: str | None = None
     now_fn = now_fn or (lambda: datetime.now(timezone.utc))
@@ -943,6 +986,17 @@ def run_bar_close_aware_stability_window(
         provider_roll_latency_seconds
         if provider_roll_latency_seconds is not None
         else resolve_provider_roll_latency_seconds()
+    )
+    v2_enabled = acceptance_policy == BAR_CLOSE_ACCEPTANCE_V2
+    total_boundaries_limit = (
+        max_total_boundaries
+        if max_total_boundaries is not None
+        else DEFAULT_V2_MAX_TOTAL_BOUNDARIES if v2_enabled else None
+    )
+    total_duration_limit = (
+        max_total_duration_seconds
+        if max_total_duration_seconds is not None
+        else max_duration_seconds + max_warmup_seconds if v2_enabled else None
     )
 
     if lease_checker is not None:
@@ -992,6 +1046,10 @@ def run_bar_close_aware_stability_window(
             return None
 
     while len(samples) < required_samples and not _valid_budget_exhausted():
+        if total_duration_limit is not None and (monotonic_fn() - overall_started) >= total_duration_limit:
+            stop_reason = "total_time_limit_exhausted"
+            classification = BLOCKED_DATA_QUALITY if v2_enabled else BLOCKED_BAR_CLOSE_WINDOW
+            break
         if not counting_started and (monotonic_fn() - overall_started) > max_warmup_seconds:
             stop_reason = "warmup_sync_timeout"
             classification = BLOCKED_BAR_CLOSE_WINDOW
@@ -1097,6 +1155,13 @@ def run_bar_close_aware_stability_window(
         if not counting_started:
             _begin_valid_window()
 
+        if target_close_iso not in attempted_boundaries:
+            attempted_boundaries.add(target_close_iso)
+            if total_boundaries_limit is not None and len(attempted_boundaries) > total_boundaries_limit:
+                stop_reason = "boundary_limit_exhausted"
+                classification = BLOCKED_DATA_QUALITY if v2_enabled else BLOCKED_BAR_CLOSE_WINDOW
+                break
+
         captured = False
         while now_fn() <= sample_window_end and not captured and not _valid_budget_exhausted():
             sample_dt = now_fn()
@@ -1160,6 +1225,16 @@ def run_bar_close_aware_stability_window(
                 continue
 
             if not verdict.ok:
+                if v2_enabled and _invalid_quote_sample(verdict):
+                    invalid_quote_samples.append(
+                        {
+                            **row,
+                            "sample_index": None,
+                            "reason": "invalid_quote_sample",
+                        }
+                    )
+                    sleep_fn(post_close_poll_seconds)
+                    continue
                 samples.append(row)
                 stop_reason = verdict.reasons[0] if verdict.reasons else "sample_failed"
                 if any(r.startswith("status_degraded") or r == "degraded" for r in verdict.reasons):
@@ -1208,8 +1283,8 @@ def run_bar_close_aware_stability_window(
             stop_reason = "gateway_timeout_exhausted"
             classification = BLOCKED_CLASSIFICATION
         else:
-            stop_reason = stop_reason or BLOCKED_BAR_CLOSE_WINDOW
-            classification = BLOCKED_BAR_CLOSE_WINDOW
+            stop_reason = stop_reason or ("valid_samples_not_completed_within_limits" if v2_enabled else BLOCKED_BAR_CLOSE_WINDOW)
+            classification = BLOCKED_DATA_QUALITY if v2_enabled else BLOCKED_BAR_CLOSE_WINDOW
 
     counting_started_at_utc_out = counting_started_at_utc
 
@@ -1222,6 +1297,11 @@ def run_bar_close_aware_stability_window(
         skipped=skipped,
         warmup_events=warmup_events,
         gateway_timeouts=gateway_timeouts,
+        invalid_quote_samples=invalid_quote_samples,
+        acceptance_policy=acceptance_policy,
+        total_boundaries_observed=len(attempted_boundaries),
+        max_total_boundaries=total_boundaries_limit,
+        max_total_duration_seconds=total_duration_limit,
         consecutive=len(samples) if confirmed else len(samples),
         confirmed=confirmed,
         stop_reason=stop_reason,
@@ -1248,11 +1328,16 @@ def _finalize_window(
     skipped: list[dict[str, Any]],
     warmup_events: list[dict[str, Any]] | None = None,
     gateway_timeouts: list[dict[str, Any]] | None = None,
-    consecutive: int,
-    confirmed: bool,
-    stop_reason: str | None,
-    classification: str | None,
-    sampling_mode: str,
+    invalid_quote_samples: list[dict[str, Any]] | None = None,
+    acceptance_policy: str | None = None,
+    total_boundaries_observed: int | None = None,
+    max_total_boundaries: int | None = None,
+    max_total_duration_seconds: float | None = None,
+    consecutive: int = 0,
+    confirmed: bool = False,
+    stop_reason: str | None = None,
+    classification: str | None = None,
+    sampling_mode: str = "bar_close_aware",
     post_close_window_seconds: float | None = None,
     provider_roll_latency_seconds: float | None = None,
     poll_interval_seconds: float | None = None,
@@ -1274,7 +1359,16 @@ def _finalize_window(
         "skipped_samples": skipped,
         "warmup_events": warmup_events or [],
         "gateway_timeouts": gateway_timeouts or [],
+        "invalid_quote_samples": invalid_quote_samples or [],
     }
+    if acceptance_policy is not None:
+        doc["acceptance_policy"] = acceptance_policy
+    if total_boundaries_observed is not None:
+        doc["total_boundaries_observed"] = total_boundaries_observed
+    if max_total_boundaries is not None:
+        doc["max_total_boundaries"] = max_total_boundaries
+    if max_total_duration_seconds is not None:
+        doc["max_total_duration_seconds"] = max_total_duration_seconds
     if counting_started_at_utc is not None:
         doc["counting_started_at_utc"] = counting_started_at_utc
     if valid_window_elapsed_seconds is not None:
@@ -1294,6 +1388,9 @@ def run_operational_stability_window(
     packet_fetcher: Callable[[], dict[str, Any]] | None = None,
     required_samples: int = DEFAULT_REQUIRED_SAMPLES,
     max_duration_seconds: float = DEFAULT_MAX_DURATION_SECONDS,
+    acceptance_policy: str = BAR_CLOSE_ACCEPTANCE_V1,
+    max_total_boundaries: int | None = None,
+    max_total_duration_seconds: float | None = None,
     poll_interval_seconds: float = DEFAULT_POLL_INTERVAL_SECONDS,
     post_close_window_seconds: float = DEFAULT_POST_CLOSE_WINDOW_SECONDS,
     provider_roll_latency_seconds: float | None = None,
@@ -1312,6 +1409,9 @@ def run_operational_stability_window(
             packet_fetcher=packet_fetcher,
             required_samples=required_samples,
             max_duration_seconds=max_duration_seconds,
+            acceptance_policy=acceptance_policy,
+            max_total_boundaries=max_total_boundaries,
+            max_total_duration_seconds=max_total_duration_seconds,
             post_close_window_seconds=post_close_window_seconds,
             provider_roll_latency_seconds=provider_roll_latency_seconds,
             health_freshness_seconds=health_freshness_seconds,
