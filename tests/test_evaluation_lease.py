@@ -44,6 +44,9 @@ class EvaluationLeaseTests(unittest.TestCase):
             lease = read_evaluation_lease(state)
             assert lease is not None
             self.assertEqual(lease["run_id"], "replay-a")
+            self.assertTrue(lease.get("lease_id"))
+            self.assertIn("owner", lease)
+            self.assertEqual(lease.get("ttl_seconds"), 120)
             release_evaluation_lease(state, run_id="replay-a")
             self.assertFalse(evaluation_lease_active(state))
 
