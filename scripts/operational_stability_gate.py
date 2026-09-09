@@ -89,7 +89,11 @@ class BarCloseContext:
 def _quote_geometry_issue_present(detail: dict[str, Any]) -> bool:
     packet_issues = set(detail.get("packet_issues") or [])
     health_issues = set(detail.get("health_issues") or [])
-    return "quote_geometry_invalid" in packet_issues or "quote_geometry_invalid" in health_issues
+    geometry = {"quote_geometry_invalid", "quote_locked", "quote_missing"}
+    return bool((packet_issues | health_issues) & geometry) or detail.get("quote_state") in (
+        "locked",
+        "invalid",
+    )
 
 
 def _invalid_quote_sample(verdict: StabilitySampleVerdict) -> bool:
@@ -431,6 +435,11 @@ def evaluate_operational_stability_sample(
             reasons.append(f"packet_optional_{issue}")
     if "quote_geometry_invalid" in packet_issues:
         reasons.append("packet_quote_geometry_invalid")
+    if "quote_locked" in packet_issues:
+        reasons.append("packet_quote_locked")
+    if packet_dq.get("quote_state") == "locked":
+        if "packet_quote_locked" not in reasons:
+            reasons.append("packet_quote_locked")
     if "account_state_stale" in health_issues:
         reasons.append("account_state_stale")
 
