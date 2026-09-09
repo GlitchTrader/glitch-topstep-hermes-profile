@@ -227,6 +227,20 @@ def aggregate_envelope(
                 objections=objections_norm,
             )
 
+    if process.get("ensemble_crash"):
+        trace.append("ENSEMBLE_CRASH")
+        return _selection(
+            run_id=run_id,
+            envelope=envelope,
+            rules=rules,
+            outcome="classified_failure",
+            decision_code="ENSEMBLE_CRASH",
+            failure_class="ensemble_crash",
+            trace=trace,
+            candidates=candidates,
+            objections=objections_norm,
+        )
+
     if process.get("snapshot_divergence"):
         trace.append("SNAPSHOT_DIVERGENCE")
         return _selection(

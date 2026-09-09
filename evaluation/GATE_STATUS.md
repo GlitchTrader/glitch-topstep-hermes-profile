@@ -441,3 +441,9 @@ python -m unittest tests.test_verify_frozen_cohort tests.test_qc_envelope_collec
 | Cohort manifest | `evaluation/runs/cohort-quality-manifest-2026-09-01.json` |
 | Relatório insuficiência (JSON) | `evaluation/runs/insufficient-sample-report-2026-09-01.json` |
 | Relatório insuficiência (MD) | `evaluation/reviews/INSUFFICIENT-SAMPLE-REPORT-2026-09-01.md` |
+
+## Six-profile aggregator fixtures (2026-09-09)
+
+- Added/fixed cases that reach selection (EVIDENCE_SCORE_WIN, PREFER_BASELINE_ON_TIE), direction conflict, critical objection, multi-candidate order invariance, timeout, crash, missing profile — without stopping early on ENSEMBLE_CATEGORY_DIVERGENCE (except dedicated category-divergence case).
+- Live lanes unchanged / blocked.
+
