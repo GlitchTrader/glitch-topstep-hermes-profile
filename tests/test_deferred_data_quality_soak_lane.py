@@ -25,6 +25,14 @@ class DeferredDataQualitySoakLaneTests(unittest.TestCase):
         self.assertEqual(len(config["profiles"]), 6)
         self.assertEqual(config["budget"]["max_parallel_slots"], 2)
         self.assertTrue(all(p["execution_authority"] is False for p in config["profiles"]))
+        self.assertFalse(config.get("auto_start_prac"))
+        defaults = config["bar_close_acceptance_v2_defaults"]
+        self.assertEqual(defaults["required_samples"], 5)
+        self.assertEqual(defaults["post_close_window_seconds"], 5)
+        self.assertEqual(defaults["provider_roll_latency_seconds"], 10)
+        self.assertEqual(defaults["max_total_boundaries"], 12)
+        self.assertEqual(defaults["max_total_duration_seconds"], 720)
+        self.assertIn("run-trail-a-parallel-live-evaluation.py", config["reuses_existing_lane"]["runner"])
 
     def test_t0_starts_only_after_first_valid_cycle(self) -> None:
         config = load_lane_config(ROOT / "evaluation" / "deferred-data-quality-soak-lane.v1.json")

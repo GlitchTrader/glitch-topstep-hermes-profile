@@ -28,7 +28,9 @@ DEFAULT_POST_CLOSE_WINDOW_SECONDS = 5.0
 DEFAULT_PROVIDER_ROLL_LATENCY_SECONDS = 10.0
 DEFAULT_HEALTH_FRESHNESS_SECONDS = 90.0
 DEFAULT_MARKET_OBS_FRESHNESS_SECONDS = 120.0
+# v2 outer bounds — never infinite; 12 closes ≈ 12 minutes wall + warmup budget.
 DEFAULT_V2_MAX_TOTAL_BOUNDARIES = 12
+DEFAULT_V2_MAX_TOTAL_DURATION_SECONDS = DEFAULT_MAX_DURATION_SECONDS + DEFAULT_MAX_WARMUP_SECONDS  # 720s
 MINUTE_MS = 60_000
 
 # Operational stability treats these optional packet issues as blocking — degraded
@@ -996,7 +998,7 @@ def run_bar_close_aware_stability_window(
     total_duration_limit = (
         max_total_duration_seconds
         if max_total_duration_seconds is not None
-        else max_duration_seconds + max_warmup_seconds if v2_enabled else None
+        else DEFAULT_V2_MAX_TOTAL_DURATION_SECONDS if v2_enabled else None
     )
 
     if lease_checker is not None:
