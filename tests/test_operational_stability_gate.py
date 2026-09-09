@@ -331,6 +331,78 @@ class WaitForBarCompleteTests(unittest.TestCase):
             _utc(2026, 9, 8, 22, 19, 0),
         )
 
+    def test_v11_evidence_projectx_minute_tick_roll(self) -> None:
+        """v11 20260909T001715Z: provider rolls at civil :00 with partial=true throughout."""
+        polls_data = [
+            ("2026-09-09T00:17:21.969265Z", "2026-09-09T00:17:00.000Z", "2026-09-09T00:16:00.000Z"),
+            ("2026-09-09T00:18:00.250673Z", "2026-09-09T00:17:00.000Z", "2026-09-09T00:16:00.000Z"),
+            ("2026-09-09T00:19:00.000223Z", "2026-09-09T00:18:00.000Z", "2026-09-09T00:17:00.000Z"),
+            ("2026-09-09T00:20:00.250788Z", "2026-09-09T00:19:00.000Z", "2026-09-09T00:18:00.000Z"),
+            ("2026-09-09T00:21:00.250537Z", "2026-09-09T00:20:00.000Z", "2026-09-09T00:19:00.000Z"),
+            ("2026-09-09T00:22:00.250233Z", "2026-09-09T00:21:00.000Z", "2026-09-09T00:20:00.000Z"),
+        ]
+
+        def make_packet(latest: str, prior: str) -> dict:
+            return {
+                "data_quality": {"state_complete": True, "issues": []},
+                "account": {"instrument_open_contracts": 0},
+                "market": {"quote_timestamp": clock["t"].isoformat().replace("+00:00", "Z")},
+                "market_observation": {
+                    "observation": {
+                        "source": "projectx_bars",
+                        "timeframes": [
+                            {
+                                "timeframe_minutes": 1,
+                                "latest_bar_utc": latest,
+                                "latest_bar_partial": True,
+                                "prior_completed_bar": {
+                                    "timestamp": prior,
+                                    "open": 1,
+                                    "high": 2,
+                                    "low": 1,
+                                    "close": 2,
+                                    "volume": 10,
+                                },
+                                "bars_accepted": 500,
+                            }
+                        ],
+                    }
+                },
+            }
+
+        clock = {"t": datetime.fromisoformat("2026-09-09T00:17:21.969265+00:00")}
+        mono = {"v": 0.0}
+        idx = {"i": 0}
+
+        def now_fn() -> datetime:
+            return clock["t"]
+
+        def sleep_fn(seconds: float) -> None:
+            step = max(seconds, 0.01)
+            mono["v"] += step
+            clock["t"] = clock["t"] + timedelta(seconds=step)
+
+        def packet_fetcher() -> dict:
+            i = min(idx["i"], len(polls_data) - 1)
+            idx["i"] += 1
+            row = polls_data[i]
+            clock["t"] = datetime.fromisoformat(row[0].replace("Z", "+00:00"))
+            return make_packet(row[1], row[2])
+
+        result = wait_for_bar_complete(
+            packet_fetcher,
+            timeout_seconds=120.0,
+            poll_seconds=0.0,
+            sleep_fn=sleep_fn,
+            monotonic_fn=lambda: mono["v"],
+            now_fn=now_fn,
+            provider_roll_latency_seconds=10.0,
+        )
+        self.assertTrue(result["ready"])
+        self.assertTrue(result.get("bar_roll_confirmed"))
+        self.assertTrue(result.get("latest_bar_partial"))
+        self.assertLess(result["waited_seconds"], 120.0)
+
     def test_v11_five_boundary_partial_roll_never_ready(self) -> None:
         """v11 partial-roll scenario: civil realignment missed 15s window; packet-close target recovers."""
         clock = {"t": _utc(2026, 9, 8, 22, 52, 26)}

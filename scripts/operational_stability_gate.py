@@ -560,6 +560,55 @@ def _bar_wait_ready(
     return bool(ctx.prior_completed_bar_utc)
 
 
+def _target_close_after_abandon(
+    ctx: BarCloseContext,
+    now: datetime,
+) -> datetime:
+    """Next close target after abandon — packet-close anchored, not civil :00 drift."""
+    if ctx.latest_bar_partial and ctx.prior_completed_bar_utc:
+        return _next_post_close_sample_target(ctx, now)
+    return _civil_minute_close_after(now)
+
+
+def _bar_roll_wait_ready(
+    initial: BarCloseContext,
+    ctx: BarCloseContext,
+    now: datetime,
+    *,
+    post_close_window_seconds: float = DEFAULT_POST_CLOSE_WINDOW_SECONDS,
+    provider_roll_latency_seconds: float | None = None,
+    target_close: datetime | None = None,
+) -> bool:
+    """Ready on provider roll with prior_completed_bar — partial=true alone never sufficient."""
+    if not _bar_roll_confirmed(initial, ctx):
+        return False
+    if not ctx.prior_completed_bar_utc:
+        return False
+    close_dt = target_close or expected_close_for_context(ctx)
+    if now < close_dt:
+        return False
+    if _bar_wait_ready(
+        ctx,
+        now,
+        post_close_window_seconds=post_close_window_seconds,
+        provider_roll_latency_seconds=provider_roll_latency_seconds,
+        target_close=close_dt,
+    ):
+        return True
+    roll_latency = (
+        provider_roll_latency_seconds
+        if provider_roll_latency_seconds is not None
+        else resolve_provider_roll_latency_seconds()
+    )
+    # ponytail: ProjectX rolls at civil minute tick with partial=true — same prior_completed_bar anchor
+    max_roll_window = post_close_window_seconds + roll_latency
+    elapsed = (now - close_dt).total_seconds()
+    if elapsed > 60.0 + roll_latency:
+        return False
+    seconds_into_minute = now.second + now.microsecond / 1_000_000
+    return seconds_into_minute <= max_roll_window
+
+
 def _record_missed_boundary(
     bucket: list[dict[str, Any]],
     *,
@@ -646,7 +695,7 @@ def wait_for_bar_complete(
         packet_close_iso = _close_iso(packet_close)
         target_close = packet_close
         if packet_close_iso in abandoned_boundaries:
-            target_close = _civil_minute_close_after(now)
+            target_close = _target_close_after_abandon(ctx, now)
         window_end = _sample_window_end(
             target_close,
             post_close_window_seconds=post_close_window_seconds,
@@ -684,7 +733,7 @@ def wait_for_bar_complete(
             packet_close_iso = _close_iso(packet_close)
             target_close = packet_close
             if packet_close_iso in abandoned_boundaries:
-                target_close = _civil_minute_close_after(now)
+                target_close = _target_close_after_abandon(ctx, now)
             window_end = _sample_window_end(
                 target_close,
                 post_close_window_seconds=post_close_window_seconds,
@@ -702,6 +751,27 @@ def wait_for_bar_complete(
             polls.append(poll_row)
 
         if now > window_end:
+            if initial_ctx and _bar_roll_confirmed(initial_ctx, ctx):
+                if _bar_roll_wait_ready(
+                    initial_ctx,
+                    ctx,
+                    now,
+                    post_close_window_seconds=post_close_window_seconds,
+                    provider_roll_latency_seconds=roll_latency,
+                    target_close=packet_close,
+                ):
+                    return {
+                        "ready": True,
+                        "waited_seconds": round(monotonic_fn() - started, 2),
+                        "expected_close_utc": _close_iso(packet_close),
+                        "latest_bar_utc": ctx.latest_bar_utc,
+                        "prior_completed_bar_utc": ctx.prior_completed_bar_utc,
+                        "latest_bar_partial": ctx.latest_bar_partial,
+                        "close_reference_utc": _close_reference_utc(ctx),
+                        "bar_roll_confirmed": True,
+                        "polls": polls,
+                        "missed_boundaries": missed_events,
+                    }
             abandon_iso = _close_iso(packet_close)
             if abandon_iso not in abandoned_boundaries:
                 abandoned_boundaries.add(abandon_iso)
@@ -747,7 +817,8 @@ def wait_for_bar_complete(
             }
 
         if initial_ctx and _bar_roll_confirmed(initial_ctx, ctx):
-            if _bar_wait_ready(
+            if _bar_roll_wait_ready(
+                initial_ctx,
                 ctx,
                 now,
                 post_close_window_seconds=post_close_window_seconds,
@@ -918,7 +989,7 @@ def run_bar_close_aware_stability_window(
         packet_close_iso = _close_iso(packet_close)
         target_close = packet_close
         if packet_close_iso in abandoned_boundaries:
-            target_close = _civil_minute_close_after(now)
+            target_close = _target_close_after_abandon(ctx, now)
         phase = "warmup" if not counting_started else "valid"
         target_close_iso = _close_iso(target_close)
         sample_window_end = _sample_window_end(
@@ -983,7 +1054,7 @@ def run_bar_close_aware_stability_window(
                     ctx=ctx,
                     provider_roll_latency_seconds=roll_latency,
                 )
-            next_close = _civil_minute_close_after(now)
+            next_close = _next_post_close_sample_target(ctx, now)
             _sleep_until(
                 next_close,
                 sleep_fn=sleep_fn,
