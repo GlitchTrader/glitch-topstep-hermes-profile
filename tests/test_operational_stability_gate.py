@@ -16,6 +16,7 @@ from operational_stability_gate import (  # noqa: E402
     BLOCKED_CLASSIFICATION,
     BarCloseContext,
     _civil_minute_close_after,
+    _next_post_close_sample_target,
     evaluate_operational_stability_sample,
     extract_bar_close_context,
     is_post_close_sample,
@@ -329,6 +330,82 @@ class WaitForBarCompleteTests(unittest.TestCase):
             _civil_minute_close_after(_utc(2026, 9, 8, 22, 18, 1)),
             _utc(2026, 9, 8, 22, 19, 0),
         )
+
+    def test_v11_five_boundary_partial_roll_never_ready(self) -> None:
+        """v11 partial-roll scenario: civil realignment missed 15s window; packet-close target recovers."""
+        clock = {"t": _utc(2026, 9, 8, 22, 52, 26)}
+        mono = {"v": 0.0}
+        fetches = {"n": 0}
+
+        def _v11_packet(now: datetime) -> dict:
+            latest = now.replace(second=0, microsecond=0)
+            prior = latest - timedelta(minutes=1)
+            return {
+                "data_quality": {"state_complete": True, "issues": []},
+                "account": {"instrument_open_contracts": 0},
+                "market": {"quote_timestamp": now.isoformat().replace("+00:00", "Z")},
+                "market_observation": {
+                    "observation": {
+                        "source": "projectx_bars",
+                        "timeframes": [
+                            {
+                                "timeframe_minutes": 1,
+                                "latest_bar_utc": latest.isoformat().replace("+00:00", "Z"),
+                                "latest_bar_partial": True,
+                                "prior_completed_bar": {
+                                    "timestamp": prior.isoformat().replace("+00:00", "Z"),
+                                    "open": 1,
+                                    "high": 2,
+                                    "low": 1,
+                                    "close": 2,
+                                    "volume": 10,
+                                },
+                                "bars_accepted": 500,
+                            }
+                        ],
+                    }
+                },
+            }
+
+        def now_fn() -> datetime:
+            return clock["t"]
+
+        def sleep_fn(seconds: float) -> None:
+            step = max(seconds, 0.01)
+            mono["v"] += step
+            clock["t"] = clock["t"] + timedelta(seconds=step)
+
+        def packet_fetcher() -> dict:
+            fetches["n"] += 1
+            if fetches["n"] == 1:
+                raise TimeoutError("gateway_timeout")
+            return _v11_packet(clock["t"])
+
+        result = wait_for_bar_complete(
+            packet_fetcher,
+            timeout_seconds=120.0,
+            poll_seconds=0.0,
+            sleep_fn=sleep_fn,
+            monotonic_fn=lambda: mono["v"],
+            now_fn=now_fn,
+        )
+        self.assertTrue(result["ready"])
+        self.assertTrue(result.get("latest_bar_partial"))
+        self.assertLess(result["waited_seconds"], 120.0)
+        missed = result.get("missed_boundaries") or []
+        self.assertLessEqual(len(missed), 1)
+
+    def test_next_post_close_sample_target_partial_bar(self) -> None:
+        ctx = extract_bar_close_context(
+            _stale_partial_packet(_utc(2026, 9, 8, 22, 52, 26), _utc(2026, 9, 8, 22, 52, 0)),
+            now=_utc(2026, 9, 8, 22, 52, 26),
+        )
+        assert ctx is not None
+        target = _next_post_close_sample_target(ctx, _utc(2026, 9, 8, 22, 52, 26))
+        self.assertEqual(target, _utc(2026, 9, 8, 22, 53, 0))
+        late = _utc(2026, 9, 8, 22, 53, 16)
+        self.assertEqual(_next_post_close_sample_target(ctx, late), _utc(2026, 9, 8, 22, 54, 0))
+        self.assertEqual(_civil_minute_close_after(late), _utc(2026, 9, 8, 22, 54, 0))
 
     def test_target_post_close_rejects_late_roll_without_prior_alignment(self) -> None:
         now = _utc(2026, 9, 8, 22, 17, 22)

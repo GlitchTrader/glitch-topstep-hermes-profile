@@ -143,6 +143,22 @@ def _civil_minute_close_after(now: datetime) -> datetime:
     return floored + timedelta(minutes=1)
 
 
+def _next_post_close_sample_target(ctx: BarCloseContext, now: datetime) -> datetime:
+    """Next bar-close boundary to sleep toward after missed_post_close_window.
+
+    When latest_bar_partial, anchor on packet bar close (latest_bar_utc + 1min), not civil :00
+    realignment that lands polls outside the bounded 5s + roll-grace window.
+    """
+    if ctx.latest_bar_partial and ctx.latest_bar_utc:
+        latest_close = parse_utc(ctx.latest_bar_utc.replace("+00:00", "Z")) + timedelta(minutes=1)
+        packet_close = expected_close_for_context(ctx)
+        target = max(packet_close, latest_close)
+        if target <= now:
+            return latest_close + timedelta(minutes=1)
+        return target
+    return _civil_minute_close_after(now)
+
+
 def _close_iso(close_dt: datetime) -> str:
     return close_dt.isoformat().replace("+00:00", "Z")
 
@@ -698,7 +714,7 @@ def wait_for_bar_complete(
                     provider_roll_latency_seconds=roll_latency,
                     bar_roll_confirmed=bool(initial_ctx and _bar_roll_confirmed(initial_ctx, ctx)),
                 )
-            next_close = _civil_minute_close_after(now)
+            next_close = _next_post_close_sample_target(ctx, now)
             if not _sleep_until(
                 next_close,
                 sleep_fn=sleep_fn,
@@ -762,7 +778,7 @@ def wait_for_bar_complete(
                     provider_roll_latency_seconds=roll_latency,
                     bar_roll_confirmed=True,
                 )
-            next_close = _civil_minute_close_after(now)
+            next_close = _next_post_close_sample_target(ctx, now)
             if not _sleep_until(
                 next_close,
                 sleep_fn=sleep_fn,
@@ -935,7 +951,7 @@ def run_bar_close_aware_stability_window(
                     ctx=ctx,
                     provider_roll_latency_seconds=roll_latency,
                 )
-            next_close = _civil_minute_close_after(now)
+            next_close = _next_post_close_sample_target(ctx, now)
             _sleep_until(
                 next_close,
                 sleep_fn=sleep_fn,
