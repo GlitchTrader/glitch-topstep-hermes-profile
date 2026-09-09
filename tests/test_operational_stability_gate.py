@@ -25,6 +25,7 @@ from operational_stability_gate import (  # noqa: E402
     resolve_provider_roll_latency_seconds,
     run_bar_close_aware_stability_window,
     run_operational_stability_window,
+    validate_schedule_boundary,
     wait_for_bar_complete,
 )
 
@@ -399,9 +400,12 @@ class WaitForBarCompleteTests(unittest.TestCase):
             provider_roll_latency_seconds=10.0,
         )
         self.assertTrue(result["ready"])
-        self.assertTrue(result.get("bar_roll_confirmed"))
         self.assertTrue(result.get("latest_bar_partial"))
         self.assertLess(result["waited_seconds"], 120.0)
+        self.assertIn(
+            result["expected_close_utc"],
+            {"2026-09-09T00:18:00Z", "2026-09-09T00:19:00Z"},
+        )
 
     def test_v11_five_boundary_partial_roll_never_ready(self) -> None:
         """v11 partial-roll scenario: civil realignment missed 15s window; packet-close target recovers."""
@@ -496,6 +500,239 @@ class WaitForBarCompleteTests(unittest.TestCase):
                 provider_roll_latency_seconds=10.0,
             )
         )
+
+
+class ScheduleBoundaryAlignmentTests(unittest.TestCase):
+    """v11 20260909T111715Z: scheduler vs wait_for_bar_complete boundary alignment."""
+
+    def test_expired_boundary_at_start_abandons_not_warmup(self) -> None:
+        """bar_age 60-75s at entry must abandon stale close, not start warmup."""
+        start = _utc(2026, 9, 9, 11, 17, 15)
+        clock = {"t": start}
+        mono = {"v": 0.0}
+        fetches = {"n": 0}
+
+        def _v11_packet(latest: str, prior: str) -> dict:
+            return {
+                "data_quality": {"state_complete": True, "issues": []},
+                "account": {"instrument_open_contracts": 0},
+                "market": {"quote_timestamp": clock["t"].isoformat().replace("+00:00", "Z")},
+                "market_observation": {
+                    "observation": {
+                        "source": "projectx_bars",
+                        "timeframes": [
+                            {
+                                "timeframe_minutes": 1,
+                                "latest_bar_utc": latest,
+                                "latest_bar_partial": True,
+                                "prior_completed_bar": {
+                                    "timestamp": prior,
+                                    "open": 1,
+                                    "high": 2,
+                                    "low": 1,
+                                    "close": 2,
+                                    "volume": 10,
+                                },
+                                "bars_accepted": 500,
+                            }
+                        ],
+                    }
+                },
+            }
+
+        def packet_fetcher() -> dict:
+            fetches["n"] += 1
+            if fetches["n"] == 1:
+                return _v11_packet("2026-09-09T11:16:00.000Z", "2026-09-09T11:15:00.000Z")
+            latest = clock["t"].replace(second=0, microsecond=0)
+            prior = latest - timedelta(minutes=1)
+            return _v11_packet(
+                latest.isoformat().replace("+00:00", "Z"),
+                prior.isoformat().replace("+00:00", "Z"),
+            )
+
+        def sleep_fn(seconds: float) -> None:
+            step = max(seconds, 0.01)
+            mono["v"] += step
+            clock["t"] = clock["t"] + timedelta(seconds=step)
+
+        result = wait_for_bar_complete(
+            packet_fetcher,
+            timeout_seconds=120.0,
+            poll_seconds=0.0,
+            sleep_fn=sleep_fn,
+            monotonic_fn=lambda: mono["v"],
+            now_fn=lambda: clock["t"],
+            provider_roll_latency_seconds=10.0,
+        )
+        missed = result.get("missed_boundaries") or []
+        self.assertGreaterEqual(len(missed), 1)
+        self.assertEqual(missed[0]["expected_close_utc"], "2026-09-09T11:16:00Z")
+        self.assertGreater(missed[0]["bar_age_ms"], 60_000)
+        if result["ready"]:
+            self.assertNotEqual(result["expected_close_utc"], "2026-09-09T11:16:00Z")
+            self.assertNotEqual(result["expected_close_utc"], "2026-09-09T11:17:00Z")
+
+    def test_future_boundary_valid_collection_can_start(self) -> None:
+        now = _utc(2026, 9, 9, 11, 17, 45)
+        ctx = extract_bar_close_context(_partial_packet(now), now=now)
+        assert ctx is not None
+        target = validate_schedule_boundary(
+            ctx,
+            now,
+            set(),
+            post_close_window_seconds=5.0,
+            provider_roll_latency_seconds=10.0,
+        )
+        self.assertEqual(target, _utc(2026, 9, 9, 11, 18, 0))
+
+    def test_late_roll_with_valid_prior_completed_bar(self) -> None:
+        post_close = _utc(2026, 9, 9, 11, 18, 8)
+        clock = {"t": _utc(2026, 9, 9, 11, 17, 45)}
+        mono = {"v": 0.0}
+        fetches = {"n": 0}
+
+        def packet_fetcher() -> dict:
+            fetches["n"] += 1
+            if clock["t"] < post_close:
+                return _partial_packet(clock["t"])
+            cur = post_close.replace(second=0, microsecond=0)
+            pkt = _partial_packet(post_close)
+            tf = pkt["market_observation"]["observation"]["timeframes"][0]
+            tf["latest_bar_utc"] = cur.isoformat().replace("+00:00", "Z")
+            tf["prior_completed_bar"]["timestamp"] = (cur - timedelta(minutes=1)).isoformat().replace("+00:00", "Z")
+            return pkt
+
+        def sleep_fn(seconds: float) -> None:
+            step = max(seconds, 0.01)
+            mono["v"] += step
+            clock["t"] = clock["t"] + timedelta(seconds=step)
+
+        result = wait_for_bar_complete(
+            packet_fetcher,
+            timeout_seconds=60.0,
+            poll_seconds=0.0,
+            sleep_fn=sleep_fn,
+            monotonic_fn=lambda: mono["v"],
+            now_fn=lambda: clock["t"],
+            provider_roll_latency_seconds=10.0,
+        )
+        self.assertTrue(result["ready"])
+        self.assertEqual(result["expected_close_utc"], "2026-09-09T11:18:00Z")
+
+    def test_missing_prior_completed_bar_still_blocks(self) -> None:
+        now = _utc(2026, 9, 9, 11, 18, 3)
+        cur_min = now.replace(second=0, microsecond=0)
+        packet = {
+            "data_quality": {"state_complete": True, "issues": []},
+            "account": {"instrument_open_contracts": 0},
+            "market_observation": {
+                "observation": {
+                    "source": "projectx_bars",
+                    "timeframes": [
+                        {
+                            "timeframe_minutes": 1,
+                            "latest_bar_utc": cur_min.isoformat().replace("+00:00", "Z"),
+                            "latest_bar_partial": True,
+                            "bars_accepted": 500,
+                        }
+                    ],
+                }
+            },
+        }
+        ctx = extract_bar_close_context(packet, now=now)
+        assert ctx is not None
+        target = validate_schedule_boundary(ctx, now, set())
+        self.assertEqual(target, _utc(2026, 9, 9, 11, 19, 0))
+        verdict = evaluate_operational_stability_sample(
+            health=_good_health(now),
+            packet=packet,
+            fetched_utc=now.isoformat().replace("+00:00", "Z"),
+            now=now,
+            require_closed_bar=True,
+        )
+        self.assertFalse(verdict.ok)
+        self.assertIn("bar_1m_partial", verdict.reasons)
+
+    def test_v11_111715_schedule_stale_111600_boundary(self) -> None:
+        """Reproduce 11:17:15 schedule / 11:16:00 stale boundary from v11 evidence."""
+        polls_data = [
+            ("2026-09-09T11:17:15.227653Z", "2026-09-09T11:16:00.000Z", "2026-09-09T11:15:00.000Z"),
+            ("2026-09-09T11:18:00.250858Z", "2026-09-09T11:17:00.000Z", "2026-09-09T11:16:00.000Z"),
+            ("2026-09-09T11:18:03.670055Z", "2026-09-09T11:17:00.000Z", "2026-09-09T11:16:00.000Z"),
+        ]
+
+        def make_packet(latest: str, prior: str) -> dict:
+            return {
+                "data_quality": {"state_complete": True, "issues": []},
+                "account": {"instrument_open_contracts": 0},
+                "market": {"quote_timestamp": clock["t"].isoformat().replace("+00:00", "Z")},
+                "market_observation": {
+                    "observation": {
+                        "source": "projectx_bars",
+                        "timeframes": [
+                            {
+                                "timeframe_minutes": 1,
+                                "latest_bar_utc": latest,
+                                "latest_bar_partial": True,
+                                "prior_completed_bar": {
+                                    "timestamp": prior,
+                                    "open": 1,
+                                    "high": 2,
+                                    "low": 1,
+                                    "close": 2,
+                                    "volume": 10,
+                                },
+                                "bars_accepted": 500,
+                            }
+                        ],
+                    }
+                },
+            }
+
+        clock = {"t": datetime.fromisoformat("2026-09-09T11:17:15.227653+00:00")}
+        mono = {"v": 0.0}
+        idx = {"i": 0}
+
+        def sleep_fn(seconds: float) -> None:
+            step = max(seconds, 0.01)
+            mono["v"] += step
+            clock["t"] = clock["t"] + timedelta(seconds=step)
+
+        def packet_fetcher() -> dict:
+            i = min(idx["i"], len(polls_data) - 1)
+            idx["i"] += 1
+            row = polls_data[i]
+            clock["t"] = datetime.fromisoformat(row[0].replace("Z", "+00:00"))
+            return make_packet(row[1], row[2])
+
+        result = wait_for_bar_complete(
+            packet_fetcher,
+            timeout_seconds=30.0,
+            poll_seconds=0.0,
+            sleep_fn=sleep_fn,
+            monotonic_fn=lambda: mono["v"],
+            now_fn=lambda: clock["t"],
+            provider_roll_latency_seconds=10.0,
+        )
+        missed = result.get("missed_boundaries") or []
+        self.assertEqual(missed[0]["expected_close_utc"], "2026-09-09T11:16:00Z")
+        self.assertAlmostEqual(missed[0]["bar_age_ms"], 75227, delta=500)
+        if result["ready"]:
+            self.assertEqual(result["expected_close_utc"], "2026-09-09T11:18:00Z")
+            self.assertFalse(result.get("bar_roll_confirmed"))
+        ctx = extract_bar_close_context(
+            make_packet("2026-09-09T11:17:00.000Z", "2026-09-09T11:16:00.000Z"),
+            now=datetime.fromisoformat("2026-09-09T11:18:03.670055+00:00"),
+        )
+        assert ctx is not None
+        target = validate_schedule_boundary(
+            ctx,
+            datetime.fromisoformat("2026-09-09T11:18:03.670055+00:00"),
+            {"2026-09-09T11:16:00Z", "2026-09-09T11:17:00Z"},
+            provider_roll_latency_seconds=10.0,
+        )
+        self.assertEqual(target, _utc(2026, 9, 9, 11, 18, 0))
 
 
 @mock.patch("operational_stability_gate._measurement_helpers")

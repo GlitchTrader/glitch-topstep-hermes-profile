@@ -143,20 +143,136 @@ def _civil_minute_close_after(now: datetime) -> datetime:
     return floored + timedelta(minutes=1)
 
 
-def _next_post_close_sample_target(ctx: BarCloseContext, now: datetime) -> datetime:
+def _next_post_close_sample_target(
+    ctx: BarCloseContext,
+    now: datetime,
+    *,
+    post_close_window_seconds: float = DEFAULT_POST_CLOSE_WINDOW_SECONDS,
+    provider_roll_latency_seconds: float | None = None,
+) -> datetime:
     """Next bar-close boundary to sleep toward after missed_post_close_window.
 
     When latest_bar_partial, anchor on packet bar close (latest_bar_utc + 1min), not civil :00
     realignment that lands polls outside the bounded 5s + roll-grace window.
     """
+    roll_latency = (
+        provider_roll_latency_seconds
+        if provider_roll_latency_seconds is not None
+        else resolve_provider_roll_latency_seconds()
+    )
     if ctx.latest_bar_partial and ctx.latest_bar_utc:
         latest_close = parse_utc(ctx.latest_bar_utc.replace("+00:00", "Z")) + timedelta(minutes=1)
         packet_close = expected_close_for_context(ctx)
         target = max(packet_close, latest_close)
         if target <= now:
-            return latest_close + timedelta(minutes=1)
+            window_end = _sample_window_end(
+                target,
+                post_close_window_seconds=post_close_window_seconds,
+                provider_roll_latency_seconds=roll_latency,
+                ctx=ctx if target == packet_close else None,
+            )
+            if now <= window_end and _boundary_capturable_now(
+                ctx,
+                now,
+                target,
+                post_close_window_seconds=post_close_window_seconds,
+                provider_roll_latency_seconds=roll_latency,
+            ):
+                return target
+            next_boundary = latest_close + timedelta(minutes=1)
+            if next_boundary <= now:
+                return _civil_minute_close_after(now)
+            return next_boundary
         return target
     return _civil_minute_close_after(now)
+
+
+def _boundary_capturable_now(
+    ctx: BarCloseContext,
+    now: datetime,
+    candidate: datetime,
+    *,
+    post_close_window_seconds: float,
+    provider_roll_latency_seconds: float,
+) -> bool:
+    """True when scheduler can still capture this close from the current packet."""
+    if now < candidate:
+        return True
+    return is_target_post_close_sample(
+        now,
+        candidate,
+        ctx,
+        post_close_window_seconds=post_close_window_seconds,
+        provider_roll_latency_seconds=provider_roll_latency_seconds,
+    )
+
+
+def validate_schedule_boundary(
+    ctx: BarCloseContext,
+    now: datetime,
+    abandoned_boundaries: set[str],
+    *,
+    post_close_window_seconds: float = DEFAULT_POST_CLOSE_WINDOW_SECONDS,
+    provider_roll_latency_seconds: float | None = None,
+    missed_events: list[dict[str, Any]] | None = None,
+    phase: str = "wait",
+) -> datetime:
+    """First close boundary still capturable from now — skips expired packet-close targets."""
+    roll_latency = (
+        provider_roll_latency_seconds
+        if provider_roll_latency_seconds is not None
+        else resolve_provider_roll_latency_seconds()
+    )
+    packet_close = expected_close_for_context(ctx)
+    candidates = [packet_close]
+    if ctx.latest_bar_partial and ctx.latest_bar_utc:
+        latest_close = parse_utc(ctx.latest_bar_utc.replace("+00:00", "Z")) + timedelta(minutes=1)
+        if latest_close > packet_close:
+            candidates.append(latest_close)
+    for candidate in sorted(candidates):
+        iso = _close_iso(candidate)
+        if iso in abandoned_boundaries:
+            continue
+        window_end = _sample_window_end(
+            candidate,
+            post_close_window_seconds=post_close_window_seconds,
+            provider_roll_latency_seconds=roll_latency,
+            ctx=ctx if candidate == packet_close else None,
+        )
+        if now <= window_end and _boundary_capturable_now(
+            ctx,
+            now,
+            candidate,
+            post_close_window_seconds=post_close_window_seconds,
+            provider_roll_latency_seconds=roll_latency,
+        ):
+            return candidate
+        if now > window_end or (
+            now >= candidate
+            and not _boundary_capturable_now(
+                ctx,
+                now,
+                candidate,
+                post_close_window_seconds=post_close_window_seconds,
+                provider_roll_latency_seconds=roll_latency,
+            )
+        ):
+            abandoned_boundaries.add(iso)
+            if missed_events is not None:
+                _record_missed_boundary(
+                    missed_events,
+                    phase=phase,
+                    expected_close_utc=iso,
+                    fetched_utc=now.isoformat().replace("+00:00", "Z"),
+                    ctx=ctx,
+                    provider_roll_latency_seconds=roll_latency,
+                )
+    return _next_post_close_sample_target(
+        ctx,
+        now,
+        post_close_window_seconds=post_close_window_seconds,
+        provider_roll_latency_seconds=roll_latency,
+    )
 
 
 def _close_iso(close_dt: datetime) -> str:
@@ -317,6 +433,7 @@ def evaluate_operational_stability_sample(
     bar_close_context: BarCloseContext | None = None,
     post_close_window_seconds: float = DEFAULT_POST_CLOSE_WINDOW_SECONDS,
     provider_roll_latency_seconds: float | None = None,
+    target_close: datetime | None = None,
 ) -> StabilitySampleVerdict:
     """Single-sample gate — records health/packet separately; never masks health incompleteness."""
     reasons: list[str] = []
@@ -433,12 +550,23 @@ def evaluate_operational_stability_sample(
             detail["bar_close"]["expected_close_utc"] = (
                 expected_close_for_context(ctx).isoformat().replace("+00:00", "Z")
             )
-            if not is_post_close_sample(
-                sample_dt,
-                ctx,
-                post_close_window_seconds=post_close_window_seconds,
-                provider_roll_latency_seconds=provider_roll_latency_seconds,
-            ):
+            in_post_close = (
+                is_target_post_close_sample(
+                    sample_dt,
+                    target_close,
+                    ctx,
+                    post_close_window_seconds=post_close_window_seconds,
+                    provider_roll_latency_seconds=provider_roll_latency_seconds,
+                )
+                if target_close is not None
+                else is_post_close_sample(
+                    sample_dt,
+                    ctx,
+                    post_close_window_seconds=post_close_window_seconds,
+                    provider_roll_latency_seconds=provider_roll_latency_seconds,
+                )
+            )
+            if not in_post_close:
                 reasons.append("sample_before_bar_close_window")
             elif not ctx.latest_bar_partial:
                 pass  # completed latest bar
@@ -454,11 +582,21 @@ def evaluate_operational_stability_sample(
     if (
         require_closed_bar
         and ctx
-        and is_post_close_sample(
-            sample_dt,
-            ctx,
-            post_close_window_seconds=post_close_window_seconds,
-            provider_roll_latency_seconds=provider_roll_latency_seconds,
+        and (
+            is_target_post_close_sample(
+                sample_dt,
+                target_close,
+                ctx,
+                post_close_window_seconds=post_close_window_seconds,
+                provider_roll_latency_seconds=provider_roll_latency_seconds,
+            )
+            if target_close is not None
+            else is_post_close_sample(
+                sample_dt,
+                ctx,
+                post_close_window_seconds=post_close_window_seconds,
+                provider_roll_latency_seconds=provider_roll_latency_seconds,
+            )
         )
         and ctx.latest_bar_partial
         and ctx.prior_completed_bar_utc
@@ -600,13 +738,10 @@ def _bar_roll_wait_ready(
         if provider_roll_latency_seconds is not None
         else resolve_provider_roll_latency_seconds()
     )
-    # ponytail: ProjectX rolls at civil minute tick with partial=true — same prior_completed_bar anchor
+    # ponytail: ProjectX rolls at civil minute tick — only within bounded post-close + roll grace
     max_roll_window = post_close_window_seconds + roll_latency
     elapsed = (now - close_dt).total_seconds()
-    if elapsed > 60.0 + roll_latency:
-        return False
-    seconds_into_minute = now.second + now.microsecond / 1_000_000
-    return seconds_into_minute <= max_roll_window
+    return 0.0 <= elapsed <= max_roll_window
 
 
 def _record_missed_boundary(
@@ -693,9 +828,15 @@ def wait_for_bar_complete(
 
         packet_close = expected_close_for_context(ctx)
         packet_close_iso = _close_iso(packet_close)
-        target_close = packet_close
-        if packet_close_iso in abandoned_boundaries:
-            target_close = _target_close_after_abandon(ctx, now)
+        target_close = validate_schedule_boundary(
+            ctx,
+            now,
+            abandoned_boundaries,
+            post_close_window_seconds=post_close_window_seconds,
+            provider_roll_latency_seconds=roll_latency,
+            missed_events=missed_events,
+            phase="wait",
+        )
         window_end = _sample_window_end(
             target_close,
             post_close_window_seconds=post_close_window_seconds,
@@ -731,9 +872,15 @@ def wait_for_bar_complete(
                 continue
             packet_close = expected_close_for_context(ctx)
             packet_close_iso = _close_iso(packet_close)
-            target_close = packet_close
-            if packet_close_iso in abandoned_boundaries:
-                target_close = _target_close_after_abandon(ctx, now)
+            target_close = validate_schedule_boundary(
+                ctx,
+                now,
+                abandoned_boundaries,
+                post_close_window_seconds=post_close_window_seconds,
+                provider_roll_latency_seconds=roll_latency,
+                missed_events=missed_events,
+                phase="wait",
+            )
             window_end = _sample_window_end(
                 target_close,
                 post_close_window_seconds=post_close_window_seconds,
@@ -784,7 +931,12 @@ def wait_for_bar_complete(
                     provider_roll_latency_seconds=roll_latency,
                     bar_roll_confirmed=bool(initial_ctx and _bar_roll_confirmed(initial_ctx, ctx)),
                 )
-            next_close = _next_post_close_sample_target(ctx, now)
+            next_close = _next_post_close_sample_target(
+                ctx,
+                now,
+                post_close_window_seconds=post_close_window_seconds,
+                provider_roll_latency_seconds=roll_latency,
+            )
             if not _sleep_until(
                 next_close,
                 sleep_fn=sleep_fn,
@@ -849,7 +1001,12 @@ def wait_for_bar_complete(
                     provider_roll_latency_seconds=roll_latency,
                     bar_roll_confirmed=True,
                 )
-            next_close = _next_post_close_sample_target(ctx, now)
+            next_close = _next_post_close_sample_target(
+                ctx,
+                now,
+                post_close_window_seconds=post_close_window_seconds,
+                provider_roll_latency_seconds=roll_latency,
+            )
             if not _sleep_until(
                 next_close,
                 sleep_fn=sleep_fn,
@@ -919,6 +1076,7 @@ def run_bar_close_aware_stability_window(
         if provider_roll_latency_seconds is not None
         else resolve_provider_roll_latency_seconds()
     )
+    poll_step = max(post_close_poll_seconds, 0.01)
 
     if lease_checker is not None:
         lease_ok, lease_reason = lease_checker()
@@ -987,10 +1145,38 @@ def run_bar_close_aware_stability_window(
         now = now_fn()
         packet_close = expected_close_for_context(ctx)
         packet_close_iso = _close_iso(packet_close)
-        target_close = packet_close
-        if packet_close_iso in abandoned_boundaries:
-            target_close = _target_close_after_abandon(ctx, now)
+        target_close = validate_schedule_boundary(
+            ctx,
+            now,
+            abandoned_boundaries,
+            post_close_window_seconds=post_close_window_seconds,
+            provider_roll_latency_seconds=roll_latency,
+            missed_events=warmup_events if not counting_started else skipped,
+            phase="warmup" if not counting_started else "valid",
+        )
         phase = "warmup" if not counting_started else "valid"
+        if (
+            counting_started
+            and ctx.latest_bar_partial
+            and ctx.latest_bar_utc
+        ):
+            latest_close = parse_utc(ctx.latest_bar_utc.replace("+00:00", "Z")) + timedelta(minutes=1)
+            if target_close > latest_close:
+                next_close = _next_post_close_sample_target(
+                    ctx,
+                    now,
+                    post_close_window_seconds=post_close_window_seconds,
+                    provider_roll_latency_seconds=roll_latency,
+                )
+                _sleep_until(
+                    next_close,
+                    sleep_fn=sleep_fn,
+                    now_fn=now_fn,
+                    monotonic_fn=monotonic_fn,
+                    monotonic_deadline=valid_deadline,
+                )
+                sleep_fn(1.0)
+                continue
         target_close_iso = _close_iso(target_close)
         sample_window_end = _sample_window_end(
             target_close,
@@ -1022,7 +1208,12 @@ def run_bar_close_aware_stability_window(
                     ctx=ctx,
                     provider_roll_latency_seconds=roll_latency,
                 )
-            next_close = _next_post_close_sample_target(ctx, now)
+            next_close = _next_post_close_sample_target(
+                ctx,
+                now,
+                post_close_window_seconds=post_close_window_seconds,
+                provider_roll_latency_seconds=roll_latency,
+            )
             _sleep_until(
                 next_close,
                 sleep_fn=sleep_fn,
@@ -1054,7 +1245,12 @@ def run_bar_close_aware_stability_window(
                     ctx=ctx,
                     provider_roll_latency_seconds=roll_latency,
                 )
-            next_close = _next_post_close_sample_target(ctx, now)
+            next_close = _next_post_close_sample_target(
+                ctx,
+                now,
+                post_close_window_seconds=post_close_window_seconds,
+                provider_roll_latency_seconds=roll_latency,
+            )
             _sleep_until(
                 next_close,
                 sleep_fn=sleep_fn,
@@ -1086,17 +1282,17 @@ def run_bar_close_aware_stability_window(
                     exc=exc,
                     expected_close_utc=target_close_iso,
                 )
-                sleep_fn(post_close_poll_seconds)
+                sleep_fn(poll_step)
                 continue
 
             packet = _fetch_packet("valid", target_close_iso)
             if packet is None:
-                sleep_fn(post_close_poll_seconds)
+                sleep_fn(poll_step)
                 continue
 
             ctx = extract_bar_close_context(packet, now=sample_dt)
             if ctx is None:
-                sleep_fn(post_close_poll_seconds)
+                sleep_fn(poll_step)
                 continue
 
             closed_bar_key = _close_reference_utc(ctx)
@@ -1111,6 +1307,7 @@ def run_bar_close_aware_stability_window(
                 bar_close_context=ctx,
                 post_close_window_seconds=post_close_window_seconds,
                 provider_roll_latency_seconds=roll_latency,
+                target_close=target_close,
             )
 
             row = {
@@ -1131,7 +1328,7 @@ def run_bar_close_aware_stability_window(
                 provider_roll_latency_seconds=roll_latency,
             ):
                 skipped.append({**row, "sample_index": None, "reason": "sample_before_bar_close_window"})
-                sleep_fn(post_close_poll_seconds)
+                sleep_fn(poll_step)
                 continue
 
             if not verdict.ok:
@@ -1147,7 +1344,7 @@ def run_bar_close_aware_stability_window(
                 break
 
             if closed_bar_key in seen_closed_bars:
-                sleep_fn(post_close_poll_seconds)
+                sleep_fn(poll_step)
                 continue
 
             seen_closed_bars.add(closed_bar_key)
