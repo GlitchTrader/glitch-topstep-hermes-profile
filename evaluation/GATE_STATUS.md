@@ -441,3 +441,11 @@ python -m unittest tests.test_verify_frozen_cohort tests.test_qc_envelope_collec
 | Cohort manifest | `evaluation/runs/cohort-quality-manifest-2026-09-01.json` |
 | Relatório insuficiência (JSON) | `evaluation/runs/insufficient-sample-report-2026-09-01.json` |
 | Relatório insuficiência (MD) | `evaluation/reviews/INSUFFICIENT-SAMPLE-REPORT-2026-09-01.md` |
+
+## Offline hardening (2026-09-09)
+
+- Acceptance gates: BLOCKED/UNKNOWN no longer exit 0; WinError substring downgrade removed from evaluation gates.
+- Stability sample: missing open-qty / CB / streams fail-closed (UNKNOWN), not assumed healthy.
+- Six-profile aggregator fixtures: selection/tie/conflict/objection/crash cases reach real branches (see aggregator PR).
+- Live lanes: still BLOCKED — gateway off; no v11/PRAC/soak without explicit auth after merges + new dir + stable probes.
+

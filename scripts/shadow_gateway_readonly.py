@@ -143,10 +143,9 @@ def _daily_capture_locked(packet: dict[str, Any]) -> bool:
 
 def _state_complete(health: dict[str, Any], packet: dict[str, Any]) -> bool:
     dq_h = health.get("data_quality") if isinstance(health.get("data_quality"), dict) else {}
-    if dq_h.get("state_complete") is False:
-        return False
     dq_p = packet.get("data_quality") if isinstance(packet.get("data_quality"), dict) else {}
-    return dq_p.get("state_complete") is not False
+    # Fail closed: missing state_complete is not treated as complete.
+    return dq_h.get("state_complete") is True and dq_p.get("state_complete") is True
 
 
 def _snapshot_expired(packet: dict[str, Any], *, max_age_ms: int) -> bool:
