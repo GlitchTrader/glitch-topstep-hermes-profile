@@ -43,6 +43,7 @@ COMPATIBLE_HEALTH = {
             "revisioned_outcome_feed_v1",
             "multi_instrument_observation_v1",
             "protected_reduction_saga_v1",
+            "quote_state_v1",
         ],
         "semantic_revisions": {
             "bounded_entry_range": "glitch.topstep.entry_range.v1",
@@ -106,7 +107,7 @@ class CompatibilityTests(unittest.TestCase):
             },
         }
         issues = compatibility_module.compatibility_issues(health)
-        self.assertIn("gateway_version_too_old:0.1.0<0.2.0", issues)
+        self.assertIn("gateway_version_too_old:0.1.0<0.2.6", issues)
 
     def test_missing_capability_fails_closed(self):
         health = {
