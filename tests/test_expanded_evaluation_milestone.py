@@ -87,6 +87,28 @@ class AggregatorSixProfileTests(unittest.TestCase):
                 expected = case["expected"]
                 self.assertEqual(result["outcome"], expected["result"])
                 self.assertEqual(result["decision_code"], expected["decision_code"])
+                if expected.get("selected_profile_id"):
+                    self.assertEqual(result.get("selected_profile_id"), expected["selected_profile_id"])
+
+    def test_selection_reaches_evidence_score_win_not_category_divergence(self) -> None:
+        case = next(c for c in SIX_CASES["cases"] if c["case_id"] == "SIX-SELECT-WIN-01")
+        result = AGG.aggregate_fixture_case(case, rules=RULES)
+        self.assertEqual(result["outcome"], "selected")
+        self.assertEqual(result["decision_code"], "EVIDENCE_SCORE_WIN")
+        self.assertNotEqual(result["decision_code"], "ENSEMBLE_CATEGORY_DIVERGENCE")
+        self.assertIn("EVIDENCE_SCORE_WIN", result.get("decision_trace") or [])
+
+    def test_profile_order_invariant_six_select(self) -> None:
+        case = next(c for c in SIX_CASES["cases"] if c["case_id"] == "SIX-MULTI-CAND-01")
+        profiles = list(case["inputs"]["profiles"])
+        a = AGG.aggregate_fixture_case(case, rules=RULES, run_id="order-a")
+        shuffled = dict(case)
+        shuffled["inputs"] = dict(case["inputs"])
+        shuffled["inputs"]["profiles"] = list(reversed(profiles))
+        b = AGG.aggregate_fixture_case(shuffled, rules=RULES, run_id="order-b")
+        self.assertEqual(a["outcome"], b["outcome"])
+        self.assertEqual(a["decision_code"], b["decision_code"])
+        self.assertEqual(a.get("selected_profile_id"), b.get("selected_profile_id"))
 
     def test_profile_order_invariant_six_no_edge(self) -> None:
         case = next(c for c in SIX_CASES["cases"] if c["case_id"] == "SIX-NO-EDGE-01")

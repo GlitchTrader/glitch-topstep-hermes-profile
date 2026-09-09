@@ -444,8 +444,8 @@ python -m unittest tests.test_verify_frozen_cohort tests.test_qc_envelope_collec
 
 ## Offline hardening (2026-09-09)
 
-- Acceptance gates: BLOCKED/UNKNOWN no longer exit 0; WinError substring downgrade removed from evaluation gates.
+- Acceptance gates: BLOCKED/UNKNOWN no longer exit 0; WinError substring downgrade removed from evaluation gates (#236 merged).
 - Stability sample: missing open-qty / CB / streams fail-closed (UNKNOWN), not assumed healthy.
-- Six-profile aggregator fixtures: selection/tie/conflict/objection/crash cases reach real branches (see aggregator PR).
+- Six-profile aggregator fixtures: selection/tie/conflict/objection/crash cases reach real branches (EVIDENCE_SCORE_WIN, PREFER_BASELINE_ON_TIE, direction conflict, critical objection, multi-candidate order invariance, timeout, crash, missing profile) without stopping early on ENSEMBLE_CATEGORY_DIVERGENCE except the dedicated case.
 - Live lanes: still BLOCKED — gateway off; no v11/PRAC/soak without explicit auth after merges + new dir + stable probes.
 
