@@ -393,6 +393,18 @@ def decision_to_gateway_intent(decision: dict[str, Any], packet: dict[str, Any])
 def deliver_global_decision(*, decision: dict[str, Any], packet: dict[str, Any], config: RunnerConfig, active_exposure: int = 0, client: Callable[..., tuple[int, dict[str, Any]]] = request_json) -> dict[str, Any]:
     if config.mode != "prac_live" or not config.authorize:
         return {"status": "not_delivered", "reason": "delivery_disabled_by_mode", "orders_sent": 0}
+    outcome = decision.get("outcome")
+    if outcome == "no_selection":
+        return {
+            "status": "not_delivered",
+            "reason": "global_nothing",
+            "decision_code": decision.get("decision_code"),
+            "orders_sent": 0,
+        }
+    if outcome is None and "selected_candidate_full" in decision:
+        pass
+    elif outcome != "selected":
+        raise RunnerError("global_decision_invalid")
     if active_exposure >= config.exposure_limit and decision.get("outcome") == "selected":
         raise RunnerError("second_exposure_blocked")
     intent = decision_to_gateway_intent(decision, packet)

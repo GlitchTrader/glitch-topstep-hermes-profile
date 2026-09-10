@@ -128,6 +128,13 @@ class PracLiveEnsembleTests(unittest.TestCase):
         self.assertTrue(runner.reset_allowed(flattened=True, reconciled=True, pending_orders=False, receipts_persisted=True, outcomes_persisted=True))
         self.assertEqual(runner.deliver_global_decision(decision={}, packet=packet(), config=config()), {"status": "not_delivered", "reason": "delivery_disabled_by_mode", "orders_sent": 0})
         live = config("prac_live")
+        nothing = runner.deliver_global_decision(
+            decision={"outcome": "no_selection", "decision_code": "ENSEMBLE_UNANIMOUS_ABSTENTION"},
+            packet=packet(),
+            config=live,
+        )
+        self.assertEqual(nothing["reason"], "global_nothing")
+        self.assertEqual(nothing["orders_sent"], 0)
         with self.assertRaisesRegex(runner.RunnerError, "second_exposure_blocked"):
             runner.deliver_global_decision(decision={"outcome": "selected"}, packet=packet(), config=live, active_exposure=1)
 
