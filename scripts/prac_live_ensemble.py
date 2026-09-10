@@ -56,6 +56,34 @@ class ProfileInvoker(Protocol):
     def __call__(self, profile: dict[str, Any], envelope: dict[str, Any], timeout_ms: int) -> dict[str, Any]: ...
 
 
+def resolve_hermes_executable() -> str:
+    """Resolve only the configured or official host Hermes installation."""
+    configured = os.environ.get("HERMES_EXECUTABLE", "").strip()
+    candidates: list[Path] = []
+    if configured:
+        candidates.append(Path(configured).expanduser())
+    path_candidate = shutil.which("hermes")
+    if path_candidate:
+        candidates.append(Path(path_candidate))
+    local_app = os.environ.get("LOCALAPPDATA", "").strip()
+    if local_app:
+        candidates.append(Path(local_app) / "hermes" / "hermes-agent" / "venv" / "Scripts" / "hermes.exe")
+    seen: set[str] = set()
+    path_candidate_text = str(path_candidate) if path_candidate else ""
+    for candidate in candidates:
+        try:
+            resolved = str(candidate.resolve())
+            exists = candidate.is_file()
+        except OSError:
+            continue
+        if resolved in seen:
+            continue
+        seen.add(resolved)
+        if exists or (path_candidate_text and str(candidate) == path_candidate_text):
+            return resolved
+    raise RunnerError("hermes_executable_not_found")
+
+
 @dataclass(frozen=True)
 class RunnerConfig:
     mode: str
@@ -230,9 +258,7 @@ def _normalize_result(raw: dict[str, Any] | None, *, profile: dict[str, Any], en
 
 def _invoke_hermes(profile: dict[str, Any], envelope: dict[str, Any], timeout_ms: int) -> dict[str, Any]:
     """Invoke Hermes without exposing gateway or ProjectX credentials."""
-    executable = shutil.which("hermes")
-    if not executable:
-        raise RunnerError("hermes_executable_not_found")
+    executable = resolve_hermes_executable()
     env = dict(os.environ)
     for key in list(env):
         if key.upper().startswith(("PROJECTX_", "GLITCH_TOPSTEP_LOCAL_TOKEN", "GLITCH_LOCAL_TOKEN")):

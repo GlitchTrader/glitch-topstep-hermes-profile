@@ -169,6 +169,15 @@ class PracLiveEnsembleTests(unittest.TestCase):
         self.assertEqual(kwargs["env"]["PYTHONIOENCODING"], "utf-8")
         self.assertEqual(kwargs["env"]["PYTHONUTF8"], "1")
 
+    def test_hermes_off_path_absolute_runtime_is_resolved(self):
+        with tempfile.TemporaryDirectory() as root:
+            executable = Path(root) / "hermes.exe"
+            executable.write_bytes(b"official-runtime")
+            with mock.patch.dict("os.environ", {"HERMES_EXECUTABLE": str(executable)}, clear=False), mock.patch.object(
+                runner.shutil, "which", return_value=None
+            ):
+                self.assertEqual(runner.resolve_hermes_executable(), str(executable.resolve()))
+
     def test_hermes_invalid_bytes_or_json_are_safety_stop(self):
         cases = [
             (b'{"state":"no_edge"}\x90', b"", "hermes_utf8_decode_failed"),
