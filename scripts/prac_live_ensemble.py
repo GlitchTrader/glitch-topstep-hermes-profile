@@ -26,7 +26,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Protocol
 
-from common import utc_now
+from common import SafetyStopError, utc_now
 from ensemble_aggregator import aggregate_envelope
 from ensemble_capability import capacity_gate
 from ensemble_envelope import build_evaluation_envelope, envelope_hash
@@ -105,6 +105,38 @@ def _parse_utc(value: Any) -> datetime:
         raise RunnerError("timestamp_invalid") from exc
 
 
+def _has_closed_1m_bar_evidence(packet: dict[str, Any]) -> bool:
+    quality = packet.get("data_quality")
+    if isinstance(quality, dict) and quality.get("bar_1m_closed") is True:
+        return True
+    if packet.get("bar_close_utc"):
+        return True
+    observation = packet.get("market_observation")
+    if not isinstance(observation, dict):
+        return False
+    nested_observation = observation.get("observation")
+    if isinstance(nested_observation, dict):
+        observation = nested_observation
+    timeframes = observation.get("timeframes")
+    if isinstance(timeframes, dict):
+        frames = list(timeframes.values())
+    elif isinstance(timeframes, list):
+        frames = timeframes
+    else:
+        frames = []
+    for frame in frames:
+        if not isinstance(frame, dict):
+            continue
+        if frame.get("timeframe_minutes") != 1 and frame.get("timeframe") not in {"1m", "1"}:
+            continue
+        if frame.get("latest_bar_partial") is False and frame.get("latest_bar_utc"):
+            return True
+        prior = frame.get("prior_completed_bar")
+        if frame.get("latest_bar_partial") is True and isinstance(prior, dict) and prior.get("timestamp"):
+            return True
+    return False
+
+
 def validate_live_packet(
     packet: dict[str, Any],
     health: dict[str, Any],
@@ -138,7 +170,7 @@ def validate_live_packet(
         raise RunnerError("contract_divergent")
     if "bar_1m_partial" in issues or quality.get("bar_1m_closed") is False:
         raise RunnerError("bar_1m_not_closed")
-    if quality.get("bar_1m_closed") is not True and not packet.get("bar_close_utc"):
+    if not _has_closed_1m_bar_evidence(packet):
         raise RunnerError("bar_1m_close_missing")
     current = now or datetime.now(timezone.utc)
     if _parse_utc(packet["expires_utc"]) <= current:
@@ -205,21 +237,31 @@ def _invoke_hermes(profile: dict[str, Any], envelope: dict[str, Any], timeout_ms
     for key in list(env):
         if key.upper().startswith(("PROJECTX_", "GLITCH_TOPSTEP_LOCAL_TOKEN", "GLITCH_LOCAL_TOKEN")):
             env.pop(key, None)
+    env["PYTHONIOENCODING"] = "utf-8"
+    env["PYTHONUTF8"] = "1"
     prompt = json.dumps({"envelope": envelope, "profile_id": profile["profile_id"], "skills": profile.get("skills", [])}, ensure_ascii=False)
     completed = subprocess.run(
         [executable, "chat", "--source", "trading", "--max-turns", "4", "--skills", ",".join(profile.get("skills", [])), "-q", prompt],
         capture_output=True,
-        text=True,
+        text=False,
         timeout=max(0.001, timeout_ms / 1000),
         env=env,
         creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
     )
+    try:
+        stdout = completed.stdout.decode("utf-8", errors="strict")
+        completed.stderr.decode("utf-8", errors="strict")
+    except UnicodeDecodeError as exc:
+        raise SafetyStopError("safety_stop:hermes_utf8_decode_failed") from exc
     if completed.returncode:
         raise RunnerError("hermes_failed")
     from common import extract_single_json_object
-    value = extract_single_json_object(completed.stdout)
+    try:
+        value = extract_single_json_object(stdout)
+    except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+        raise SafetyStopError("safety_stop:hermes_json_invalid") from exc
     if not isinstance(value, dict):
-        raise RunnerError("hermes_output_invalid")
+        raise SafetyStopError("safety_stop:hermes_json_invalid")
     return value
 
 
@@ -367,6 +409,6 @@ def main(argv: list[str] | None = None) -> int:
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
-    except RunnerError as exc:
+    except (RunnerError, SafetyStopError) as exc:
         print(sanitize_text(f"runner_blocked:{exc}"), file=sys.stderr)
         raise SystemExit(2)

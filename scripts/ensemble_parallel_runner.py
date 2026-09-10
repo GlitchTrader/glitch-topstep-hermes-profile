@@ -13,6 +13,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
+from common import SafetyStopError
+
 PROFILE_ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -116,6 +118,8 @@ def execute_profile_slot(
         if latency_ms > timeout_ms:
             error = "timeout"
             raw = {"state": "timeout", "latency_ms": latency_ms}
+    except SafetyStopError:
+        raise
     except Exception as exc:  # ponytail: classify provider failures without crashing pool
         error = f"provider_error:{exc}"
         raw = {"state": "error", "error_code": str(exc)}

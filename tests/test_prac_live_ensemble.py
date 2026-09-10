@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import json
 import sys
+import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -55,6 +56,23 @@ class PracLiveEnsembleTests(unittest.TestCase):
             mutate(value)
             with self.assertRaisesRegex(runner.RunnerError, reason):
                 runner.validate_live_packet(value, health())
+
+    def test_gateway_observation_proves_closed_bar_without_derived_packet_field(self):
+        value = packet()
+        fixed_now = datetime(2026, 9, 10, 17, 55, 30, tzinfo=timezone.utc)
+        value["created_utc"] = "2026-09-10T17:55:30Z"
+        value["expires_utc"] = "2026-09-10T17:56:30Z"
+        value["data_quality"].pop("bar_1m_closed")
+        value.pop("bar_close_utc")
+        value["market_observation"] = {"observation": {
+            "timeframes": [{
+                "timeframe_minutes": 1,
+                "latest_bar_utc": "2026-09-10T17:54:00Z",
+                "latest_bar_partial": False,
+                "prior_completed_bar": None,
+            }],
+        }}
+        runner.validate_live_packet(value, health(), now=fixed_now)
 
     def test_six_profiles_share_one_envelope_and_missing_profile_is_blocked(self):
         matrix = json.loads((ROOT / "evaluation/capability-matrix.json").read_text())
@@ -129,6 +147,53 @@ class PracLiveEnsembleTests(unittest.TestCase):
         self.assertNotIn("PROJECTX_USERNAME", source)
         self.assertNotIn("PROJECTX_PASSWORD", source)
         self.assertNotIn("secret-value", runner.sanitize_text("Bearer secret-value"))
+
+    def test_hermes_utf8_stdout_and_separate_stderr(self):
+        completed = runner.subprocess.CompletedProcess(
+            args=["hermes"],
+            returncode=0,
+            stdout=b'{"state":"no_edge","thesis":"caf\xc3\xa9 \xf0\x9f\x9a\x80"}',
+            stderr="diagnostic stderr\n".encode("utf-8"),
+        )
+        with mock.patch.object(runner.shutil, "which", return_value="hermes"), mock.patch.object(
+            runner.subprocess, "run", return_value=completed
+        ) as run:
+            result = runner._invoke_hermes(
+                {"profile_id": "baseline-current", "skills": []},
+                {"envelope_id": "env"},
+                1000,
+            )
+        self.assertEqual(result["thesis"], "café 🚀")
+        kwargs = run.call_args.kwargs
+        self.assertFalse(kwargs["text"])
+        self.assertEqual(kwargs["env"]["PYTHONIOENCODING"], "utf-8")
+        self.assertEqual(kwargs["env"]["PYTHONUTF8"], "1")
+
+    def test_hermes_invalid_bytes_or_json_are_safety_stop(self):
+        cases = [
+            (b'{"state":"no_edge"}\x90', b"", "hermes_utf8_decode_failed"),
+            (b'{"state":"no_edge"}', b"diagnostic\x90", "hermes_utf8_decode_failed"),
+            (b'{"state":', b"", "hermes_json_invalid"),
+        ]
+        for stdout, stderr, reason in cases:
+            completed = runner.subprocess.CompletedProcess(
+                args=["hermes"], returncode=0, stdout=stdout, stderr=stderr
+            )
+            with self.subTest(reason=reason), mock.patch.object(runner.shutil, "which", return_value="hermes"), mock.patch.object(
+                runner.subprocess, "run", return_value=completed
+            ):
+                with self.assertRaisesRegex(runner.SafetyStopError, reason):
+                    runner._invoke_hermes({"profile_id": "baseline-current", "skills": []}, {"envelope_id": "env"}, 1000)
+
+    def test_safety_stop_does_not_write_partial_run_evidence(self):
+        with tempfile.TemporaryDirectory() as root:
+            output = Path(root) / "run.json"
+            with mock.patch.object(runner, "fetch_live_packet", return_value=(health(), packet())), mock.patch.object(
+                runner, "run_profiles", side_effect=runner.SafetyStopError("safety_stop:hermes_json_invalid")
+            ):
+                with self.assertRaisesRegex(runner.SafetyStopError, "safety_stop:hermes_json_invalid"):
+                    runner.main(["--mode", "shadow", "--output", str(output)])
+            self.assertFalse(output.exists())
 
 
 if __name__ == "__main__":
