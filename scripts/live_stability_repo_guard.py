@@ -7,6 +7,7 @@ import json
 import os
 import re
 import subprocess
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -81,6 +82,138 @@ def assert_paired_contract_match(profile_root: Path, gateway_root: Path) -> dict
     return profile_doc
 
 
+_SECRET_KEY_FRAGMENTS = (
+    "token",
+    "password",
+    "secret",
+    "authorization",
+    "api_key",
+    "apikey",
+    "bearer",
+    "credential",
+)
+
+
+def _is_secret_key(key: str) -> bool:
+    lowered = key.lower()
+    return any(fragment in lowered for fragment in _SECRET_KEY_FRAGMENTS)
+
+
+def _safe_capabilities(raw: Any) -> list[str] | dict[str, Any] | None:
+    """Copy capabilities without secret-looking keys/values."""
+    if isinstance(raw, list):
+        return [str(item) for item in raw if item is not None and not _is_secret_key(str(item))]
+    if isinstance(raw, dict):
+        return {
+            str(k): v
+            for k, v in raw.items()
+            if not _is_secret_key(str(k)) and not (isinstance(v, str) and _is_secret_key(v))
+        }
+    return None
+
+
+def _read_runtime_lock(gateway_root: Path) -> dict[str, Any] | None:
+    data_dir = gateway_root / "data"
+    if not data_dir.is_dir():
+        return None
+    locks = sorted(data_dir.glob("runtime-account-*.lock"))
+    if not locks:
+        return None
+    # ponytail: one active lock expected; if several, take newest mtime.
+    lock_path = max(locks, key=lambda p: p.stat().st_mtime)
+    try:
+        payload = json.loads(lock_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {"path": str(lock_path), "unreadable": True}
+    if not isinstance(payload, dict):
+        return {"path": str(lock_path), "unreadable": True}
+    return {
+        "path": str(lock_path),
+        "pid": payload.get("pid"),
+        "acquired_utc": payload.get("acquired_utc"),
+        "invocation_id": payload.get("invocation_id"),
+        # hostname omitted — environment fingerprint, not required for attestation
+    }
+
+
+def collect_dist_attestation(gateway_root: Path) -> dict[str, Any]:
+    """Fingerprint the on-disk gateway build (no secrets)."""
+    entry = gateway_root / "dist" / "src" / "index.js"
+    quote_state = gateway_root / "dist" / "src" / "state" / "quote-state.js"
+    quote_bbo = gateway_root / "dist" / "src" / "projectx" / "quote-bbo-fault.js"
+    targets = {
+        "index.js": entry,
+        "quote-state.js": quote_state,
+        "quote-bbo-fault.js": quote_bbo,
+    }
+    files: dict[str, Any] = {}
+    for name, path in targets.items():
+        if not path.is_file():
+            files[name] = {"present": False}
+            continue
+        st = path.stat()
+        files[name] = {
+            "present": True,
+            "mtime_utc": datetime.fromtimestamp(st.st_mtime, tz=timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            ),
+            "size": st.st_size,
+            "sha256": sha256_file(path),
+        }
+    package_version = None
+    package_path = gateway_root / "package.json"
+    if package_path.is_file():
+        try:
+            package_version = json.loads(package_path.read_text(encoding="utf-8")).get("version")
+        except (OSError, json.JSONDecodeError):
+            package_version = None
+    return {
+        "entry": "dist/src/index.js",
+        "package_version": package_version,
+        "files": files,
+    }
+
+
+def collect_runtime_attestation(
+    gateway_root: Path,
+    *,
+    health: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Runtime attestation for preflight — SHAs live elsewhere; this is process/build/health."""
+    gateway_root = gateway_root.resolve()
+    lock = _read_runtime_lock(gateway_root)
+    dist = collect_dist_attestation(gateway_root)
+    compatibility = (health or {}).get("compatibility") if isinstance(health, dict) else None
+    if not isinstance(compatibility, dict):
+        compatibility = {}
+    attestation = {
+        "schema_version": "glitch.topstep.runtime_attestation.v1",
+        "pid": (lock or {}).get("pid"),
+        "lock_acquired_utc": (lock or {}).get("acquired_utc"),
+        "invocation_id": (lock or {}).get("invocation_id"),
+        "lock_present": lock is not None and not lock.get("unreadable"),
+        "dist": dist,
+        "gateway_version": compatibility.get("gateway_version") or dist.get("package_version"),
+        "health_schema": compatibility.get("health_schema"),
+        "protocol_revision": compatibility.get("protocol_revision"),
+        "capabilities": _safe_capabilities(compatibility.get("capabilities")),
+        "health_status": (health or {}).get("status") if isinstance(health, dict) else None,
+        "secrets_redacted": True,
+    }
+    return attestation
+
+
+def attach_runtime_attestation(
+    provenance: dict[str, Any],
+    *,
+    gateway_root: Path,
+    health: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Merge runtime attestation into an existing provenance dict (mutates and returns)."""
+    provenance["runtime_attestation"] = collect_runtime_attestation(gateway_root, health=health)
+    return provenance
+
+
 def validate_live_repo_context(
     *,
     profile_root: Path,
@@ -88,6 +221,7 @@ def validate_live_repo_context(
     expected_profile_sha: str | None = None,
     expected_gateway_sha: str | None = None,
     allow_worktree: bool = False,
+    health: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Validate roots + SHAs + paired contract before any live stability sampling."""
     profile_root = profile_root.resolve()
@@ -121,7 +255,7 @@ def validate_live_repo_context(
     runner_script = profile_root / "scripts" / "run-canonical-live-stability.py"
     assert_module_from_profile_root(gate_script, profile_root)
 
-    return {
+    provenance = {
         "ok": True,
         "profile_root": str(profile_root),
         "gateway_root": str(gateway_root),
@@ -141,6 +275,8 @@ def validate_live_repo_context(
             "sha256": hashlib.sha256((profile_root / "paired-contract.json").read_bytes()).hexdigest(),
         },
     }
+    attach_runtime_attestation(provenance, gateway_root=gateway_root, health=health)
+    return provenance
 
 
 _SHA_RE = re.compile(r"^[0-9a-f]{7,40}$", re.IGNORECASE)
@@ -161,6 +297,18 @@ def require_canonical_live_artifact_for_prac_soak(artifact: dict[str, Any] | Non
         sha = str(provenance.get(key) or "")
         if not _SHA_RE.match(sha):
             raise LiveRepoGuardError(f"canonical_live_artifact_{key}_missing")
+    paired = provenance.get("paired_contract") if isinstance(provenance.get("paired_contract"), dict) else {}
+    if not str(paired.get("sha256") or ""):
+        raise LiveRepoGuardError("canonical_live_artifact_paired_contract_hash_missing")
+    attestation = (
+        provenance.get("runtime_attestation")
+        if isinstance(provenance.get("runtime_attestation"), dict)
+        else {}
+    )
+    if attestation.get("schema_version") != "glitch.topstep.runtime_attestation.v1":
+        raise LiveRepoGuardError("canonical_live_artifact_runtime_attestation_missing")
+    if not isinstance((attestation.get("dist") or {}).get("files"), dict):
+        raise LiveRepoGuardError("canonical_live_artifact_dist_attestation_missing")
     safety = artifact.get("safety") if isinstance(artifact.get("safety"), dict) else {}
     if int(safety.get("intents_sent") or 0) != 0:
         raise LiveRepoGuardError("canonical_live_artifact_had_intents")

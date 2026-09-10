@@ -96,6 +96,7 @@ def build_canonical_artifact(
             "gateway_sha": provenance.get("gateway_sha"),
             "script_sha": provenance.get("script_sha"),
             "paired_contract": provenance.get("paired_contract"),
+            "runtime_attestation": provenance.get("runtime_attestation"),
         },
         "safety": {
             "execution_authority": False,
@@ -150,12 +151,19 @@ def run_guarded_canonical_stability(
         profile_root / "scripts" / "operational_stability_gate.py",
         profile_root,
     )
+    # Preflight attestation BEFORE any stability sampling / live window.
+    health_snapshot: dict[str, Any] | None = None
+    try:
+        health_snapshot = health_fetcher()
+    except Exception as exc:  # noqa: BLE001 — fail-closed before live
+        raise LiveRepoGuardError(f"preflight_health_unreadable:{exc}") from exc
     provenance = validate_live_repo_context(
         profile_root=profile_root,
         gateway_root=gateway_root,
         expected_profile_sha=expected_profile_sha,
         expected_gateway_sha=expected_gateway_sha,
         allow_worktree=allow_worktree,
+        health=health_snapshot,
     )
     stability = run_canonical_live_stability_window(
         health_fetcher=health_fetcher,
