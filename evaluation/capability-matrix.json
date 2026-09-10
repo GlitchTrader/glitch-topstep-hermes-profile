@@ -1,6 +1,6 @@
 {
   "schema_version": "glitch.topstep.profile_capability_matrix.v1",
-  "matrix_version": "2026-09-02-v3",
+  "matrix_version": "2026-09-10-v4",
   "common_context": [
     "immutable snapshot and snapshot_hash",
     "current and prior bars",
@@ -133,6 +133,7 @@
       "skills": [
         "topstep-observe-market",
         "topstep-setup-state",
+        "topstep-smart-money",
         "topstep-form-thesis"
       ],
       "required_sources": ["ohlc", "quote", "structure", "session"],
@@ -159,6 +160,7 @@
       "skills": [
         "topstep-observe-market",
         "topstep-setup-state",
+        "topstep-indicators",
         "topstep-form-thesis"
       ],
       "required_sources": ["ohlc", "quote", "indicators"],

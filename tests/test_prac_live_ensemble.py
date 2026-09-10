@@ -5,6 +5,7 @@ import json
 import sys
 import tempfile
 import unittest
+import subprocess
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest import mock
@@ -44,6 +45,38 @@ def config(mode: str = "offline") -> runner.RunnerConfig:
 
 
 class PracLiveEnsembleTests(unittest.TestCase):
+    @staticmethod
+    def selected_candidate() -> dict:
+        return {
+            "direction": "long",
+            "entry": 20000,
+            "stop": 19990,
+            "target": 20010,
+            "quantity": 1,
+            "confidence": 0.5,
+            "thesis": "Bounded evidence supports a long test.",
+            "decision_audit": {
+                "bull_case": "Support held.",
+                "bear_case": "Failure below support invalidates.",
+                "flat_case": "No edge if range remains unresolved.",
+                "aggressive_case": "Accept only the bounded entry.",
+                "conservative_case": "Wait for gateway validation.",
+                "decisive_evidence": "Observed support and valid quote.",
+                "disconfirming_evidence": "A stale packet or broken support.",
+                "change_condition": "Reassess on scope or quote change.",
+                "final_choice": "ENTER_LONG",
+            },
+        }
+
+    def selected_decision(self, candidate: dict | None = None) -> dict:
+        return {
+            "outcome": "selected",
+            "decision_id": "11111111-1111-4111-8111-111111111111",
+            "selected_prompt_version": runner.PROMPT_VERSION,
+            "selected_model_version": "gpt-5.6-luna",
+            "selected_candidate_full": candidate or self.selected_candidate(),
+        }
+
     def test_packet_gates(self):
         cases = [
             (lambda p: p.pop("market_observation"), "packet_incomplete"),
@@ -192,10 +225,82 @@ class PracLiveEnsembleTests(unittest.TestCase):
         decision = {"selected_candidate_full": {"direction": "long", "entry": 20000, "target": 20010, "quantity": 1}}
         with self.assertRaisesRegex(runner.RunnerError, "decision_missing_execution_fields"):
             runner.deliver_global_decision(decision=decision, packet=packet(), config=live)
-        candidate = {"direction": "long", "entry": 20000, "stop": 19990, "target": 20010, "quantity": 1}
+        candidate = self.selected_candidate()
         with mock.patch.dict("os.environ", {"GLITCH_TOPSTEP_LOCAL_TOKEN": "test-token"}):
             with self.assertRaisesRegex(runner.RunnerError, "receipt_ambiguous"):
-                runner.deliver_global_decision(decision={"selected_candidate_full": candidate}, packet=packet(), config=live, client=lambda *a, **k: (202, {"status": "ambiguous"}))
+                runner.deliver_global_decision(decision=self.selected_decision(candidate), packet=packet(), config=live, client=lambda *a, **k: (202, {"status": "ambiguous"}))
+
+    def test_selected_intent_contains_gateway_required_provenance_and_audit(self):
+        intent = runner.decision_to_gateway_intent(self.selected_decision(), packet())
+        self.assertRegex(intent["intent_id"], r"^[0-9a-f-]{36}$")
+        self.assertTrue(intent["created_utc"].endswith("Z"))
+        self.assertEqual(intent["operator_profile"], "glitch-topstep")
+        self.assertEqual(intent["model_version"], "gpt-5.6-luna")
+        self.assertEqual(intent["prompt_version"], runner.PROMPT_VERSION)
+        self.assertEqual(intent["scope_hash"], "scope")
+        self.assertEqual(intent["scope_generation"], 1)
+        self.assertEqual(intent["action"], "ENTER_LONG")
+        self.assertEqual(intent["stop_loss"], 19990)
+        self.assertEqual(intent["take_profit_1"], 20010)
+
+    def test_each_missing_intent_provenance_field_fails_closed(self):
+        for field in ("decision_id", "selected_prompt_version", "selected_model_version"):
+            decision = self.selected_decision()
+            decision.pop(field)
+            context = mock.patch.object(runner, "_operator_identity", return_value=("glitch-topstep", "")) if field == "selected_model_version" else mock.patch.object(runner, "_operator_identity", wraps=runner._operator_identity)
+            with self.subTest(field=field), context, self.assertRaisesRegex(runner.RunnerError, "intent_provenance_missing|prompt_version_mismatch"):
+                runner.decision_to_gateway_intent(decision, packet())
+        for field in ("packet_id", "scope_hash", "scope_generation"):
+            value = packet()
+            if field == "packet_id":
+                value.pop(field)
+            elif field == "scope_hash":
+                value["decision_scope"].pop(field)
+            else:
+                value["decision_scope"].pop("generation")
+            with self.subTest(field=field), self.assertRaisesRegex(runner.RunnerError, "intent_provenance_missing"):
+                runner.decision_to_gateway_intent(self.selected_decision(), value)
+
+    def test_no_selection_never_creates_intent(self):
+        result = runner.deliver_global_decision(
+            decision={"outcome": "no_selection", "decision_code": "NO_EDGE"},
+            packet=packet(),
+            config=config("prac_live"),
+        )
+        self.assertEqual(result["reason"], "global_nothing")
+        self.assertEqual(result["orders_sent"], 0)
+
+    def test_selected_intent_is_accepted_by_real_gateway_validator(self):
+        gateway = ROOT.parents[1] / ".prac-operational-20260910" / "gateway"
+        intent = runner.decision_to_gateway_intent(self.selected_decision(), packet())
+        script = """
+import { parseTradeIntent } from './dist/src/domain/intents.js';
+let raw = '';
+for await (const chunk of process.stdin) raw += chunk;
+try { parseTradeIntent(JSON.parse(raw)); process.stdout.write('accepted'); }
+catch (error) { process.stdout.write(error?.errorCode || error?.message || 'rejected'); process.exitCode = 1; }
+"""
+        completed = subprocess.run(
+            ["node", "--input-type=module", "-e", script],
+            cwd=gateway,
+            input=json.dumps(intent),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
+        self.assertEqual(completed.stdout, "accepted")
+
+    def test_specialty_skills_are_distinct_and_fail_closed_without_data(self):
+        registry = json.loads((ROOT / "evaluation/registry.json").read_text())
+        rows = {row["profile_id"]: row for row in registry["profiles"]}
+        self.assertIn("topstep-smart-money", rows["smart-money"]["skills"])
+        self.assertIn("topstep-indicators", rows["indicators"]["skills"])
+        self.assertNotEqual(rows["smart-money"]["skills"], rows["indicators"]["skills"])
+        matrix = json.loads((ROOT / "evaluation/capability-matrix.json").read_text())
+        self.assertIn("topstep-smart-money", matrix["profiles"]["smart-money"]["skills"])
+        self.assertIn("topstep-indicators", matrix["profiles"]["indicators"]["skills"])
+        self.assertEqual(runner._normalize_result(None, profile=rows["smart-money"], envelope=runner.seal_live_envelope(packet(), matrix=matrix, mapping=json.loads((ROOT / "evaluation/packet_envelope_mapping.v1.json").read_text()), config=config()), run_id="r", gate={"completeness_used": {}, "missing_required": ["structure"], "stale_or_inconsistent": [], "comparable": False}, started="2026-09-10T00:00:00Z", finished="2026-09-10T00:00:01Z", latency_ms=1)["state"], "missing_required_evidence")
 
     def test_no_projectx_credentials_and_sanitized_error(self):
         source = (ROOT / "scripts/prac_live_ensemble.py").read_text()

@@ -1,13 +1,13 @@
 {
   "schema_version": "glitch.topstep.ensemble_registry.v1",
-  "registry_version": "2026-09-02-v3",
+  "registry_version": "2026-09-10-v4",
   "evaluation_only": true,
   "promotion_status": "blocked",
   "execution_mode": "offline_parallel_evaluation",
   "storage_root": "evaluation/runs",
   "runner": "scripts/run-parallel-ensemble-evaluation.py",
   "baseline_policy": "baseline-current",
-  "capability_matrix_version": "2026-09-02-v3",
+  "capability_matrix_version": "2026-09-10-v4",
   "envelope_schema": "glitch.topstep.evaluation_envelope.v1",
   "candidate_schema": "glitch.topstep.normalized_candidate.v1",
   "selection_schema": "glitch.topstep.ensemble_selection.v1",
@@ -67,7 +67,7 @@
     },
     {
       "profile_id": "smart-money",
-      "profile_version": "1.0.0",
+      "profile_version": "1.0.1",
       "profile_kind": "directional",
       "role": "challenger",
       "prompt_version": "glitch-topstep-v17.1",
@@ -77,6 +77,7 @@
       "skills": [
         "topstep-observe-market",
         "topstep-setup-state",
+        "topstep-smart-money",
         "topstep-form-thesis"
       ],
       "evidence_requirements_ref": "evaluation/capability-matrix.json#profiles.smart-money",
@@ -84,7 +85,7 @@
     },
     {
       "profile_id": "indicators",
-      "profile_version": "1.0.0",
+      "profile_version": "1.0.1",
       "profile_kind": "directional",
       "role": "challenger",
       "prompt_version": "glitch-topstep-v17.1",
@@ -94,6 +95,7 @@
       "skills": [
         "topstep-observe-market",
         "topstep-setup-state",
+        "topstep-indicators",
         "topstep-form-thesis"
       ],
       "evidence_requirements_ref": "evaluation/capability-matrix.json#profiles.indicators",

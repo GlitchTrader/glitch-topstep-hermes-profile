@@ -67,6 +67,32 @@
       "type": ["string", "null"],
       "enum": ["thesis", "reason", null]
     },
+    "decision_audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bull_case",
+        "bear_case",
+        "flat_case",
+        "aggressive_case",
+        "conservative_case",
+        "decisive_evidence",
+        "disconfirming_evidence",
+        "change_condition",
+        "final_choice"
+      ],
+      "properties": {
+        "bull_case": { "type": "string", "minLength": 1 },
+        "bear_case": { "type": "string", "minLength": 1 },
+        "flat_case": { "type": "string", "minLength": 1 },
+        "aggressive_case": { "type": "string", "minLength": 1 },
+        "conservative_case": { "type": "string", "minLength": 1 },
+        "decisive_evidence": { "type": "string", "minLength": 1 },
+        "disconfirming_evidence": { "type": "string", "minLength": 1 },
+        "change_condition": { "type": "string", "minLength": 1 },
+        "final_choice": { "type": "string", "minLength": 1 }
+      }
+    },
     "evidence_refs": {
       "type": "array",
       "items": { "type": "string" }

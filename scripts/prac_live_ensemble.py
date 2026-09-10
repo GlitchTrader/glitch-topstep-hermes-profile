@@ -23,10 +23,12 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Callable, Protocol
 
 from common import SafetyStopError, utc_now
+from paired_contract import PROMPT_VERSION
 from ensemble_aggregator import aggregate_envelope
 from ensemble_capability import capacity_gate
 from ensemble_envelope import build_evaluation_envelope, envelope_hash
@@ -54,6 +56,27 @@ class RunnerError(RuntimeError):
 
 class ProfileInvoker(Protocol):
     def __call__(self, profile: dict[str, Any], envelope: dict[str, Any], timeout_ms: int) -> dict[str, Any]: ...
+
+
+@lru_cache(maxsize=1)
+def _operator_identity() -> tuple[str, str]:
+    """Load non-secret operator provenance from the checked-out profile."""
+    path = ROOT / "operator.json"
+    try:
+        document = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise RunnerError("intent_provenance_missing") from exc
+    operator_profile = str(document.get("operator_profile") or "").strip()
+    loops = document.get("loops")
+    model_version = ""
+    if isinstance(loops, list):
+        for loop in loops:
+            if isinstance(loop, dict) and loop.get("id") == "core_decision":
+                model_version = str(loop.get("model") or "").strip()
+                break
+    if not operator_profile or not model_version or not PROMPT_VERSION:
+        raise RunnerError("intent_provenance_missing")
+    return operator_profile, model_version
 
 
 def resolve_hermes_executable() -> str:
@@ -252,6 +275,8 @@ def _normalize_result(raw: dict[str, Any] | None, *, profile: dict[str, Any], en
             normalized["state"] = raw["state"]
             if raw["state"] in {"timeout", "error", "invalid"}:
                 normalized["comparability"] = "not_comparable"
+        if isinstance(raw.get("decision_audit"), dict):
+            normalized["decision_audit"] = copy.deepcopy(raw["decision_audit"])
     validate_normalized_candidate(normalized)
     return normalized
 
@@ -344,7 +369,8 @@ def run_profiles(*, envelope: dict[str, Any], registry: dict[str, Any], matrix: 
     )
     if (time.monotonic() - started) * 1000 > config.total_timeout_ms:
         raise RunnerError("ensemble_timeout")
-    return [{"profile_id": row.profile_id, "invocation_id": row.invocation_id, "latency_ms": row.latency_ms, "error": row.error, "raw_profile_output": copy.deepcopy(row.raw_profile_output), "normalized": row.normalized} for row in slots]
+    _operator_profile, model_version = _operator_identity()
+    return [{"profile_id": row.profile_id, "profile_version": profiles[row.profile_id].get("profile_version"), "prompt_version": profiles[row.profile_id].get("prompt_version"), "model_version": model_version, "invocation_id": row.invocation_id, "latency_ms": row.latency_ms, "error": row.error, "raw_profile_output": copy.deepcopy(row.raw_profile_output), "normalized": row.normalized} for row in slots]
 
 
 def aggregate_global(*, envelope: dict[str, Any], slots: list[dict[str, Any]], rules: dict[str, Any], run_id: str) -> dict[str, Any]:
@@ -358,6 +384,11 @@ def aggregate_global(*, envelope: dict[str, Any], slots: list[dict[str, Any]], r
         selected_id = decision.get("selected_profile_id")
         selected = next((c for c in candidates if c.get("profile_id") == selected_id), None)
         decision["selected_candidate_full"] = copy.deepcopy(selected)
+        selected_slot = next((row for row in slots if row.get("profile_id") == selected_id), None)
+        if isinstance(selected_slot, dict):
+            decision["selected_profile_version"] = selected_slot.get("profile_version")
+            decision["selected_prompt_version"] = selected_slot.get("prompt_version")
+            decision["selected_model_version"] = selected_slot.get("model_version")
     return decision
 
 
@@ -366,17 +397,47 @@ def decision_to_gateway_intent(decision: dict[str, Any], packet: dict[str, Any])
     direction = str(candidate.get("direction") or "").lower()
     action = {"long": "ENTER_LONG", "short": "ENTER_SHORT"}.get(direction)
     required = ("entry", "stop", "target", "quantity")
-    if not action or any(candidate.get(key) is None for key in required):
+    if decision.get("outcome") not in {None, "selected"} or not action or any(candidate.get(key) is None for key in required):
         raise RunnerError("decision_missing_execution_fields")
+    operator_profile, configured_model_version = _operator_identity()
+    decision_id = str(decision.get("decision_id") or "").strip()
+    prompt_version = str(decision.get("selected_prompt_version") or candidate.get("prompt_version") or "").strip()
+    model_version = str(decision.get("selected_model_version") or candidate.get("model_version") or configured_model_version).strip()
+    packet_id = str(packet.get("packet_id") or "").strip()
+    scope = packet.get("decision_scope") if isinstance(packet.get("decision_scope"), dict) else {}
+    scope_hash = str(scope.get("scope_hash") or "").strip()
+    scope_generation = scope.get("generation")
+    account = packet.get("account") if isinstance(packet.get("account"), dict) else {}
+    account_name = str(account.get("name") or "").strip()
+    snapshot_hash = str((packet.get("market") or {}).get("snapshot_hash") or "").strip()
+    contract_id = str((packet.get("contract") or {}).get("id") or "").strip()
+    expires_utc = str(packet.get("expires_utc") or "").strip()
+    if not decision_id or not prompt_version or not model_version or not packet_id or not scope_hash or not isinstance(scope_generation, int) or scope_generation < 1 or not account_name or not snapshot_hash or not contract_id or not expires_utc:
+        raise RunnerError("intent_provenance_missing")
+    if prompt_version != PROMPT_VERSION:
+        raise RunnerError("prompt_version_mismatch")
+    audit = candidate.get("decision_audit")
+    audit_fields = ("bull_case", "bear_case", "flat_case", "aggressive_case", "conservative_case", "decisive_evidence", "disconfirming_evidence", "change_condition", "final_choice")
+    if not isinstance(audit, dict) or set(audit) != set(audit_fields) or any(not isinstance(audit.get(field), str) or not audit[field].strip() for field in audit_fields) or audit.get("final_choice") != action:
+        raise RunnerError("decision_audit_incomplete")
+    reason = candidate.get("thesis") or candidate.get("reason")
+    if not isinstance(reason, str) or not reason.strip():
+        raise RunnerError("decision_reason_missing")
     return {
         "schema_version": "glitch.intent.v3",
+        "intent_id": str(uuid.uuid5(uuid.NAMESPACE_URL, f"glitch-topstep:{packet_id}:{decision_id}")),
+        "created_utc": utc_now(),
         "action": action,
         "instrument": packet["instrument"],
-        "account": (packet.get("account") or {}).get("name"),
-        "operator_profile": "hermes-ensemble",
-        "packet_id": packet["packet_id"],
-        "snapshot_hash": packet["market"]["snapshot_hash"],
-        "contract_id": packet["contract"]["id"],
+        "account": account_name,
+        "operator_profile": operator_profile,
+        "packet_id": packet_id,
+        "snapshot_hash": snapshot_hash,
+        "contract_id": contract_id,
+        "scope_hash": scope_hash,
+        "scope_generation": scope_generation,
+        "model_version": model_version,
+        "prompt_version": prompt_version,
         "entry_price_min": candidate.get("entry_range", {}).get("low", candidate["entry"]),
         "entry_price_max": candidate.get("entry_range", {}).get("high", candidate["entry"]),
         "stop_loss": candidate["stop"],
@@ -384,9 +445,9 @@ def decision_to_gateway_intent(decision: dict[str, Any], packet: dict[str, Any])
         "quantity": candidate["quantity"],
         "order_type": "MARKET",
         "confidence": candidate.get("confidence", 0.0),
-        "reason": "single_global_hermes_decision",
-        "decision_audit": {"final_choice": action, "decisive_evidence": str(candidate.get("thesis") or "ensemble evidence"), "disconfirming_evidence": "gateway revalidation remains authoritative"},
-        "expires_utc": packet["expires_utc"],
+        "reason": reason,
+        "decision_audit": copy.deepcopy(audit),
+        "expires_utc": expires_utc,
     }
 
 
