@@ -63,6 +63,10 @@
       "enum": ["long", "short", "flat", "hold", null]
     },
     "thesis": { "type": ["string", "null"] },
+    "thesis_source": {
+      "type": ["string", "null"],
+      "enum": ["thesis", "reason", null]
+    },
     "evidence_refs": {
       "type": "array",
       "items": { "type": "string" }

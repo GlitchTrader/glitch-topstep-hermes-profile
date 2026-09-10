@@ -26,6 +26,21 @@ def _serialize_declared(value: Any) -> str | None:
     return json.dumps(value, sort_keys=True, separators=(",", ":"))
 
 
+def _explanation(raw: dict[str, Any]) -> tuple[str | None, str | None, str | None]:
+    """Resolve thesis first, with reason as an explicit fallback only."""
+    if "thesis" in raw:
+        value = raw.get("thesis")
+        if not isinstance(value, str) or not value.strip():
+            return None, "thesis", "invalid_thesis"
+        return value, "thesis", None
+    if "reason" in raw:
+        value = raw.get("reason")
+        if not isinstance(value, str) or not value.strip():
+            return None, "reason", "invalid_reason"
+        return value, "reason", None
+    return None, None, "missing_explanation"
+
+
 def classify_raw_output(raw: dict[str, Any] | None) -> dict[str, Any]:
     if not isinstance(raw, dict):
         return {
@@ -67,10 +82,9 @@ def classify_raw_output(raw: dict[str, Any] | None) -> dict[str, Any]:
     if action_raw is not None and str(action_raw).upper() == "NOTHING" and not state_text:
         issues.append("action_without_canonical_state")
 
-    required_fields = ("thesis",)
-    for field in required_fields:
-        if not str(raw.get(field) or "").strip():
-            issues.append(f"missing_{field}")
+    _explanation_value, _explanation_source, explanation_error = _explanation(raw)
+    if explanation_error:
+        issues.append("missing_thesis" if explanation_error == "missing_explanation" else explanation_error)
 
     if issues:
         category = "incomplete_output"
@@ -87,6 +101,7 @@ def classify_raw_output(raw: dict[str, Any] | None) -> dict[str, Any]:
             "subtype": issues[0],
             "issues": issues,
             "state_raw_type": "string" if state_text else "missing",
+            "thesis_source": _explanation_source,
         }
 
     return {
@@ -94,6 +109,7 @@ def classify_raw_output(raw: dict[str, Any] | None) -> dict[str, Any]:
         "subtype": "explicit_fields_present",
         "issues": [],
         "state_raw_type": "string",
+        "thesis_source": _explanation_source,
     }
 
 
@@ -154,6 +170,7 @@ def adapt_evaluation_output(
     fixture = raw or {}
     declared_state = _serialize_declared(fixture.get("state"))
     declared_direction = fixture.get("direction")
+    explanation, explanation_source, explanation_error = _explanation(fixture)
 
     if gate.get("missing_required") or gate.get("stale_or_inconsistent"):
         return {
@@ -169,6 +186,8 @@ def adapt_evaluation_output(
             "direction": _canonical_direction(declared_direction, contract_doc),
             "error_code": None,
             "raw_status": None,
+            "thesis": explanation,
+            "thesis_source": explanation_source,
             "adapter_classification": classification,
         }
 
@@ -177,14 +196,16 @@ def adapt_evaluation_output(
 
     if category in {"contract_violation", "parsing_error", "ambiguous_output", "incomplete_output"}:
         return {
-            "state": "invalid",
-            "comparability": "comparable" if comparable else "not_comparable",
+            "state": "missing_required_evidence" if explanation_error == "missing_explanation" else "invalid",
+            "comparability": "not_comparable" if explanation_error == "missing_explanation" else ("comparable" if comparable else "not_comparable"),
             "profile_declared_state": declared_state,
             "profile_declared_direction": declared_direction,
             "capacity_gate_reason": None,
             "direction": _canonical_direction(declared_direction, contract_doc),
-            "error_code": classification.get("subtype"),
+            "error_code": "missing_explanation" if explanation_error == "missing_explanation" else classification.get("subtype"),
             "raw_status": category,
+            "thesis": explanation,
+            "thesis_source": explanation_source,
             "adapter_classification": classification,
         }
 
@@ -201,6 +222,8 @@ def adapt_evaluation_output(
             "direction": mapped_direction,
             "error_code": "unapproved_vocabulary",
             "raw_status": "semantic_alias_rejected",
+            "thesis": explanation,
+            "thesis_source": explanation_source,
             "adapter_classification": classification,
         }
 
@@ -215,6 +238,8 @@ def adapt_evaluation_output(
                 "direction": mapped_direction,
                 "error_code": "candidate_direction_flat_conflict",
                 "raw_status": "candidate_direction_flat_conflict",
+                "thesis": explanation,
+                "thesis_source": explanation_source,
                 "adapter_classification": classification,
             }
         if mapped_direction not in DIRECTIONAL_DIRECTIONS:
@@ -227,6 +252,8 @@ def adapt_evaluation_output(
                 "direction": mapped_direction,
                 "error_code": "candidate_requires_long_or_short",
                 "raw_status": "candidate_requires_long_or_short",
+                "thesis": explanation,
+                "thesis_source": explanation_source,
                 "adapter_classification": classification,
             }
         if not _has_directional_geometry(fixture):
@@ -239,6 +266,8 @@ def adapt_evaluation_output(
                 "direction": mapped_direction,
                 "error_code": "directional_without_geometry",
                 "raw_status": "directional_without_geometry",
+                "thesis": explanation,
+                "thesis_source": explanation_source,
                 "adapter_classification": classification,
             }
 
@@ -251,5 +280,7 @@ def adapt_evaluation_output(
         "direction": mapped_direction,
         "error_code": None,
         "raw_status": None,
+        "thesis": explanation,
+        "thesis_source": explanation_source,
         "adapter_classification": classification,
     }

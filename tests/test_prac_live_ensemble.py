@@ -121,6 +121,55 @@ class PracLiveEnsembleTests(unittest.TestCase):
         conflicted = runner.aggregate_envelope(run_id="conflict", envelope=envelope, candidates=candidates, rules=rules, required_profile_ids=list(runner.PROFILE_IDS))
         self.assertEqual(conflicted["decision_code"], "DIRECTION_CONFLICT")
 
+    def test_reason_normalization_preserves_global_nothing_and_no_delivery(self):
+        matrix = json.loads((ROOT / "evaluation/capability-matrix.json").read_text())
+        registry = json.loads((ROOT / "evaluation/registry.json").read_text())
+        rules = json.loads((ROOT / "evaluation/aggregator_rules.v1.json").read_text())
+        envelope = runner.seal_live_envelope(
+            packet(),
+            matrix=matrix,
+            mapping=json.loads((ROOT / "evaluation/packet_envelope_mapping.v1.json").read_text()),
+            config=config(),
+        )
+
+        def reason_only(_profile, _envelope, _timeout):
+            return {"state": "no_edge", "direction": "flat", "reason": "No executable edge."}
+
+        reason_slots = runner.run_profiles(
+            envelope=envelope,
+            registry=registry,
+            matrix=matrix,
+            config=config(),
+            invoker=reason_only,
+        )
+        self.assertEqual({row["normalized"]["thesis_source"] for row in reason_slots}, {"reason"})
+        reason_decision = runner.aggregate_global(
+            envelope=envelope,
+            slots=reason_slots,
+            rules=rules,
+            run_id="reason-run",
+        )
+
+        def thesis_only(_profile, _envelope, _timeout):
+            return {"state": "no_edge", "direction": "flat", "thesis": "No executable edge."}
+
+        thesis_slots = runner.run_profiles(
+            envelope=envelope,
+            registry=registry,
+            matrix=matrix,
+            config=config(),
+            invoker=thesis_only,
+        )
+        thesis_decision = runner.aggregate_global(
+            envelope=envelope,
+            slots=thesis_slots,
+            rules=rules,
+            run_id="thesis-run",
+        )
+        self.assertEqual(reason_decision["outcome"], "no_selection")
+        self.assertEqual(reason_decision["decision_code"], thesis_decision["decision_code"])
+        self.assertEqual(runner.deliver_global_decision(decision=reason_decision, packet=packet(), config=config())["orders_sent"], 0)
+
     def test_no_candidate_conflict_second_exposure_and_mode_fail_closed(self):
         with self.assertRaisesRegex(runner.RunnerError, "prac_live_requires_authorize"):
             runner.RunnerConfig.load(ROOT / "evaluation/prac-live-ensemble-config.v1.json", mode="prac_live", authorize=False)
