@@ -1530,5 +1530,14 @@
     "remaining_acceptance": [
       "live armed trade outcome on MCL/MCLE (PARITY residual)"
     ]
+  },
+  "prac_live_ensemble_runner_2026_09_10": {
+    "status": "runner_implemented_ready_for_live_preflight",
+    "scope": "six-profile Hermes runner with explicit offline, shadow, and authorized PRAC modes",
+    "gateway_execution_authority": true,
+    "orders_sent": 0,
+    "resets": 0,
+    "offline_evidence": "docs/evidence/runner-offline-20260910/report.md",
+    "remaining": ["live preflight only; do not start PRAC from implementation stage"]
   }
 }

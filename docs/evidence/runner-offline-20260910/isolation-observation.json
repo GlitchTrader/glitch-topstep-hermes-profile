@@ -1,0 +1,19 @@
+{
+  "run_id": "runner-offline-20260910",
+  "intents_sent": 0,
+  "orders_sent": 0,
+  "writes_operacionais": 0,
+  "envelope": {
+    "snapshot_hash": "offline-fixture-snapshot",
+    "envelope_hash": "offline-fixture-envelope"
+  },
+  "isolation_audit": [
+    {"profile_id": "baseline-current", "hermes_home_isolated": true},
+    {"profile_id": "structure", "hermes_home_isolated": true},
+    {"profile_id": "adversarial-risk", "hermes_home_isolated": true},
+    {"profile_id": "smart-money", "hermes_home_isolated": true},
+    {"profile_id": "indicators", "hermes_home_isolated": true},
+    {"profile_id": "orderflow", "hermes_home_isolated": true}
+  ],
+  "isolation_failures": []
+}
