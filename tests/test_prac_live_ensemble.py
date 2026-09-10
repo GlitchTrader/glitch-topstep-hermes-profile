@@ -150,7 +150,7 @@ class PracLiveEnsembleTests(unittest.TestCase):
         candidates = []
         for index, profile_id in enumerate(runner.PROFILE_IDS):
             long_side = index < 3
-            candidates.append({"profile_id": profile_id, "state": "candidate", "comparability": "comparable", "instrument": "MNQ", "direction": "long" if long_side else "short", "entry": 20000, "stop": 19990 if long_side else 20010, "target": 20010 if long_side else 19990, "horizon_bars": 5, "envelope_hash": envelope["envelope_hash"], "completeness_used": {}, "evidence_refs": []})
+            candidates.append({"profile_id": profile_id, "state": "candidate", "comparability": "comparable", "instrument": "MNQ", "direction": "long" if long_side else "short", "entry": 20000, "stop": 19990 if long_side else 20010, "target": 20010 if long_side else 19990, "quantity": 1, "horizon_bars": 5, "envelope_hash": envelope["envelope_hash"], "completeness_used": {}, "evidence_refs": []})
         conflicted = runner.aggregate_envelope(run_id="conflict", envelope=envelope, candidates=candidates, rules=rules, required_profile_ids=list(runner.PROFILE_IDS))
         self.assertEqual(conflicted["decision_code"], "DIRECTION_CONFLICT")
 
@@ -219,6 +219,51 @@ class PracLiveEnsembleTests(unittest.TestCase):
         self.assertEqual(nothing["orders_sent"], 0)
         with self.assertRaisesRegex(runner.RunnerError, "second_exposure_blocked"):
             runner.deliver_global_decision(decision={"outcome": "selected"}, packet=packet(), config=live, active_exposure=1)
+
+    def _global_slots(self, adversarial_raw: dict | None) -> list[dict]:
+        envelope_hash = "a" * 64
+        def candidate(profile_id: str) -> dict:
+            return {
+                "profile_id": profile_id, "state": "candidate", "comparability": "comparable", "instrument": "MNQ",
+                "direction": "long", "entry": 20000, "stop": 19990, "target": 20010, "quantity": 1,
+                "envelope_hash": envelope_hash, "completeness_used": {}, "evidence_refs": [],
+            }
+        slots = [
+            {"profile_id": "baseline-current", "normalized": candidate("baseline-current"), "raw_profile_output": {"state": "candidate"}},
+            {"profile_id": "structure", "normalized": candidate("structure"), "raw_profile_output": {"state": "candidate"}},
+        ]
+        for profile_id in ("smart-money", "indicators", "orderflow"):
+            slots.append({"profile_id": profile_id, "normalized": {"profile_id": profile_id, "state": "missing_required_evidence", "comparability": "not_comparable", "instrument": "MNQ", "envelope_hash": envelope_hash}, "raw_profile_output": {"state": "missing_required_evidence"}})
+        slots.append({"profile_id": "adversarial-risk", "normalized": {"profile_id": "adversarial-risk", "state": "missing_required_evidence", "comparability": "not_comparable", "instrument": "MNQ", "envelope_hash": envelope_hash}, "raw_profile_output": adversarial_raw or {"state": "missing_required_evidence"}})
+        return slots
+
+    def test_adversarial_objection_is_transported_and_vetoes_before_selection(self):
+        rules = json.loads((ROOT / "evaluation" / "aggregator_rules.v1.json").read_text())
+        objection = {
+            "target_profile_id": "baseline-current",
+            "risk_code": "invalid_stop_geometry",
+            "severity": "critical",
+            "objective_rule_match": True,
+            "reason": "Stop is outside the permitted geometry.",
+            "evidence_refs": ["quote:1"],
+        }
+        decision = runner.aggregate_global(envelope={"envelope_id": "env", "instrument": "MNQ", "snapshot_hash": "a" * 64, "envelope_hash": "a" * 64, "contract": {"tick_size": 0.25}, "packet": {"market": {"last": 20000}}}, slots=self._global_slots({"state": "no_edge", "objections": [objection]}), rules=rules, run_id="veto")
+        self.assertEqual(decision["adversarial_objection_status"], "present")
+        self.assertEqual(decision["objections"][0]["source_profile_id"], "adversarial-risk")
+        self.assertEqual(decision["objections"][0]["reason"], objection["reason"])
+        self.assertEqual(decision["outcome"], "no_selection")
+
+    def test_adversarial_objection_absent_is_distinct_and_malformed_transport_blocks(self):
+        rules = json.loads((ROOT / "evaluation" / "aggregator_rules.v1.json").read_text())
+        envelope = {"envelope_id": "env", "instrument": "MNQ", "snapshot_hash": "a" * 64, "envelope_hash": "a" * 64, "contract": {"tick_size": 0.25}, "packet": {"market": {"last": 20000}}}
+        absent = runner.aggregate_global(envelope=envelope, slots=self._global_slots(None), rules=rules, run_id="absent")
+        self.assertEqual(absent["adversarial_objection_status"], "absent")
+        with self.assertRaisesRegex(runner.RunnerError, "adversarial_objection_transport_failed"):
+            runner.aggregate_global(envelope=envelope, slots=self._global_slots({"state": "no_edge", "objections": {}}), rules=rules, run_id="malformed")
+        broken = self._global_slots(None)
+        broken[-1]["raw_profile_output"] = None
+        with self.assertRaisesRegex(runner.RunnerError, "adversarial_objection_transport_failed"):
+            runner.aggregate_global(envelope=envelope, slots=broken, rules=rules, run_id="transport")
 
     def test_delivery_requires_stop_and_rejects_ambiguous_receipt(self):
         live = config("prac_live")

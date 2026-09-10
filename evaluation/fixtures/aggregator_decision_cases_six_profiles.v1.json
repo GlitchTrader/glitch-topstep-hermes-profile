@@ -45,7 +45,7 @@
         "instrument": "MNQ",
         "profiles": [
           {"profile_id": "baseline-current", "normalized_state": "no_edge", "direction": "flat"},
-          {"profile_id": "structure", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 40},
+          {"profile_id": "structure", "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1, "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 40},
           {"profile_id": "adversarial-risk", "normalized_state": "no_edge", "direction": "flat"},
           {"profile_id": "smart-money", "normalized_state": "no_edge", "direction": "flat"},
           {"profile_id": "indicators", "normalized_state": "no_edge", "direction": "flat"},
@@ -66,8 +66,8 @@
         "snapshot_hash": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
         "instrument": "MNQ",
         "profiles": [
-          {"profile_id": "baseline-current", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 50},
-          {"profile_id": "structure", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 30},
+          {"profile_id": "baseline-current", "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1, "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 50},
+          {"profile_id": "structure", "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1, "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 30},
           {"profile_id": "adversarial-risk", "normalized_state": "missing_required_evidence"},
           {"profile_id": "smart-money", "normalized_state": "missing_required_evidence"},
           {"profile_id": "indicators", "normalized_state": "missing_required_evidence"},
@@ -89,8 +89,8 @@
         "snapshot_hash": "d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4",
         "instrument": "MNQ",
         "profiles": [
-          {"profile_id": "baseline-current", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 40},
-          {"profile_id": "structure", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 40},
+          {"profile_id": "baseline-current", "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1, "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 40},
+          {"profile_id": "structure", "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1, "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 40},
           {"profile_id": "adversarial-risk", "normalized_state": "missing_required_evidence"},
           {"profile_id": "smart-money", "normalized_state": "missing_required_evidence"},
           {"profile_id": "indicators", "normalized_state": "missing_required_evidence"},
@@ -112,8 +112,8 @@
         "snapshot_hash": "e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5",
         "instrument": "MNQ",
         "profiles": [
-          {"profile_id": "baseline-current", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 40},
-          {"profile_id": "structure", "normalized_state": "candidate", "category": "thesis_quality", "direction": "short", "entry": 100.0, "stop": 101.0, "target": 98.0, "horizon_bars": 12, "evidence_score": 45},
+          {"profile_id": "baseline-current", "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1, "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 40},
+          {"profile_id": "structure", "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1, "category": "thesis_quality", "direction": "short", "entry": 100.0, "stop": 101.0, "target": 98.0, "horizon_bars": 12, "evidence_score": 45},
           {"profile_id": "adversarial-risk", "normalized_state": "missing_required_evidence"},
           {"profile_id": "smart-money", "normalized_state": "missing_required_evidence"},
           {"profile_id": "indicators", "normalized_state": "missing_required_evidence"},
@@ -134,9 +134,9 @@
         "snapshot_hash": "f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6",
         "instrument": "MNQ",
         "profiles": [
-          {"profile_id": "baseline-current", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 101.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 55},
-          {"profile_id": "structure", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 40},
-          {"profile_id": "adversarial-risk", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 20},
+          {"profile_id": "baseline-current", "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1, "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 101.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 55},
+          {"profile_id": "structure", "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1, "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 40},
+          {"profile_id": "adversarial-risk", "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1, "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 20},
           {"profile_id": "smart-money", "normalized_state": "missing_required_evidence"},
           {"profile_id": "indicators", "normalized_state": "missing_required_evidence"},
           {"profile_id": "orderflow", "normalized_state": "missing_required_evidence"}
@@ -165,12 +165,12 @@
         "snapshot_hash": "1717171717171717171717171717171717171717171717171717171717171717",
         "instrument": "MNQ",
         "profiles": [
-          {"profile_id": "baseline-current", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 10},
-          {"profile_id": "structure", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 20},
-          {"profile_id": "adversarial-risk", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 70},
-          {"profile_id": "smart-money", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 25},
-          {"profile_id": "indicators", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 15},
-          {"profile_id": "orderflow", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 5}
+          {"profile_id": "baseline-current", "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1, "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 10},
+          {"profile_id": "structure", "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1, "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 20},
+          {"profile_id": "adversarial-risk", "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1, "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 70},
+          {"profile_id": "smart-money", "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1, "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 25},
+          {"profile_id": "indicators", "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1, "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 15},
+          {"profile_id": "orderflow", "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1, "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 5}
         ],
         "objections": []
       },
@@ -285,7 +285,7 @@
         "snapshot_hash": "6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c",
         "instrument": "MNQ",
         "profiles": [
-          {"profile_id": "baseline-current", "normalized_state": "candidate", "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 40, "envelope_hash": "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"},
+          {"profile_id": "baseline-current", "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1, "category": "thesis_quality", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "horizon_bars": 12, "evidence_score": 40, "envelope_hash": "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"},
           {"profile_id": "structure", "normalized_state": "missing_required_evidence"},
           {"profile_id": "adversarial-risk", "normalized_state": "missing_required_evidence"},
           {"profile_id": "smart-money", "normalized_state": "missing_required_evidence"},

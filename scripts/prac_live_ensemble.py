@@ -375,7 +375,50 @@ def run_profiles(*, envelope: dict[str, Any], registry: dict[str, Any], matrix: 
 
 def aggregate_global(*, envelope: dict[str, Any], slots: list[dict[str, Any]], rules: dict[str, Any], run_id: str) -> dict[str, Any]:
     candidates = [row["normalized"] for row in slots if isinstance(row.get("normalized"), dict)]
-    decision = aggregate_envelope(run_id=run_id, envelope=envelope, candidates=candidates, objections=[], rules=rules, required_profile_ids=list(PROFILE_IDS))
+    adversarial = next((row for row in slots if row.get("profile_id") == "adversarial-risk"), None)
+    if not isinstance(adversarial, dict):
+        raise RunnerError("adversarial_objection_transport_failed")
+    raw_adversarial = adversarial.get("raw_profile_output")
+    if not isinstance(raw_adversarial, dict):
+        raise RunnerError("adversarial_objection_transport_failed")
+    if "objections" not in raw_adversarial:
+        objections: list[dict[str, Any]] = []
+        objection_status = "absent"
+    else:
+        raw_objections = raw_adversarial.get("objections")
+        if not isinstance(raw_objections, list):
+            raise RunnerError("adversarial_objection_transport_failed")
+        objections = []
+        for item in raw_objections:
+            if not isinstance(item, dict):
+                raise RunnerError("adversarial_objection_transport_failed")
+            target = item.get("target_profile_id")
+            risk_code = item.get("risk_code")
+            severity = item.get("severity")
+            reason = item.get("reason")
+            evidence_refs = item.get("evidence_refs")
+            if (
+                not isinstance(target, str) or target not in PROFILE_IDS or target == "adversarial-risk"
+                or not isinstance(risk_code, str) or not risk_code.strip()
+                or severity not in {"info", "warning", "critical"}
+                or not isinstance(item.get("objective_rule_match"), bool)
+                or not isinstance(reason, str) or not reason.strip()
+                or not isinstance(evidence_refs, list) or not evidence_refs or not all(isinstance(ref, str) and ref.strip() for ref in evidence_refs)
+            ):
+                raise RunnerError("adversarial_objection_transport_failed")
+            objections.append({
+                "source_profile_id": "adversarial-risk",
+                "target_profile_id": target,
+                "risk_code": risk_code,
+                "severity": severity,
+                "objective_rule_match": item["objective_rule_match"],
+                "summary": reason,
+                "reason": reason,
+                "evidence_refs": list(evidence_refs),
+            })
+        objection_status = "present" if objections else "empty"
+    decision = aggregate_envelope(run_id=run_id, envelope=envelope, candidates=candidates, objections=objections, rules=rules, required_profile_ids=list(PROFILE_IDS))
+    decision["adversarial_objection_status"] = objection_status
     decision["decision_id"] = str(uuid.uuid4())
     decision["execution_authority"] = "gateway_only"
     decision["delivery_count"] = 0

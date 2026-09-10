@@ -19,7 +19,7 @@
         "profiles": [
           {
             "profile_id": "baseline-current",
-            "normalized_state": "candidate",
+            "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1,
             "category": "thesis_quality",
             "direction": "long",
             "entry": 29394.625,
@@ -30,7 +30,7 @@
           },
           {
             "profile_id": "structure",
-            "normalized_state": "candidate",
+            "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1,
             "category": "thesis_quality",
             "direction": "long",
             "entry": 29394.625,
@@ -60,7 +60,7 @@
         "profiles": [
           {
             "profile_id": "baseline-current",
-            "normalized_state": "candidate",
+            "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1,
             "category": "thesis_quality",
             "direction": "long",
             "entry": 100.0,
@@ -70,7 +70,7 @@
           },
           {
             "profile_id": "structure",
-            "normalized_state": "candidate",
+            "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1,
             "category": "thesis_quality",
             "direction": "short",
             "entry": 100.0,
@@ -99,7 +99,7 @@
         "profiles": [
           {
             "profile_id": "baseline-current",
-            "normalized_state": "candidate",
+            "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1,
             "category": "thesis_quality",
             "direction": "long",
             "entry": 29394.625,
@@ -110,7 +110,7 @@
           },
           {
             "profile_id": "structure",
-            "normalized_state": "candidate",
+            "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1,
             "category": "thesis_quality",
             "direction": "long",
             "entry": 29394.625,
@@ -140,7 +140,7 @@
         "profiles": [
           {
             "profile_id": "baseline-current",
-            "normalized_state": "candidate",
+            "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1,
             "category": "thesis_quality",
             "direction": "flat",
             "entry": 29516.75,
@@ -174,7 +174,7 @@
         "profiles": [
           {
             "profile_id": "baseline-current",
-            "normalized_state": "candidate",
+            "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1,
             "category": "thesis_quality",
             "direction": "long",
             "entry": 100.0,
@@ -210,7 +210,7 @@
         "profiles": [
           {
             "profile_id": "baseline-current",
-            "normalized_state": "candidate",
+            "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1,
             "category": "thesis_quality",
             "direction": "long",
             "entry": 100.0,
@@ -219,7 +219,7 @@
           },
           {
             "profile_id": "structure",
-            "normalized_state": "candidate",
+            "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1,
             "category": "thesis_quality",
             "direction": "long",
             "entry": 100.0,
@@ -260,7 +260,7 @@
         "profiles": [
           {
             "profile_id": "baseline-current",
-            "normalized_state": "candidate",
+            "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1,
             "category": "thesis_quality",
             "direction": "long",
             "entry": 100.0,
@@ -270,7 +270,7 @@
           },
           {
             "profile_id": "structure",
-            "normalized_state": "candidate",
+            "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1,
             "category": "thesis_quality",
             "direction": "long",
             "entry": 100.0,
@@ -306,7 +306,7 @@
         "profiles": [
           {
             "profile_id": "baseline-current",
-            "normalized_state": "candidate",
+            "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1,
             "category": "thesis_quality",
             "direction": "long",
             "entry": 100.0,
@@ -317,7 +317,7 @@
           },
           {
             "profile_id": "structure",
-            "normalized_state": "candidate",
+            "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1,
             "category": "thesis_quality",
             "direction": "long",
             "entry": 100.0,
@@ -381,7 +381,7 @@
         "profiles": [
           {
             "profile_id": "baseline-current",
-            "normalized_state": "candidate",
+            "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1,
             "category": "thesis_quality",
             "direction": "long",
             "entry": 100.0,
@@ -390,7 +390,7 @@
           },
           {
             "profile_id": "structure",
-            "normalized_state": "candidate",
+            "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1,
             "category": "thesis_quality",
             "direction": "long",
             "entry": 100.0,
@@ -419,7 +419,7 @@
         "profiles": [
           {
             "profile_id": "baseline-current",
-            "normalized_state": "candidate",
+            "normalized_state": "candidate", "instrument": "MNQ", "quantity": 1,
             "category": "thesis_quality",
             "direction": "long",
             "entry": 100.0,

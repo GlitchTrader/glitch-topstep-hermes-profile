@@ -72,7 +72,14 @@ class AggregatorScenarioTests(unittest.TestCase):
             "contract": {"tick_size": 0.25},
             "packet": {"market": {"last": 100.0}, "contract": {"tick_size": 0.25}},
         }
-        candidates = [AGG._fixture_row_to_candidate(p, envelope) for p in profiles]
+        fixture_profiles = []
+        for profile in profiles:
+            row = dict(profile)
+            if row.get("normalized_state") in {"candidate", "held"}:
+                row.setdefault("instrument", "MNQ")
+                row.setdefault("quantity", 1)
+            fixture_profiles.append(row)
+        candidates = [AGG._fixture_row_to_candidate(p, envelope) for p in fixture_profiles]
         return AGG.aggregate_envelope(
             run_id="scenario",
             envelope=envelope,
@@ -179,6 +186,52 @@ class AggregatorScenarioTests(unittest.TestCase):
         )
         self.assertEqual(result["decision_code"], "INSUFFICIENT_ENSEMBLE_AGREEMENT")
         self.assertIn("MISSING_REQUIRED_EVIDENCE", result["decision_trace"])
+
+    def test_instrument_identity_is_checked_before_selection(self) -> None:
+        divergent = self._aggregate_profiles([
+            {"profile_id": "baseline-current", "normalized_state": "candidate", "instrument": "ES", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0},
+            {"profile_id": "structure", "normalized_state": "candidate", "instrument": "ES", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0},
+        ])
+        self.assertEqual(divergent["outcome"], "no_selection")
+        self.assertEqual(divergent["decision_code"], "IDENTITY_MISMATCH")
+        self.assertTrue(any("identity_mismatch" in token for token in divergent["decision_trace"]))
+
+        missing = AGG.aggregate_envelope(
+            run_id="missing-instrument",
+            envelope={"envelope_id": "env", "instrument": "MNQ", "snapshot_hash": "a" * 64, "envelope_hash": "a" * 64, "contract": {"tick_size": 0.25}},
+            candidates=[
+                {"profile_id": "baseline-current", "state": "candidate", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "quantity": 1, "instrument": None},
+                {"profile_id": "structure", "state": "candidate", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0, "quantity": 1, "instrument": None},
+            ],
+            rules=RULES,
+        )
+        self.assertEqual(missing["decision_code"], "IDENTITY_MISMATCH")
+
+        one_valid = self._aggregate_profiles([
+            {"profile_id": "baseline-current", "normalized_state": "candidate", "instrument": "ES", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0},
+            {"profile_id": "structure", "normalized_state": "candidate", "instrument": "MNQ", "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0},
+        ])
+        self.assertEqual(one_valid["outcome"], "no_selection")
+        self.assertIn("identity_mismatch", " ".join(one_valid["decision_trace"]))
+
+    def test_quantity_is_required_and_validated_before_selection(self) -> None:
+        for invalid in (None, 0, -1, "1", 1.5):
+            result = self._aggregate_profiles([
+                {"profile_id": "baseline-current", "normalized_state": "candidate", "quantity": invalid, "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0},
+                {"profile_id": "structure", "normalized_state": "candidate", "quantity": invalid, "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0},
+            ])
+            self.assertEqual(result["outcome"], "no_selection")
+            self.assertEqual(result["decision_code"], "INVALID_QUANTITY")
+        valid = self._aggregate_profiles([
+            {"profile_id": "baseline-current", "normalized_state": "candidate", "quantity": 1, "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0},
+            {"profile_id": "structure", "normalized_state": "candidate", "quantity": 1, "direction": "long", "entry": 100.0, "stop": 99.0, "target": 102.0},
+        ])
+        self.assertEqual(valid["outcome"], "selected")
+        nothing = self._aggregate_profiles([
+            {"profile_id": "baseline-current", "normalized_state": "no_edge", "direction": "flat"},
+            {"profile_id": "structure", "normalized_state": "no_edge", "direction": "flat"},
+        ])
+        self.assertEqual(nothing["decision_code"], "ENSEMBLE_UNANIMOUS_ABSTENTION")
 
     def test_adversarial_critical_objective_eliminates(self) -> None:
         result = self._aggregate_profiles(

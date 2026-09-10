@@ -133,6 +133,40 @@ def _objective_geometry_codes(candidate: dict[str, Any], envelope: dict[str, Any
     )
 
 
+def validate_candidate_identity(candidate: dict[str, Any], envelope: dict[str, Any]) -> list[str]:
+    """Return objective identity failures before any global selection."""
+    envelope_instrument = str(envelope.get("instrument") or "").strip()
+    candidate_instrument = candidate.get("instrument")
+    if not envelope_instrument or not isinstance(candidate_instrument, str) or not candidate_instrument.strip() or candidate_instrument != envelope_instrument:
+        return ["identity_mismatch"]
+    return []
+
+
+def validate_candidate_quantity(candidate: dict[str, Any], envelope: dict[str, Any]) -> list[str]:
+    """Return objective quantity failures without supplying a default size."""
+    codes: list[str] = []
+    quantity = candidate.get("quantity")
+    if isinstance(quantity, bool) or not isinstance(quantity, int) or quantity < 1:
+        codes.append("invalid_quantity")
+    contract = envelope.get("contract") if isinstance(envelope.get("contract"), dict) else {}
+    minimum = contract.get("min_quantity")
+    maximum = contract.get("max_quantity")
+    step = contract.get("quantity_step") or contract.get("quantity_increment")
+    if isinstance(quantity, int) and quantity >= 1:
+        if isinstance(minimum, int) and quantity < minimum:
+            codes.append("invalid_quantity")
+        if isinstance(maximum, int) and quantity > maximum:
+            codes.append("invalid_quantity")
+        if isinstance(step, int) and step > 0 and quantity % step != 0:
+            codes.append("invalid_quantity")
+    return list(dict.fromkeys(codes))
+
+
+def _candidate_identity_and_quantity_codes(candidate: dict[str, Any], envelope: dict[str, Any]) -> list[str]:
+    """Validate execution identity and quantity before any global selection."""
+    return validate_candidate_identity(candidate, envelope) + validate_candidate_quantity(candidate, envelope)
+
+
 def _normalize_objections(raw: list[dict[str, Any]]) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     for row in raw:
@@ -141,11 +175,13 @@ def _normalize_objections(raw: list[dict[str, Any]]) -> list[dict[str, Any]]:
         eliminates = sev == "critical" and objective
         out.append(
             {
+                "source_profile_id": str(row.get("source_profile_id") or ""),
                 "objection_id": str(row.get("objection_id") or uuid.uuid4()),
                 "target_profile_id": str(row.get("target_profile_id") or ""),
                 "severity": sev,
                 "risk_code": str(row.get("risk_code") or ""),
                 "summary": str(row.get("summary") or row.get("risk_code") or ""),
+                "reason": str(row.get("reason") or row.get("summary") or row.get("risk_code") or ""),
                 "evidence_refs": list(row.get("evidence_refs") or []),
                 "eliminates_candidate": eliminates,
                 "objective_rule_match": objective,
@@ -161,7 +197,8 @@ def _fixture_row_to_candidate(row: dict[str, Any], envelope: dict[str, Any]) -> 
         "invocation_id": str(row.get("invocation_id") or uuid.uuid4()),
         "state": row.get("normalized_state") or row.get("state"),
         "comparability": row.get("comparability") or "comparable",
-        "instrument": row.get("instrument") or envelope.get("instrument"),
+        "instrument": row.get("instrument"),
+        "quantity": row.get("quantity"),
         "direction": row.get("direction"),
         "entry": row.get("entry"),
         "entry_range": row.get("entry_range"),
@@ -293,6 +330,7 @@ def aggregate_envelope(
 
     pool: list[dict[str, Any]] = []
     abstainers = 0
+    invalid_by_profile: dict[str, list[str]] = {}
     for cand in candidates:
         state = str(cand.get("state") or "")
         pid = str(cand.get("profile_id") or "")
@@ -308,9 +346,35 @@ def aggregate_envelope(
             trace.append(f"NO_EDGE:{pid}")
             continue
         if state in POOL_STATES and cat == "thesis_quality":
+            codes = _candidate_identity_and_quantity_codes(cand, envelope)
+            if codes:
+                invalid_by_profile[pid] = codes
+                for code in codes:
+                    trace.append(f"OBJECTIVE_ELIMINATION:{pid}:{code}")
+                continue
             pool.append(cand)
         else:
             trace.append(f"EXCLUDED:{pid}:{state}")
+
+    if not pool and invalid_by_profile and abstainers == 0:
+        all_codes = {code for codes in invalid_by_profile.values() for code in codes}
+        if all_codes == {"identity_mismatch"}:
+            decision_code = "IDENTITY_MISMATCH"
+        elif all_codes == {"invalid_quantity"}:
+            decision_code = "INVALID_QUANTITY"
+        else:
+            decision_code = "OBJECTIVE_CANDIDATE_ELIMINATION"
+        trace.append(decision_code)
+        return _selection(
+            run_id=run_id,
+            envelope=envelope,
+            rules=rules,
+            outcome="no_selection",
+            decision_code=decision_code,
+            trace=trace,
+            candidates=candidates,
+            objections=objections_norm,
+        )
 
     if not pool and abstainers == len(candidates) and abstainers > 0:
         trace.append("ENSEMBLE_UNANIMOUS_ABSTENTION")
