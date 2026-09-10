@@ -19,6 +19,7 @@ from live_stability_repo_guard import (  # noqa: E402
     CANONICAL_ARTIFACT_SCHEMA,
     LiveRepoGuardError,
     assert_module_from_profile_root,
+    collect_runtime_attestation,
     path_is_forbidden_checkout,
     require_canonical_live_artifact_for_prac_soak,
     validate_live_repo_context,
@@ -512,7 +513,17 @@ class CanonicalOrchestrationIntegrationTests(unittest.TestCase):
                 "profile_sha": "b3d70b04c9a6004ee03dad19761d72ebb875d6be",
                 "gateway_sha": "d4ac84aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                 "script_sha": {},
-                "paired_contract": {},
+                "paired_contract": {
+                    "sha256": "2959fbefc0810343afaf1305493db5288448b2cb19a6f33f0414f69d71a97e56",
+                },
+                "runtime_attestation": {
+                    "schema_version": "glitch.topstep.runtime_attestation.v1",
+                    "pid": 1,
+                    "dist": {"files": {"index.js": {"present": True, "sha256": "abc"}}},
+                    "gateway_version": "0.2.6",
+                    "capabilities": ["quote_state_v1"],
+                    "secrets_redacted": True,
+                },
             },
         )
         self.assertEqual(artifact["schema_version"], CANONICAL_ARTIFACT_SCHEMA)
@@ -538,6 +549,65 @@ class CanonicalOrchestrationIntegrationTests(unittest.TestCase):
                     "safety": {"intents_sent": 0, "orders_sent": 0, "writes_operacionais": 0},
                 }
             )
+
+    def test_runtime_attestation_in_provenance_without_secrets(self, helpers: mock.MagicMock) -> None:
+        del helpers
+        gateway = ROOT.parent / "glitch-topstep-main-post280"
+        if not gateway.is_dir():
+            gateway = ROOT.parent / "glitch-topstep"
+        if not gateway.is_dir():
+            self.skipTest("gateway sibling missing")
+        health = {
+            "status": "degraded",
+            "compatibility": {
+                "gateway_version": "0.2.6",
+                "health_schema": "glitch.direct.health.v3",
+                "protocol_revision": "glitch.topstep.paired.v3",
+                "capabilities": ["quote_state_v1", "packet_supported_actions"],
+                "local_token": "SHOULD_NOT_LEAK",
+            },
+        }
+        provenance = validate_live_repo_context(
+            profile_root=ROOT,
+            gateway_root=gateway,
+            allow_worktree=True,
+            health=health,
+        )
+        att = provenance["runtime_attestation"]
+        self.assertEqual(att["schema_version"], "glitch.topstep.runtime_attestation.v1")
+        self.assertEqual(att["gateway_version"], "0.2.6")
+        self.assertIn("quote_state_v1", att["capabilities"])
+        self.assertNotIn("local_token", json.dumps(att))
+        self.assertTrue(att["secrets_redacted"])
+        self.assertIn("files", att["dist"])
+        self.assertTrue(provenance["paired_contract"]["sha256"])
+        self.assertTrue(provenance["profile_sha"])
+        self.assertTrue(provenance["gateway_sha"])
+
+        # PRAC gate requires attestation block
+        artifact = build_canonical_artifact(
+            stability={"confirmed": True, "classification": "ok", "stop_reason": None, "samples": []},
+            provenance=provenance,
+        )
+        require_canonical_live_artifact_for_prac_soak(artifact)
+
+    def test_missing_bbo_blocks_entry_not_no_edge(self, helpers: mock.MagicMock) -> None:
+        del helpers
+        health = _good_health(_utc(2026, 9, 8, 14, 1, 2))
+        packet = _packet_roll_delay(_utc(2026, 9, 8, 14, 1, 9), roll_delay_seconds=9.0, quote_state="invalid")
+        health["data_quality"]["quote_state"] = "invalid"
+        health["data_quality"]["issues"] = ["quote_missing"]
+        health["data_quality"]["execution_eligibility"] = "blocked_invalid"
+        health["data_quality"]["state_complete"] = False
+        packet["data_quality"]["issues"] = ["quote_missing"]
+        packet["data_quality"]["execution_eligibility"] = "blocked_invalid"
+        packet["data_quality"]["state_complete"] = False
+        axes = classify_evaluation_axes(health, packet)
+        self.assertEqual(axes["quote_state"], "invalid")
+        self.assertFalse(axes["executable_market_valid"])
+        self.assertFalse(axes["execution_authority"])
+        self.assertTrue(axes["blocks_no_edge"])
+        self.assertNotEqual(axes["deferred_reason"], "no_edge")
 
     def test_start_before_close_preclose_is_warmup_not_terminal(self, helpers: mock.MagicMock) -> None:
         """Start mid-minute: pre-close polls are warmup; later post-close sample confirms."""
