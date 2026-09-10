@@ -265,9 +265,28 @@ def _invoke_hermes(profile: dict[str, Any], envelope: dict[str, Any], timeout_ms
             env.pop(key, None)
     env["PYTHONIOENCODING"] = "utf-8"
     env["PYTHONUTF8"] = "1"
-    prompt = json.dumps({"envelope": envelope, "profile_id": profile["profile_id"], "skills": profile.get("skills", [])}, ensure_ascii=False)
+    prompt = json.dumps(
+        {
+            "instruction": (
+                "Return exactly one UTF-8 JSON object and nothing else. Do not emit prose, "
+                "markdown, code fences, progress events, or multiple JSON objects. The object "
+                "must contain state with one of candidate, held, no_edge, missing_required_evidence, "
+                "timeout, error, or invalid. A no-edge response must use state no_edge and "
+                "direction flat."
+            ),
+            "envelope": envelope,
+            "profile_id": profile["profile_id"],
+            "skills": profile.get("skills", []),
+            "output_contract": {
+                "schema": "hermes.profile_candidate.v1",
+                "single_json_object": True,
+                "markdown": False,
+            },
+        },
+        ensure_ascii=False,
+    )
     completed = subprocess.run(
-        [executable, "chat", "--source", "trading", "--max-turns", "4", "--skills", ",".join(profile.get("skills", [])), "-q", prompt],
+        [executable, "chat", "--source", "trading", "--max-turns", "4", "--skills", ",".join(profile.get("skills", [])), "-Q", "-q", prompt],
         capture_output=True,
         text=False,
         timeout=max(0.001, timeout_ms / 1000),

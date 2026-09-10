@@ -165,6 +165,10 @@ class PracLiveEnsembleTests(unittest.TestCase):
             )
         self.assertEqual(result["thesis"], "café 🚀")
         kwargs = run.call_args.kwargs
+        self.assertIn("-Q", run.call_args.args[0])
+        prompt = json.loads(run.call_args.args[0][-1])
+        self.assertTrue(prompt["output_contract"]["single_json_object"])
+        self.assertIn("exactly one", prompt["instruction"])
         self.assertFalse(kwargs["text"])
         self.assertEqual(kwargs["env"]["PYTHONIOENCODING"], "utf-8")
         self.assertEqual(kwargs["env"]["PYTHONUTF8"], "1")
@@ -183,6 +187,7 @@ class PracLiveEnsembleTests(unittest.TestCase):
             (b'{"state":"no_edge"}\x90', b"", "hermes_utf8_decode_failed"),
             (b'{"state":"no_edge"}', b"diagnostic\x90", "hermes_utf8_decode_failed"),
             (b'{"state":', b"", "hermes_json_invalid"),
+            (b'Introductory text\n{"event":"progress"}\n{"state":"no_edge"}', b"", "hermes_json_invalid"),
         ]
         for stdout, stderr, reason in cases:
             completed = runner.subprocess.CompletedProcess(
