@@ -1,0 +1,12 @@
+{
+  "schema_version": "glitch.topstep.shadow_isolation_audit.v1",
+  "generated_utc": "2026-09-10T12:50:05.190026Z",
+  "run_id": "runner-offline-20260910",
+  "valid": true,
+  "issues": [],
+  "hermes_home_evaluation": "C:\\Users\\arifr\\AppData\\Local\\hermes\\profiles\\glitch-topstep-evaluation",
+  "hermes_home_production": "C:\\Users\\arifr\\AppData\\Local\\hermes",
+  "intents_sent": 0,
+  "orders_sent": 0,
+  "writes_operacionais": 0
+}

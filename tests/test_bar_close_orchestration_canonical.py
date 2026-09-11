@@ -552,9 +552,9 @@ class CanonicalOrchestrationIntegrationTests(unittest.TestCase):
 
     def test_runtime_attestation_in_provenance_without_secrets(self, helpers: mock.MagicMock) -> None:
         del helpers
-        gateway = ROOT.parent / "glitch-topstep-main-post280"
+        gateway = ROOT.parent / "glitch-topstep"
         if not gateway.is_dir():
-            gateway = ROOT.parent / "glitch-topstep"
+            gateway = ROOT.parent / "glitch-topstep-main-post280"
         if not gateway.is_dir():
             self.skipTest("gateway sibling missing")
         health = {

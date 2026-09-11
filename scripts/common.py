@@ -13,6 +13,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
+
+class SafetyStopError(RuntimeError):
+    """Fail-closed stop that must abort the whole live runner."""
+
 from compatibility import (
     PROFILE_COMPATIBILITY,
     compatibility_issues,

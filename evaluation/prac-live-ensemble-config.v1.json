@@ -1,0 +1,18 @@
+{
+  "schema_version": "glitch.topstep.prac_live_ensemble_config.v1",
+  "config_version": "2026-09-10-v1",
+  "evidence_root": "docs/evidence",
+  "modes": {
+    "offline": {"max_parallel_slots": 2, "per_profile_timeout_ms": 35000, "total_timeout_ms": 120000, "session_limit": 6, "exposure_limit": 1, "reset_limit": 0},
+    "shadow": {"max_parallel_slots": 2, "per_profile_timeout_ms": 35000, "total_timeout_ms": 120000, "session_limit": 6, "exposure_limit": 1, "reset_limit": 0},
+    "prac_live": {"max_parallel_slots": 2, "per_profile_timeout_ms": 35000, "total_timeout_ms": 120000, "session_limit": 6, "exposure_limit": 1, "reset_limit": 0}
+  },
+  "safety": {
+    "authorize_flag_required": true,
+    "gateway_only_execution": true,
+    "projectx_credentials_in_profile": false,
+    "single_global_decision": true,
+    "single_exposure": true,
+    "stop_required": true
+  }
+}

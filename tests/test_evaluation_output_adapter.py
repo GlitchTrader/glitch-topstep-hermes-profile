@@ -71,7 +71,42 @@ class EvaluationOutputAdapterTests(unittest.TestCase):
             gate=COMPARABLE_GATE,
         )
         self.assertEqual(adapted["state"], "invalid")
-        self.assertEqual(adapted["error_code"], "missing_thesis")
+        self.assertEqual(adapted["error_code"], "invalid_thesis")
+
+    def test_reason_is_supported_explanation_fallback(self) -> None:
+        adapted = adapt_evaluation_output(
+            raw={"state": "no_edge", "direction": "flat", "reason": "No setup."},
+            gate=COMPARABLE_GATE,
+        )
+        self.assertEqual(adapted["state"], "no_edge")
+        self.assertEqual(adapted["thesis"], "No setup.")
+        self.assertEqual(adapted["thesis_source"], "reason")
+
+    def test_thesis_precedes_reason(self) -> None:
+        adapted = adapt_evaluation_output(
+            raw={"state": "no_edge", "direction": "flat", "thesis": "Primary.", "reason": "Fallback."},
+            gate=COMPARABLE_GATE,
+        )
+        self.assertEqual(adapted["thesis"], "Primary.")
+        self.assertEqual(adapted["thesis_source"], "thesis")
+
+    def test_both_explanations_absent_remain_missing_required_evidence(self) -> None:
+        adapted = adapt_evaluation_output(
+            raw={"state": "no_edge", "direction": "flat"},
+            gate=COMPARABLE_GATE,
+        )
+        self.assertEqual(adapted["state"], "missing_required_evidence")
+        self.assertEqual(adapted["comparability"], "not_comparable")
+        self.assertEqual(adapted["error_code"], "missing_explanation")
+
+    def test_empty_or_invalid_reason_is_fail_closed(self) -> None:
+        for reason in ("", 123, {"text": "No setup."}):
+            adapted = adapt_evaluation_output(
+                raw={"state": "no_edge", "direction": "flat", "reason": reason},
+                gate=COMPARABLE_GATE,
+            )
+            self.assertEqual(adapted["state"], "invalid")
+            self.assertEqual(adapted["error_code"], "invalid_reason")
 
     def test_action_nothing_without_state_is_invalid(self) -> None:
         adapted = adapt_evaluation_output(

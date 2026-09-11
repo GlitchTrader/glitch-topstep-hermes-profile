@@ -1,0 +1,16 @@
+{
+  "schema_version": "glitch.direct.decision_packet.v2",
+  "packet_id": "pkt-shadow-smoke-v17-2",
+  "created_utc": "2026-09-11T14:00:00Z",
+  "expires_utc": "2026-09-12T14:00:00Z",
+  "instrument": "MNQ",
+  "account": {"name": "SHADOW"},
+  "account_selection": {"selected_contract_id": "CON.F.US.MNQ.U26"},
+  "contract": {"id": "CON.F.US.MNQ.U26", "tick_size": 0.25, "tick_value": 0.5},
+  "market": {"snapshot_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "last": 20000.0, "bid": 19999.75, "ask": 20000.25},
+  "market_observation": {"timeframes": {"1m": {"close": 20000.0}}},
+  "data_quality": {"state_complete": true, "bar_1m_closed": true, "issues": []},
+  "bar_close_utc": "2026-09-11T14:00:00Z",
+  "decision_scope": {"scope_hash": "shadow-scope-v17-2", "generation": 1},
+  "policy": {}
+}

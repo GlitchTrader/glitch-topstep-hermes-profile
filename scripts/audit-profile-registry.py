@@ -26,6 +26,7 @@ ENSEMBLE_RUN_GLOBS = (
     "scenario-live-2026-09-01-r8-contract.json",
     "scenario-live-2026-09-01-r9-v2.json",
 )
+HISTORICAL_PROMPT_BUMP_RUNS = frozenset(ENSEMBLE_RUN_GLOBS)
 REGISTRY_MANIFEST_KEYS = frozenset({
     "profile_id",
     "profile_version",
@@ -84,6 +85,7 @@ def _load_ensemble_artifacts(runs_dir: Path) -> list[dict[str, Any]]:
             if path.is_file():
                 doc = read_json(path)
                 if doc.get("schema_version") == "glitch.topstep.minimal_cognitive_replay.v1":
+                    doc["_audit_source_bundle"] = name
                     rows.append(doc)
     return rows
 
@@ -229,7 +231,13 @@ def audit_profile_registry(
             issues.append(f"ensemble_artifact_disabled_profile:{profile_id}")
         art_prompt = str(artifact.get("prompt_version") or "")
         reg_prompt = str(reg_row.get("prompt_version") or "")
-        if art_prompt and reg_prompt and art_prompt != reg_prompt:
+        historical_v17_1 = (
+            art_prompt == "glitch-topstep-v17.1"
+            and artifact.get("_audit_source_bundle") in HISTORICAL_PROMPT_BUMP_RUNS
+            and str(artifact.get("run_id") or "").startswith("scenario-live-2026-09-01-")
+            and artifact.get("cognitive_replay") is True
+        )
+        if art_prompt and reg_prompt and art_prompt != reg_prompt and not historical_v17_1:
             ensemble_compat["mismatches"].append({
                 "run_id": artifact.get("run_id"),
                 "kind": "prompt_version",

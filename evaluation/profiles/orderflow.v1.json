@@ -4,7 +4,7 @@
   "profile_version": "1.0.0",
   "profile_kind": "directional",
   "role": "challenger",
-  "prompt_version": "glitch-topstep-v17.1",
+  "prompt_version": "glitch-topstep-v17.2",
   "execution_authority": false,
   "evaluation_enabled": true,
   "required_sources": ["ohlc", "quote", "orderflow"],
