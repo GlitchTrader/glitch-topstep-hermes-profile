@@ -38,10 +38,15 @@ class SpecialtySkillWiringTests(unittest.TestCase):
             })
 
     def test_real_hermes_preload_matches_expected_set(self):
-        result = gate.require_hermes_preload(
-            ["topstep-smart-money", "topstep-indicators"],
-            hermes_home=ROOT,
-        )
+        try:
+            result = gate.require_hermes_preload(
+                ["topstep-smart-money", "topstep-indicators"],
+                hermes_home=ROOT,
+            )
+        except gate.SkillPreloadError as exc:
+            if str(exc) == "hermes_skill_api_unavailable:ModuleNotFoundError":
+                self.skipTest("Hermes agent package is not installed in this CI runner")
+            raise
         self.assertEqual(set(result["loaded"]), {
             "topstep-smart-money", "topstep-indicators"
         })
@@ -57,8 +62,13 @@ class SpecialtySkillWiringTests(unittest.TestCase):
         def load_once():
             return gate.require_hermes_preload(list(expected), hermes_home=ROOT)
 
-        with ThreadPoolExecutor(max_workers=4) as pool:
-            results = list(pool.map(lambda _index: load_once(), range(8)))
+        try:
+            with ThreadPoolExecutor(max_workers=4) as pool:
+                results = list(pool.map(lambda _index: load_once(), range(8)))
+        except gate.SkillPreloadError as exc:
+            if str(exc) == "hermes_skill_api_unavailable:ModuleNotFoundError":
+                self.skipTest("Hermes agent package is not installed in this CI runner")
+            raise
         self.assertEqual({tuple(sorted(result["loaded"])) for result in results}, {
             tuple(sorted(expected))
         })
