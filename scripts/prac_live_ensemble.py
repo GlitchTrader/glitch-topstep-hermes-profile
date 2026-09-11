@@ -38,6 +38,7 @@ from ensemble_skill_gate import (
     assert_declared_skills_ready,
     default_glitch_topstep_hermes_home,
 )
+from hermes_toolsets import DEFAULT_HERMES_TOOLSETS
 from ensemble_validate import validate_evaluation_envelope, validate_normalized_candidate
 from gateway_client import local_token, request_json
 
@@ -346,7 +347,20 @@ def _invoke_hermes(profile: dict[str, Any], envelope: dict[str, Any], timeout_ms
         },
         ensure_ascii=False,
     )
-    command = [executable, "chat", "--source", "trading", "--max-turns", "4", "--skills", ",".join(skill_ids), "-Q", "-q"]
+    command = [
+        executable,
+        "chat",
+        "--source",
+        "trading",
+        "--max-turns",
+        "4",
+        "--skills",
+        ",".join(skill_ids),
+        "--toolsets",
+        DEFAULT_HERMES_TOOLSETS,
+        "-Q",
+        "-q",
+    ]
     started = time.monotonic()
     try:
         completed = subprocess.run(

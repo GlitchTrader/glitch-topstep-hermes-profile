@@ -378,6 +378,8 @@ catch (error) { process.stdout.write(error?.errorCode || error?.message || 'reje
         self.assertEqual(result["thesis"], "café 🚀")
         kwargs = run.call_args.kwargs
         self.assertIn("-Q", run.call_args.args[0])
+        self.assertIn("--toolsets", run.call_args.args[0])
+        self.assertIn("memory", run.call_args.args[0])
         prompt = json.loads(run.call_args.args[0][-1])
         self.assertTrue(prompt["output_contract"]["single_json_object"])
         self.assertIn("exactly one", prompt["instruction"])
