@@ -12,6 +12,14 @@ Modes are intentionally separate:
 - `shadow`: authenticated packet observation and cognition; delivery is structurally disabled.
 - `prac_live --authorize`: the only mode permitted to call gateway `/intent`; gateway remains the final validator and must confirm receipt and protection.
 
+Before any profile invocation, every mode runs a read-only Hermes authentication
+preflight with provider `openai-codex`. The runner forces `HERMES_HOME` to the
+canonical profile checkout resolved by `GLITCH_TOPSTEP_CANONICAL_PROFILE` (or
+the checkout containing this runner) and requires that provider to report
+`logged in` in that exact home. It never performs login or copies credential
+state. A missing or ambiguous status writes a sanitized `preflight_blocked`
+artifact with `orders_sent=0` and starts no profiles.
+
 Example invocation for the next operator-controlled preflight is:
 
 ```powershell

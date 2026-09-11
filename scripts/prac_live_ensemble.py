@@ -72,6 +72,10 @@ class HermesInvocationError(RunnerError):
         return f"hermes_{self.diagnostic.get('classification', 'failure')}:{self.code}"
 
 
+class HermesAuthError(HermesInvocationError):
+    """The configured provider is not authenticated in the canonical HERMES_HOME."""
+
+
 class ProfileInvoker(Protocol):
     def __call__(self, profile: dict[str, Any], envelope: dict[str, Any], timeout_ms: int) -> dict[str, Any]: ...
 
@@ -163,6 +167,64 @@ class RunnerConfig:
 
 def sanitize_text(value: Any) -> str:
     return SENSITIVE.sub(r"\1[REDACTED]", str(value))
+
+
+HERMES_AUTH_PROVIDER = "openai-codex"
+
+
+def require_hermes_auth_ready(*, hermes_home: Path, provider: str = HERMES_AUTH_PROVIDER) -> dict[str, Any]:
+    """Read provider status in canonical HERMES_HOME and fail closed."""
+    executable = resolve_hermes_executable()
+    command = [executable, "auth", "status", provider]
+    env = dict(os.environ)
+    env["HERMES_HOME"] = str(hermes_home)
+    env["PYTHONIOENCODING"] = "utf-8"
+    env["PYTHONUTF8"] = "1"
+    started = time.monotonic()
+    try:
+        completed = subprocess.run(
+            command,
+            capture_output=True,
+            text=False,
+            timeout=15,
+            env=env,
+            cwd=str(ROOT),
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        )
+    except subprocess.TimeoutExpired as exc:
+        diagnostic = {
+            "stage": "auth_preflight", "classification": "timeout", "provider": provider,
+            "hermes_home": str(hermes_home), "returncode": None,
+            "command": [Path(command[0]).name, *command[1:]],
+            "duration_ms": int((time.monotonic() - started) * 1000),
+            "stdout": sanitize_text(exc.stdout or b"")[:4000],
+            "stderr": sanitize_text(exc.stderr or b"")[:4000], "authenticated": False,
+        }
+        raise HermesAuthError("hermes_auth_preflight_timeout", diagnostic) from exc
+    except OSError as exc:
+        diagnostic = {
+            "stage": "auth_preflight", "classification": "launcher", "provider": provider,
+            "hermes_home": str(hermes_home), "returncode": None,
+            "command": [Path(command[0]).name, *command[1:]],
+            "duration_ms": int((time.monotonic() - started) * 1000),
+            "stdout": "", "stderr": sanitize_text(str(exc))[:4000], "authenticated": False,
+        }
+        raise HermesAuthError("hermes_auth_preflight_launcher_failed", diagnostic) from exc
+    stdout = completed.stdout.decode("utf-8", errors="replace")
+    stderr = completed.stderr.decode("utf-8", errors="replace")
+    combined = f"{stdout}\n{stderr}".lower()
+    authenticated = bool(re.search(rf"{re.escape(provider.lower())}\s*:\s*logged\s+in\b", combined))
+    diagnostic = {
+        "stage": "auth_preflight", "classification": "authenticated" if authenticated else "auth",
+        "provider": provider, "hermes_home": str(hermes_home), "returncode": completed.returncode,
+        "command": [Path(command[0]).name, *command[1:]],
+        "duration_ms": int((time.monotonic() - started) * 1000),
+        "stdout": sanitize_text(stdout)[:4000], "stderr": sanitize_text(stderr)[:4000],
+        "authenticated": authenticated,
+    }
+    if not authenticated:
+        raise HermesAuthError("hermes_auth_required_in_canonical_home", diagnostic)
+    return diagnostic
 
 
 def _parse_utc(value: Any) -> datetime:
@@ -652,10 +714,24 @@ def main(argv: list[str] | None = None) -> int:
     rules = json.loads((ROOT / "evaluation" / "aggregator_rules.v1.json").read_text(encoding="utf-8"))
     mapping = json.loads((ROOT / "evaluation" / "packet_envelope_mapping.v1.json").read_text(encoding="utf-8"))
     envelope = seal_live_envelope(packet, matrix=matrix, mapping=mapping, config=config)
+    hermes_home = default_glitch_topstep_hermes_home()
+    try:
+        auth_preflight = require_hermes_auth_ready(hermes_home=hermes_home)
+    except HermesAuthError as exc:
+        blocked = {
+            "schema_version": "glitch.topstep.prac_live_ensemble_run.v1",
+            "mode": args.mode, "authorized": config.authorize, "orders_sent": 0,
+            "envelope": {"envelope_id": envelope["envelope_id"], "snapshot_hash": envelope["snapshot_hash"], "envelope_hash": envelope["envelope_hash"]},
+            "profiles": [], "preflight": exc.diagnostic,
+            "delivery": {"status": "not_delivered", "reason": "preflight_blocked", "orders_sent": 0},
+        }
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(json.dumps(blocked, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        raise
     slots = run_profiles(envelope=envelope, registry=registry, matrix=matrix, config=config)
     decision = aggregate_global(envelope=envelope, slots=slots, rules=rules, run_id=str(uuid.uuid4()))
     delivery = deliver_global_decision(decision=decision, packet=packet, config=config)
-    result = {"schema_version": "glitch.topstep.prac_live_ensemble_run.v1", "mode": args.mode, "authorized": config.authorize, "orders_sent": delivery.get("orders_sent", 0), "resets": 0, "envelope": {"envelope_id": envelope["envelope_id"], "snapshot_hash": envelope["snapshot_hash"], "envelope_hash": envelope["envelope_hash"]}, "profiles": slots, "decision": decision, "delivery": delivery}
+    result = {"schema_version": "glitch.topstep.prac_live_ensemble_run.v1", "mode": args.mode, "authorized": config.authorize, "orders_sent": delivery.get("orders_sent", 0), "resets": 0, "envelope": {"envelope_id": envelope["envelope_id"], "snapshot_hash": envelope["snapshot_hash"], "envelope_hash": envelope["envelope_hash"]}, "preflight": auth_preflight, "profiles": slots, "decision": decision, "delivery": delivery}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return 0

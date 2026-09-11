@@ -45,6 +45,42 @@ def config(mode: str = "offline") -> runner.RunnerConfig:
 
 
 class PracLiveEnsembleTests(unittest.TestCase):
+    def test_auth_preflight_accepts_provider_in_canonical_home(self):
+        home = ROOT / "canonical-hermes-home"
+        completed = subprocess.CompletedProcess(
+            args=["hermes", "auth", "status", "openai-codex"], returncode=0,
+            stdout=b"openai-codex: logged in\n", stderr=b"",
+        )
+        with mock.patch.object(runner, "resolve_hermes_executable", return_value="hermes.exe"), mock.patch.object(runner.subprocess, "run", return_value=completed) as run:
+            diagnostic = runner.require_hermes_auth_ready(hermes_home=home)
+        self.assertTrue(diagnostic["authenticated"])
+        self.assertEqual(diagnostic["provider"], "openai-codex")
+        self.assertEqual(run.call_args.kwargs["env"]["HERMES_HOME"], str(home))
+        self.assertNotIn("credential", json.dumps(diagnostic).lower())
+
+    def test_auth_preflight_fails_closed_without_provider_auth(self):
+        completed = subprocess.CompletedProcess(
+            args=["hermes", "auth", "status", "openai-codex"], returncode=0,
+            stdout=b"No Codex credentials stored. Run hermes auth to authenticate.\n", stderr=b"",
+        )
+        with mock.patch.object(runner, "resolve_hermes_executable", return_value="hermes.exe"), mock.patch.object(runner.subprocess, "run", return_value=completed):
+            with self.assertRaisesRegex(runner.HermesAuthError, "hermes_auth_required_in_canonical_home") as raised:
+                runner.require_hermes_auth_ready(hermes_home=ROOT / "canonical-hermes-home")
+        self.assertFalse(raised.exception.diagnostic["authenticated"])
+        self.assertEqual(raised.exception.diagnostic["stage"], "auth_preflight")
+
+    def test_main_auth_preflight_blocks_before_profiles_and_writes_sanitized_evidence(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output = Path(temp_dir) / "blocked.json"
+            diagnostic = {"stage": "auth_preflight", "classification": "auth", "provider": "openai-codex", "hermes_home": str(ROOT), "returncode": 0, "command": ["hermes.exe", "auth", "status", "openai-codex"], "duration_ms": 1, "stdout": "No Codex credentials stored.", "stderr": "", "authenticated": False}
+            error = runner.HermesAuthError("hermes_auth_required_in_canonical_home", diagnostic)
+            with mock.patch.object(runner, "require_hermes_auth_ready", side_effect=error), mock.patch.object(runner, "run_profiles", side_effect=AssertionError("profiles must not start")):
+                with self.assertRaises(runner.HermesAuthError):
+                    runner.main(["--mode", "offline", "--packet", str(ROOT / "tests/fixtures/shadow_smoke_packet_v17.2.json"), "--output", str(output)])
+            evidence = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(evidence["orders_sent"], 0)
+            self.assertEqual(evidence["delivery"]["reason"], "preflight_blocked")
+            self.assertEqual(evidence["profiles"], [])
     @staticmethod
     def selected_candidate() -> dict:
         return {
@@ -317,12 +353,27 @@ class PracLiveEnsembleTests(unittest.TestCase):
 
     def test_selected_intent_is_accepted_by_real_gateway_validator(self):
         candidates = [
+            ROOT.parents[2] / "glitch-topstep",
             ROOT.parents[1] / ".prac-operational-20260910" / "gateway",
             ROOT.parent / "glitch-topstep",
         ]
-        gateway = next((path for path in candidates if (path / "dist").is_dir()), None)
+        def paired_prompt(path: Path) -> str | None:
+            for contract_path in (path / "release" / "paired-contract.json", path / "paired-contract.json"):
+                if not contract_path.is_file():
+                    continue
+                try:
+                    document = json.loads(contract_path.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    continue
+                return str(document.get("prompt_version") or document.get("profile", {}).get("prompt_version") or "") or None
+            return None
+
+        gateway = next(
+            (path for path in candidates if (path / "dist").is_dir() and paired_prompt(path) == runner.PROMPT_VERSION),
+            None,
+        )
         if gateway is None:
-            self.skipTest("paired gateway checkout with built dist is unavailable in this CI runner")
+            self.skipTest(f"paired gateway checkout with built dist for {runner.PROMPT_VERSION} is unavailable in this CI runner")
         intent = runner.decision_to_gateway_intent(self.selected_decision(), packet())
         script = """
 import { parseTradeIntent } from './dist/src/domain/intents.js';
@@ -442,6 +493,8 @@ catch (error) { process.stdout.write(error?.errorCode || error?.message || 'reje
         with tempfile.TemporaryDirectory() as root:
             output = Path(root) / "run.json"
             with mock.patch.object(runner, "fetch_live_packet", return_value=(health(), packet())), mock.patch.object(
+                runner, "require_hermes_auth_ready", return_value={"authenticated": True, "provider": "openai-codex"}
+            ), mock.patch.object(
                 runner, "run_profiles", side_effect=runner.SafetyStopError("safety_stop:hermes_json_invalid")
             ):
                 with self.assertRaisesRegex(runner.SafetyStopError, "safety_stop:hermes_json_invalid"):
