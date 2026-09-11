@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-09-09T15:10:24Z",
+  "updated": "2026-09-11T15:00:00Z",
   "release_target": "paired gateway/profile beta",
   "reconciliation": {
     "date": "2026-08-24",
@@ -1539,5 +1539,22 @@
     "resets": 0,
     "offline_evidence": "docs/evidence/runner-offline-20260910/report.md",
     "remaining": ["live preflight only; do not start PRAC from implementation stage"]
+  },
+  "hermes_skill_wiring_prompt_v17_2_2026_09_11": {
+    "status": "implemented_local_pending_independent_reaudit",
+    "summary": "Integrated the complete eight-commit Hermes runner series into the canonical profile, added fail-closed canonical skill preload verification for topstep-smart-money and topstep-indicators, and bumped the paired prompt contract from v17.1 to v17.2.",
+    "profile_prompt_version": "glitch-topstep-v17.2",
+    "orders_sent": 0,
+    "execution_mode": "shadow-only",
+    "overnight": false,
+    "evidence": [
+      "tests/test_specialty_skill_wiring.py",
+      "docs/release-notes/2026-09-11-skill-wiring-v17.2.md"
+    ],
+    "remaining": [
+      "independent confirmation of specialized model outputs and stability",
+      "live MES/MCL coverage remains unproven",
+      "no canary or overnight promotion"
+    ]
   }
 }

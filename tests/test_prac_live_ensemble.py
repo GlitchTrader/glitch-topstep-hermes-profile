@@ -316,7 +316,11 @@ class PracLiveEnsembleTests(unittest.TestCase):
         self.assertEqual(result["orders_sent"], 0)
 
     def test_selected_intent_is_accepted_by_real_gateway_validator(self):
-        gateway = ROOT.parents[1] / ".prac-operational-20260910" / "gateway"
+        candidates = [
+            ROOT.parents[1] / ".prac-operational-20260910" / "gateway",
+            ROOT.parent / "glitch-topstep",
+        ]
+        gateway = next((path for path in candidates if path.is_dir()), candidates[-1])
         intent = runner.decision_to_gateway_intent(self.selected_decision(), packet())
         script = """
 import { parseTradeIntent } from './dist/src/domain/intents.js';

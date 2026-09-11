@@ -1,0 +1,78 @@
+{
+  "schema_version": "glitch.topstep.six_profile_evaluation_package.v1",
+  "package_id": "six-profile-evaluation-package-2026-09-11-v17.2",
+  "generated_utc": "2026-09-11T14:20:12.825873Z",
+  "profile_count": 6,
+  "profile_ids": [
+    "baseline-current",
+    "structure",
+    "adversarial-risk",
+    "smart-money",
+    "indicators",
+    "orderflow"
+  ],
+  "versions": {
+    "registry_version": "2026-09-10-v4",
+    "capability_matrix_version": "2026-09-10-v4",
+    "config_version": "2026-09-02-v3",
+    "aggregator_rules_version": "2026-09-01-v2",
+    "prompt_versions": [
+      "glitch-topstep-v17.2"
+    ]
+  },
+  "safety_flags": {
+    "execution_authority_false_all": true,
+    "evaluation_enabled_all": true,
+    "production_parallelism": "blocked",
+    "promotion_use_allowed": false,
+    "shadow_live_execution_authorized": false,
+    "intents_sent": 0,
+    "orders_sent": 0,
+    "writes_operacionais": 0
+  },
+  "git_commits": {
+    "profile_repo": "fbe830919f155feb4b01382a6e99c68c758a19e5",
+    "gateway_repo": "51cd6c9b1e5872166f5c74ade898ca2ae6833458"
+  },
+  "paired_contract": {
+    "gateway_version": "0.2.6",
+    "profile_version": "0.2.10",
+    "prompt_version": "glitch-topstep-v17.2",
+    "protocol_revision": "glitch.topstep.paired.v3"
+  },
+  "file_hashes": {
+    "evaluation/registry.json": "2ced6078886b65a259debdf68a9ca1d4fff4d9527cf048678c9297a549220201",
+    "evaluation/capability-matrix.json": "31a9dd01bc1477c565c42ac0be73cdc4d434730c162ecb306d975eef80fd5c8d",
+    "evaluation/ensemble_config.json": "1f0632043f1c99b966fa50b481231c6993492865bc38548c3c26570f1a8e15b1",
+    "evaluation/aggregator_rules.v1.json": "e82715c5f190484d30bbe34efdf79157a7395f021e820ab1061f685fb3d2b788",
+    "evaluation/evaluation_output_contract.v1.json": "da1ae8715edf3bfc5fc79ae8646891a72fedfeeaa7cd0944291d849246375b7c",
+    "evaluation/packet_envelope_mapping.v1.json": "6bc8893739312bfc9577a1ac4779d279126df306d17d709b0a905121f75f44c1",
+    "evaluation/shadow-live-run-config.v1.json": "98a6828cd0a1a9e83e22ab32b22bebd103ba266d55037a9fda32ad3ff64dfbb4",
+    "evaluation/shadow-live-scenarios.v1.json": "53355751e990d12b28ec82f38e62316be8a55a94197e9a7580117d37d24e2f50",
+    "evaluation/profiles/smart-money.v1.json": "66a25b3bcfa9f1091e86ce74ea7592b528b8430704a8de0e16e16d6071b5da38",
+    "evaluation/profiles/indicators.v1.json": "d9173e9bc4220312f697325f8af1d81cd33fb8dde75aeae17c742e0f763bdf16",
+    "evaluation/profiles/orderflow.v1.json": "d19c46d9c93d7ae554e6470ff764f030d4261acad5a774f2abccf72b38c827af",
+    "scripts/run-shadow-live-single-attempt.py": "67799f4693cb96d65bb21e15d8d4e711d9678bebf14c07120408392e8d3e3a70",
+    "scripts/shadow-preflight.py": "c98d5866577ba065fb5e605df7d0887c4cfa750c98c839f44b9daee896e5ff32",
+    "scripts/shadow-observe-offline.py": "ee89db97e2ca25e679b3ca082117080d40a8840a2f5afe7d5e7c06e4ef009e0a",
+    "scripts/shadow-observe-live.py": "8085c65987eac6057782e6528e4124351d7b368af5dcd06b98668962fdf9c1a3",
+    "scripts/shadow_gateway_readonly.py": "312450ffbc4619fc84e45661ae5d70b945db0525dc1645cdf61b43e8415b837f",
+    "scripts/shadow_modes.py": "2f48fb3fba7b47f2ffdef861e709e23f70e4418f93d91e99b2ee509c577fe9e3",
+    "scripts/shadow_observation.py": "3e27924874ca8751fd77a3d5bd6c26d4b7f8282ae4f82e7324161fa50a5e772a",
+    "scripts/run-parallel-ensemble-evaluation.py": "17c5babb4941cf16e629e8b36c4b5451bb5efded39505598eb2155fa39f3a0c5",
+    "scripts/ensemble_aggregator.py": "cef67952dbf5aa85041e5b16373410145c88a6c15beb7c8b7ad6811963a315c5",
+    "scripts/ensemble_parallel_runner.py": "ab4398171c88199cb8cb7aa0d5c8923a9cbe0491729a787517a22238a9481a3d",
+    "scripts/evaluation-measurement-ready.py": "ada46405328792134ded46abbbbcef194a828626f886cc28a189dca6f79c486e",
+    "scripts/build-evaluation-release-package.py": "c774bd2066a8cf6c99c73638c0398c533b209613d0bfa834e3d1f49bdbbe648c",
+    "scripts/report-shadow-metrics.py": "ad6a29347831b5492e95326f7ff0f78e51999c5371eb659a42f3d5927a578a7f",
+    "scripts/audit-shadow-isolation.py": "99766dd950e6478e5d0ed2afc81dbef26bebd1ef7780ec0663b7931e1e938330",
+    "scripts/run-shadow-phase7-validation.py": "a519e9135cc7f3febadbc2e929720bc80e0ac2ab8e518e23a22ef0d4b31c0aaf",
+    "evaluation/schemas/evaluation_envelope.v1.json": "2301f752f96deb5c4449f705516601c705a950c6d3070e09d11a1ffeeb0b8749",
+    "evaluation/schemas/normalized_candidate.v1.json": "1f21983cf17ae1bfb629bd8526d85b230fe6933c6d0b972c9a017d711111ceda",
+    "evaluation/schemas/ensemble_selection.v1.json": "e5677e2059a9d65f1f5338c61430ef55cd2a27b97a0844a6af995a27900ac666",
+    "evaluation/schemas/shadow_observation.v1.json": "e604978e359e3d0d28b5123432d676e5fed6048c1dfe7254a79cc64f30fa47fc",
+    "evaluation/schemas/shadow_preflight.v1.json": "a3ba3c27c6c3797a3f1d3fa9feb4328292a5049ed1980615d740e3928e4a868a"
+  },
+  "missing_files": [],
+  "valid": true
+}

@@ -19,12 +19,14 @@ _mod = importlib.util.module_from_spec(_spec)
 assert _spec.loader is not None
 _spec.loader.exec_module(_mod)
 
-MANIFEST = ROOT / "evaluation" / "runs" / "frozen-cohort-manifest-2026-09-01.json"
+HISTORICAL_MANIFEST = ROOT / "evaluation" / "runs" / "frozen-cohort-manifest-2026-09-01.json"
+MANIFEST = ROOT / "evaluation" / "runs" / "frozen-cohort-manifest-2026-09-11-v17.2.json"
 
 
 class VerifyFrozenCohortTests(unittest.TestCase):
     def test_manifest_present(self) -> None:
         self.assertTrue(MANIFEST.is_file(), f"missing manifest: {MANIFEST}")
+        self.assertTrue(HISTORICAL_MANIFEST.is_file(), f"missing historical manifest: {HISTORICAL_MANIFEST}")
 
     def test_verify_passes_on_current_repo(self) -> None:
         report = _mod.verify_frozen_cohort(manifest_path=MANIFEST, repo_root=ROOT)

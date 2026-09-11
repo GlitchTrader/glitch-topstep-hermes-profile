@@ -33,6 +33,11 @@ from ensemble_aggregator import aggregate_envelope
 from ensemble_capability import capacity_gate
 from ensemble_envelope import build_evaluation_envelope, envelope_hash
 from ensemble_parallel_runner import cleanup_work_dirs, run_profiles_parallel
+from ensemble_skill_gate import (
+    SkillPreloadError,
+    assert_declared_skills_ready,
+    default_glitch_topstep_hermes_home,
+)
 from ensemble_validate import validate_evaluation_envelope, validate_normalized_candidate
 from gateway_client import local_token, request_json
 
@@ -284,12 +289,20 @@ def _normalize_result(raw: dict[str, Any] | None, *, profile: dict[str, Any], en
 def _invoke_hermes(profile: dict[str, Any], envelope: dict[str, Any], timeout_ms: int) -> dict[str, Any]:
     """Invoke Hermes without exposing gateway or ProjectX credentials."""
     executable = resolve_hermes_executable()
+    skill_ids = [str(item) for item in (profile.get("skills") or []) if str(item).strip()]
+    if skill_ids:
+        try:
+            assert_declared_skills_ready(skill_ids, profile_root=ROOT)
+        except SkillPreloadError as exc:
+            raise RunnerError(str(exc)) from exc
+    hermes_home = default_glitch_topstep_hermes_home()
     env = dict(os.environ)
     for key in list(env):
         if key.upper().startswith(("PROJECTX_", "GLITCH_TOPSTEP_LOCAL_TOKEN", "GLITCH_LOCAL_TOKEN")):
             env.pop(key, None)
     env["PYTHONIOENCODING"] = "utf-8"
     env["PYTHONUTF8"] = "1"
+    env["HERMES_HOME"] = str(hermes_home)
     prompt = json.dumps(
         {
             "instruction": (
@@ -301,7 +314,8 @@ def _invoke_hermes(profile: dict[str, Any], envelope: dict[str, Any], timeout_ms
             ),
             "envelope": envelope,
             "profile_id": profile["profile_id"],
-            "skills": profile.get("skills", []),
+            "prompt_version": PROMPT_VERSION,
+            "skills": skill_ids,
             "output_contract": {
                 "schema": "hermes.profile_candidate.v1",
                 "single_json_object": True,
@@ -311,11 +325,12 @@ def _invoke_hermes(profile: dict[str, Any], envelope: dict[str, Any], timeout_ms
         ensure_ascii=False,
     )
     completed = subprocess.run(
-        [executable, "chat", "--source", "trading", "--max-turns", "4", "--skills", ",".join(profile.get("skills", [])), "-Q", "-q", prompt],
+        [executable, "chat", "--source", "trading", "--max-turns", "4", "--skills", ",".join(skill_ids), "-Q", "-q", prompt],
         capture_output=True,
         text=False,
         timeout=max(0.001, timeout_ms / 1000),
         env=env,
+        cwd=str(ROOT),
         creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
     )
     try:
