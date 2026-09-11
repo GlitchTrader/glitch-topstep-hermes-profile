@@ -170,6 +170,56 @@ def sanitize_text(value: Any) -> str:
 
 
 HERMES_AUTH_PROVIDER = "openai-codex"
+GATEWAY_LOCAL_TOKEN_ENV = "GLITCH_TOPSTEP_LOCAL_TOKEN"
+GATEWAY_DOTENV_TOKEN_KEY = "GLITCH_LOCAL_TOKEN"
+
+
+def canonical_gateway_root() -> Path:
+    """Resolve the gateway checkout without consulting the Hermes profile .env."""
+    configured = os.environ.get("GLITCH_TOPSTEP_GATEWAY_ROOT", "").strip()
+    if configured:
+        root = Path(configured).expanduser().resolve()
+        if (root / "package.json").is_file() and (root / "release" / "paired-contract.json").is_file():
+            return root
+        raise RunnerError("gateway_checkout_invalid")
+    for parent in (ROOT, *ROOT.parents):
+        if parent.name == "glitch-topstep" and (parent / "package.json").is_file() and (parent / "release" / "paired-contract.json").is_file():
+            return parent
+    raise RunnerError("gateway_checkout_not_found")
+
+
+def _gateway_dotenv_token(path: Path) -> str | None:
+    if not path.is_file():
+        return None
+    try:
+        lines = path.read_text(encoding="utf-8-sig", errors="replace").splitlines()
+    except OSError as exc:
+        raise RunnerError("gateway_dotenv_unreadable") from exc
+    for raw in lines:
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        if key.strip() != GATEWAY_DOTENV_TOKEN_KEY:
+            continue
+        value = value.strip()
+        if value.startswith(("'", '"')) and len(value) >= 2 and value[-1] == value[0]:
+            value = value[1:-1]
+        return value.strip() or None
+    return None
+
+
+def ensure_gateway_local_token() -> dict[str, str]:
+    """Expose the gateway .env alias to the runner without logging its value."""
+    existing = os.environ.get(GATEWAY_LOCAL_TOKEN_ENV, "").strip()
+    gateway_root = canonical_gateway_root()
+    if existing:
+        return {"gateway_root": str(gateway_root), "source": "environment", "env_name": GATEWAY_LOCAL_TOKEN_ENV}
+    token = _gateway_dotenv_token(gateway_root / ".env")
+    if not token:
+        raise RunnerError("gateway_local_token_missing")
+    os.environ[GATEWAY_LOCAL_TOKEN_ENV] = token
+    return {"gateway_root": str(gateway_root), "source": "gateway_dotenv_alias", "env_name": GATEWAY_LOCAL_TOKEN_ENV}
 
 
 def require_hermes_auth_ready(*, hermes_home: Path, provider: str = HERMES_AUTH_PROVIDER) -> dict[str, Any]:
@@ -701,6 +751,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
     config = RunnerConfig.load(args.config, mode=args.mode, authorize=args.authorize)
+    gateway_auth = None
+    if args.mode != "offline":
+        gateway_auth = ensure_gateway_local_token()
     if args.mode == "offline":
         if not args.packet:
             raise RunnerError("offline_packet_required")
@@ -731,7 +784,7 @@ def main(argv: list[str] | None = None) -> int:
     slots = run_profiles(envelope=envelope, registry=registry, matrix=matrix, config=config)
     decision = aggregate_global(envelope=envelope, slots=slots, rules=rules, run_id=str(uuid.uuid4()))
     delivery = deliver_global_decision(decision=decision, packet=packet, config=config)
-    result = {"schema_version": "glitch.topstep.prac_live_ensemble_run.v1", "mode": args.mode, "authorized": config.authorize, "orders_sent": delivery.get("orders_sent", 0), "resets": 0, "envelope": {"envelope_id": envelope["envelope_id"], "snapshot_hash": envelope["snapshot_hash"], "envelope_hash": envelope["envelope_hash"]}, "preflight": auth_preflight, "profiles": slots, "decision": decision, "delivery": delivery}
+    result = {"schema_version": "glitch.topstep.prac_live_ensemble_run.v1", "mode": args.mode, "authorized": config.authorize, "orders_sent": delivery.get("orders_sent", 0), "resets": 0, "gateway_auth": gateway_auth, "envelope": {"envelope_id": envelope["envelope_id"], "snapshot_hash": envelope["snapshot_hash"], "envelope_hash": envelope["envelope_hash"]}, "preflight": auth_preflight, "profiles": slots, "decision": decision, "delivery": delivery}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return 0

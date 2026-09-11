@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 import sys
 import tempfile
 import unittest
@@ -45,6 +46,36 @@ def config(mode: str = "offline") -> runner.RunnerConfig:
 
 
 class PracLiveEnsembleTests(unittest.TestCase):
+    def test_gateway_dotenv_alias_loads_without_exposing_value_and_preserves_precedence(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            gateway_root = Path(temp_dir)
+            (gateway_root / "release").mkdir()
+            (gateway_root / "package.json").write_text("{}", encoding="utf-8")
+            (gateway_root / "release" / "paired-contract.json").write_text("{}", encoding="utf-8")
+            (gateway_root / ".env").write_text("GLITCH_LOCAL_TOKEN=dotenv-token\n", encoding="utf-8")
+            with mock.patch.dict("os.environ", {"GLITCH_TOPSTEP_GATEWAY_ROOT": str(gateway_root)}, clear=False):
+                with mock.patch.dict("os.environ", {}, clear=False):
+                    os.environ.pop("GLITCH_TOPSTEP_LOCAL_TOKEN", None)
+                    loaded = runner.ensure_gateway_local_token()
+                    self.assertEqual(os.environ["GLITCH_TOPSTEP_LOCAL_TOKEN"], "dotenv-token")
+                    self.assertEqual(loaded["source"], "gateway_dotenv_alias")
+            with mock.patch.dict("os.environ", {"GLITCH_TOPSTEP_GATEWAY_ROOT": str(gateway_root), "GLITCH_TOPSTEP_LOCAL_TOKEN": "environment-token"}, clear=False):
+                loaded = runner.ensure_gateway_local_token()
+                self.assertEqual(os.environ["GLITCH_TOPSTEP_LOCAL_TOKEN"], "environment-token")
+                self.assertEqual(loaded["source"], "environment")
+            self.assertNotIn("dotenv-token", json.dumps(loaded))
+
+    def test_gateway_dotenv_alias_fails_closed_when_missing(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            gateway_root = Path(temp_dir)
+            (gateway_root / "release").mkdir()
+            (gateway_root / "package.json").write_text("{}", encoding="utf-8")
+            (gateway_root / "release" / "paired-contract.json").write_text("{}", encoding="utf-8")
+            with mock.patch.dict("os.environ", {"GLITCH_TOPSTEP_GATEWAY_ROOT": str(gateway_root)}, clear=False), mock.patch.dict("os.environ", {}, clear=False):
+                os.environ.pop("GLITCH_TOPSTEP_LOCAL_TOKEN", None)
+                with self.assertRaisesRegex(runner.RunnerError, "gateway_local_token_missing"):
+                    runner.ensure_gateway_local_token()
+
     def test_auth_preflight_accepts_provider_in_canonical_home(self):
         home = ROOT / "canonical-hermes-home"
         completed = subprocess.CompletedProcess(
