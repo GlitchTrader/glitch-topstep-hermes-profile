@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import os
 import sys
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -34,6 +35,9 @@ SPECIALTY_MARKERS: dict[str, tuple[str, ...]] = {
 
 class SkillPreloadError(RuntimeError):
     """Declared skills are missing, mismatched, or absent from preload."""
+
+
+_PRELOAD_LOCK = threading.RLock()
 
 
 def sha256_file(path: Path) -> str:
@@ -83,25 +87,26 @@ def ensure_skill_files_exist(
 
 
 def require_hermes_preload(skill_ids: list[str], *, hermes_home: Path) -> dict[str, Any]:
-    agent_root = Path(os.environ.get("LOCALAPPDATA", "")) / "hermes" / "hermes-agent"
-    try:
-        agent_available = agent_root.is_dir()
-    except OSError as exc:
-        raise SkillPreloadError(f"hermes_skill_api_unavailable:{type(exc).__name__}") from exc
-    if agent_available and str(agent_root) not in sys.path:
-        sys.path.insert(0, str(agent_root))
-    previous = os.environ.get("HERMES_HOME")
-    os.environ["HERMES_HOME"] = str(hermes_home)
-    try:
-        from agent.skill_commands import build_preloaded_skills_prompt  # type: ignore
-        prompt, loaded, missing = build_preloaded_skills_prompt(list(skill_ids))
-    except Exception as exc:  # noqa: BLE001
-        raise SkillPreloadError(f"hermes_skill_api_unavailable:{type(exc).__name__}") from exc
-    finally:
-        if previous is None:
-            os.environ.pop("HERMES_HOME", None)
-        else:
-            os.environ["HERMES_HOME"] = previous
+    with _PRELOAD_LOCK:
+        agent_root = Path(os.environ.get("LOCALAPPDATA", "")) / "hermes" / "hermes-agent"
+        try:
+            agent_available = agent_root.is_dir()
+        except OSError as exc:
+            raise SkillPreloadError(f"hermes_skill_api_unavailable:{type(exc).__name__}") from exc
+        if agent_available and str(agent_root) not in sys.path:
+            sys.path.insert(0, str(agent_root))
+        previous = os.environ.get("HERMES_HOME")
+        os.environ["HERMES_HOME"] = str(hermes_home)
+        try:
+            from agent.skill_commands import build_preloaded_skills_prompt  # type: ignore
+            prompt, loaded, missing = build_preloaded_skills_prompt(list(skill_ids))
+        except Exception as exc:  # noqa: BLE001
+            raise SkillPreloadError(f"hermes_skill_api_unavailable:{type(exc).__name__}") from exc
+        finally:
+            if previous is None:
+                os.environ.pop("HERMES_HOME", None)
+            else:
+                os.environ["HERMES_HOME"] = previous
     expected = set(skill_ids)
     if missing or set(loaded) != expected:
         raise SkillPreloadError(

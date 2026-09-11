@@ -409,6 +409,31 @@ catch (error) { process.stdout.write(error?.errorCode || error?.message || 'reje
                 with self.assertRaisesRegex(runner.SafetyStopError, reason):
                     runner._invoke_hermes({"profile_id": "baseline-current", "skills": []}, {"envelope_id": "env"}, 1000)
 
+    def test_hermes_nonzero_preserves_sanitized_diagnostic(self):
+        completed = runner.subprocess.CompletedProcess(
+            args=["hermes"],
+            returncode=17,
+            stdout=b"provider failed for secret-value",
+            stderr=b"connection reset; Bearer abc123",
+        )
+        with mock.patch.object(runner.shutil, "which", return_value="hermes"), mock.patch.object(
+            runner.subprocess, "run", return_value=completed
+        ):
+            with self.assertRaises(runner.HermesInvocationError) as caught:
+                runner._invoke_hermes(
+                    {"profile_id": "baseline-current", "skills": []},
+                    {"envelope_id": "env"},
+                    1000,
+                )
+        diagnostic = caught.exception.diagnostic
+        self.assertEqual(diagnostic["classification"], "transport")
+        self.assertEqual(diagnostic["stage"], "transport")
+        self.assertEqual(diagnostic["returncode"], 17)
+        self.assertIn("connection reset", diagnostic["stderr"])
+        self.assertNotIn("abc123", diagnostic["stderr"])
+        self.assertNotIn("secret-value", diagnostic["stdout"])
+        self.assertNotIn("provider failed for secret-value", " ".join(diagnostic["command"]))
+
     def test_safety_stop_does_not_write_partial_run_evidence(self):
         with tempfile.TemporaryDirectory() as root:
             output = Path(root) / "run.json"

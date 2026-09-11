@@ -59,6 +59,18 @@ class RunnerError(RuntimeError):
     """A fail-closed runner stop with a stable audit code."""
 
 
+class HermesInvocationError(RunnerError):
+    """A sanitized, structured Hermes subprocess failure."""
+
+    def __init__(self, code: str, diagnostic: dict[str, Any]):
+        self.code = code
+        self.diagnostic = diagnostic
+        super().__init__(code)
+
+    def __str__(self) -> str:
+        return f"hermes_{self.diagnostic.get('classification', 'failure')}:{self.code}"
+
+
 class ProfileInvoker(Protocol):
     def __call__(self, profile: dict[str, Any], envelope: dict[str, Any], timeout_ms: int) -> dict[str, Any]: ...
 
@@ -294,7 +306,17 @@ def _invoke_hermes(profile: dict[str, Any], envelope: dict[str, Any], timeout_ms
         try:
             assert_declared_skills_ready(skill_ids, profile_root=ROOT)
         except SkillPreloadError as exc:
-            raise RunnerError(str(exc)) from exc
+            raise HermesInvocationError(
+                str(exc),
+                {
+                    "stage": "preload",
+                    "classification": "preload",
+                    "command": ["hermes", "preload", *skill_ids],
+                    "duration_ms": 0,
+                    "stdout": "",
+                    "stderr": sanitize_text(str(exc))[:4000],
+                },
+            ) from exc
     hermes_home = default_glitch_topstep_hermes_home()
     env = dict(os.environ)
     for key in list(env):
@@ -324,22 +346,65 @@ def _invoke_hermes(profile: dict[str, Any], envelope: dict[str, Any], timeout_ms
         },
         ensure_ascii=False,
     )
-    completed = subprocess.run(
-        [executable, "chat", "--source", "trading", "--max-turns", "4", "--skills", ",".join(skill_ids), "-Q", "-q", prompt],
-        capture_output=True,
-        text=False,
-        timeout=max(0.001, timeout_ms / 1000),
-        env=env,
-        cwd=str(ROOT),
-        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-    )
+    command = [executable, "chat", "--source", "trading", "--max-turns", "4", "--skills", ",".join(skill_ids), "-Q", "-q"]
+    started = time.monotonic()
+    try:
+        completed = subprocess.run(
+            [*command, prompt],
+            capture_output=True,
+            text=False,
+            timeout=max(0.001, timeout_ms / 1000),
+            env=env,
+            cwd=str(ROOT),
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        )
+    except subprocess.TimeoutExpired as exc:
+        duration_ms = int((time.monotonic() - started) * 1000)
+        raise HermesInvocationError(
+            "hermes_timeout",
+            {
+                "stage": "launcher",
+                "classification": "timeout",
+                "command": [Path(command[0]).name, *command[1:]],
+                "duration_ms": duration_ms,
+                "stdout": sanitize_text(exc.stdout or b"")[:4000],
+                "stderr": sanitize_text(exc.stderr or b"")[:4000],
+            },
+        ) from exc
+    except OSError as exc:
+        duration_ms = int((time.monotonic() - started) * 1000)
+        raise HermesInvocationError(
+            "hermes_launcher_failed",
+            {
+                "stage": "launcher",
+                "classification": "launcher",
+                "command": [Path(command[0]).name, *command[1:]],
+                "duration_ms": duration_ms,
+                "stdout": "",
+                "stderr": sanitize_text(str(exc))[:4000],
+            },
+        ) from exc
+    duration_ms = int((time.monotonic() - started) * 1000)
     try:
         stdout = completed.stdout.decode("utf-8", errors="strict")
-        completed.stderr.decode("utf-8", errors="strict")
+        stderr = completed.stderr.decode("utf-8", errors="strict")
     except UnicodeDecodeError as exc:
         raise SafetyStopError("safety_stop:hermes_utf8_decode_failed") from exc
     if completed.returncode:
-        raise RunnerError("hermes_failed")
+        combined = f"{stdout}\n{stderr}".lower()
+        classification = "transport" if any(token in combined for token in ("connection", "timeout", "network", "transport")) else "provider"
+        raise HermesInvocationError(
+            "hermes_process_nonzero",
+            {
+                "stage": "provider" if classification == "provider" else "transport",
+                "classification": classification,
+                "returncode": completed.returncode,
+                "command": [Path(command[0]).name, *command[1:]],
+                "duration_ms": duration_ms,
+                "stdout": sanitize_text(stdout)[:4000],
+                "stderr": sanitize_text(stderr)[:4000],
+            },
+        )
     from common import extract_single_json_object
     try:
         value = extract_single_json_object(stdout)

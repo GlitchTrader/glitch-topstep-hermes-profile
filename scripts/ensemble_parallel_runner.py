@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import copy
 import shutil
 import tempfile
 import threading
@@ -123,6 +124,9 @@ def execute_profile_slot(
     except Exception as exc:  # ponytail: classify provider failures without crashing pool
         error = f"provider_error:{exc}"
         raw = {"state": "error", "error_code": str(exc)}
+        diagnostic = getattr(exc, "diagnostic", None)
+        if isinstance(diagnostic, dict):
+            raw["hermes_diagnostic"] = copy.deepcopy(diagnostic)
 
     normalized = builder(
         fixture=raw if error != "fixture_missing" else None,

@@ -1,6 +1,7 @@
 import sys
 import tempfile
 import unittest
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -49,6 +50,19 @@ class SpecialtySkillWiringTests(unittest.TestCase):
             all(result["specialty_markers"][skill].values())
             for skill in result["specialty_markers"]
         ))
+
+    def test_real_hermes_preload_is_stable_under_repeated_parallel_calls(self):
+        expected = {"topstep-smart-money", "topstep-indicators"}
+
+        def load_once():
+            return gate.require_hermes_preload(list(expected), hermes_home=ROOT)
+
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            results = list(pool.map(lambda _index: load_once(), range(8)))
+        self.assertEqual({tuple(sorted(result["loaded"])) for result in results}, {
+            tuple(sorted(expected))
+        })
+        self.assertTrue(all(not result["missing"] for result in results))
 
     def test_missing_live_skill_fails_closed(self):
         with tempfile.TemporaryDirectory() as tmp:
