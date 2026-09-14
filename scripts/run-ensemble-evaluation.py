@@ -129,6 +129,12 @@ def build_normalized_candidate(
 ) -> dict[str, Any]:
     overlay = apply_capacity_gate_overlay(fixture=fixture, gate=gate)
     direction = overlay.get("direction")
+    objections = []
+    for objection in list((fixture or {}).get("objections") or []):
+        preserved = copy.deepcopy(objection)
+        if isinstance(preserved, dict):
+            preserved.setdefault("source_profile_id", str(profile["profile_id"]))
+        objections.append(preserved)
     return {
         "schema_version": "glitch.topstep.normalized_candidate.v1",
         "run_id": run_id,
@@ -155,6 +161,7 @@ def build_normalized_candidate(
         "thesis": overlay.get("thesis"),
         "thesis_source": overlay.get("thesis_source"),
         "evidence_refs": list((fixture or {}).get("evidence_refs") or []),
+        "objections": objections,
         "entry": (fixture or {}).get("entry"),
         "entry_range": (fixture or {}).get("entry_range"),
         "stop": (fixture or {}).get("stop"),
