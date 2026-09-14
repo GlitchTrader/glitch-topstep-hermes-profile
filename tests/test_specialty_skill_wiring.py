@@ -8,9 +8,44 @@ from tempfile import TemporaryDirectory
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import ensemble_skill_gate as gate  # noqa: E402
+from distribution_manifest import file_sha256, iter_sha256sums_entries  # noqa: E402
 
 
 class SpecialtySkillWiringTests(unittest.TestCase):
+    def test_specialty_front_matter_is_valid_utf8(self):
+        for skill in ("topstep-smart-money", "topstep-indicators"):
+            metadata = gate.parse_skill_front_matter(ROOT / "skills" / skill / "SKILL.md", expected_skill_id=skill)
+            self.assertEqual(metadata["name"], skill)
+            self.assertTrue(metadata["description"])
+
+    def test_discovery_is_deterministic(self):
+        first = gate.discover_skill_files(ROOT)
+        second = gate.discover_skill_files(ROOT)
+        self.assertEqual(first, sorted(first))
+        self.assertEqual(first, second)
+        self.assertIn("topstep-smart-money", first)
+        self.assertIn("topstep-indicators", first)
+
+    def test_skill_manifest_checksums_match(self):
+        manifest = {path: digest for digest, path in iter_sha256sums_entries(ROOT)}
+        for skill in ("topstep-smart-money", "topstep-indicators"):
+            path = f"skills/{skill}/SKILL.md"
+            self.assertIn(path, manifest)
+            self.assertEqual(manifest[path], file_sha256(ROOT / path))
+
+    def test_invalid_front_matter_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "SKILL.md"
+            path.write_text("# invalid\n", encoding="utf-8")
+            with self.assertRaisesRegex(gate.SkillPreloadError, "skill_front_matter_invalid"):
+                gate.parse_skill_front_matter(path, expected_skill_id="topstep-smart-money")
+
+    def test_utf8_and_path_with_spaces_are_supported(self):
+        with tempfile.TemporaryDirectory(prefix="hermes skill ") as tmp:
+            path = Path(tmp) / "SKILL.md"
+            path.write_text("---\nname: topstep-smart-money\ndescription: evidência UTF-8\n---\n", encoding="utf-8")
+            metadata = gate.parse_skill_front_matter(path, expected_skill_id="topstep-smart-money")
+            self.assertEqual(metadata["description"], "evidência UTF-8")
     def test_canonical_specialty_files_are_substantive_and_distinct(self):
         smart = (ROOT / "skills" / "topstep-smart-money" / "SKILL.md").read_text().lower()
         indicators = (ROOT / "skills" / "topstep-indicators" / "SKILL.md").read_text().lower()
