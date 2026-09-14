@@ -143,6 +143,14 @@ def build_normalized_candidate(
         "profile_declared_direction": overlay["profile_declared_direction"],
         "capacity_gate_reason": overlay["capacity_gate_reason"],
         "instrument": str((fixture or {}).get("instrument") or envelope["instrument"]),
+        "contract_id": (
+            (fixture or {}).get("contract_id")
+            or ((fixture or {}).get("contract", {}).get("id") if isinstance((fixture or {}).get("contract"), dict) else None)
+            or ((envelope.get("contract") or {}).get("id") if isinstance(envelope.get("contract"), dict) else None)
+        ),
+        "contract_generation": (fixture or {}).get("contract_generation"),
+        "quantity": (fixture or {}).get("quantity"),
+        "prompt_version": profile.get("prompt_version"),
         "direction": direction,
         "thesis": overlay.get("thesis"),
         "thesis_source": overlay.get("thesis_source"),
@@ -159,6 +167,7 @@ def build_normalized_candidate(
         "completeness_used": gate["completeness_used"],
         "raw_status": overlay.get("raw_status"),
         "error_code": overlay.get("error_code"),
+        "delayed": bool((fixture or {}).get("delayed") or (fixture or {}).get("result_delayed")),
         "started_utc": started_utc,
         "finished_utc": finished_utc,
         "latency_ms": latency_ms,

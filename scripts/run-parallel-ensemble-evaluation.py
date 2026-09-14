@@ -153,6 +153,14 @@ def build_parallel_run(
             candidates=normalized_candidates,
             objections=[],
             rules=rules,
+            required_profile_ids=[str(profile["profile_id"]) for profile in profiles],
+            process={
+                "ensemble_timeout": any(slot.error == "ensemble_timeout" for slot in slot_results),
+                "accepted_profile_versions": {
+                    str(profile["profile_id"]): str(profile["profile_version"])
+                    for profile in profiles
+                },
+            },
         )
 
         frame_results.append(

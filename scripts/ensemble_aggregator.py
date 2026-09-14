@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 import uuid
+from datetime import datetime, timezone
 from typing import Any
 
 from ensemble_compare import classify_candidate
@@ -59,6 +60,10 @@ def candidates_equivalent(
     if str(a.get("direction") or "").lower() != str(b.get("direction") or "").lower():
         return False
     if str(a.get("instrument") or "") != str(b.get("instrument") or ""):
+        return False
+    if str(a.get("contract_id") or "") != str(b.get("contract_id") or ""):
+        return False
+    if str(a.get("contract_generation") or "") != str(b.get("contract_generation") or ""):
         return False
     if a.get("horizon_bars") != b.get("horizon_bars"):
         return False
@@ -137,8 +142,25 @@ def validate_candidate_identity(candidate: dict[str, Any], envelope: dict[str, A
     """Return objective identity failures before any global selection."""
     envelope_instrument = str(envelope.get("instrument") or "").strip()
     candidate_instrument = candidate.get("instrument")
-    if not envelope_instrument or not isinstance(candidate_instrument, str) or not candidate_instrument.strip() or candidate_instrument != envelope_instrument:
+    if (
+        not envelope_instrument
+        or not isinstance(candidate_instrument, str)
+        or not candidate_instrument.strip()
+        or candidate_instrument.strip().upper() != envelope_instrument.upper()
+    ):
         return ["identity_mismatch"]
+    envelope_contract = envelope.get("contract") if isinstance(envelope.get("contract"), dict) else {}
+    expected_contract_id = envelope.get("contract_id") or envelope_contract.get("contract_id") or envelope_contract.get("id")
+    if expected_contract_id is not None:
+        actual_contract_id = candidate.get("contract_id") or candidate.get("contract")
+        if isinstance(actual_contract_id, dict):
+            actual_contract_id = actual_contract_id.get("id") or actual_contract_id.get("contract_id")
+        if actual_contract_id is not None and str(actual_contract_id) != str(expected_contract_id):
+            return ["contract_outside_envelope"]
+    expected_generation = envelope.get("contract_generation") or envelope_contract.get("contract_generation") or envelope_contract.get("generation")
+    actual_generation = candidate.get("contract_generation")
+    if expected_generation is not None and actual_generation is not None and str(actual_generation) != str(expected_generation):
+        return ["contract_outside_envelope"]
     return []
 
 
@@ -167,16 +189,46 @@ def _candidate_identity_and_quantity_codes(candidate: dict[str, Any], envelope: 
     return validate_candidate_identity(candidate, envelope) + validate_candidate_quantity(candidate, envelope)
 
 
+def _parse_utc(value: Any) -> datetime | None:
+    if not isinstance(value, str) or not value.strip():
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(timezone.utc)
+    except ValueError:
+        return None
+
+
+def _candidate_is_delayed(candidate: dict[str, Any], envelope: dict[str, Any]) -> bool:
+    if bool(candidate.get("delayed") or candidate.get("result_delayed")):
+        return True
+    finished = _parse_utc(candidate.get("finished_utc"))
+    deadline = _parse_utc(envelope.get("valid_until_utc") or envelope.get("expires_utc"))
+    return bool(finished and deadline and finished > deadline)
+
+
+def _accepted_version_mismatch(candidate: dict[str, Any], process: dict[str, Any]) -> bool:
+    profile_id = str(candidate.get("profile_id") or "")
+    versions = process.get("accepted_profile_versions") or {}
+    expected = versions.get(profile_id) if isinstance(versions, dict) else None
+    accepted = expected if isinstance(expected, list) else [expected]
+    if expected is not None and str(candidate.get("profile_version") or "") not in {str(v) for v in accepted}:
+        return True
+    prompts = process.get("accepted_prompt_versions") or {}
+    expected_prompt = prompts.get(profile_id) if isinstance(prompts, dict) else None
+    accepted_prompts = expected_prompt if isinstance(expected_prompt, list) else [expected_prompt]
+    return expected_prompt is not None and str(candidate.get("prompt_version") or "") not in {str(v) for v in accepted_prompts}
+
+
 def _normalize_objections(raw: list[dict[str, Any]]) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
-    for row in raw:
+    for index, row in enumerate(raw):
         sev = str(row.get("severity") or "info").lower()
         objective = bool(row.get("objective_rule_match"))
         eliminates = sev == "critical" and objective
         out.append(
             {
                 "source_profile_id": str(row.get("source_profile_id") or ""),
-                "objection_id": str(row.get("objection_id") or uuid.uuid4()),
+                "objection_id": str(row.get("objection_id") or f"objection:{index}"),
                 "target_profile_id": str(row.get("target_profile_id") or ""),
                 "severity": sev,
                 "risk_code": str(row.get("risk_code") or ""),
@@ -194,7 +246,7 @@ def _fixture_row_to_candidate(row: dict[str, Any], envelope: dict[str, Any]) -> 
     """Convert aggregator fixture profile row to normalized_candidate shape."""
     return {
         "profile_id": row.get("profile_id"),
-        "invocation_id": str(row.get("invocation_id") or uuid.uuid4()),
+        "invocation_id": str(row.get("invocation_id") or f"fixture:{row.get('profile_id') or 'unknown'}"),
         "state": row.get("normalized_state") or row.get("state"),
         "comparability": row.get("comparability") or "comparable",
         "instrument": row.get("instrument"),
@@ -209,6 +261,10 @@ def _fixture_row_to_candidate(row: dict[str, Any], envelope: dict[str, Any]) -> 
         "warning_priority_penalty": row.get("warning_priority_penalty"),
         "error_code": row.get("error_code"),
         "envelope_hash": row.get("envelope_hash") or envelope.get("envelope_hash") or envelope.get("snapshot_hash"),
+        "contract_id": row.get("contract_id") or row.get("contract"),
+        "contract_generation": row.get("contract_generation"),
+        "prompt_version": row.get("prompt_version"),
+        "delayed": row.get("delayed") or row.get("result_delayed"),
     }
 
 
@@ -225,11 +281,31 @@ def aggregate_envelope(
 ) -> dict[str, Any]:
     """Deterministic aggregator — evaluation artifacts only."""
     process = process or {}
+    candidates = sorted(
+        [dict(candidate) for candidate in candidates],
+        key=lambda candidate: (str(candidate.get("profile_id") or ""), str(candidate.get("invocation_id") or "")),
+    )
     objections_norm = _normalize_objections(objections or [])
     trace: list[str] = []
     instrument = str(envelope.get("instrument") or "MNQ")
     tick_size = tick_size_from_envelope(envelope)
     envelope_hash = str(envelope.get("envelope_hash") or envelope.get("snapshot_hash") or "")
+
+    evaluation_utc = _parse_utc(process.get("evaluation_utc")) or datetime.now(timezone.utc)
+    deadline = _parse_utc(envelope.get("valid_until_utc") or envelope.get("expires_utc"))
+    if deadline and evaluation_utc > deadline:
+        trace.append("ENVELOPE_EXPIRED")
+        return _selection(
+            run_id=run_id,
+            envelope=envelope,
+            rules=rules,
+            outcome="classified_failure",
+            decision_code="ENVELOPE_EXPIRED",
+            failure_class="decision_expired",
+            trace=trace,
+            candidates=candidates,
+            objections=objections_norm,
+        )
 
     present_ids = {str(c.get("profile_id")) for c in candidates}
     missing = list(process.get("missing_profiles") or [])
@@ -248,21 +324,33 @@ def aggregate_envelope(
             objections=objections_norm,
         )
 
+    if candidates and all(str(candidate.get("state") or "") == "timeout" for candidate in candidates):
+        trace.append("ENSEMBLE_TIMEOUT")
+        return _selection(
+            run_id=run_id,
+            envelope=envelope,
+            rules=rules,
+            outcome="classified_failure",
+            decision_code="ENSEMBLE_TIMEOUT",
+            failure_class="ensemble_timeout",
+            trace=trace,
+            candidates=candidates,
+            objections=objections_norm,
+        )
+
     if process.get("ensemble_timeout") or process.get("budget_exhausted_before_final_candidates"):
-        states = [str(c.get("state") or "") for c in candidates]
-        if states and all(s == "timeout" for s in states):
-            trace.append("ENSEMBLE_TIMEOUT")
-            return _selection(
-                run_id=run_id,
-                envelope=envelope,
-                rules=rules,
-                outcome="classified_failure",
-                decision_code="ENSEMBLE_TIMEOUT",
-                failure_class="ensemble_timeout",
-                trace=trace,
-                candidates=candidates,
-                objections=objections_norm,
-            )
+        trace.append("ENSEMBLE_TIMEOUT")
+        return _selection(
+            run_id=run_id,
+            envelope=envelope,
+            rules=rules,
+            outcome="classified_failure",
+            decision_code="ENSEMBLE_TIMEOUT",
+            failure_class="ensemble_timeout",
+            trace=trace,
+            candidates=candidates,
+            objections=objections_norm,
+        )
 
     if process.get("ensemble_crash"):
         trace.append("ENSEMBLE_CRASH")
@@ -306,6 +394,20 @@ def aggregate_envelope(
             objections=objections_norm,
         )
 
+    if any(_accepted_version_mismatch(candidate, process) for candidate in candidates):
+        trace.append("VERSION_INCOMPATIBLE")
+        return _selection(
+            run_id=run_id,
+            envelope=envelope,
+            rules=rules,
+            outcome="classified_failure",
+            decision_code="VERSION_INCOMPATIBLE",
+            failure_class="version_incompatible",
+            trace=trace,
+            candidates=candidates,
+            objections=objections_norm,
+        )
+
     by_profile = {str(c.get("profile_id")): c for c in candidates}
     categories: dict[str, str] = {}
     for pid, cand in by_profile.items():
@@ -335,7 +437,14 @@ def aggregate_envelope(
         state = str(cand.get("state") or "")
         pid = str(cand.get("profile_id") or "")
         cat = categories.get(pid, "")
+        if _candidate_is_delayed(cand, envelope):
+            trace.append(f"PROFILE_RESULT_DELAYED:{pid}")
+            continue
         if state in EXCLUDED_STATES or cat in {"missing_required_evidence", "timeout", "schema_invalid"}:
+            if state == "timeout" or cat == "timeout":
+                trace.append(f"PROFILE_TIMEOUT:{pid}")
+            elif str(cand.get("comparability") or "") == "not_comparable":
+                trace.append(f"PROFILE_NOT_COMPARABLE:{pid}")
             if state == "missing_required_evidence" or cat == "missing_required_evidence":
                 trace.append("MISSING_REQUIRED_EVIDENCE")
             if state in {"invalid", "error"} or cat == "schema_invalid":
@@ -362,6 +471,8 @@ def aggregate_envelope(
             decision_code = "IDENTITY_MISMATCH"
         elif all_codes == {"invalid_quantity"}:
             decision_code = "INVALID_QUANTITY"
+        elif all_codes == {"contract_outside_envelope"}:
+            decision_code = "CONTRACT_OUTSIDE_ENVELOPE"
         else:
             decision_code = "OBJECTIVE_CANDIDATE_ELIMINATION"
         trace.append(decision_code)
@@ -371,6 +482,19 @@ def aggregate_envelope(
             rules=rules,
             outcome="no_selection",
             decision_code=decision_code,
+            trace=trace,
+            candidates=candidates,
+            objections=objections_norm,
+        )
+
+    if not candidates:
+        trace.append("NO_ELIGIBLE_CANDIDATES")
+        return _selection(
+            run_id=run_id,
+            envelope=envelope,
+            rules=rules,
+            outcome="no_selection",
+            decision_code="NO_ELIGIBLE_CANDIDATES",
             trace=trace,
             candidates=candidates,
             objections=objections_norm,
@@ -438,7 +562,7 @@ def aggregate_envelope(
                 eliminated.add(pid)
         codes = _objective_geometry_codes(cand, envelope)
         for code in codes:
-            if code in {"invalid_stop_geometry", "invalid_target_geometry", "identity_mismatch"}:
+            if code in {"invalid_stop_geometry", "invalid_target_geometry", "identity_mismatch", "contract_outside_envelope"}:
                 eliminated.add(pid)
                 trace.append(f"OBJECTIVE_ELIMINATION:{pid}:{code}")
 

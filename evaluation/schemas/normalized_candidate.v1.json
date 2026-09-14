@@ -48,6 +48,11 @@
       ]
     },
     "instrument": { "type": "string" },
+    "contract_id": { "type": ["string", "null"] },
+    "contract_generation": { "type": ["string", "integer", "null"] },
+    "quantity": { "type": ["integer", "null"], "minimum": 1 },
+    "prompt_version": { "type": ["string", "null"] },
+    "delayed": { "type": "boolean" },
     "comparability": {
       "type": "string",
       "enum": ["comparable", "not_comparable"]
