@@ -8,7 +8,7 @@ import shutil
 import tempfile
 import threading
 import uuid
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, wait
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -44,6 +44,7 @@ class ParallelRunState:
     session_cost_usd: float = 0.0
     cancel_remaining: threading.Event = field(default_factory=threading.Event)
     lock: threading.Lock = field(default_factory=threading.Lock)
+    total_timeout: bool = False
 
     def add_cost(self, amount: float) -> None:
         with self.lock:
@@ -172,12 +173,9 @@ def run_profiles_parallel(
     """Run profile invocations with bounded parallelism and isolated work dirs."""
     run_state = ParallelRunState(max_parallel_slots=max(1, max_parallel_slots))
     results: list[ProfileSlotResult] = []
-    work_dirs: list[Path] = []
+    work_dirs: dict[str, Path] = {}
 
-    def _task(profile: dict[str, Any]) -> ProfileSlotResult:
-        pid = str(profile["profile_id"])
-        work_dir = _isolated_work_dir(run_id, pid, frame_id)
-        work_dirs.append(work_dir)
+    def _task(profile: dict[str, Any], work_dir: Path) -> ProfileSlotResult:
         return execute_profile_slot(
             profile=profile,
             frame_id=frame_id,
@@ -192,15 +190,51 @@ def run_profiles_parallel(
             timeout_ms=per_profile_timeout_ms,
         )
 
-    with ThreadPoolExecutor(max_workers=max_parallel_slots) as pool:
-        futures = {pool.submit(_task, profile): profile for profile in profiles}
-        total_wait_ms = 0
-        for future in as_completed(futures):
-            result = future.result()
-            results.append(result)
-            total_wait_ms += result.latency_ms
-            if total_wait_ms > total_timeout_ms:
-                run_state.cancel_remaining.set()
+    pool = ThreadPoolExecutor(max_workers=max_parallel_slots)
+    futures: dict[Any, dict[str, Any]] = {}
+    try:
+        for profile in profiles:
+            pid = str(profile["profile_id"])
+            work_dir = _isolated_work_dir(run_id, pid, frame_id)
+            work_dirs[pid] = work_dir
+            futures[pool.submit(_task, profile, work_dir)] = profile
+        done, pending = wait(futures, timeout=max(0, total_timeout_ms) / 1000.0)
+        for future in done:
+            results.append(future.result())
+        if pending:
+            run_state.total_timeout = True
+            run_state.cancel_remaining.set()
+            for future in pending:
+                future.cancel()
+                profile = futures[future]
+                pid = str(profile["profile_id"])
+                now = utc_now()
+                normalized = builder(
+                    fixture={"state": "timeout", "error_code": "ensemble_timeout"},
+                    run_id=run_id,
+                    profile=profile,
+                    envelope=envelope,
+                    gate=gates_by_profile.get(pid, {}),
+                    started_utc=now,
+                    finished_utc=now,
+                    latency_ms=total_timeout_ms + 1,
+                )
+                results.append(
+                    ProfileSlotResult(
+                        profile_id=pid,
+                        invocation_id=str(uuid.uuid4()),
+                        work_dir=str(work_dirs[pid]),
+                        started_utc=now,
+                        finished_utc=now,
+                        latency_ms=total_timeout_ms + 1,
+                        cancelled=True,
+                        error="ensemble_timeout",
+                        raw_profile_output={"state": "timeout", "error_code": "ensemble_timeout"},
+                        normalized=normalized,
+                    )
+                )
+    finally:
+        pool.shutdown(wait=True, cancel_futures=True)
 
     return sorted(results, key=lambda row: row.profile_id)
 
