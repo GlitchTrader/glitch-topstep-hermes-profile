@@ -1556,5 +1556,93 @@
       "live MES/MCL coverage remains unproven",
       "no canary or overnight promotion"
     ]
+  },
+  "documentary_merge_reconciliation_2026_09_14": {
+    "status": "documented_only_pending_separate_audit_review",
+    "canonical_base_before_merge": "041f60b9eb6a3591d9e9de2195ebe68bb192a044",
+    "canonical_main_after_merge": "9390c518989c7decbeaf5e26664ad1d961e5097c",
+    "documentary_pr": 247,
+    "documentary_merge_commit": "9390c518989c7decbeaf5e26664ad1d961e5097c",
+    "paired_gateway_documentary_pr": "glitch-topstep:#290",
+    "six_profile_provenance": {
+      "canonical_branch": "main",
+      "comparison_not_linear": true,
+      "versions": [
+        {
+          "commit": "5c788a6afecf90babaa80ec72407fdbc04e5f708",
+          "branch": "main",
+          "relation_to_main": "ancestor",
+          "content": "six-profile fixtures/replay tests including MES/MCL coverage",
+          "tests_present": ["tests/test_ensemble_evaluation.py", "tests/test_ensemble_parallel_aggregator.py"],
+          "tests_absent": ["tests/test_prac_live_ensemble.py"]
+        },
+        {
+          "commit": "dde2937808097ff3de75f5666dd2d9984c5b6b53",
+          "branch": "codex/profile-runner-integration-reaudit",
+          "relation_to_main": "not_an_ancestor",
+          "content": "historical live-runner version",
+          "tests_present": ["scripts/prac_live_ensemble.py"],
+          "tests_absent": []
+        },
+        {
+          "commit": "90d2ef6ec5a316de4af05638f11fd00cd02c810c",
+          "branch": "codex/profile-runner-integration-reaudit",
+          "relation_to_main": "not_an_ancestor",
+          "content": "historical runner, diagnostics and preload version",
+          "tests_present": ["scripts/prac_live_ensemble.py"],
+          "tests_absent": []
+        },
+        {
+          "commit": "041f60b9eb6a3591d9e9de2195ebe68bb192a044",
+          "branch": "main",
+          "relation_to_main": "canonical_base_before_merge",
+          "content": "current canonical runner/replay state",
+          "tests_present": ["tests/test_ensemble_evaluation.py", "tests/test_ensemble_parallel_aggregator.py"],
+          "tests_absent": ["tests/test_prac_live_ensemble.py"]
+        }
+      ]
+    },
+    "MES_MCL_status": {
+      "fixture_replay_coverage": true,
+      "live_proof": "absent",
+      "live_status": "unverified",
+      "no_live_promotion": true
+    },
+    "recoverable_historical_objects": [
+      "32c13276ae4d604e06d4b794376ec12876a5a8b7",
+      "2b90cec5848940b019e27c285a24d77826ea3cb4",
+      "0f530fd219054b403238488aa10aa3a5b90888d9",
+      "7451c994e45a6d4817fef0d01ebf7dc83a49bda0",
+      {
+        "reference": "11cffb4e60ed193bd3ddeca83cd4e4fe952e023",
+        "status": "invalid_unresolved",
+        "candidates_not_equated": [
+          "633f7fbe3c140fa895fc61babe3679932c3152bb",
+          "6c58e5f2c66e439d7b58cd06c8aded95729ad962"
+        ]
+      }
+    ],
+    "gateway_dependency": {
+      "authority": ["identity", "contract", "risk", "execution", "ProjectX", "receipts", "recovery"],
+      "profile_projectx_mutation": false,
+      "paired_gateway_documentary_pr": 290,
+      "paired_gateway_merge_commit": "557f721095a0f2d65d24dba58e6f904066d2509f"
+    },
+    "ensemble_p0_test_gaps": [
+      "version_incompatible",
+      "delayed_result",
+      "divergent_identity",
+      "invalid_quantity",
+      "MES_MCL_end_to_end_selection",
+      "contract_outside_envelope",
+      "timeout",
+      "missing_profile"
+    ],
+    "preserved_statuses": {
+      "blocked": ["shadow_live", "overnight"],
+      "open_or_unverified": ["MES_MCL_live", "missing_ensemble_p0_coverage"],
+      "promoted_to_done": false
+    },
+    "preserved_constraints": "Documentation only; no code, tests, scripts, contracts, prompts, runtime, evidence, or operational state changed."
   }
 }
