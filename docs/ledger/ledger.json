@@ -1643,6 +1643,38 @@
       "open_or_unverified": ["MES_MCL_live", "missing_ensemble_p0_coverage"],
       "promoted_to_done": false
     },
-    "preserved_constraints": "Documentation only; no code, tests, scripts, contracts, prompts, runtime, evidence, or operational state changed."
+    "preserved_constraints": "Documentation only; no code, tests, scripts, contracts, prompts, runtime, evidence, or operational state changed.",
+    "documentary_merges_2026_09_14": {
+      "status": "recorded_without_done_promotion",
+      "gateway_documentary_pr": 290,
+      "gateway_merge_commit": "557f721095a0f2d65d24dba58e6f904066d2509f",
+      "profile_objection_pr": 250,
+      "profile_objection_merge_commit": "effc634eef2c3c9e79163fe0b42a4bc67b19c5e7",
+      "profile_preload_pr": 251,
+      "profile_preload_merge_commit": "fa1d2448c7d3132303aa9ec4d0fa3cc26e9de3a1",
+      "preload_fix": {
+        "status": "implemented_and_ci_verified",
+        "root_cause": "topstep-smart-money and topstep-indicators lacked Hermes front matter required for discovery",
+        "ci_validation": "764 testes, 14 skips, 0 erros, 0 falhas",
+        "local_validation": "764 testes, 8 skips, 0 erros, 0 falhas, using the Hermes virtualenv",
+        "environment_difference": "The skip-count difference is environmental: CI and the local Hermes virtualenv expose different optional preload conditions; loader errors remain explicit and are not converted to success."
+      },
+      "authority_and_scope": {
+        "gateway_changed": false,
+        "paired_contract_changed": false,
+        "runtime_or_live_changed": false,
+        "operational_state_changed": false,
+        "gateway_remains_authority": true
+      },
+      "remaining_plan_gaps": {
+        "shadow_live_readonly": "blocked",
+        "overnight": "blocked",
+        "MES_MCL_live": "blocked_unverified",
+        "ensemble_p0_coverage": "open; documentary merges do not promote this to done",
+        "production_parallelism": "blocked"
+      },
+      "historical_recovery_objects": "Preserved as recoverable historical sources; no cleanup or pruning performed.",
+      "promoted_to_done": false
+    }
   }
 }
