@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import re
 import sys
 import threading
 from pathlib import Path
@@ -59,6 +60,43 @@ def resolve_profile_skill_path(profile_root: Path, skill_id: str) -> Path:
     return profile_root / "skills" / skill_id / "SKILL.md"
 
 
+def parse_skill_front_matter(path: Path, *, expected_skill_id: str) -> dict[str, str]:
+    """Parse the minimal Hermes skill front matter using strict UTF-8."""
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError) as exc:
+        raise SkillPreloadError(
+            f"skill_front_matter_invalid:{expected_skill_id}:utf8"
+        ) from exc
+    if not lines or lines[0].strip() != "---":
+        raise SkillPreloadError(f"skill_front_matter_invalid:{expected_skill_id}:opening")
+    try:
+        closing = next(index for index, line in enumerate(lines[1:], start=1) if line.strip() == "---")
+    except StopIteration as exc:
+        raise SkillPreloadError(f"skill_front_matter_invalid:{expected_skill_id}:closing") from exc
+    fields: dict[str, str] = {}
+    for line in lines[1:closing]:
+        match = re.fullmatch(r"([A-Za-z][A-Za-z0-9_-]*):\s*(.+)", line)
+        if not match:
+            raise SkillPreloadError(f"skill_front_matter_invalid:{expected_skill_id}:field")
+        fields[match.group(1)] = match.group(2).strip().strip('"\'')
+    if fields.get("name") != expected_skill_id:
+        raise SkillPreloadError(f"skill_front_matter_invalid:{expected_skill_id}:name")
+    if not fields.get("description"):
+        raise SkillPreloadError(f"skill_front_matter_invalid:{expected_skill_id}:description")
+    return fields
+
+
+def discover_skill_files(profile_root: Path) -> list[str]:
+    """Return canonical skill IDs in stable filesystem-independent order."""
+    skills_root = profile_root / "skills"
+    return sorted(
+        path.parent.name
+        for path in skills_root.glob("*/SKILL.md")
+        if path.is_file()
+    )
+
+
 def ensure_skill_files_exist(
     skill_ids: list[str],
     *,
@@ -73,6 +111,14 @@ def ensure_skill_files_exist(
             raise SkillPreloadError(f"skill_profile_missing:{skill_id}")
         if not live_path.is_file():
             raise SkillPreloadError(f"skill_hermes_home_missing:{skill_id}")
+        profile_front_matter = parse_skill_front_matter(
+            profile_path, expected_skill_id=skill_id
+        )
+        live_front_matter = parse_skill_front_matter(
+            live_path, expected_skill_id=skill_id
+        )
+        if profile_front_matter != live_front_matter:
+            raise SkillPreloadError(f"skill_front_matter_mismatch:{skill_id}")
         profile_hash = sha256_file(profile_path)
         live_hash = sha256_file(live_path)
         if profile_hash != live_hash:
@@ -82,6 +128,7 @@ def ensure_skill_files_exist(
             "profile_path": str(profile_path),
             "hermes_home_path": str(live_path),
             "sha256": profile_hash,
+            "front_matter": profile_front_matter,
         })
     return {"hermes_home": str(hermes_home), "skills": rows}
 
