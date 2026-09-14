@@ -54,6 +54,21 @@ def read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def collect_normalized_objections(slot_results: list[Any]) -> list[dict[str, Any]]:
+    """Transport objections already carried by normalized profile results."""
+    objections: list[dict[str, Any]] = []
+    for slot in sorted(slot_results, key=lambda item: str(item.profile_id)):
+        normalized = slot.normalized or {}
+        raw_objections = normalized.get("objections") or []
+        if not isinstance(raw_objections, list):
+            raise ValueError(f"normalized_objections_invalid:{slot.profile_id}")
+        for objection in raw_objections:
+            if not isinstance(objection, dict):
+                raise ValueError(f"normalized_objection_invalid:{slot.profile_id}")
+            objections.append(copy.deepcopy(objection))
+    return objections
+
+
 def build_parallel_run(
     *,
     frames_dir: Path,
@@ -147,11 +162,12 @@ def build_parallel_run(
         if envelope["snapshot_hash"] != sealed:
             raise ValueError("snapshot_hash_mutated_after_parallel_profiles")
 
+        objections = collect_normalized_objections(slot_results)
         selection = aggregate_envelope(
             run_id=run_id,
             envelope={**envelope, "envelope_hash": envelope_hash(envelope)},
             candidates=normalized_candidates,
-            objections=[],
+            objections=objections,
             rules=rules,
             required_profile_ids=[str(profile["profile_id"]) for profile in profiles],
             process={

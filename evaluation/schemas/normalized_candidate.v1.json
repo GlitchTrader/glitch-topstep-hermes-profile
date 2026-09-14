@@ -102,6 +102,24 @@
       "type": "array",
       "items": { "type": "string" }
     },
+    "objections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source_profile_id": { "type": "string" },
+          "objection_id": { "type": "string" },
+          "target_profile_id": { "type": "string" },
+          "severity": { "type": "string", "enum": ["info", "warning", "critical"] },
+          "risk_code": { "type": "string" },
+          "summary": { "type": "string" },
+          "reason": { "type": "string" },
+          "evidence_refs": { "type": "array", "items": { "type": "string" } },
+          "objective_rule_match": { "type": "boolean" }
+        },
+        "additionalProperties": true
+      }
+    },
     "entry": { "type": ["number", "null"] },
     "entry_range": {
       "type": ["object", "null"],

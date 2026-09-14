@@ -385,6 +385,84 @@ class AggregatorScenarioTests(unittest.TestCase):
         self.assertEqual(result["selected_profile_id"], "baseline-current")
 
 
+class ParallelObjectionTransportTests(unittest.TestCase):
+    def _candidate(self, profile_id: str, score: int = 30) -> dict:
+        return {
+            "profile_id": profile_id,
+            "invocation_id": f"inv:{profile_id}",
+            "profile_version": "v1",
+            "normalized_state": "candidate",
+            "state": "candidate",
+            "comparability": "comparable",
+            "instrument": "MNQ",
+            "contract_id": "CON.MNQ",
+            "contract_generation": "g1",
+            "quantity": 1,
+            "direction": "long",
+            "entry": 100.0,
+            "stop": 99.0,
+            "target": 102.0,
+            "horizon_bars": 12,
+            "envelope_hash": "a" * 64,
+            "completeness_used": {},
+            "evidence_refs": [],
+            "evidence_score": score,
+        }
+
+    def _slot(self, profile_id: str, objections: list[dict] | None = None, error: str | None = None):
+        return PARALLEL.ProfileSlotResult(
+            profile_id=profile_id,
+            invocation_id=f"inv:{profile_id}",
+            work_dir="offline",
+            started_utc="2026-09-14T00:00:00Z",
+            finished_utc="2026-09-14T00:00:01Z",
+            latency_ms=1,
+            cancelled=False,
+            error=error,
+            raw_profile_output=None,
+            normalized={"objections": objections or []},
+        )
+
+    def test_transport_preserves_multiple_profiles_and_fields(self) -> None:
+        objections = RUN_PARALLEL.collect_normalized_objections([
+            self._slot("structure", [{"target_profile_id": "baseline-current", "severity": "warning", "risk_code": "late", "evidence_refs": ["q:2"], "objective_rule_match": False}]),
+            self._slot("adversarial-risk", [{"target_profile_id": "structure", "severity": "critical", "risk_code": "bad_stop", "reason": "objective", "evidence_refs": ["q:3"], "objective_rule_match": True}]),
+        ])
+        self.assertEqual([item["severity"] for item in objections], ["critical", "warning"])
+        self.assertEqual(objections[0]["risk_code"], "bad_stop")
+        self.assertEqual(objections[0]["evidence_refs"], ["q:3"])
+        self.assertTrue(objections[0]["objective_rule_match"])
+
+    def test_critical_objective_objection_eliminates_candidate(self) -> None:
+        objection = {"target_profile_id": "baseline-current", "severity": "critical", "risk_code": "bad_stop", "objective_rule_match": True}
+        result = AGG.aggregate_envelope(
+            run_id="transport-critical", envelope={"envelope_id": "env", "instrument": "MNQ", "snapshot_hash": "a" * 64, "envelope_hash": "a" * 64, "contract": {"tick_size": 0.25}, "packet": {"market": {"last": 100.0}}},
+            candidates=[self._candidate("baseline-current"), self._candidate("structure", 20), self._candidate("smart-money", 20)],
+            objections=RUN_PARALLEL.collect_normalized_objections([self._slot("adversarial-risk", [objection])]), rules=RULES,
+        )
+        self.assertEqual(result["selected_profile_id"], "smart-money")
+        self.assertEqual(result["objections"][0]["risk_code"], "bad_stop")
+
+    def test_critical_without_rule_and_warning_only_affect_priority(self) -> None:
+        objections = RUN_PARALLEL.collect_normalized_objections([self._slot("adversarial-risk", [
+            {"target_profile_id": "baseline-current", "severity": "critical", "risk_code": "narrative", "objective_rule_match": False},
+            {"target_profile_id": "structure", "severity": "warning", "risk_code": "late", "objective_rule_match": False},
+        ])])
+        result = AGG.aggregate_envelope(
+            run_id="transport-warning", envelope={"envelope_id": "env", "instrument": "MNQ", "snapshot_hash": "a" * 64, "envelope_hash": "a" * 64, "contract": {"tick_size": 0.25}, "packet": {"market": {"last": 100.0}}},
+            candidates=[self._candidate("baseline-current"), self._candidate("structure")], objections=objections, rules=RULES,
+        )
+        self.assertEqual(result["outcome"], "selected")
+        self.assertEqual(len(result["objections"]), 2)
+
+    def test_transport_order_is_deterministic_and_timeout_does_not_drop_other_objection(self) -> None:
+        objection = {"target_profile_id": "structure", "severity": "warning", "risk_code": "late", "objective_rule_match": False}
+        a = RUN_PARALLEL.collect_normalized_objections([self._slot("structure", [objection]), self._slot("baseline-current", [], "timeout")])
+        b = RUN_PARALLEL.collect_normalized_objections([self._slot("baseline-current", [], "timeout"), self._slot("structure", [objection])])
+        self.assertEqual(a, b)
+        self.assertEqual(a[0]["target_profile_id"], "structure")
+
+
 class AggregatorOrderInvarianceTests(unittest.TestCase):
     def _rows(self) -> list[dict]:
         return [
