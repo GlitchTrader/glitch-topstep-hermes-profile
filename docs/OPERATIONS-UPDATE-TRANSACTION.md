@@ -12,7 +12,9 @@ locks, logs, runtime, cache, sessions, memories, and the NT profile `glitch`
 are always protected. Protection is case-insensitive and takes precedence over
 `distribution_owned`, including for `config.yaml`, database sidecars, and
 locks. Package paths are confined to the resolved Topstep root; traversal and
-VCS checkout packages are rejected.
+VCS checkout packages are rejected. Symlinked package roots and files are
+rejected before hashing or archiving so a package cannot read through the
+Topstep/NT boundary.
 
 An existing update lock is never removed or overridden unconditionally. It
 contains the PID, process-start identity, transaction ID, and owner. Recovery

@@ -112,10 +112,17 @@ def _owned_files(root: Path, *, require_roots: bool = False) -> list[str]:
         path = _safe_target(root, owned)
         if require_roots and not path.exists():
             raise UpdateError(f"distributed root missing: {owned}")
+        if path.is_symlink():
+            raise UpdateError(f"symlink in distributed root: {owned}")
         if path.is_file():
             candidates = [path]
         elif path.is_dir():
-            candidates = [item for item in path.rglob("*") if item.is_file()]
+            candidates = []
+            for item in path.rglob("*"):
+                if item.is_symlink():
+                    raise UpdateError(f"symlink in distributed package: {item.relative_to(root)}")
+                if item.is_file():
+                    candidates.append(item)
         else:
             continue
         for item in candidates:

@@ -237,6 +237,17 @@ class ProfileUpdateTransactionTests(unittest.TestCase):
         with self.assertRaisesRegex(UpdateError, "unsafe distributed path"):
             transactional_update(self.target, self.package)
 
+    def test_symlinked_package_file_is_rejected(self) -> None:
+        secret = Path(self.temp.name) / "outside-secret"
+        secret.write_text("must never be copied", encoding="utf-8")
+        link = self.package / "skills" / "leaked.md"
+        try:
+            link.symlink_to(secret)
+        except (OSError, NotImplementedError) as error:
+            self.skipTest(f"symlink fixture unavailable: {error}")
+        with self.assertRaisesRegex(UpdateError, "symlink in distributed package"):
+            transactional_update(self.target, self.package)
+
     def test_process_inventory_protects_nt_and_rejects_topstep_owner(self) -> None:
         from scripts.profile_update_transaction import validate_process_inventory
 
