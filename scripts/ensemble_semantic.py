@@ -150,8 +150,16 @@ def validate_candidate_semantic(
     if latency > observed_ms + 1000:
         raise ValueError("candidate_latency_inconsistent")
 
-    if str(candidate.get("instrument") or "").upper() != str(envelope.get("instrument") or "").upper():
+    if candidate.get("instrument") != envelope.get("instrument"):
         raise ValueError("candidate_instrument_mismatch")
+
+    envelope_contract = envelope.get("contract") if isinstance(envelope.get("contract"), dict) else {}
+    expected_contract_id = envelope.get("contract_id") or envelope_contract.get("contract_id") or envelope_contract.get("id")
+    if expected_contract_id is not None and candidate.get("contract_id") != expected_contract_id:
+        raise ValueError("candidate_contract_mismatch")
+    expected_generation = envelope.get("contract_generation") or envelope_contract.get("contract_generation") or envelope_contract.get("generation")
+    if expected_generation is not None and candidate.get("contract_generation") != expected_generation:
+        raise ValueError("candidate_contract_generation_mismatch")
     if str(candidate.get("envelope_hash") or "") != envelope_hash(envelope):
         raise ValueError("candidate_envelope_hash_mismatch")
 

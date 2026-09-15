@@ -77,6 +77,23 @@ class EnsembleP0RegressionTests(unittest.TestCase):
         result = self.aggregate([candidate("baseline-current", instrument="MES"), candidate("structure", instrument="MES")])
         self.assertEqual(result["decision_code"], "IDENTITY_MISMATCH")
 
+    def test_instrument_identity_is_exact_not_case_folded(self) -> None:
+        result = self.aggregate([
+            candidate("baseline-current", instrument="mnq"),
+            candidate("structure", instrument="mnq"),
+        ])
+        self.assertEqual(result["decision_code"], "IDENTITY_MISMATCH")
+
+    def test_missing_contract_identity_is_rejected_when_envelope_announces_it(self) -> None:
+        env = envelope()
+        env["contract"]["generation"] = "g1"
+        rows = [candidate("baseline-current"), candidate("structure")]
+        for row in rows:
+            row.pop("contract_id")
+            row.pop("contract_generation")
+        result = self.aggregate(rows, env=env)
+        self.assertEqual(result["decision_code"], "CONTRACT_OUTSIDE_ENVELOPE")
+
     def test_contract_outside_envelope_is_rejected(self) -> None:
         result = self.aggregate([candidate("baseline-current", contract_id="CON.OTHER"), candidate("structure", contract_id="CON.OTHER")])
         self.assertEqual(result["decision_code"], "CONTRACT_OUTSIDE_ENVELOPE")
