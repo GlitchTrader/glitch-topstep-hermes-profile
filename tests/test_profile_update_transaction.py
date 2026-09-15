@@ -12,6 +12,7 @@ from unittest import mock
 
 from scripts.profile_update_transaction import (
     UpdateError,
+    _acquire_lock,
     recover_incomplete,
     rollback,
     transactional_update,
@@ -118,6 +119,7 @@ class ProfileUpdateTransactionTests(unittest.TestCase):
     def test_recovery_rolls_back_incomplete_transaction(self) -> None:
         transactional_update(self.target, self.package)
         receipt = json.loads((self.target / "state" / "profile-update-receipt.json").read_text())
+        previous = (self.target / "skills" / "example.md").read_bytes()
         tx = {
             "transaction_id": "interrupted",
             "phase": "applying",
@@ -148,6 +150,36 @@ class ProfileUpdateTransactionTests(unittest.TestCase):
         self.assertFalse(lock.exists())
         self.assertEqual(transactional_update(self.target, self.package)["state"], "committed")
         self.assertEqual(rollback(self.target)["state"], "rolled_back")
+
+    def test_real_acquire_lock_crash_recover_rollback_and_new_operation(self) -> None:
+        from scripts import profile_update_transaction as updater
+
+        transactional_update(self.target, self.package)
+        receipt = json.loads((self.target / "state" / "profile-update-receipt.json").read_text())
+        previous = (self.target / "skills" / "example.md").read_bytes()
+        lock = _acquire_lock(self.target / "state", "crashed-transaction")
+        lock_record = json.loads(lock.read_text(encoding="utf-8"))
+        self.assertEqual(lock_record["transaction_id"], "crashed-transaction")
+        self.assertIn("pid", lock_record)
+        self.assertIn("process_start_identity", lock_record)
+        self.assertIn("owner", lock_record)
+        (self.target / "skills" / "example.md").write_text("partially applied", encoding="utf-8")
+        (self.target / "state" / "profile-update-transaction.json").write_text(
+            json.dumps({
+                "transaction_id": "crashed-transaction",
+                "phase": "applying",
+                "old_hashes": receipt["old_hashes"],
+                "new_hashes": receipt["new_hashes"],
+            }), encoding="utf-8",
+        )
+        with mock.patch.object(updater, "_process_state", return_value="dead"):
+            result = recover_incomplete(self.target)
+        self.assertEqual(result["state"], "rolled_back_after_interruption")
+        self.assertEqual((self.target / "skills" / "example.md").read_bytes(), previous)
+        recovery_receipt = json.loads((self.target / "state" / "profile-update-receipt.json").read_text())
+        self.assertEqual(recovery_receipt["lock_recovery"]["state"], "orphan_lock_recovered")
+        self.assertFalse(lock.exists())
+        self.assertEqual(transactional_update(self.target, self.package)["state"], "committed")
 
     def test_live_reused_and_unknown_lock_are_fail_closed(self) -> None:
         lock = self.target / "state" / "profile-update.lock"

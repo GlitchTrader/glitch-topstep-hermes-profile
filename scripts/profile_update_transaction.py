@@ -430,19 +430,44 @@ def _remove_distributed_paths(root: Path, paths: set[str]) -> None:
     for relative in sorted(paths):
         if _is_protected(relative):
             raise UpdateError(f"refusing to remove protected path: {relative}")
-        target = root / Path(relative)
+        target = _safe_target(root, relative)
         if target.is_file():
             target.unlink()
 
 
 def _acquire_lock(state: Path, transaction_id: str) -> Path:
     path = state / "profile-update.lock"
+    process_start_identity = _process_start_identity(os.getpid())
+    owner = _current_owner()
+    if not process_start_identity or not owner:
+        raise UpdateError("current process ownership is unverified")
     try:
         with path.open("x", encoding="utf-8") as handle:
-            json.dump({"transaction_id": transaction_id, "pid": os.getpid()}, handle)
+            json.dump({
+                "transaction_id": transaction_id,
+                "pid": os.getpid(),
+                "process_start_identity": process_start_identity,
+                "owner": owner,
+            }, handle)
     except FileExistsError as error:
         raise UpdateError("profile update lock exists; owner is not verified") from error
     return path
+
+
+def _release_lock(path: Path, transaction_id: str) -> None:
+    """Remove only the lock still owned by this transaction and process."""
+    try:
+        lock = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return
+    if (
+        lock.get("transaction_id") != transaction_id
+        or lock.get("pid") != os.getpid()
+        or lock.get("process_start_identity") != _process_start_identity(os.getpid())
+        or lock.get("owner") != _current_owner()
+    ):
+        return
+    path.unlink(missing_ok=True)
 
 
 def _receipt(state: Path, payload: dict[str, Any]) -> None:
@@ -489,7 +514,7 @@ def recover_incomplete(root: Path) -> dict[str, Any]:
         result = {"state": "rolled_back_after_interruption", "transaction_id": transaction.get("transaction_id")}
     else:
         return {"state": "no_recovery_needed", "phase": phase}
-    _receipt(state, {**result, "operation": "recovery"})
+    _receipt(state, {**result, "operation": "recovery", "lock_recovery": lock_recovery})
     transaction_path.unlink(missing_ok=True)
     return result
 
@@ -559,7 +584,7 @@ def transactional_update(root: Path, package: Path, expected_prompt: str | None 
         raise
     finally:
         (state / "profile-update-transaction.json").unlink(missing_ok=True)
-        lock.unlink(missing_ok=True)
+        _release_lock(lock, transaction_id)
 
 
 def rollback(root: Path) -> dict[str, Any]:
@@ -584,7 +609,7 @@ def rollback(root: Path) -> dict[str, Any]:
                          "restored_hashes": old_hashes})
         return {"state": "rolled_back", "transaction_id": transaction_id}
     finally:
-        lock.unlink(missing_ok=True)
+        _release_lock(lock, transaction_id)
 
 
 def main(argv: list[str] | None = None) -> int:
