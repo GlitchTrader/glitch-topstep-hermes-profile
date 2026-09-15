@@ -1676,5 +1676,42 @@
       "historical_recovery_objects": "Preserved as recoverable historical sources; no cleanup or pruning performed.",
       "promoted_to_done": false
     }
+  },
+  "adversarial_risk_implementation_2026_09_15": {
+    "status": "implemented_and_merged_pending_documentary_reconciliation",
+    "pull_request": 253,
+    "merge_commit": "467cb00eeb11edf2d8652cde5f8b5116d0d925a1",
+    "canonical_base_before_merge": "b1f35469af55980096e60639514d05a850e5ed7f",
+    "canonical_main_after_merge": "467cb00eeb11edf2d8652cde5f8b5116d0d925a1",
+    "implementation": {
+      "skill": "skills/adversarial-risk/SKILL.md",
+      "registry": "evaluation/registry.json",
+      "capability_matrix": "evaluation/capability-matrix.json",
+      "evaluation_manifest": "evaluation/runs/frozen-cohort-manifest-2026-09-14-adversarial-risk.json",
+      "drift_detection": "scripts/ensemble_skill_gate.py",
+      "historical_manifest_preserved": "evaluation/runs/frozen-cohort-manifest-2026-09-11-v17.2.json"
+    },
+    "validation": {
+      "tests": 772,
+      "skips": 8,
+      "errors": 0,
+      "failures": 0,
+      "checks": ["test-linux", "test-windows", "codeql", "CodeQL", "dependency-review", "Cursor Security Agent"],
+      "contract_changed": false,
+      "shadow_or_live_proof": false
+    },
+    "remaining_blockers": {
+      "credentials": "blocked",
+      "hermes_installation_drift": "blocked",
+      "operational_isolation": "blocked",
+      "indicators_stability": "unverified",
+      "execution_canonicality": "unverified",
+      "shadow_live": "blocked",
+      "overnight": "blocked",
+      "MES_MCL_live": "blocked_unverified"
+    },
+    "cross_repository": "glitch-topstep:#290",
+    "general_plan_promoted_to_done": false,
+    "scope_note": "The merge contains the approved adversarial-risk profile, explicit registry/capability composition, fail-closed installation drift detection, regression tests, and current evaluation manifest only; no gateway, paired contract, runtime, live path, credentials, or operational state changed."
   }
 }
