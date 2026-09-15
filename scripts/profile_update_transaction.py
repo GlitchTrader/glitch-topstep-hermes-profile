@@ -32,6 +32,11 @@ CONTROL_FILES = {
 }
 PROTECTED_NAMES = {".env", "auth.json", "config.yaml"}
 PROTECTED_DIRS = {"state", "logs", "runtime", "cache", "sessions", "memories"}
+WINDOWS_RESERVED_NAMES = {
+    "con", "prn", "aux", "nul",
+    *(f"com{number}" for number in range(1, 10)),
+    *(f"lpt{number}" for number in range(1, 10)),
+}
 
 
 class UpdateError(RuntimeError):
@@ -57,6 +62,44 @@ def _reject_reparse(path: Path, label: str) -> None:
         raise UpdateError(f"{label} is unverified: {path}") from error
     if path.is_symlink() or getattr(metadata, "st_file_attributes", 0) & FILE_ATTRIBUTE_REPARSE_POINT:
         raise UpdateError(f"reparse point rejected in {label}: {path}")
+
+
+def _validate_relative_path(relative: str, label: str = "distributed path") -> PurePosixPath:
+    """Validate a manifest path before any Windows or filesystem resolution."""
+    if not isinstance(relative, str) or not relative:
+        raise UpdateError(f"invalid empty {label}")
+    if "\\" in relative:
+        raise UpdateError(f"invalid separator in {label}: {relative!r}")
+    raw_parts = relative.split("/")
+    if any(not part or part in {".", ".."} for part in raw_parts):
+        raise UpdateError(f"invalid component in {label}: {relative!r}")
+    for part in raw_parts:
+        if part[-1] in {".", " "} or ":" in part:
+            raise UpdateError(f"invalid Windows component in {label}: {relative!r}")
+        if any(character in part for character in '<>"|?*'):
+            raise UpdateError(f"invalid Windows component in {label}: {relative!r}")
+        device_name = part.rstrip(" .").split(".", 1)[0].casefold()
+        if device_name in WINDOWS_RESERVED_NAMES:
+            raise UpdateError(f"reserved Windows component in {label}: {relative!r}")
+    return PurePosixPath(*raw_parts)
+
+
+def _windows_path_key(relative: str) -> tuple[str, ...]:
+    """Return the comparison key used to detect Windows path collisions."""
+    path = _validate_relative_path(relative)
+    return tuple(part.casefold() for part in path.parts)
+
+
+def _reject_windows_collisions(paths: list[str] | set[str]) -> None:
+    seen: dict[tuple[str, ...], str] = {}
+    for relative in paths:
+        key = _windows_path_key(relative)
+        previous = seen.get(key)
+        if previous is not None and previous != relative:
+            raise UpdateError(
+                f"distributed path collides under Windows semantics: {previous} / {relative}"
+            )
+        seen[key] = relative
 
 
 def _profile_root(root: Path) -> Path:
@@ -90,7 +133,11 @@ def _read_owned_roots(root: Path) -> list[str]:
             active = True
             continue
         if active and line.startswith("  - "):
-            owned.append(line[4:].strip().strip("\"'" ).replace("\\", "/"))
+            value = line[4:]
+            if len(value) >= 2 and value[0] in "\"'" and value[-1] == value[0]:
+                value = value[1:-1]
+            _validate_relative_path(value, "distribution_owned entry")
+            owned.append(value)
             continue
         if active and line and not line.startswith(" "):
             break
@@ -100,7 +147,10 @@ def _read_owned_roots(root: Path) -> list[str]:
 
 
 def _is_protected(relative: str) -> bool:
-    parts = PurePosixPath(relative).parts
+    try:
+        parts = _validate_relative_path(relative).parts
+    except UpdateError:
+        return True
     folded = tuple(part.casefold() for part in parts)
     protected_dirs = {item.casefold() for item in PROTECTED_DIRS}
     protected_names = {item.casefold() for item in PROTECTED_NAMES}
@@ -111,9 +161,7 @@ def _is_protected(relative: str) -> bool:
 
 
 def _safe_target(root: Path, relative: str) -> Path:
-    path = PurePosixPath(relative)
-    if path.is_absolute() or ".." in path.parts:
-        raise UpdateError(f"unsafe distributed path: {relative}")
+    path = _validate_relative_path(relative)
     _reject_reparse(root, "profile root")
     candidate = root
     for part in path.parts:
@@ -164,13 +212,15 @@ def _owned_files(root: Path, *, require_roots: bool = False) -> list[str]:
             relative = item.relative_to(root).as_posix()
             if relative not in CONTROL_FILES and not _is_protected(relative):
                 files.add(relative)
+    _reject_windows_collisions(files)
     return sorted(files)
 
 
 def _hash_manifest(root: Path, paths: list[str]) -> dict[str, str]:
     result: dict[str, str] = {}
     for relative in paths:
-        path = root / Path(relative)
+        path = _safe_target(root, relative)
+        _reject_reparse(path, "distributed file")
         if not path.is_file():
             raise UpdateError(f"distributed file missing: {relative}")
         result[relative] = _norm_hash(path.read_bytes())
@@ -202,9 +252,15 @@ def _read_sha_manifest(root: Path) -> dict[str, str]:
         parts = line.split(None, 1)
         if len(parts) != 2 or len(parts[0]) != 64:
             raise UpdateError("SHA256SUMS is invalid")
-        entries[parts[1].strip()] = parts[0].upper()
+        relative = parts[1]
+        _validate_relative_path(relative, "SHA256SUMS entry")
+        entries[relative] = parts[0].upper()
     if not entries:
         raise UpdateError("SHA256SUMS is empty")
+    try:
+        _reject_windows_collisions(set(entries))
+    except UpdateError as error:
+        raise UpdateError(f"SHA256SUMS contains Windows path collision: {error}") from error
     return entries
 
 

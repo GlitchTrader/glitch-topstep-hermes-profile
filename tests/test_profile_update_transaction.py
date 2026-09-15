@@ -236,8 +236,29 @@ class ProfileUpdateTransactionTests(unittest.TestCase):
             "name: glitch-topstep\nversion: 0.2.10\ndistribution_owned:\n  - ../glitch\n",
             encoding="utf-8",
         )
-        with self.assertRaisesRegex(UpdateError, "unsafe distributed path"):
+        with self.assertRaisesRegex(UpdateError, "invalid component|unsafe distributed path"):
             transactional_update(self.target, self.package)
+
+    def test_windows_aliases_ads_and_invalid_owned_roots_are_rejected(self) -> None:
+        invalid_entries = (
+            "auth.json.", ".env ", "config.yaml.", "auth.json:hidden",
+            "state.db.", ".", "", "CON", "skills\\outside.md",
+        )
+        for entry in invalid_entries:
+            with self.subTest(entry=entry):
+                (self.package / "distribution.yaml").write_text(
+                    "name: glitch-topstep\nversion: 0.2.10\ndistribution_owned:\n"
+                    f"  - {entry}\n",
+                    encoding="utf-8",
+                )
+                with self.assertRaises(UpdateError):
+                    transactional_update(self.target, self.package)
+
+    def test_windows_case_collision_is_rejected_before_apply(self) -> None:
+        from scripts.profile_update_transaction import _reject_windows_collisions
+
+        with self.assertRaisesRegex(UpdateError, "collides under Windows semantics"):
+            _reject_windows_collisions({"skills/example.md", "skills/EXAMPLE.md"})
 
     def test_symlinked_package_file_is_rejected(self) -> None:
         secret = Path(self.temp.name) / "outside-secret"
