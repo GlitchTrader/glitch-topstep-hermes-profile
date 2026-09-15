@@ -1,0 +1,37 @@
+{
+  "schema_version": "glitch.topstep.frozen_cohort_manifest.v1",
+  "frozen_utc": "2026-09-14T00:00:00Z",
+  "pin_refresh_utc": "2026-09-14T00:00:00Z",
+  "pin_refresh_notes": [
+    "Registry snapshot for the explicit adversarial-risk skill composition; the v17.2 historical manifest remains immutable."
+  ],
+  "status": "evaluation_registry_snapshot",
+  "source_manifest": "evaluation/runs/frozen-cohort-manifest-2026-09-11-v17.2.json",
+  "versions": {
+    "prompt_version": "glitch-topstep-v17.2",
+    "adapter_version": "2026-09-01-v1",
+    "schema_version": "glitch.topstep.evaluation_output_contract.v1",
+    "registry_version": "2026-09-10-v4",
+    "normalization_version": "2026-09-01-post-candidate-flat-rule"
+  },
+  "frozen_file_hashes": {
+    "evaluation/registry.json": "6434d56cb0161dce2418b082927ceefe48862fcadb76c803f4f02e7654bb1a65",
+    "evaluation/capability-matrix.json": "ec190487e94c81a657459a4159774f509b5166e81b7f0fa0a78b5b92650e665c"
+  },
+  "profiles": [
+    {
+      "profile_id": "adversarial-risk",
+      "skills": ["adversarial-risk"],
+      "evaluation_enabled": true,
+      "execution_authority": false
+    }
+  ],
+  "provenance": {
+    "registry": "evaluation/registry.json",
+    "capability_matrix": "evaluation/capability-matrix.json",
+    "skill": "skills/adversarial-risk/SKILL.md",
+    "historical_manifest_preserved": true,
+    "evaluation_only": true,
+    "promotion_status": "blocked"
+  }
+}

@@ -110,8 +110,7 @@
       "profile_id": "adversarial-risk",
       "description": "Invalidation, missing evidence, late entry, and geometry contest",
       "skills": [
-        "topstep-assess-risk",
-        "topstep-form-thesis"
+        "adversarial-risk"
       ],
       "required_sources": ["ohlc", "quote", "risk_context"],
       "optional_sources": ["structure", "orderflow", "session"],

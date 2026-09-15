@@ -20,7 +20,7 @@ assert _spec.loader is not None
 _spec.loader.exec_module(_mod)
 
 HISTORICAL_MANIFEST = ROOT / "evaluation" / "runs" / "frozen-cohort-manifest-2026-09-01.json"
-MANIFEST = ROOT / "evaluation" / "runs" / "frozen-cohort-manifest-2026-09-11-v17.2.json"
+MANIFEST = ROOT / "evaluation" / "runs" / "frozen-cohort-manifest-2026-09-14-adversarial-risk.json"
 
 
 class VerifyFrozenCohortTests(unittest.TestCase):
@@ -37,7 +37,7 @@ class VerifyFrozenCohortTests(unittest.TestCase):
     def test_collection_queue_has_six_envelopes(self) -> None:
         import json
 
-        manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        manifest = json.loads(HISTORICAL_MANIFEST.read_text(encoding="utf-8"))
         queue = manifest.get("collection_queue") or []
         self.assertEqual(len(queue), 6)
         tags = {row["scenario_tag"] for row in queue}
@@ -48,7 +48,7 @@ class VerifyFrozenCohortTests(unittest.TestCase):
     def test_historical_cohorts_excluded(self) -> None:
         import json
 
-        manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        manifest = json.loads(HISTORICAL_MANIFEST.read_text(encoding="utf-8"))
         historical = manifest.get("historical_cohorts") or {}
         self.assertTrue(historical.get("excluded_from_new_collection_population"))
         self.assertEqual(

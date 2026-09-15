@@ -17,6 +17,13 @@ from typing import Any
 
 
 SPECIALTY_MARKERS: dict[str, tuple[str, ...]] = {
+    "adversarial-risk": (
+        "objective_rule_match",
+        "eliminates_candidate",
+        "critical",
+        "evidence_refs",
+        "envelope_identity",
+    ),
     "topstep-smart-money": (
         "fair-value gaps",
         "displacement",
@@ -133,6 +140,20 @@ def ensure_skill_files_exist(
     return {"hermes_home": str(hermes_home), "skills": rows}
 
 
+def validate_skill_installation(
+    skill_ids: list[str], *, profile_root: Path, hermes_home: Path
+) -> dict[str, Any]:
+    """Fail-closed, structured drift check for a declared skill installation.
+
+    The existing file gate is the single source for path, UTF-8 front matter,
+    and byte-hash validation. This named API makes that preflight explicit for
+    callers and preserves its diagnostic error codes without copying files.
+    """
+    return ensure_skill_files_exist(
+        skill_ids, profile_root=profile_root, hermes_home=hermes_home
+    )
+
+
 def require_hermes_preload(skill_ids: list[str], *, hermes_home: Path) -> dict[str, Any]:
     with _PRELOAD_LOCK:
         agent_root = Path(os.environ.get("LOCALAPPDATA", "")) / "hermes" / "hermes-agent"
@@ -180,7 +201,7 @@ def require_hermes_preload(skill_ids: list[str], *, hermes_home: Path) -> dict[s
 
 def assert_declared_skills_ready(skill_ids: list[str], *, profile_root: Path) -> dict[str, Any]:
     hermes_home = default_glitch_topstep_hermes_home()
-    files = ensure_skill_files_exist(
+    files = validate_skill_installation(
         skill_ids, profile_root=profile_root, hermes_home=hermes_home
     )
     return {"files": files, "preload": require_hermes_preload(skill_ids, hermes_home=hermes_home)}
