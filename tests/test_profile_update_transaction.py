@@ -3,7 +3,9 @@ from __future__ import annotations
 import json
 import hashlib
 import os
+import platform
 import shutil
+import subprocess
 import tempfile
 import unittest
 import getpass
@@ -245,8 +247,59 @@ class ProfileUpdateTransactionTests(unittest.TestCase):
             link.symlink_to(secret)
         except (OSError, NotImplementedError) as error:
             self.skipTest(f"symlink fixture unavailable: {error}")
-        with self.assertRaisesRegex(UpdateError, "symlink in distributed package"):
+        with self.assertRaisesRegex(UpdateError, "reparse point rejected"):
             transactional_update(self.target, self.package)
+
+    def test_symlinked_package_directory_is_rejected(self) -> None:
+        external = Path(self.temp.name) / "external-directory"
+        external.mkdir()
+        link = self.package / "skills" / "external-dir"
+        try:
+            link.symlink_to(external, target_is_directory=True)
+        except (OSError, NotImplementedError) as error:
+            self.skipTest(f"directory symlink fixture unavailable: {error}")
+        with self.assertRaisesRegex(UpdateError, "reparse point rejected"):
+            transactional_update(self.target, self.package)
+
+    def _make_junction(self, link: Path, target: Path) -> None:
+        if platform.system() != "Windows":
+            self.skipTest("junction fixtures require Windows")
+        result = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(link), str(target)],
+            capture_output=True, text=True, check=False,
+        )
+        if result.returncode != 0:
+            self.skipTest(f"junction fixture unavailable: {result.stderr or result.stdout}")
+
+    def test_nested_junction_to_external_directory_is_rejected(self) -> None:
+        external = Path(self.temp.name) / "external-junction"
+        external.mkdir()
+        (external / "secret.md").write_text("must never be archived", encoding="utf-8")
+        self._make_junction(self.package / "skills" / "nested-junction", external)
+        with self.assertRaisesRegex(UpdateError, "reparse point rejected"):
+            transactional_update(self.target, self.package)
+
+    def test_root_owned_junction_is_rejected(self) -> None:
+        external = Path(self.temp.name) / "external-skills"
+        external.mkdir()
+        (external / "external.md").write_text("must never be applied", encoding="utf-8")
+        skills = self.package / "skills"
+        (skills / "example.md").unlink()
+        skills.rmdir()
+        self._make_junction(skills, external)
+        with self.assertRaisesRegex(UpdateError, "reparse point rejected"):
+            transactional_update(self.target, self.package)
+
+    def test_installation_root_reparse_point_is_rejected(self) -> None:
+        if platform.system() != "Windows":
+            self.skipTest("junction fixtures require Windows")
+        external = Path(self.temp.name) / "external-install"
+        make_profile(external, "0.2.9")
+        original = self.target
+        shutil.rmtree(original)
+        self._make_junction(original, external)
+        with self.assertRaisesRegex(UpdateError, "reparse point rejected in installation root"):
+            verify_installation(original)
 
     def test_process_inventory_protects_nt_and_rejects_topstep_owner(self) -> None:
         from scripts.profile_update_transaction import validate_process_inventory

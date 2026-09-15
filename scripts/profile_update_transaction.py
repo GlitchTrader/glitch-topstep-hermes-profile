@@ -22,6 +22,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any
 
 PROFILE_NAME = "glitch-topstep"
+FILE_ATTRIBUTE_REPARSE_POINT = 0x0400
 CONTROL_FILES = {
     "profile-update-transaction.json",
     "profile-update-package.zip",
@@ -47,7 +48,20 @@ def _json_write_atomic(path: Path, value: dict[str, Any]) -> None:
     os.replace(temporary, path)
 
 
+def _reject_reparse(path: Path, label: str) -> None:
+    if not os.path.lexists(path):
+        return
+    try:
+        metadata = os.stat(path, follow_symlinks=False)
+    except OSError as error:
+        raise UpdateError(f"{label} is unverified: {path}") from error
+    if path.is_symlink() or getattr(metadata, "st_file_attributes", 0) & FILE_ATTRIBUTE_REPARSE_POINT:
+        raise UpdateError(f"reparse point rejected in {label}: {path}")
+
+
 def _profile_root(root: Path) -> Path:
+    root = Path(root)
+    _reject_reparse(root, "installation root")
     root = root.resolve()
     if root.name.lower() != PROFILE_NAME:
         raise UpdateError(f"refusing non-Topstep profile root: {root}")
@@ -58,6 +72,7 @@ def _profile_root(root: Path) -> Path:
 
 def _state_root(root: Path) -> Path:
     state = root / "state"
+    _reject_reparse(state, "state root")
     if not state.is_dir():
         raise UpdateError(f"existing state directory required: {state}")
     return state
@@ -65,6 +80,7 @@ def _state_root(root: Path) -> Path:
 
 def _read_owned_roots(root: Path) -> list[str]:
     yaml = root / "distribution.yaml"
+    _reject_reparse(yaml, "distribution manifest")
     if not yaml.is_file():
         raise UpdateError("distribution.yaml missing")
     owned: list[str] = []
@@ -98,7 +114,12 @@ def _safe_target(root: Path, relative: str) -> Path:
     path = PurePosixPath(relative)
     if path.is_absolute() or ".." in path.parts:
         raise UpdateError(f"unsafe distributed path: {relative}")
-    target = (root / Path(*path.parts)).resolve()
+    _reject_reparse(root, "profile root")
+    candidate = root
+    for part in path.parts:
+        candidate = candidate / part
+        _reject_reparse(candidate, "distributed path")
+    target = candidate.resolve()
     try:
         target.relative_to(root.resolve())
     except ValueError as error:
@@ -106,23 +127,37 @@ def _safe_target(root: Path, relative: str) -> Path:
     return target
 
 
+def _regular_files(root: Path, directory: Path) -> list[Path]:
+    files: list[Path] = []
+    pending = [directory]
+    while pending:
+        current = pending.pop()
+        _reject_reparse(current, "distributed directory")
+        try:
+            entries = list(os.scandir(current))
+        except OSError as error:
+            raise UpdateError(f"cannot enumerate distributed directory: {current}") from error
+        for entry in entries:
+            item = Path(entry.path)
+            _reject_reparse(item, "distributed entry")
+            if entry.is_dir(follow_symlinks=False):
+                pending.append(item)
+            elif entry.is_file(follow_symlinks=False):
+                files.append(item)
+    return files
+
+
 def _owned_files(root: Path, *, require_roots: bool = False) -> list[str]:
+    _reject_reparse(root, "profile root")
     files: set[str] = set()
     for owned in _read_owned_roots(root):
         path = _safe_target(root, owned)
         if require_roots and not path.exists():
             raise UpdateError(f"distributed root missing: {owned}")
-        if path.is_symlink():
-            raise UpdateError(f"symlink in distributed root: {owned}")
         if path.is_file():
             candidates = [path]
         elif path.is_dir():
-            candidates = []
-            for item in path.rglob("*"):
-                if item.is_symlink():
-                    raise UpdateError(f"symlink in distributed package: {item.relative_to(root)}")
-                if item.is_file():
-                    candidates.append(item)
+            candidates = _regular_files(root, path)
         else:
             continue
         for item in candidates:
@@ -144,6 +179,7 @@ def _hash_manifest(root: Path, paths: list[str]) -> dict[str, str]:
 
 def _read_contract(root: Path) -> dict[str, Any]:
     path = root / "paired-contract.json"
+    _reject_reparse(path, "paired contract")
     try:
         value = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
@@ -181,6 +217,8 @@ def _validate_manifest(root: Path, hashes: dict[str, str]) -> None:
 
 
 def _validate_package(package: Path, expected_prompt: str | None = None) -> tuple[list[str], dict[str, str], dict[str, Any]]:
+    package = Path(package)
+    _reject_reparse(package, "package root")
     package = package.resolve()
     if not package.is_dir() or package.name.lower() == "glitch":
         raise UpdateError(f"invalid package root: {package}")
@@ -411,7 +449,9 @@ def _zip_files(archive: Path, root: Path, paths: list[str]) -> None:
     temporary = archive.with_name(archive.name + ".part")
     with zipfile.ZipFile(temporary, "w", compression=zipfile.ZIP_DEFLATED) as output:
         for relative in paths:
-            output.write(root / Path(relative), relative)
+            source = _safe_target(root, relative)
+            _reject_reparse(source, "distributed source")
+            output.write(source, relative)
     os.replace(temporary, archive)
 
 
