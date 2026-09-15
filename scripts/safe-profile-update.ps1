@@ -4,7 +4,10 @@
 [CmdletBinding()]
 param(
     [string]$Profile = 'glitch-topstep',
-    [switch]$ForceConfig
+    [switch]$ForceConfig,
+    [switch]$VerifyOnly,
+    [switch]$Rollback,
+    [string]$PackageRoot
 )
 
 Set-StrictMode -Version Latest
@@ -16,6 +19,61 @@ $profileRoot = [IO.Path]::GetFullPath(
 if (-not (Test-Path -LiteralPath $profileRoot -PathType Container)) {
     throw "Profile not found: $profileRoot"
 }
+
+if ($Profile -ne 'glitch-topstep') {
+    throw 'This updater is permanently scoped to the Topstep profile; refusing the NT profile.'
+}
+
+$transactionScript = Join-Path $PSScriptRoot 'profile_update_transaction.py'
+if (-not (Test-Path -LiteralPath $transactionScript -PathType Leaf)) {
+    throw "Transactional updater missing: $transactionScript"
+}
+
+function Invoke-TransactionalOperation {
+    param([Parameter(Mandatory = $true)][string]$Operation)
+    $hermesCommand = Get-Command hermes -ErrorAction Stop
+    $python = Join-Path (Split-Path $hermesCommand.Source -Parent) 'python.exe'
+    if (-not (Test-Path -LiteralPath $python -PathType Leaf)) {
+        throw "Hermes Python runtime missing: $python"
+    }
+    $args = @($transactionScript, $Operation, $profileRoot)
+    if ($Operation -eq 'update') {
+        if ([string]::IsNullOrWhiteSpace($PackageRoot)) {
+            throw 'Refusing legacy remote update: provide a prevalidated package with -PackageRoot.'
+        }
+        $escapedProfile = [regex]::Escape($Profile)
+        $topstepProcesses = @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue |
+            Where-Object {
+                $_.CommandLine -and (
+                    $_.CommandLine -match "--profile\s+$escapedProfile(\s|$)" -or
+                    $_.CommandLine -match [regex]::Escape($profileRoot)
+                )
+            })
+        if ($topstepProcesses.Count -gt 0) {
+            throw 'Topstep profile process is active; refusing update without verified quiescence.'
+        }
+        $args += @('--package-root', [IO.Path]::GetFullPath($PackageRoot), '--expected-prompt', 'glitch-topstep-v17.2')
+    }
+    $output = & $python @args 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0) {
+        throw "Transactional profile operation failed: $($output.Trim())"
+    }
+    if ($output.Trim()) { Write-Host $output.Trim() }
+}
+
+if ($VerifyOnly) {
+    Invoke-TransactionalOperation -Operation 'verify'
+    exit 0
+}
+if ($Rollback) {
+    Invoke-TransactionalOperation -Operation 'rollback'
+    exit 0
+}
+if ([string]::IsNullOrWhiteSpace($PackageRoot)) {
+    throw 'Refusing the non-transactional updater path; provide -PackageRoot for a prevalidated package.'
+}
+Invoke-TransactionalOperation -Operation 'update'
+exit 0
 
 function Enter-SafeUpdateWorkingDirectory {
     $currentRoot = [IO.Path]::GetFullPath((Get-Location).Path)
