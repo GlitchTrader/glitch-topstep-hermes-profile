@@ -13,6 +13,8 @@ import getpass
 import hashlib
 import json
 import os
+import platform
+import subprocess
 import sys
 import uuid
 import zipfile
@@ -209,8 +211,8 @@ def collect_process_inventory() -> list[dict[str, Any]]:
     """Collect only Hermes-related process metadata without mutating processes."""
     try:
         import psutil
-    except ImportError as error:
-        raise UpdateError("process inventory unavailable") from error
+    except ImportError:
+        return _collect_process_inventory_native()
     inventory: list[dict[str, Any]] = []
     for process in psutil.process_iter(["pid", "username", "cmdline", "create_time", "cwd"]):
         try:
@@ -237,6 +239,79 @@ def collect_process_inventory() -> list[dict[str, Any]]:
     return inventory
 
 
+def _collect_process_inventory_native() -> list[dict[str, Any]]:
+    """Portable read-only fallback with no third-party dependency."""
+    if platform.system() == "Windows":
+        command = (
+            "Get-CimInstance Win32_Process | "
+            "Select-Object ProcessId,CommandLine,CreationDate | "
+            "ConvertTo-Json -Compress"
+        )
+        completed = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command", command],
+            capture_output=True, text=True, check=False,
+        )
+        if completed.returncode != 0:
+            raise UpdateError("process inventory unavailable")
+        try:
+            values = json.loads(completed.stdout or "[]")
+        except json.JSONDecodeError as error:
+            raise UpdateError("process inventory unavailable") from error
+        if isinstance(values, dict):
+            values = [values]
+        inventory = []
+        for value in values:
+            command_line = str(value.get("CommandLine") or "")
+            lowered = command_line.casefold()
+            if "hermes" not in lowered and "gateway run" not in lowered:
+                continue
+            profile = ""
+            tokens = command_line.split()
+            for index, token in enumerate(tokens[:-1]):
+                if token == "--profile":
+                    profile = tokens[index + 1].strip('"')
+                    break
+            inventory.append({
+                "pid": value.get("ProcessId"),
+                "profile": profile,
+                "owner": "",
+                "process_start_identity": str(value.get("CreationDate") or ""),
+                "cwd": "",
+                "hermes_gateway": "gateway run" in lowered,
+            })
+        return inventory
+    completed = subprocess.run(
+        ["ps", "-eo", "pid=,user=,etimes=,args="],
+        capture_output=True, text=True, check=False,
+    )
+    if completed.returncode != 0:
+        raise UpdateError("process inventory unavailable")
+    inventory = []
+    for line in completed.stdout.splitlines():
+        fields = line.strip().split(None, 3)
+        if len(fields) != 4:
+            continue
+        pid, owner, elapsed, command_line = fields
+        lowered = command_line.casefold()
+        if "hermes" not in lowered and "gateway run" not in lowered:
+            continue
+        profile = ""
+        tokens = command_line.split()
+        for index, token in enumerate(tokens[:-1]):
+            if token == "--profile":
+                profile = tokens[index + 1].strip('"')
+                break
+        inventory.append({
+            "pid": int(pid),
+            "profile": profile,
+            "owner": owner,
+            "process_start_identity": elapsed,
+            "cwd": "",
+            "hermes_gateway": "gateway run" in lowered,
+        })
+    return inventory
+
+
 def _current_owner() -> str:
     return getpass.getuser() or ""
 
@@ -244,16 +319,54 @@ def _current_owner() -> str:
 def _process_state(pid: int, expected_start: str) -> str:
     """Return live, dead, reused, or unverified without terminating a process."""
     try:
-        import psutil
-        process = psutil.Process(pid)
-        actual_start = str(process.create_time())
-    except psutil.NoSuchProcess:
-        return "dead"
-    except (psutil.AccessDenied, psutil.ZombieProcess, OSError):
+        actual_start = _process_start_identity(pid)
+    except OSError:
+        actual_start = None
+    if actual_start is None:
+        if platform.system() == "Windows":
+            command = f"(Get-Process -Id {int(pid)} -ErrorAction SilentlyContinue) -ne $null"
+            completed = subprocess.run(
+                ["powershell", "-NoProfile", "-NonInteractive", "-Command", command],
+                capture_output=True, text=True, check=False,
+            )
+            if completed.returncode != 0:
+                return "unverified"
+            if completed.stdout.strip().casefold() == "false":
+                return "dead"
+            return "unverified"
+        try:
+            os.kill(pid, 0)
+        except ProcessLookupError:
+            return "dead"
+        except PermissionError:
+            return "unverified"
+        except OSError:
+            return "unverified"
         return "unverified"
     if actual_start != expected_start:
         return "reused"
     return "live"
+
+
+def _process_start_identity(pid: int) -> str | None:
+    if platform.system() == "Windows":
+        command = (
+            f"(Get-CimInstance Win32_Process -Filter 'ProcessId = {int(pid)}').CreationDate"
+        )
+        completed = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command", command],
+            capture_output=True, text=True, check=False,
+        )
+        value = completed.stdout.strip()
+        return value or None
+    stat_path = Path("/proc") / str(pid) / "stat"
+    if stat_path.is_file():
+        content = stat_path.read_text(encoding="utf-8")
+        closing = content.rfind(")")
+        fields = content[closing + 2:].split()
+        if len(fields) > 19:
+            return fields[19]
+    return None
 
 
 def _recover_orphan_lock(state: Path) -> dict[str, Any] | None:

@@ -159,10 +159,10 @@ class ProfileUpdateTransactionTests(unittest.TestCase):
             "owner": getpass.getuser(),
         }), encoding="utf-8")
         self.assertEqual(recover_incomplete(self.target)["process_state"], "reused")
-        import psutil
+        from scripts.profile_update_transaction import _process_start_identity
         lock.write_text(json.dumps({
             "pid": current,
-            "process_start_identity": str(psutil.Process(current).create_time()),
+            "process_start_identity": _process_start_identity(current),
             "transaction_id": "live-owner",
             "owner": getpass.getuser(),
         }), encoding="utf-8")
