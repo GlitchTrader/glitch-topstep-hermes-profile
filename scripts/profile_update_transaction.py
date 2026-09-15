@@ -9,10 +9,10 @@ the NT ``glitch`` profile.
 from __future__ import annotations
 
 import argparse
+import getpass
 import hashlib
 import json
 import os
-import shutil
 import sys
 import uuid
 import zipfile
@@ -83,16 +83,31 @@ def _read_owned_roots(root: Path) -> list[str]:
 
 def _is_protected(relative: str) -> bool:
     parts = PurePosixPath(relative).parts
-    return bool(parts) and (parts[0] in PROTECTED_DIRS or parts[0] in PROTECTED_NAMES or any(
-        part in PROTECTED_NAMES or part.endswith((".db", ".db-wal", ".db-shm", ".lock"))
-        for part in parts
+    folded = tuple(part.casefold() for part in parts)
+    protected_dirs = {item.casefold() for item in PROTECTED_DIRS}
+    protected_names = {item.casefold() for item in PROTECTED_NAMES}
+    return bool(parts) and (folded[0] in protected_dirs or folded[0] in protected_names or any(
+        part in protected_names or part.endswith((".db", ".db-wal", ".db-shm", ".lock"))
+        for part in folded
     ))
+
+
+def _safe_target(root: Path, relative: str) -> Path:
+    path = PurePosixPath(relative)
+    if path.is_absolute() or ".." in path.parts:
+        raise UpdateError(f"unsafe distributed path: {relative}")
+    target = (root / Path(*path.parts)).resolve()
+    try:
+        target.relative_to(root.resolve())
+    except ValueError as error:
+        raise UpdateError(f"distributed path escapes profile root: {relative}") from error
+    return target
 
 
 def _owned_files(root: Path, *, require_roots: bool = False) -> list[str]:
     files: set[str] = set()
     for owned in _read_owned_roots(root):
-        path = root / owned
+        path = _safe_target(root, owned)
         if require_roots and not path.exists():
             raise UpdateError(f"distributed root missing: {owned}")
         if path.is_file():
@@ -190,6 +205,88 @@ def validate_process_inventory(processes: list[dict[str, Any]]) -> None:
             raise UpdateError("Hermes gateway owner is unverified")
 
 
+def collect_process_inventory() -> list[dict[str, Any]]:
+    """Collect only Hermes-related process metadata without mutating processes."""
+    try:
+        import psutil
+    except ImportError as error:
+        raise UpdateError("process inventory unavailable") from error
+    inventory: list[dict[str, Any]] = []
+    for process in psutil.process_iter(["pid", "username", "cmdline", "create_time", "cwd"]):
+        try:
+            cmdline = process.info.get("cmdline") or []
+            command = " ".join(str(part) for part in cmdline)
+            lowered = command.casefold()
+            if "hermes" not in lowered and "gateway run" not in lowered:
+                continue
+            profile = ""
+            for index, part in enumerate(cmdline[:-1]):
+                if str(part) == "--profile":
+                    profile = str(cmdline[index + 1])
+                    break
+            inventory.append({
+                "pid": process.info.get("pid"),
+                "profile": profile,
+                "owner": process.info.get("username") or "",
+                "process_start_identity": str(process.info.get("create_time") or ""),
+                "cwd": process.info.get("cwd") or "",
+                "hermes_gateway": "gateway run" in lowered,
+            })
+        except (psutil.Error, OSError):
+            inventory.append({"owner": "", "hermes_gateway": True})
+    return inventory
+
+
+def _current_owner() -> str:
+    return getpass.getuser() or ""
+
+
+def _process_state(pid: int, expected_start: str) -> str:
+    """Return live, dead, reused, or unverified without terminating a process."""
+    try:
+        import psutil
+        process = psutil.Process(pid)
+        actual_start = str(process.create_time())
+    except psutil.NoSuchProcess:
+        return "dead"
+    except (psutil.AccessDenied, psutil.ZombieProcess, OSError):
+        return "unverified"
+    if actual_start != expected_start:
+        return "reused"
+    return "live"
+
+
+def _recover_orphan_lock(state: Path) -> dict[str, Any] | None:
+    path = state / "profile-update.lock"
+    if not path.is_file():
+        return None
+    try:
+        lock = json.loads(path.read_text(encoding="utf-8"))
+        pid = lock.get("pid")
+        expected_start = str(lock.get("process_start_identity") or "")
+        owner = str(lock.get("owner") or "")
+        transaction_id = str(lock.get("transaction_id") or "")
+    except (OSError, json.JSONDecodeError) as error:
+        raise UpdateError(f"lock owner is unverified: {error}") from error
+    if not isinstance(pid, int) or pid <= 0 or not expected_start or not owner or not transaction_id:
+        raise UpdateError("lock owner is unverified")
+    if owner != _current_owner():
+        raise UpdateError("lock belongs to another owner")
+    state_result = _process_state(pid, expected_start)
+    if state_result == "live":
+        raise UpdateError("profile update lock owner is alive")
+    if state_result == "unverified":
+        raise UpdateError("profile update lock process is unverified")
+    path.unlink()
+    return {
+        "state": "orphan_lock_recovered",
+        "operation": "lock_recovery",
+        "transaction_id": transaction_id,
+        "pid": pid,
+        "process_state": state_result,
+    }
+
+
 def _zip_files(archive: Path, root: Path, paths: list[str]) -> None:
     temporary = archive.with_name(archive.name + ".part")
     with zipfile.ZipFile(temporary, "w", compression=zipfile.ZIP_DEFLATED) as output:
@@ -206,7 +303,7 @@ def _extract_archive(archive: Path, root: Path, expected: dict[str, str]) -> Non
         for relative, expected_hash in expected.items():
             if _is_protected(relative):
                 raise UpdateError(f"rollback archive contains protected path: {relative}")
-            target = root / Path(relative)
+            target = _safe_target(root, relative)
             target.parent.mkdir(parents=True, exist_ok=True)
             temporary = target.with_name(target.name + ".update-part")
             temporary.write_bytes(source.read(relative))
@@ -259,9 +356,15 @@ def verify_installation(root: Path) -> dict[str, Any]:
 def recover_incomplete(root: Path) -> dict[str, Any]:
     root = _profile_root(root)
     state = _state_root(root)
+    validate_process_inventory(collect_process_inventory())
+    lock_recovery = _recover_orphan_lock(state)
     transaction_path = state / "profile-update-transaction.json"
     if not transaction_path.is_file():
-        return {"state": "clean"}
+        result = {"state": "clean"}
+        if lock_recovery:
+            _receipt(state, lock_recovery)
+            return lock_recovery
+        return result
     transaction = json.loads(transaction_path.read_text(encoding="utf-8"))
     phase = transaction.get("phase")
     if phase in {"prepared", "validated"}:
@@ -282,6 +385,7 @@ def transactional_update(root: Path, package: Path, expected_prompt: str | None 
     root = _profile_root(root)
     package = package.resolve()
     state = _state_root(root)
+    validate_process_inventory(collect_process_inventory())
     recover_incomplete(root)
     transaction_id = uuid.uuid4().hex
     lock = _acquire_lock(state, transaction_id)
@@ -313,7 +417,7 @@ def transactional_update(root: Path, package: Path, expected_prompt: str | None 
         _remove_distributed_paths(root, set(old_hashes) - set(package_hashes))
         with zipfile.ZipFile(package_archive) as source:
             for relative in package_paths:
-                target = root / Path(relative)
+                target = _safe_target(root, relative)
                 target.parent.mkdir(parents=True, exist_ok=True)
                 temporary = target.with_name(target.name + ".update-part")
                 temporary.write_bytes(source.read(relative))
@@ -348,6 +452,8 @@ def transactional_update(root: Path, package: Path, expected_prompt: str | None 
 def rollback(root: Path) -> dict[str, Any]:
     root = _profile_root(root)
     state = _state_root(root)
+    validate_process_inventory(collect_process_inventory())
+    recover_incomplete(root)
     transaction_id = uuid.uuid4().hex
     lock = _acquire_lock(state, transaction_id)
     try:
@@ -376,6 +482,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--expected-prompt")
     args = parser.parse_args(argv)
     try:
+        validate_process_inventory(collect_process_inventory())
         if args.operation == "verify":
             result = verify_installation(args.root)
         elif args.operation == "recover":

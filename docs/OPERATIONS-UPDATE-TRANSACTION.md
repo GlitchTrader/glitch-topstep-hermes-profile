@@ -9,7 +9,22 @@ the existing `state/` directory. No new runtime tree is required.
 The transaction allowlist comes from `distribution_owned` in
 `distribution.yaml`. `.env`, `auth.json`, `config.yaml`, databases, WAL/SHM,
 locks, logs, runtime, cache, sessions, memories, and the NT profile `glitch`
-are always protected. An existing update lock is never removed or overridden.
+are always protected. Protection is case-insensitive and takes precedence over
+`distribution_owned`, including for `config.yaml`, database sidecars, and
+locks. Package paths are confined to the resolved Topstep root; traversal and
+VCS checkout packages are rejected.
+
+An existing update lock is never removed or overridden unconditionally. It
+contains the PID, process-start identity, transaction ID, and owner. Recovery
+removes it only when the known owner is confirmed and the recorded process is
+dead or the PID has been reused with a different start identity. A live,
+unverifiable, or differently owned lock blocks closed; PID alone is never
+sufficient.
+
+Every update, rollback, recovery, and command-line entry point performs the
+read-only process inventory check. The protected NT `glitch` profile is
+ignored only when its profile identity is explicit; an active Topstep process
+or an ambiguous Hermes owner blocks the operation.
 
 An interruption during the `applying` phase is detected by `recover` on the
 next start and restored from the previous distributed archive. `verify` is

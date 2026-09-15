@@ -6,6 +6,7 @@ import os
 import shutil
 import tempfile
 import unittest
+import getpass
 from pathlib import Path
 from unittest import mock
 
@@ -133,6 +134,76 @@ class ProfileUpdateTransactionTests(unittest.TestCase):
             transactional_update(self.target, self.package)
         with self.assertRaises(UpdateError):
             verify_installation(self.target.with_name("glitch"))
+
+    def test_orphan_lock_is_recovered_and_followup_update_works(self) -> None:
+        lock = self.target / "state" / "profile-update.lock"
+        lock.write_text(json.dumps({
+            "pid": 999999,
+            "process_start_identity": "1.0",
+            "transaction_id": "orphaned",
+            "owner": getpass.getuser(),
+        }), encoding="utf-8")
+        result = recover_incomplete(self.target)
+        self.assertEqual(result["state"], "orphan_lock_recovered")
+        self.assertFalse(lock.exists())
+        self.assertEqual(transactional_update(self.target, self.package)["state"], "committed")
+        self.assertEqual(rollback(self.target)["state"], "rolled_back")
+
+    def test_live_reused_and_unknown_lock_are_fail_closed(self) -> None:
+        lock = self.target / "state" / "profile-update.lock"
+        current = os.getpid()
+        lock.write_text(json.dumps({
+            "pid": current,
+            "process_start_identity": "wrong",
+            "transaction_id": "reused",
+            "owner": getpass.getuser(),
+        }), encoding="utf-8")
+        self.assertEqual(recover_incomplete(self.target)["process_state"], "reused")
+        import psutil
+        lock.write_text(json.dumps({
+            "pid": current,
+            "process_start_identity": str(psutil.Process(current).create_time()),
+            "transaction_id": "live-owner",
+            "owner": getpass.getuser(),
+        }), encoding="utf-8")
+        with self.assertRaisesRegex(UpdateError, "owner is alive"):
+            recover_incomplete(self.target)
+        lock.unlink()
+        lock.write_text(json.dumps({
+            "pid": 999999,
+            "process_start_identity": "1.0",
+            "transaction_id": "unknown-owner",
+            "owner": "unknown-owner",
+        }), encoding="utf-8")
+        with self.assertRaisesRegex(UpdateError, "another owner"):
+            recover_incomplete(self.target)
+
+    def test_inventory_is_checked_by_update_rollback_recover_and_main(self) -> None:
+        from scripts import profile_update_transaction as updater
+
+        active = [{"profile": "glitch-topstep", "pid": 7}]
+        with mock.patch.object(updater, "collect_process_inventory", return_value=active):
+            with self.assertRaisesRegex(UpdateError, "already running"):
+                transactional_update(self.target, self.package)
+            with self.assertRaisesRegex(UpdateError, "already running"):
+                rollback(self.target)
+            with self.assertRaisesRegex(UpdateError, "already running"):
+                recover_incomplete(self.target)
+            self.assertNotEqual(updater.main(["verify", str(self.target)]), 0)
+        with mock.patch.object(updater, "collect_process_inventory", return_value=[{"profile": "glitch", "pid": 20716}]):
+            self.assertEqual(updater.main(["verify", str(self.target)]), 0)
+
+    def test_unsafe_package_path_and_case_insensitive_protection_are_rejected(self) -> None:
+        from scripts.profile_update_transaction import _is_protected
+
+        self.assertTrue(_is_protected("AUTH.JSON"))
+        self.assertTrue(_is_protected("State.DB-WAL"))
+        (self.package / "distribution.yaml").write_text(
+            "name: glitch-topstep\nversion: 0.2.10\ndistribution_owned:\n  - ../glitch\n",
+            encoding="utf-8",
+        )
+        with self.assertRaisesRegex(UpdateError, "unsafe distributed path"):
+            transactional_update(self.target, self.package)
 
     def test_process_inventory_protects_nt_and_rejects_topstep_owner(self) -> None:
         from scripts.profile_update_transaction import validate_process_inventory
