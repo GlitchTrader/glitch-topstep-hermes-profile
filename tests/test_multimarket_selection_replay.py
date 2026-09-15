@@ -50,6 +50,7 @@ def candidate(profile_id: str, instrument: str, score: int) -> dict:
         "state": "candidate",
         "comparability": "comparable",
         "instrument": instrument,
+        "contract_id": INSTRUMENTS[instrument]["contract_id"],
         "quantity": 1,
         "direction": "long",
         "entry": last,

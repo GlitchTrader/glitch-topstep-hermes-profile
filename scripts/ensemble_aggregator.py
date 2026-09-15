@@ -146,7 +146,7 @@ def validate_candidate_identity(candidate: dict[str, Any], envelope: dict[str, A
         not envelope_instrument
         or not isinstance(candidate_instrument, str)
         or not candidate_instrument.strip()
-        or candidate_instrument.strip().upper() != envelope_instrument.upper()
+        or candidate_instrument != envelope_instrument
     ):
         return ["identity_mismatch"]
     envelope_contract = envelope.get("contract") if isinstance(envelope.get("contract"), dict) else {}
@@ -155,11 +155,13 @@ def validate_candidate_identity(candidate: dict[str, Any], envelope: dict[str, A
         actual_contract_id = candidate.get("contract_id") or candidate.get("contract")
         if isinstance(actual_contract_id, dict):
             actual_contract_id = actual_contract_id.get("id") or actual_contract_id.get("contract_id")
-        if actual_contract_id is not None and str(actual_contract_id) != str(expected_contract_id):
+        if actual_contract_id is None or str(actual_contract_id) != str(expected_contract_id):
             return ["contract_outside_envelope"]
     expected_generation = envelope.get("contract_generation") or envelope_contract.get("contract_generation") or envelope_contract.get("generation")
     actual_generation = candidate.get("contract_generation")
-    if expected_generation is not None and actual_generation is not None and str(actual_generation) != str(expected_generation):
+    if expected_generation is not None and (
+        actual_generation is None or str(actual_generation) != str(expected_generation)
+    ):
         return ["contract_outside_envelope"]
     return []
 

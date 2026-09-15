@@ -150,7 +150,7 @@ class PracLiveEnsembleTests(unittest.TestCase):
         candidates = []
         for index, profile_id in enumerate(runner.PROFILE_IDS):
             long_side = index < 3
-            candidates.append({"profile_id": profile_id, "state": "candidate", "comparability": "comparable", "instrument": "MNQ", "direction": "long" if long_side else "short", "entry": 20000, "stop": 19990 if long_side else 20010, "target": 20010 if long_side else 19990, "quantity": 1, "horizon_bars": 5, "envelope_hash": envelope["envelope_hash"], "completeness_used": {}, "evidence_refs": []})
+            candidates.append({"profile_id": profile_id, "state": "candidate", "comparability": "comparable", "instrument": "MNQ", "contract_id": envelope["contract"]["id"], "direction": "long" if long_side else "short", "entry": 20000, "stop": 19990 if long_side else 20010, "target": 20010 if long_side else 19990, "quantity": 1, "horizon_bars": 5, "envelope_hash": envelope["envelope_hash"], "completeness_used": {}, "evidence_refs": []})
         conflicted = runner.aggregate_envelope(run_id="conflict", envelope=envelope, candidates=candidates, rules=rules, required_profile_ids=list(runner.PROFILE_IDS))
         self.assertEqual(conflicted["decision_code"], "DIRECTION_CONFLICT")
 
