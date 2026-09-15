@@ -1722,5 +1722,61 @@
     "cross_repository": "glitch-topstep:#290",
     "general_plan_promoted_to_done": false,
     "scope_note": "The merge contains the approved adversarial-risk profile, explicit registry/capability composition, fail-closed installation drift detection, regression tests, and current evaluation manifest only; no gateway, paired contract, runtime, live path, credentials, or operational state changed."
+  },
+  "ensemble_p0_identity_validation_2026_09_15": {
+    "status": "implemented_local_pending_independent_review",
+    "pull_request_dependency": 255,
+    "branch": "codex/hermes-ensemble-p0-20260915",
+    "base_commit": "f7fa7ea27689f954c5478f87defb5e3c810437b6",
+    "implementation_commit": "cf7ec00900b702c0e988080a97ced57d683c46af",
+    "scope": {
+      "aggregator": "scripts/ensemble_aggregator.py",
+      "semantic_validation": "scripts/ensemble_semantic.py",
+      "regression_tests": [
+        "tests/test_ensemble_p0_regressions.py",
+        "tests/test_multimarket_selection_replay.py",
+        "tests/test_prac_live_ensemble.py"
+      ],
+      "documentation": "docs/ensemble/p0-validation-rules.md"
+    },
+    "rules": {
+      "exact_instrument_identity": true,
+      "announced_contract_identity_required": true,
+      "gateway_remains_execution_authority": true,
+      "evaluation_only": true,
+      "production_parallelism": false,
+      "shadow_live": "blocked",
+      "prac_live": "blocked",
+      "projectx": "not_used"
+    },
+    "validation": {
+      "focused": {
+        "tests": 100,
+        "skips": 2,
+        "errors": 0,
+        "failures": 0
+      },
+      "full_local": {
+        "tests": 797,
+        "skips": 10,
+        "errors": 0,
+        "failures": 0
+      },
+      "compileall": "pass",
+      "sha256sums": "pass",
+      "git_diff_check": "pass"
+    },
+    "limitations": {
+      "live_MES_MCL_proof": "absent",
+      "independent_audit": "pending",
+      "PR255_native_approval": "pending",
+      "general_ensemble_plan_done": false
+    },
+    "cross_repository": {
+      "gateway_changed": false,
+      "gateway_pr": null,
+      "paired_contract_changed": false,
+      "glitch_nt_changed": false
+    }
   }
 }
