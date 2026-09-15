@@ -1692,11 +1692,19 @@
       "historical_manifest_preserved": "evaluation/runs/frozen-cohort-manifest-2026-09-11-v17.2.json"
     },
     "validation": {
-      "tests": 772,
-      "skips": 8,
-      "errors": 0,
-      "failures": 0,
-      "checks": ["test-linux", "test-windows", "codeql", "CodeQL", "dependency-review", "Cursor Security Agent"],
+      "ci_validation": {
+        "tests": 772,
+        "skips": 14,
+        "errors": 0,
+        "failures": 0,
+        "checks": ["test-linux", "test-windows", "codeql", "CodeQL", "dependency-review", "Cursor Security Agent"]
+      },
+      "local_validation": {
+        "tests": 772,
+        "skips": 8,
+        "errors": 0,
+        "failures": 0
+      },
       "contract_changed": false,
       "shadow_or_live_proof": false
     },
@@ -1704,6 +1712,7 @@
       "credentials": "blocked",
       "hermes_installation_drift": "blocked",
       "operational_isolation": "blocked",
+      "projectx_authenticated": "unverified",
       "indicators_stability": "unverified",
       "execution_canonicality": "unverified",
       "shadow_live": "blocked",
