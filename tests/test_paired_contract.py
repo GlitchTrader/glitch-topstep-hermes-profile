@@ -6,9 +6,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class PairedContractTests(unittest.TestCase):
-    def test_runtime_intent_schema_is_v3(self) -> None:
+    def test_runtime_intent_schema_is_v4(self) -> None:
         contract = json.loads((ROOT / "paired-contract.json").read_text(encoding="utf-8"))
-        self.assertEqual(contract["runtime_intent_schema"], "glitch.intent.v3")
+        self.assertEqual(contract["runtime_intent_schema"], "glitch.intent.v4")
 
     def test_operator_json_uses_runtime_intent_schema(self) -> None:
         operator = json.loads((ROOT / "operator.json").read_text(encoding="utf-8"))

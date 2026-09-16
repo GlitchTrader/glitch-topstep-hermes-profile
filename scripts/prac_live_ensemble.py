@@ -40,6 +40,7 @@ from ensemble_skill_gate import (
 )
 from hermes_toolsets import DEFAULT_HERMES_TOOLSETS
 from ensemble_validate import validate_evaluation_envelope, validate_normalized_candidate
+from multimarket_operational import MultimarketEnvelopeError, aggregate_multimarket_decision
 from gateway_client import local_token, request_json
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -586,6 +587,61 @@ def decision_to_gateway_intent(decision: dict[str, Any], packet: dict[str, Any])
         "decision_audit": copy.deepcopy(audit),
         "expires_utc": expires_utc,
     }
+
+
+def decision_to_gateway_intent_v4(decision: dict[str, Any], envelope: dict[str, Any]) -> dict[str, Any]:
+    """Build an explicit selected-candidate handoff without borrowing MNQ identity."""
+    if decision.get("outcome") != "selected":
+        raise RunnerError("decision_missing_global_selection")
+    candidate = decision.get("selected_candidate_full")
+    if not isinstance(candidate, dict):
+        raise RunnerError("decision_candidate_missing")
+    instrument = str(decision.get("selected_instrument") or candidate.get("instrument") or "").upper()
+    packets = envelope.get("packets_by_instrument") if isinstance(envelope, dict) else None
+    packet = packets.get(instrument) if isinstance(packets, dict) else None
+    if not isinstance(packet, dict):
+        raise RunnerError("selected_candidate_packet_missing")
+    if str(candidate.get("instrument") or "").upper() != instrument:
+        raise RunnerError("selected_candidate_instrument_mismatch")
+    contract = packet.get("contract") if isinstance(packet.get("contract"), dict) else {}
+    if str(candidate.get("contract_id") or "") != str(contract.get("id") or ""):
+        raise RunnerError("selected_candidate_contract_mismatch")
+    scope = packet.get("decision_scope") if isinstance(packet.get("decision_scope"), dict) else {}
+    entry_range = candidate.get("entry_range") if isinstance(candidate.get("entry_range"), dict) else {}
+    entry_min = entry_range.get("low", candidate.get("entry"))
+    entry_max = entry_range.get("high", candidate.get("entry"))
+    profile_id = str(decision.get("selected_profile_id") or candidate.get("profile_id") or "")
+    decision_id = str(decision.get("decision_id") or uuid.uuid4())
+    expires = str(packet.get("expires_utc") or "")
+    handoff = {
+        "schema_version": "glitch.topstep.selected_candidate_handoff.v1",
+        "comparison_decision_id": decision_id,
+        "candidate_root": f"profile:{profile_id}:{candidate.get('invocation_id') or ''}",
+        "selected_instrument": instrument,
+        "executable_contract_id": str(contract.get("id") or ""),
+        "symbol_id": str(contract.get("symbol_id") or ""),
+        "packet_id": str(packet.get("packet_id") or ""),
+        "snapshot_hash": str((packet.get("market") or {}).get("snapshot_hash") or ""),
+        "scope_hash": str(scope.get("scope_hash") or ""),
+        "scope_generation": scope.get("generation"),
+        "lease_generation": scope.get("generation"),
+        "range_identity": f"{entry_min}:{entry_max}",
+        "entry_price_min": entry_min,
+        "entry_price_max": entry_max,
+        "expires_utc": expires,
+        "selection_profile_id": profile_id,
+        "selection_profile_version": str(decision.get("selected_profile_version") or candidate.get("profile_version") or ""),
+        "selection_evidence": str(candidate.get("thesis") or candidate.get("reason") or ""),
+        "selection_version": "glitch.topstep.multimarket.selection.v1",
+    }
+    base = decision_to_gateway_intent(
+        {**decision, "selected_candidate_full": candidate},
+        packet,
+    )
+    base["schema_version"] = "glitch.intent.v4"
+    base["symbol_id"] = str(contract.get("symbol_id") or "")
+    base["selected_candidate_handoff"] = handoff
+    return base
 
 
 def deliver_global_decision(*, decision: dict[str, Any], packet: dict[str, Any], config: RunnerConfig, active_exposure: int = 0, client: Callable[..., tuple[int, dict[str, Any]]] = request_json) -> dict[str, Any]:
