@@ -703,5 +703,63 @@ def frame_for_model(frame: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def compact_frame_chain_for_model(
+    frames: list[dict[str, Any]],
+    *,
+    current_packet: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """Deduplicate immutable universe evidence while retaining every frame.
+
+    The current decision packet is authoritative for the complete market
+    universe. Historical frames retain candidate identity and an explicit
+    reference to that packet, while their own quote, bars, structure, quality,
+    account, risk, protection, and flow evidence remain intact.
+    """
+    current_packet_id = str(current_packet.get("packet_id") or "")
+    current_universe = current_packet.get("market_universe")
+    candidates = (
+        current_universe.get("candidates")
+        if isinstance(current_universe, dict)
+        else None
+    )
+    candidate_refs = []
+    if isinstance(candidates, list):
+        for candidate in candidates:
+            if not isinstance(candidate, dict):
+                continue
+            candidate_refs.append(
+                {
+                    key: candidate.get(key)
+                    for key in ("instrument", "contract_id", "symbol_id")
+                    if candidate.get(key) is not None
+                }
+            )
+
+    compacted: list[dict[str, Any]] = []
+    for index, frame in enumerate(frames):
+        value = frame_for_model(frame)
+        # The newest frame is retained verbatim; older frames reference the
+        # current packet's full universe instead of repeating every candidate
+        # observation. No frame is removed and candidate identity is retained.
+        if index < len(frames) - 1:
+            packet = value.get("packet")
+            if isinstance(packet, dict) and "market_universe" in packet:
+                packet.pop("market_universe", None)
+                packet["market_universe_reference"] = {
+                    "schema_version": (
+                        current_universe.get("schema_version")
+                        if isinstance(current_universe, dict)
+                        else None
+                    ),
+                    "source_packet_id": current_packet_id,
+                    "candidate_count": len(candidate_refs),
+                    "candidates": candidate_refs,
+                    "note": "full current candidate observations are in decision_packet",
+                }
+        value["sequence_index"] = index
+        compacted.append(value)
+    return compacted
+
+
 def frame_packet_keys(packet: dict[str, Any]) -> set[str]:
     return {key for key in FRAME_PACKET_KEYS if key in packet}

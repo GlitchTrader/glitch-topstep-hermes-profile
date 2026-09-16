@@ -858,6 +858,49 @@ class DirectCycleTests(unittest.TestCase):
         self.assertNotIn("required_output_template", envelope["decision_packet"])
         self.assertIn("required_output_template", envelope)
 
+    def test_prompt_deduplicates_historical_multimarket_universe(self):
+        current = multi_instrument_packet()
+        older = {
+            "schema_version": "glitch.topstep.minute_frame.v2",
+            "minute_id": "20990101T1404Z",
+            "captured_utc": "2099-01-01T14:04:01Z",
+            "packet": copy.deepcopy(current),
+        }
+        older["packet"]["packet_id"] = "packet-older"
+        newer = {
+            "schema_version": "glitch.topstep.minute_frame.v2",
+            "minute_id": "20990101T1405Z",
+            "captured_utc": "2099-01-01T14:05:01Z",
+            "packet": copy.deepcopy(current),
+        }
+        envelope = json.loads(
+            MODULE.build_prompt(current, [older, newer], {}, None).split(
+                "CURRENT_CYCLE=", 1
+            )[1]
+        )
+        self.assertEqual(
+            [row["instrument"] for row in envelope["decision_packet"]["market_universe"]["candidates"]],
+            ["MNQ", "MES", "MCL"],
+        )
+        self.assertNotIn("market_universe", envelope["recent_frames"][0]["packet"])
+        self.assertEqual(
+            envelope["recent_frames"][0]["packet"]["market_universe_reference"]["candidate_count"],
+            3,
+        )
+        self.assertIn("market", envelope["recent_frames"][0]["packet"])
+        self.assertEqual(
+            [row["sequence_index"] for row in envelope["recent_frames"]], [0, 1]
+        )
+
+    def test_prompt_above_budget_fails_explicitly(self):
+        with self.assertRaisesRegex(RuntimeError, "cycle_prompt_exceeds_budget"):
+            MODULE.build_prompt(
+                packet(),
+                [],
+                {"decisions": [{"intent": {"reason": "x" * 200000}}]},
+                None,
+            )
+
     def test_multi_instrument_candidates_cross_model_boundary_unchanged(self):
         current = multi_instrument_packet()
         prompt = MODULE.build_prompt(current, [], {}, None)
@@ -985,7 +1028,12 @@ class DirectCycleTests(unittest.TestCase):
                         200,
                         {
                             "schema_version": "glitch.topstep.market_universe.v1",
-                            "candidates": [],
+                            "candidates": [{
+                                "instrument": "MNQ",
+                                "contract_id": "CON.F.US.MNQ.U26",
+                                "symbol_id": "F.US.MNQ",
+                                "market_observation": {},
+                            }],
                         },
                     )
                 return (404, {})
@@ -1626,6 +1674,19 @@ class DirectCycleTests(unittest.TestCase):
                             },
                         },
                     )
+                if path == "/scanner":
+                    return (
+                        200,
+                        {
+                            "schema_version": "glitch.topstep.market_universe.v1",
+                            "candidates": [{
+                                "instrument": "MNQ",
+                                "contract_id": "CON.F.US.MNQ.U26",
+                                "symbol_id": "F.US.MNQ",
+                                "market_observation": {},
+                            }],
+                        },
+                    )
                 return (200, current)
 
             with mock.patch.object(MODULE, "local_token", return_value="token"), mock.patch.object(
@@ -1740,7 +1801,12 @@ class DirectCycleTests(unittest.TestCase):
                         200,
                         {
                             "schema_version": "glitch.topstep.market_universe.v1",
-                            "candidates": [],
+                            "candidates": [{
+                                "instrument": "MNQ",
+                                "contract_id": "CON.F.US.MNQ.U26",
+                                "symbol_id": "F.US.MNQ",
+                                "market_observation": {},
+                            }],
                         },
                     )
                 return (404, {"error": "not_found"})
@@ -2154,6 +2220,19 @@ class DirectCycleTests(unittest.TestCase):
                                                 },
                                                 "paired_manifest_schema": "glitch.topstep.paired_release.v1",
                             },
+                        },
+                    )
+                if path == "/scanner":
+                    return (
+                        200,
+                        {
+                            "schema_version": "glitch.topstep.market_universe.v1",
+                            "candidates": [{
+                                "instrument": "MNQ",
+                                "contract_id": "CON.F.US.MNQ.U26",
+                                "symbol_id": "F.US.MNQ",
+                                "market_observation": {},
+                            }],
                         },
                     )
                 return (200, current)

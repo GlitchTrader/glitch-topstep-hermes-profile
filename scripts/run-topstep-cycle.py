@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import Any
 
 from packet_model import (
+    compact_frame_chain_for_model,
     detect_continuity_gap,
     frame_for_model,
     packet_for_cycle,
@@ -861,7 +862,10 @@ def build_prompt(
     )
     envelope = {
         "decision_packet": model_packet,
-        "recent_frames": [frame_for_model(frame) for frame in frames],
+        "recent_frames": compact_frame_chain_for_model(
+            frames,
+            current_packet=packet,
+        ),
         "continuity_gap": detect_continuity_gap(frames),
         "recent_glitch_ledger": context,
         "active_trade_state": trade_state,
@@ -890,11 +894,16 @@ def build_prompt(
     if review_mode:
         instruction = TRIGGER_REVIEW_INSTRUCTION + instruction
 
-    return apply_cognitive_overlay(
+    prompt = apply_cognitive_overlay(
         instruction
         + json.dumps(envelope, separators=(",", ":"), ensure_ascii=False),
         context.get("active_cognitive_overlay"),
     )
+    if len(prompt) > 180_000:
+        raise RuntimeError(
+            f"cycle_prompt_exceeds_budget:{len(prompt)}:180000"
+        )
+    return prompt
 
 
 def cycle_skills(*, positioned_only: bool = False, trigger_review_only: bool = False) -> str:
@@ -1633,6 +1642,41 @@ def load_model_attempt(path: Path) -> dict[str, Any]:
     }
 
 
+def fetch_cycle_packet(*, token: str, health: dict[str, Any]) -> dict[str, Any]:
+    """Fetch the account packet and its gateway-owned global market universe."""
+    packet_status, packet = request_json("/packet", token=token)
+    if packet_status != 200 or not isinstance(packet, dict):
+        raise RuntimeError(f"gateway_packet_failed:{packet_status}")
+
+    capabilities = health.get("compatibility", {}).get("capabilities", [])
+    if "multi_instrument_observation_v1" not in capabilities:
+        return packet
+
+    scanner_status, scanner = request_json("/scanner", token=token)
+    if scanner_status != 200 or not isinstance(scanner, dict):
+        raise RuntimeError(f"gateway_scanner_failed:{scanner_status}")
+    if scanner.get("schema_version") != "glitch.topstep.market_universe.v1":
+        raise RuntimeError("gateway_scanner_schema_invalid")
+
+    candidates = scanner.get("candidates")
+    if not isinstance(candidates, list) or not candidates:
+        raise RuntimeError("gateway_scanner_candidates_missing")
+    for candidate in candidates:
+        if not isinstance(candidate, dict):
+            raise RuntimeError("gateway_scanner_candidate_invalid")
+        if not all(
+            isinstance(candidate.get(field), str) and candidate[field].strip()
+            for field in ("instrument", "contract_id", "symbol_id")
+        ):
+            raise RuntimeError("gateway_scanner_candidate_identity_missing")
+        if not isinstance(candidate.get("market_observation"), dict):
+            raise RuntimeError("gateway_scanner_candidate_observation_missing")
+
+    packet = copy.deepcopy(packet)
+    packet["market_universe"] = scanner
+    return packet
+
+
 def run_once(args: argparse.Namespace, root: Path) -> int:
     token = local_token()
     health_status, health = request_json("/health", token=token)
@@ -1644,16 +1688,7 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     bootstrap_profile_state(state)
     sync_gateway_execution_facts(state)
 
-    packet_status, packet = request_json("/packet", token=token)
-    if packet_status != 200:
-        raise RuntimeError(f"gateway_packet_failed:{packet_status}")
-    capabilities = health.get("compatibility", {}).get("capabilities", [])
-    if isinstance(capabilities, list) and "multi_instrument_observation_v1" in capabilities:
-        scanner_status, scanner = request_json("/scanner", token=token)
-        if scanner_status != 200 or not isinstance(scanner, dict):
-            raise RuntimeError(f"gateway_scanner_failed:{scanner_status}")
-        if scanner.get("schema_version") == "glitch.topstep.market_universe.v1":
-            packet["market_universe"] = scanner
+    packet = fetch_cycle_packet(token=token, health=health)
     packet = wait_for_packet_rollover(
         packet,
         float(getattr(args, "packet_rollover_wait_seconds", 0) or 0),
