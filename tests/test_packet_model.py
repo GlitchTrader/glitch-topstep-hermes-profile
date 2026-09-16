@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from packet_model import (  # noqa: E402
     FRAME_SNAPSHOT_SCHEMA,
     annotate_partial_timeframes,
+    compact_frame_chain_for_model,
     compact_packet_evidence,
     detect_continuity_gap,
     frame_for_model,
@@ -200,6 +201,57 @@ class PacketModelTests(unittest.TestCase):
         value = frame_for_model({"minute_id": "x", "captured_utc": "y"})
         self.assertEqual(value["schema_version"], FRAME_SNAPSHOT_SCHEMA)
         self.assertEqual(value["packet"], {})
+
+    def test_compact_frame_chain_is_reproducible_and_keeps_universe_identity(self):
+        current = sample_packet()
+        current["market_universe"] = {
+            "schema_version": "glitch.topstep.market_universe.v1",
+            "candidates": [
+                {
+                    "instrument": "MNQ",
+                    "contract_id": "CON.MNQ",
+                    "symbol_id": "F.US.MNQ",
+                },
+                {
+                    "instrument": "MES",
+                    "contract_id": "CON.MES",
+                    "symbol_id": "F.US.MES",
+                },
+                {
+                    "instrument": "MCL",
+                    "contract_id": "CON.MCL",
+                    "symbol_id": "F.US.MCLE",
+                },
+            ],
+        }
+        older = sample_frame()
+        older["packet"] = copy.deepcopy(current)
+        older["packet"]["packet_id"] = "packet-4"
+        newer = sample_frame()
+        newer["minute_id"] = "20990101T1406Z"
+        newer["packet"] = copy.deepcopy(current)
+        newer["packet"]["packet_id"] = "packet-5"
+
+        left = compact_frame_chain_for_model(
+            [older, newer], current_packet=current
+        )
+        right = compact_frame_chain_for_model(
+            [older, newer], current_packet=current
+        )
+        self.assertEqual(left, right)
+        self.assertEqual([row["sequence_index"] for row in left], [0, 1])
+        self.assertEqual(left[1]["packet"]["market_universe"], current["market_universe"])
+        self.assertNotIn("market_universe", left[0]["packet"])
+        reference = left[0]["packet"]["market_universe_reference"]
+        self.assertEqual(reference["source_packet_id"], "packet-5")
+        self.assertEqual(reference["candidate_count"], 3)
+        self.assertEqual(
+            [row["instrument"] for row in reference["candidates"]],
+            ["MNQ", "MES", "MCL"],
+        )
+        self.assertEqual(left[0]["packet"]["contract"]["name"], "MNQ U99")
+        self.assertEqual(left[0]["packet"]["contract"]["tick_size"], 0.25)
+        self.assertIn("market_observation", left[0]["packet"])
 
     def test_frame_packet_keys_helper(self):
         packet = sample_packet()
