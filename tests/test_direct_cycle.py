@@ -989,7 +989,7 @@ class DirectCycleTests(unittest.TestCase):
                                 "gateway_name": "glitch-topstep",
                                 "protocol_revision": "glitch.topstep.paired.v3",
                                 "gateway_version": "0.2.6",
-                                "intent_schemas": ["glitch.intent.v2", "glitch.intent.v3"],
+                                "intent_schemas": ["glitch.intent.v2", "glitch.intent.v3", "glitch.intent.v4"],
                                 "decision_packet_schemas": [
                                     "glitch.direct.decision_packet.v1",
                                     "glitch.direct.decision_packet.v2",
@@ -1642,7 +1642,7 @@ class DirectCycleTests(unittest.TestCase):
                                 "gateway_name": "glitch-topstep",
                                 "protocol_revision": "glitch.topstep.paired.v3",
                                 "gateway_version": "0.2.6",
-                                "intent_schemas": ["glitch.intent.v2", "glitch.intent.v3"],
+                                "intent_schemas": ["glitch.intent.v2", "glitch.intent.v3", "glitch.intent.v4"],
                                 "decision_packet_schemas": [
                                     "glitch.direct.decision_packet.v1",
                                     "glitch.direct.decision_packet.v2",
@@ -1762,7 +1762,7 @@ class DirectCycleTests(unittest.TestCase):
                                 "gateway_name": "glitch-topstep",
                                 "protocol_revision": "glitch.topstep.paired.v3",
                                 "gateway_version": "0.2.6",
-                                "intent_schemas": ["glitch.intent.v2", "glitch.intent.v3"],
+                                "intent_schemas": ["glitch.intent.v2", "glitch.intent.v3", "glitch.intent.v4"],
                                 "decision_packet_schemas": [
                                     "glitch.direct.decision_packet.v1",
                                     "glitch.direct.decision_packet.v2",
@@ -2190,7 +2190,7 @@ class DirectCycleTests(unittest.TestCase):
                                 "gateway_name": "glitch-topstep",
                                 "protocol_revision": "glitch.topstep.paired.v3",
                                 "gateway_version": "0.2.6",
-                                "intent_schemas": ["glitch.intent.v2", "glitch.intent.v3"],
+                                "intent_schemas": ["glitch.intent.v2", "glitch.intent.v3", "glitch.intent.v4"],
                                 "decision_packet_schemas": [
                                     "glitch.direct.decision_packet.v1",
                                     "glitch.direct.decision_packet.v2",
