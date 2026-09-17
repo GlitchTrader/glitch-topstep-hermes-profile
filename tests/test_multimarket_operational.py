@@ -1,6 +1,9 @@
 import copy
+import json
+import os
 import sys
 import unittest
+from unittest import mock
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -9,10 +12,13 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from multimarket_operational import (  # noqa: E402
     aggregate_multimarket_decision,
+    build_profile_envelope,
     MultimarketEnvelopeError,
     fetch_multimarket_cycle_envelope,
 )
 from prac_live_ensemble import RunnerError, decision_to_gateway_intent_v4  # noqa: E402
+import prac_live_ensemble as runner  # noqa: E402
+from ensemble_skill_gate import default_glitch_topstep_hermes_home, SkillPreloadError  # noqa: E402
 
 
 STAMP = "2099-01-01T14:00:00Z"
@@ -153,6 +159,102 @@ class MultimarketOperationalEnvelopeTests(unittest.TestCase):
         decision = {"outcome": "no_selection"}
         with self.assertRaisesRegex(RunnerError, "decision_missing_global_selection"):
             decision_to_gateway_intent_v4(decision, envelope)
+
+    def test_profile_envelope_keeps_global_identity_and_all_exact_packets(self):
+        operational = fetch_multimarket_cycle_envelope(
+            token="opaque", health={"status": "ok"}, request=self.request,
+            now=datetime(2099, 1, 1, 14, 1, tzinfo=timezone.utc),
+        )
+        matrix = __import__("json").loads((ROOT / "evaluation" / "capability-matrix.json").read_text())
+        mapping = __import__("json").loads((ROOT / "evaluation" / "packet_envelope_mapping.v1.json").read_text())
+        envelope = build_profile_envelope(
+            operational,
+            source_catalog=matrix["source_catalog"],
+            mapping=mapping,
+            validity_seconds=120,
+        )
+        self.assertEqual(envelope["schema_version"], "glitch.topstep.multimarket.envelope.v1")
+        self.assertEqual(set(envelope["packets_by_instrument"]), {"MNQ", "MES", "MCL"})
+        self.assertEqual(envelope["packets_by_instrument"]["MES"]["contract"]["id"], CONTRACTS["MES"][0])
+        self.assertEqual(envelope["packets_by_instrument"]["MCL"]["contract"]["symbol_id"], "F.US.MCLE")
+        self.assertFalse(envelope["simultaneous_exposure_enabled"])
+        self.assertEqual(envelope["exposure_limit"], 1)
+
+    def test_hermes_home_rejects_ambient_root_or_alternate_profile(self):
+        previous_local = os.environ.get("LOCALAPPDATA")
+        previous_home = os.environ.get("GLITCH_TOPSTEP_HERMES_HOME")
+        try:
+            os.environ["LOCALAPPDATA"] = r"C:\Operator\AppData\Local"
+            os.environ["GLITCH_TOPSTEP_HERMES_HOME"] = r"C:\Operator\AppData\Local\hermes"
+            with self.assertRaisesRegex(SkillPreloadError, "hermes_home_profile_mismatch"):
+                default_glitch_topstep_hermes_home()
+        finally:
+            if previous_local is None:
+                os.environ.pop("LOCALAPPDATA", None)
+            else:
+                os.environ["LOCALAPPDATA"] = previous_local
+            if previous_home is None:
+                os.environ.pop("GLITCH_TOPSTEP_HERMES_HOME", None)
+            else:
+                os.environ["GLITCH_TOPSTEP_HERMES_HOME"] = previous_home
+
+    def test_operational_ensemble_uses_one_run_and_six_profile_slots(self):
+        operational = fetch_multimarket_cycle_envelope(
+            token="opaque", health={"status": "ok"}, request=self.request,
+            now=datetime(2099, 1, 1, 14, 1, tzinfo=timezone.utc),
+        )
+        matrix = json.loads((ROOT / "evaluation" / "capability-matrix.json").read_text())
+        envelope = build_profile_envelope(
+            operational,
+            source_catalog=matrix["source_catalog"],
+            mapping=json.loads((ROOT / "evaluation" / "packet_envelope_mapping.v1.json").read_text()),
+            validity_seconds=120,
+        )
+        audit = {key: "evidence" for key in (
+            "bull_case", "bear_case", "flat_case", "aggressive_case", "conservative_case",
+            "decisive_evidence", "disconfirming_evidence", "change_condition",
+        )} | {"final_choice": "ENTER_LONG"}
+        seen: list[str] = []
+
+        def fake_profiles(**kwargs):
+            seen.extend(row["profile_id"] for row in json.loads((ROOT / "evaluation" / "registry.json").read_text())["profiles"])
+            rows = []
+            for profile_id in runner.PROFILE_IDS:
+                candidate = {
+                    "profile_id": profile_id,
+                    "profile_version": "v1",
+                    "invocation_id": f"inv-{profile_id}",
+                    "state": "candidate" if profile_id in {"baseline-current", "structure"} else "no_edge",
+                    "comparability": "comparable" if profile_id in {"baseline-current", "structure"} else "not_comparable",
+                    "instrument": "MES",
+                    "contract_id": CONTRACTS["MES"][0],
+                    "symbol_id": CONTRACTS["MES"][1],
+                    "direction": "long",
+                    "evidence_score": 10,
+                    "entry": 5000.0,
+                    "stop": 4995.0,
+                    "target": 5010.0,
+                    "quantity": 1,
+                    "prompt_version": "glitch-topstep-v17.3",
+                    "model_version": "test-model",
+                    "thesis": "MES global thesis",
+                    "decision_audit": audit,
+                    "envelope_hash": envelope["envelope_hash"],
+                    "completeness_used": {},
+                    "evidence_refs": ["quote:MES"],
+                }
+                rows.append({"profile_id": profile_id, "invocation_id": candidate["invocation_id"], "normalized": candidate, "raw_profile_output": {"state": candidate["state"]}})
+            return rows
+
+        with mock.patch.object(runner, "fetch_live_multimarket_envelope", return_value=operational), mock.patch.object(runner, "run_profiles", side_effect=fake_profiles):
+            result = runner.run_operational_ensemble(health={"status": "ok"}, token="opaque", run_id="global-run")
+        self.assertEqual(result["run_id"], "global-run")
+        self.assertEqual(set(seen), set(runner.PROFILE_IDS))
+        self.assertEqual(result["decision"]["outcome"], "selected")
+        self.assertEqual(result["decision"]["selected_instrument"], "MES")
+        self.assertEqual(result["intent"]["schema_version"], "glitch.intent.v4")
+        self.assertEqual(result["intent"]["symbol_id"], "F.US.MES")
+        self.assertEqual(result["orders_sent"], 0)
 
 
 if __name__ == "__main__":

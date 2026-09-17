@@ -31,6 +31,11 @@ def worker_command(args: argparse.Namespace) -> list[str]:
 
 
 def launch(args: argparse.Namespace) -> dict[str, object]:
+    local_app = os.environ.get("LOCALAPPDATA", "").strip()
+    if not local_app:
+        raise RuntimeError("LOCALAPPDATA_missing_for_canonical_profile")
+    canonical_home = (Path(local_app) / "hermes" / "profiles" / "glitch-topstep").resolve()
+    os.environ["HERMES_HOME"] = str(canonical_home)
     root = configure_environment()
     state = state_root(root)
     active = active_model_owner(state)

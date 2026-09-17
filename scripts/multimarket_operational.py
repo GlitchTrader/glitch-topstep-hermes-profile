@@ -8,6 +8,8 @@ import json
 from datetime import datetime, timezone
 from typing import Any, Callable
 
+from ensemble_envelope import build_evaluation_envelope, canonical_json_bytes
+
 
 EXPECTED_INSTRUMENTS = ("MNQ", "MES", "MCL")
 MCL_SYMBOL = "F.US.MCLE"
@@ -16,6 +18,83 @@ ENVELOPE_SCHEMA = "glitch.topstep.multimarket.envelope.v1"
 
 class MultimarketEnvelopeError(ValueError):
     """Fail-closed validation error for the global observation envelope."""
+
+
+def build_profile_envelope(
+    operational: dict[str, Any],
+    *,
+    source_catalog: dict[str, Any],
+    mapping: dict[str, Any],
+    validity_seconds: int,
+) -> dict[str, Any]:
+    """Project one read-only gateway universe into the profile input envelope.
+
+    The projection keeps the evaluation fields required by the profile runner,
+    while changing the envelope identity to the multimarket schema and retaining
+    every exact packet under ``packets_by_instrument``.  No candidate or execution
+    field is synthesized here.
+    """
+    packets = operational.get("packets_by_instrument")
+    if not isinstance(packets, dict) or tuple(sorted(packets)) != tuple(sorted(EXPECTED_INSTRUMENTS)):
+        raise MultimarketEnvelopeError("profile_envelope_packets_incomplete")
+    base_packet = packets["MNQ"]
+    if not isinstance(base_packet, dict):
+        raise MultimarketEnvelopeError("profile_envelope_base_packet_invalid")
+    base = build_evaluation_envelope(
+        packet=base_packet,
+        source_catalog=source_catalog,
+        reference_utc=str(operational.get("generated_utc") or base_packet.get("created_utc") or ""),
+        validity_seconds=max(1, int(validity_seconds)),
+        frame_id=str(operational.get("envelope_id") or base_packet.get("packet_id") or ""),
+        corpus_ref="gateway:/packet+gateway:/scanner",
+        mapping=mapping,
+    )
+    expires = [str(packet.get("expires_utc") or "") for packet in packets.values()]
+    if any(not value for value in expires):
+        raise MultimarketEnvelopeError("profile_envelope_expiry_missing")
+    valid_until = min(_utc(value, "packet_expires") for value in expires)
+    canonical = canonical_json_bytes(
+        {
+            "market_universe": operational.get("market_universe"),
+            "packets_by_instrument": packets,
+        }
+    )
+    global_hash = hashlib.sha256(canonical).hexdigest()
+    envelope = dict(base)
+    envelope.update(
+        {
+            "schema_version": ENVELOPE_SCHEMA,
+            "envelope_id": str(operational.get("envelope_id") or "env-" + global_hash[:16]),
+            "snapshot_id": str(operational.get("envelope_id") or "env-" + global_hash[:16]),
+            "snapshot_hash": global_hash,
+            "reference_utc": str(operational.get("generated_utc") or base["reference_utc"]),
+            "valid_until_utc": valid_until.isoformat().replace("+00:00", "Z"),
+            "instrument": "MULTI",
+            "contract": {"id": "MULTIMARKET", "symbol_id": "MULTIMARKET"},
+            "market_universe": copy.deepcopy(operational.get("market_universe")),
+            "packets_by_instrument": copy.deepcopy(packets),
+            "account": copy.deepcopy(operational.get("account") or base_packet.get("account")),
+            "simultaneous_exposure_enabled": False,
+            "exposure_limit": 1,
+            "source_refs": {
+                **dict(base.get("source_refs") or {}),
+                "frame_id": str(operational.get("envelope_id") or base["snapshot_id"]),
+                "corpus_ref": "gateway:/packet+gateway:/scanner",
+            },
+        }
+    )
+    envelope["envelope_hash"] = hashlib.sha256(
+        canonical_json_bytes(
+            {
+                "schema_version": envelope["schema_version"],
+                "snapshot_hash": envelope["snapshot_hash"],
+                "valid_until_utc": envelope["valid_until_utc"],
+                "market_universe": envelope["market_universe"],
+                "packets_by_instrument": envelope["packets_by_instrument"],
+            }
+        )
+    ).hexdigest()
+    return envelope
 
 
 def aggregate_multimarket_decision(

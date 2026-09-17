@@ -57,9 +57,15 @@ def canonical_profile_root() -> Path:
 
 
 def default_glitch_topstep_hermes_home() -> Path:
-    """Force Hermes to the canonical checked-out profile, never ambient state."""
-    configured = os.environ.get("GLITCH_TOPSTEP_CANONICAL_PROFILE", "").strip()
-    root = Path(configured).expanduser().resolve() if configured else canonical_profile_root()
+    """Resolve the production Hermes profile, never the ambient Hermes root."""
+    local_app = os.environ.get("LOCALAPPDATA", "").strip()
+    if not local_app:
+        raise SkillPreloadError("localappdata_missing_for_production_profile")
+    expected = (Path(local_app) / "hermes" / "profiles" / "glitch-topstep").resolve()
+    configured = os.environ.get("GLITCH_TOPSTEP_HERMES_HOME", "").strip()
+    root = Path(configured).expanduser().resolve() if configured else expected
+    if os.path.normcase(str(root)) != os.path.normcase(str(expected)):
+        raise SkillPreloadError("hermes_home_profile_mismatch")
     return root
 
 
