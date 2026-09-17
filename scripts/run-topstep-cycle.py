@@ -106,6 +106,7 @@ from common import (
     write_json_atomic,
 )
 from hermes_toolsets import DEFAULT_HERMES_TOOLSETS
+from prac_live_ensemble import run_operational_ensemble
 from safe_path import safe_path_component_or_digest
 from parity import (
     PROMPT_VERSION,
@@ -1869,6 +1870,45 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
                 **cycle_wake_fields(reason, wake_detail),
                 "reason": "unchanged_evidence",
                 "fingerprint": evidence_fingerprint(packet),
+            },
+        )
+        return 0
+
+    # Flat shadow cognition is account-global and must use the same six-profile
+    # multimarket path as the validated v4 handoff.  Positioned management stays
+    # on the existing direct path; the gateway remains the sole execution authority.
+    gateway_mode = str((packet.get("execution") or {}).get("gateway_mode") or "").lower()
+    capabilities = (health.get("compatibility") or {}).get("capabilities", [])
+    multimarket_capable = "multi_instrument_observation_v1" in capabilities
+    if multimarket_capable and not positioned(packet):
+        if gateway_mode != "shadow":
+            raise RuntimeError("multimarket_operational_requires_shadow")
+        ensemble = run_operational_ensemble(
+            health=health,
+            token=token,
+            run_id=str(uuid.uuid4()),
+        )
+        decision = ensemble["decision"]
+        append_jsonl(
+            state / "events.jsonl",
+            {
+                "schema_version": "glitch.topstep.cycle_event.v2",
+                "event": "multimarket_shadow_ensemble_completed",
+                "recorded_utc": utc_now(),
+                "packet_id": packet.get("packet_id"),
+                "run_id": ensemble["run_id"],
+                "envelope_id": ensemble["envelope"].get("envelope_id"),
+                "envelope_hash": ensemble["envelope"].get("envelope_hash"),
+                "profile_count": len(ensemble["profiles"]),
+                "profile_ids": [row.get("profile_id") for row in ensemble["profiles"]],
+                "invocation_ids": [row.get("invocation_id") for row in ensemble["profiles"]],
+                "outcome": decision.get("outcome"),
+                "decision_code": decision.get("decision_code"),
+                "selected_instrument": decision.get("selected_instrument"),
+                "selected_contract_id": decision.get("selected_contract_id"),
+                "intent_schema": (ensemble.get("intent") or {}).get("schema_version"),
+                "orders_sent": 0,
+                "projectx_mutations": 0,
             },
         )
         return 0

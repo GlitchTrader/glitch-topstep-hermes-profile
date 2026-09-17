@@ -40,7 +40,12 @@ from ensemble_skill_gate import (
 )
 from hermes_toolsets import DEFAULT_HERMES_TOOLSETS
 from ensemble_validate import validate_evaluation_envelope, validate_normalized_candidate
-from multimarket_operational import MultimarketEnvelopeError, aggregate_multimarket_decision
+from multimarket_operational import (
+    MultimarketEnvelopeError,
+    aggregate_multimarket_decision,
+    build_profile_envelope,
+    fetch_multimarket_cycle_envelope,
+)
 from gateway_client import local_token, request_json
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -434,12 +439,12 @@ def _slot_loader(invoker: ProfileInvoker, profiles: dict[str, dict[str, Any]], e
     return invoker(profiles[profile_id], envelope, timeout_ms)
 
 
-def run_profiles(*, envelope: dict[str, Any], registry: dict[str, Any], matrix: dict[str, Any], config: RunnerConfig, invoker: ProfileInvoker = _invoke_hermes) -> list[dict[str, Any]]:
+def run_profiles(*, envelope: dict[str, Any], registry: dict[str, Any], matrix: dict[str, Any], config: RunnerConfig, invoker: ProfileInvoker = _invoke_hermes, run_id: str | None = None) -> list[dict[str, Any]]:
     profiles = {str(row["profile_id"]): row for row in registry.get("profiles", []) if row.get("enabled", True)}
     missing = [pid for pid in PROFILE_IDS if pid not in profiles]
     if missing:
         raise RunnerError("profile_missing:" + ",".join(missing))
-    run_id = str(uuid.uuid4())
+    run_id = run_id or str(uuid.uuid4())
     gates = {pid: capacity_gate(envelope, pid, matrix) for pid in PROFILE_IDS}
     started = time.monotonic()
 
@@ -462,6 +467,15 @@ def run_profiles(*, envelope: dict[str, Any], registry: dict[str, Any], matrix: 
         per_profile_timeout_ms=config.per_profile_timeout_ms,
         total_timeout_ms=config.total_timeout_ms,
     )
+    for slot in slots:
+        diagnostic = (slot.raw_profile_output or {}).get("hermes_diagnostic") if isinstance(slot.raw_profile_output, dict) else None
+        timed_out = slot.error == "timeout" or (
+            isinstance(diagnostic, dict) and diagnostic.get("classification") == "timeout"
+        )
+        if timed_out and isinstance(slot.normalized, dict):
+            slot.normalized["state"] = "timeout"
+            slot.normalized["comparability"] = "not_comparable"
+            slot.normalized["error_code"] = "profile_timeout"
     if (time.monotonic() - started) * 1000 > config.total_timeout_ms:
         raise RunnerError("ensemble_timeout")
     _operator_profile, model_version = _operator_identity()
@@ -512,7 +526,16 @@ def aggregate_global(*, envelope: dict[str, Any], slots: list[dict[str, Any]], r
                 "evidence_refs": list(evidence_refs),
             })
         objection_status = "present" if objections else "empty"
-    decision = aggregate_envelope(run_id=run_id, envelope=envelope, candidates=candidates, objections=objections, rules=rules, required_profile_ids=list(PROFILE_IDS))
+    if envelope.get("schema_version") == "glitch.topstep.multimarket.envelope.v1":
+        decision = aggregate_multimarket_decision(
+            run_id=run_id,
+            envelope=envelope,
+            candidates=candidates,
+            objections=objections,
+            required_profile_ids=list(PROFILE_IDS),
+        )
+    else:
+        decision = aggregate_envelope(run_id=run_id, envelope=envelope, candidates=candidates, objections=objections, rules=rules, required_profile_ids=list(PROFILE_IDS))
     decision["adversarial_objection_status"] = objection_status
     decision["decision_id"] = str(uuid.uuid4())
     decision["execution_authority"] = "gateway_only"
@@ -644,7 +667,7 @@ def decision_to_gateway_intent_v4(decision: dict[str, Any], envelope: dict[str, 
     return base
 
 
-def deliver_global_decision(*, decision: dict[str, Any], packet: dict[str, Any], config: RunnerConfig, active_exposure: int = 0, client: Callable[..., tuple[int, dict[str, Any]]] = request_json) -> dict[str, Any]:
+def deliver_global_decision(*, decision: dict[str, Any], packet: dict[str, Any] | None = None, envelope: dict[str, Any] | None = None, config: RunnerConfig, active_exposure: int = 0, client: Callable[..., tuple[int, dict[str, Any]]] = request_json) -> dict[str, Any]:
     if config.mode != "prac_live" or not config.authorize:
         return {"status": "not_delivered", "reason": "delivery_disabled_by_mode", "orders_sent": 0}
     outcome = decision.get("outcome")
@@ -661,7 +684,12 @@ def deliver_global_decision(*, decision: dict[str, Any], packet: dict[str, Any],
         raise RunnerError("global_decision_invalid")
     if active_exposure >= config.exposure_limit and decision.get("outcome") == "selected":
         raise RunnerError("second_exposure_blocked")
-    intent = decision_to_gateway_intent(decision, packet)
+    if envelope is not None and envelope.get("schema_version") == "glitch.topstep.multimarket.envelope.v1":
+        intent = decision_to_gateway_intent_v4(decision, envelope)
+    else:
+        if packet is None:
+            raise RunnerError("delivery_packet_missing")
+        intent = decision_to_gateway_intent(decision, packet)
     status, body = client("/intent", method="POST", body=intent, token=local_token())
     if status not in {200, 201, 202}:
         raise RunnerError("gateway_rejected_global_decision")
@@ -686,6 +714,67 @@ def fetch_live_packet() -> tuple[dict[str, Any], dict[str, Any]]:
     return health, packet
 
 
+def fetch_live_multimarket_envelope(*, token: str, health: dict[str, Any]) -> dict[str, Any]:
+    try:
+        return fetch_multimarket_cycle_envelope(token=token, health=health, request=request_json)
+    except MultimarketEnvelopeError as exc:
+        raise RunnerError(f"multimarket_preflight:{exc}") from exc
+
+
+def seal_multimarket_envelope(
+    operational: dict[str, Any],
+    *,
+    matrix: dict[str, Any],
+    mapping: dict[str, Any],
+    config: RunnerConfig,
+) -> dict[str, Any]:
+    return build_profile_envelope(
+        operational,
+        source_catalog=matrix["source_catalog"],
+        mapping=mapping,
+        validity_seconds=max(1, int(config.total_timeout_ms / 1000)),
+    )
+
+
+def run_operational_ensemble(
+    *,
+    health: dict[str, Any],
+    token: str,
+    invoker: ProfileInvoker = _invoke_hermes,
+    run_id: str | None = None,
+) -> dict[str, Any]:
+    """Run exactly one real global multimarket cycle under the caller's lock."""
+    matrix = json.loads((ROOT / "evaluation" / "capability-matrix.json").read_text(encoding="utf-8"))
+    registry = json.loads((ROOT / "evaluation" / "registry.json").read_text(encoding="utf-8"))
+    rules = json.loads((ROOT / "evaluation" / "aggregator_rules.v1.json").read_text(encoding="utf-8"))
+    mapping = json.loads((ROOT / "evaluation" / "packet_envelope_mapping.v1.json").read_text(encoding="utf-8"))
+    config = RunnerConfig.load(DEFAULT_CONFIG, mode="shadow", authorize=False)
+    operational = fetch_live_multimarket_envelope(token=token, health=health)
+    envelope = seal_multimarket_envelope(operational, matrix=matrix, mapping=mapping, config=config)
+    cycle_id = run_id or str(uuid.uuid4())
+    slots = run_profiles(
+        envelope=envelope,
+        registry=registry,
+        matrix=matrix,
+        config=config,
+        invoker=invoker,
+        run_id=cycle_id,
+    )
+    decision = aggregate_global(envelope=envelope, slots=slots, rules=rules, run_id=cycle_id)
+    intent = None
+    if decision.get("outcome") == "selected":
+        intent = decision_to_gateway_intent_v4(decision, envelope)
+    return {
+        "run_id": cycle_id,
+        "envelope": envelope,
+        "profiles": slots,
+        "decision": decision,
+        "intent": intent,
+        "orders_sent": 0,
+        "projectx_mutations": 0,
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Hermes six-profile runner; PRAC delivery is fail-closed")
     parser.add_argument("--mode", choices=sorted(ALLOWED_MODES), required=True)
@@ -701,16 +790,25 @@ def main(argv: list[str] | None = None) -> int:
         health = {"status": "ok"}
         packet = json.loads(args.packet.read_text(encoding="utf-8"))
     else:
-        health, packet = fetch_live_packet()
+        token = local_token()
+        health_status, health = request_json("/health", token=token)
+        if health_status != 200:
+            raise RunnerError("gateway_authentication_failure")
+        operational = fetch_live_multimarket_envelope(token=token, health=health)
+        packet = operational["packets_by_instrument"]["MNQ"]
     validate_live_packet(packet, health, expected_contract_id=config.expected_contract_id)
     matrix = json.loads((ROOT / "evaluation" / "capability-matrix.json").read_text(encoding="utf-8"))
     registry = json.loads((ROOT / "evaluation" / "registry.json").read_text(encoding="utf-8"))
     rules = json.loads((ROOT / "evaluation" / "aggregator_rules.v1.json").read_text(encoding="utf-8"))
     mapping = json.loads((ROOT / "evaluation" / "packet_envelope_mapping.v1.json").read_text(encoding="utf-8"))
-    envelope = seal_live_envelope(packet, matrix=matrix, mapping=mapping, config=config)
+    envelope = (
+        seal_live_envelope(packet, matrix=matrix, mapping=mapping, config=config)
+        if args.mode == "offline"
+        else seal_multimarket_envelope(operational, matrix=matrix, mapping=mapping, config=config)
+    )
     slots = run_profiles(envelope=envelope, registry=registry, matrix=matrix, config=config)
     decision = aggregate_global(envelope=envelope, slots=slots, rules=rules, run_id=str(uuid.uuid4()))
-    delivery = deliver_global_decision(decision=decision, packet=packet, config=config)
+    delivery = deliver_global_decision(decision=decision, packet=packet, envelope=envelope, config=config)
     result = {"schema_version": "glitch.topstep.prac_live_ensemble_run.v1", "mode": args.mode, "authorized": config.authorize, "orders_sent": delivery.get("orders_sent", 0), "resets": 0, "envelope": {"envelope_id": envelope["envelope_id"], "snapshot_hash": envelope["snapshot_hash"], "envelope_hash": envelope["envelope_hash"]}, "profiles": slots, "decision": decision, "delivery": delivery}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
