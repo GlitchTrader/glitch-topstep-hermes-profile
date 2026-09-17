@@ -29,7 +29,9 @@ class LaunchTopstepCycleTests(unittest.TestCase):
                 packet_rollover_wait_seconds=5,
                 dry_run=False,
             )
-            with mock.patch.object(MODULE, "configure_environment", return_value=root_path), mock.patch.object(
+            with mock.patch.dict("os.environ", {"LOCALAPPDATA": str(root_path)}, clear=False), mock.patch.object(
+                MODULE, "configure_environment", return_value=root_path
+            ), mock.patch.object(
                 MODULE,
                 "active_model_owner",
                 return_value={

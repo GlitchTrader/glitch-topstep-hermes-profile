@@ -46,6 +46,10 @@ def config(mode: str = "offline") -> runner.RunnerConfig:
 
 class PracLiveEnsembleTests(unittest.TestCase):
     @staticmethod
+    def hermes_home_test_double():
+        return Path(tempfile.gettempdir()) / "hermes" / "profiles" / "glitch-topstep"
+
+    @staticmethod
     def selected_candidate() -> dict:
         return {
             "direction": "long",
@@ -367,7 +371,9 @@ catch (error) { process.stdout.write(error?.errorCode || error?.message || 'reje
             stdout=b'{"state":"no_edge","thesis":"caf\xc3\xa9 \xf0\x9f\x9a\x80"}',
             stderr="diagnostic stderr\n".encode("utf-8"),
         )
-        with mock.patch.object(runner.shutil, "which", return_value="hermes"), mock.patch.object(
+        with mock.patch.object(runner, "default_glitch_topstep_hermes_home", return_value=self.hermes_home_test_double()), mock.patch.object(
+            runner.shutil, "which", return_value="hermes"
+        ), mock.patch.object(
             runner.subprocess, "run", return_value=completed
         ) as run:
             result = runner._invoke_hermes(
@@ -407,7 +413,9 @@ catch (error) { process.stdout.write(error?.errorCode || error?.message || 'reje
             completed = runner.subprocess.CompletedProcess(
                 args=["hermes"], returncode=0, stdout=stdout, stderr=stderr
             )
-            with self.subTest(reason=reason), mock.patch.object(runner.shutil, "which", return_value="hermes"), mock.patch.object(
+            with self.subTest(reason=reason), mock.patch.object(runner, "default_glitch_topstep_hermes_home", return_value=self.hermes_home_test_double()), mock.patch.object(
+                runner.shutil, "which", return_value="hermes"
+            ), mock.patch.object(
                 runner.subprocess, "run", return_value=completed
             ):
                 with self.assertRaisesRegex(runner.SafetyStopError, reason):
@@ -420,7 +428,9 @@ catch (error) { process.stdout.write(error?.errorCode || error?.message || 'reje
             stdout=b"provider failed for secret-value",
             stderr=b"connection reset; Bearer abc123",
         )
-        with mock.patch.object(runner.shutil, "which", return_value="hermes"), mock.patch.object(
+        with mock.patch.object(runner, "default_glitch_topstep_hermes_home", return_value=self.hermes_home_test_double()), mock.patch.object(
+            runner.shutil, "which", return_value="hermes"
+        ), mock.patch.object(
             runner.subprocess, "run", return_value=completed
         ):
             with self.assertRaises(runner.HermesInvocationError) as caught:
@@ -441,11 +451,13 @@ catch (error) { process.stdout.write(error?.errorCode || error?.message || 'reje
     def test_safety_stop_does_not_write_partial_run_evidence(self):
         with tempfile.TemporaryDirectory() as root:
             output = Path(root) / "run.json"
-            with mock.patch.object(runner, "fetch_live_packet", return_value=(health(), packet())), mock.patch.object(
+            packet_path = Path(root) / "packet.json"
+            packet_path.write_text(json.dumps(packet()), encoding="utf-8")
+            with mock.patch.object(
                 runner, "run_profiles", side_effect=runner.SafetyStopError("safety_stop:hermes_json_invalid")
             ):
                 with self.assertRaisesRegex(runner.SafetyStopError, "safety_stop:hermes_json_invalid"):
-                    runner.main(["--mode", "shadow", "--output", str(output)])
+                    runner.main(["--mode", "offline", "--packet", str(packet_path), "--output", str(output)])
             self.assertFalse(output.exists())
 
 
