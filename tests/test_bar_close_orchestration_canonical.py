@@ -455,6 +455,29 @@ class CanonicalOrchestrationIntegrationTests(unittest.TestCase):
             "packet_observation_lag",
         )
 
+    def test_contract_rollover_mismatch_requires_expected_contract(self, helpers: mock.MagicMock) -> None:
+        del helpers
+        now = _utc(2026, 9, 8, 14, 1, 0)
+        packet = _packet_roll_delay(now, roll_delay_seconds=3.0)
+        packet["contract_id"] = "CON.F.US.MNQ.U26"
+        self.assertEqual(
+            classify_bar_close_blockage(
+                packet=packet,
+                health=_good_health(now),
+                events=[],
+                now=now,
+                expected_contract_id="CON.F.US.MNQ.Z26",
+            ),
+            "contract_rollover_mismatch",
+        )
+
+    def test_insufficient_evidence_does_not_claim_packet_lag(self, helpers: mock.MagicMock) -> None:
+        del helpers
+        self.assertEqual(
+            classify_bar_close_blockage(packet={}, health={}, events=[], now=_utc(2026, 9, 8, 14, 1, 0)),
+            "insufficient_bar_close_evidence",
+        )
+
     def test_import_outside_canonical_fails(self, helpers: mock.MagicMock) -> None:
         del helpers
         with tempfile.TemporaryDirectory() as tmp:

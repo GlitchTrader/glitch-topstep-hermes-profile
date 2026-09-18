@@ -143,6 +143,7 @@ def run_guarded_canonical_stability(
     packet_fetcher,
     expected_profile_sha: str | None = None,
     expected_gateway_sha: str | None = None,
+    expected_contract_id: str | None = None,
     allow_worktree: bool = False,
     out_path: Path | None = None,
 ) -> dict[str, Any]:
@@ -168,6 +169,7 @@ def run_guarded_canonical_stability(
     stability = run_canonical_live_stability_window(
         health_fetcher=health_fetcher,
         packet_fetcher=packet_fetcher,
+        expected_contract_id=expected_contract_id,
     )
     artifact = build_canonical_artifact(
         stability=stability,
@@ -185,6 +187,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--gateway-root", type=Path, default=None)
     parser.add_argument("--expected-profile-sha", default=os.environ.get("GLITCH_EXPECTED_PROFILE_SHA"))
     parser.add_argument("--expected-gateway-sha", default=os.environ.get("GLITCH_EXPECTED_GATEWAY_SHA"))
+    parser.add_argument("--expected-contract-id", default=os.environ.get("GLITCH_EXPECTED_CONTRACT_ID"))
     parser.add_argument("--gateway-url", default=os.environ.get("GLITCH_GATEWAY_URL", "http://127.0.0.1:8790"))
     parser.add_argument("--token", default=os.environ.get("GLITCH_LOCAL_TOKEN", ""))
     parser.add_argument("--out", type=Path, required=False)
@@ -226,6 +229,7 @@ def main(argv: list[str] | None = None) -> int:
             gateway_root=gateway_root,
             expected_profile_sha=args.expected_profile_sha,
             expected_gateway_sha=args.expected_gateway_sha,
+            expected_contract_id=args.expected_contract_id,
             allow_worktree=args.allow_worktree,
         )
     except LiveRepoGuardError as exc:
@@ -256,6 +260,7 @@ def main(argv: list[str] | None = None) -> int:
             packet_fetcher=packet,
             expected_profile_sha=args.expected_profile_sha,
             expected_gateway_sha=args.expected_gateway_sha,
+            expected_contract_id=args.expected_contract_id,
             allow_worktree=args.allow_worktree,
             out_path=out,
         )

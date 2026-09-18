@@ -240,7 +240,7 @@ def classify_bar_close_blockage(
                     return "provider_bar_lag"
             except (TypeError, ValueError):
                 continue
-    return "packet_observation_lag"
+    return "insufficient_bar_close_evidence"
 
 
 def _tf1(packet: dict[str, Any] | None) -> dict[str, Any] | None:
@@ -1119,6 +1119,7 @@ def run_bar_close_aware_stability_window(
     monotonic_fn: Callable[[], float] = time.monotonic,
     now_fn: Callable[[], datetime] | None = None,
     lease_checker: Callable[[], tuple[bool, str | None]] | None = None,
+    expected_contract_id: str | None = None,
 ) -> dict[str, Any]:
     """Wait for bar closes; sample only in post-close window; one valid sample per close.
 
@@ -1213,14 +1214,22 @@ def run_bar_close_aware_stability_window(
     while len(samples) < required_samples and not _valid_budget_exhausted():
         if total_duration_limit is not None and (monotonic_fn() - overall_started) >= total_duration_limit:
             bar_blockage_diagnostic = classify_bar_close_blockage(
-                packet=last_packet, health=last_health, events=warmup_events, now=now_fn()
+                packet=last_packet,
+                health=last_health,
+                events=warmup_events,
+                now=now_fn(),
+                expected_contract_id=expected_contract_id,
             )
             stop_reason = f"bar_close_blocked:{bar_blockage_diagnostic}"
             classification = BLOCKED_DATA_QUALITY if v2_enabled else BLOCKED_BAR_CLOSE_WINDOW
             break
         if not counting_started and (monotonic_fn() - overall_started) > max_warmup_seconds:
             bar_blockage_diagnostic = classify_bar_close_blockage(
-                packet=last_packet, health=last_health, events=warmup_events, now=now_fn()
+                packet=last_packet,
+                health=last_health,
+                events=warmup_events,
+                now=now_fn(),
+                expected_contract_id=expected_contract_id,
             )
             stop_reason = f"bar_close_blocked:{bar_blockage_diagnostic}"
             classification = BLOCKED_DATA_QUALITY if v2_enabled else BLOCKED_BAR_CLOSE_WINDOW
@@ -1586,7 +1595,11 @@ def run_bar_close_aware_stability_window(
             classification = BLOCKED_CLASSIFICATION
         else:
             bar_blockage_diagnostic = bar_blockage_diagnostic or classify_bar_close_blockage(
-                packet=last_packet, health=last_health, events=warmup_events, now=now_fn()
+                packet=last_packet,
+                health=last_health,
+                events=warmup_events,
+                now=now_fn(),
+                expected_contract_id=expected_contract_id,
             )
             stop_reason = stop_reason or f"bar_close_blocked:{bar_blockage_diagnostic}"
             classification = BLOCKED_DATA_QUALITY if v2_enabled else BLOCKED_BAR_CLOSE_WINDOW
@@ -1717,6 +1730,7 @@ def run_canonical_live_stability_window(
     monotonic_fn: Callable[[], float] = time.monotonic,
     now_fn: Callable[[], datetime] | None = None,
     lease_checker: Callable[[], tuple[bool, str | None]] | None = None,
+    expected_contract_id: str | None = None,
 ) -> dict[str, Any]:
     """Canonical live entry — one shared clock for warmup, roll, and sampling.
 
@@ -1745,6 +1759,7 @@ def run_canonical_live_stability_window(
         monotonic_fn=monotonic_fn,
         now_fn=now_fn,
         lease_checker=lease_checker,
+        expected_contract_id=expected_contract_id,
     )
     result["canonical_entry"] = True
     result["canonical_live_entry"] = CANONICAL_LIVE_STABILITY_ENTRY
@@ -1772,6 +1787,7 @@ def run_operational_stability_window(
     now_fn: Callable[[], datetime] | None = None,
     bar_close_aware: bool = True,
     lease_checker: Callable[[], tuple[bool, str | None]] | None = None,
+    expected_contract_id: str | None = None,
 ) -> dict[str, Any]:
     """Bounded stability window. Defaults to bar-close-aware when packet_fetcher is provided."""
     if bar_close_aware and packet_fetcher is not None:
@@ -1791,6 +1807,7 @@ def run_operational_stability_window(
             monotonic_fn=monotonic_fn,
             now_fn=now_fn,
             lease_checker=lease_checker,
+            expected_contract_id=expected_contract_id,
         )
 
     # ponytail: legacy fixed-interval poll retained for health-only callers/tests
