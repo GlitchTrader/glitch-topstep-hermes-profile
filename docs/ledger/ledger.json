@@ -1556,5 +1556,36 @@
       "live MES/MCL coverage remains unproven",
       "no canary or overnight promotion"
     ]
+  },
+  "bar_close_acceptance_v3_2026_09_18": {
+    "status": "implemented_local_pending_pr_ci_audit",
+    "summary": "Canonical read-only runner now correlates target bar open/close, provider and packet observation timestamps, response receipt, latency, cursor, contract and generation identity. It accepts a closed target within a finite 60-second late-completion budget and blocks stale, partial, repeated, mismatched, or live-mode observations.",
+    "acceptance_policy": "bar_close_acceptance_v3",
+    "max_late_completion_seconds": 60,
+    "effective_live_market_data": false,
+    "user_stream_fresh": false,
+    "orders_sent": 0,
+    "intents_sent": 0,
+    "execution_mode": "read_only_delivery_disabled",
+    "diagnostics": [
+      "ideal_window_missed",
+      "late_completed_bar_accepted",
+      "provider_bar_lag",
+      "network_latency",
+      "stale_observation",
+      "cursor_mismatch"
+    ],
+    "validation": {
+      "gateway_npm_run_check": "680 passed, 0 failed",
+      "profile_python_tests": "pending: Python runtime unavailable in this environment",
+      "live_probe": "not rerun",
+      "runner": "not rerun"
+    },
+    "remaining": [
+      "open PR",
+      "run profile CI",
+      "independent audit",
+      "merge before any runner window"
+    ]
   }
 }
