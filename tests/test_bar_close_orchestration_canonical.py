@@ -840,6 +840,18 @@ class CanonicalOrchestrationIntegrationTests(unittest.TestCase):
         self.assertFalse(mismatch_ok)
         self.assertIn("contract_generation_mismatch", mismatch_reasons)
 
+        preclose = _packet_roll_delay(_utc(2026, 9, 8, 14, 1, 59), roll_delay_seconds=0.0)
+        preclose_ok, _detail, preclose_reasons = _completed_bar_correlation(
+            packet=preclose,
+            response_received_utc="2026-09-08T14:01:59Z",
+            target_close=target_close,
+            cursor=BarCloseCursor(),
+            expected_identity=None,
+            max_late_completion_seconds=60.0,
+        )
+        self.assertFalse(preclose_ok)
+        self.assertIn("sample_before_bar_close_window", preclose_reasons)
+
     def test_repeated_preclose_polls_are_warmup_only(self, helpers: mock.MagicMock) -> None:
         """Provider lag behind civil cursor: many pre-close polls → warmup, not terminal fail."""
         self._patch_helpers(helpers)

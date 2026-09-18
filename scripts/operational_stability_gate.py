@@ -217,6 +217,12 @@ def _completed_bar_correlation(
         reasons.append("stale_observation")
         return False, detail, reasons
 
+    # A packet can already contain the target bar while the shared clock is
+    # still before its civil close.  Identity correlation is not permission
+    # to accept a pre-close sample.
+    if now < target_close:
+        reasons.append("sample_before_bar_close_window")
+
     bar_open_utc = _close_reference_utc(ctx)
     bar_open = parse_utc(bar_open_utc.replace("+00:00", "Z"))
     bar_close = bar_open + timedelta(minutes=1)
