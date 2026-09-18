@@ -1738,6 +1738,21 @@ def run_bar_close_aware_stability_window(
                     )
                     sleep_fn(poll_sleep)
                     continue
+                if v3_enabled and "sample_before_bar_close_window" in verdict.reasons:
+                    # A packet may correlate to the scheduler target while
+                    # the packet-anchored close window is still early.  This
+                    # is recoverable warmup, never a terminal V3 failure.
+                    warmup_events.append(
+                        {
+                            **row,
+                            "reason": "sample_before_bar_close_window",
+                            "phase": "warmup",
+                            "expected_close_utc": target_close_iso,
+                            "packet_close_utc": _close_iso(expected_close_for_context(ctx)),
+                        }
+                    )
+                    sleep_fn(poll_sleep)
+                    continue
                 if v3_enabled and not correlated:
                     # A late packet is only diagnostic until exact target correlation succeeds.
                     sleep_fn(poll_sleep)
