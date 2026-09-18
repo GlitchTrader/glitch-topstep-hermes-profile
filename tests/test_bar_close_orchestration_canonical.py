@@ -680,49 +680,48 @@ class CanonicalOrchestrationIntegrationTests(unittest.TestCase):
 
     def test_v3_bounded_late_completion_matrix(self, helpers: mock.MagicMock) -> None:
         self._patch_helpers(helpers)
-        for delay in (5.0, 15.0, 22.0, 35.0, 60.0):
+        target_close = _utc(2026, 9, 8, 14, 2, 0)
+        identity = ("CON.F.US.MNQ.U26", 1, "scope-1")
+        for delay in (5.0, 15.0, 22.0, 22.2, 35.0, 60.0):
             with self.subTest(delay=delay):
-                start = _utc(2026, 9, 8, 14, 1, 2)
-                _state, now_fn, sleep_fn, mono_fn = _clock(start)
-                result = run_canonical_live_stability_window(
-                    health_fetcher=lambda: _good_health(now_fn()),
-                    packet_fetcher=lambda d=delay: _packet_roll_delay(now_fn(), roll_delay_seconds=d),
-                    required_samples=1,
-                    max_duration_seconds=180.0,
-                    max_total_duration_seconds=300.0,
-                    post_close_poll_seconds=0.0,
-                    sleep_fn=sleep_fn,
-                    monotonic_fn=mono_fn,
-                    now_fn=now_fn,
-                    provider_roll_latency_seconds=10.0,
-                    post_close_window_seconds=5.0,
+                response_received = target_close + timedelta(seconds=delay)
+                packet = _packet_roll_delay(response_received, roll_delay_seconds=0.0)
+                packet["contract"] = {"id": identity[0]}
+                packet["decision_scope"] = {"generation": identity[1], "scope_hash": identity[2]}
+                packet["market_data_mode"] = "historical"
+                packet["market_observation"]["last_succeeded_utc"] = target_close.isoformat().replace("+00:00", "Z")
+                packet["market_alignment"] = {
+                    "packet_created_utc": response_received.isoformat().replace("+00:00", "Z")
+                }
+                accepted, detail, reasons = _completed_bar_correlation(
+                    packet=packet,
+                    response_received_utc=response_received.isoformat().replace("+00:00", "Z"),
+                    target_close=target_close,
+                    cursor=BarCloseCursor(),
+                    expected_identity=identity,
                     max_late_completion_seconds=60.0,
                 )
-                self.assertTrue(result["confirmed"], msg=f"delay={delay} stop={result.get('stop_reason')}")
-                self.assertEqual(result.get("acceptance_policy"), BAR_CLOSE_ACCEPTANCE_V3)
-                if delay > 5:
-                    self.assertGreaterEqual((result.get("diagnostics") or {}).get("ideal_window_missed", 0), 1)
-                    self.assertGreaterEqual((result.get("diagnostics") or {}).get("late_completed_bar_accepted", 0), 1)
+                self.assertTrue(accepted, msg=f"delay={delay} reasons={reasons}")
+                self.assertEqual(detail["bar_close_utc"], "2026-09-08T14:02:00Z")
+                self.assertEqual(detail["latency_ms"], int(delay * 1000))
+                self.assertEqual(detail["effective_live_market_data"], False)
 
-        start = _utc(2026, 9, 8, 14, 1, 2)
-        _state, now_fn, sleep_fn, mono_fn = _clock(start)
-        blocked = run_canonical_live_stability_window(
-            health_fetcher=lambda: _good_health(now_fn()),
-            packet_fetcher=lambda: _packet_roll_delay(now_fn(), roll_delay_seconds=61.0),
-            required_samples=1,
-            max_duration_seconds=90.0,
-            max_total_duration_seconds=120.0,
-            post_close_poll_seconds=0.0,
-            sleep_fn=sleep_fn,
-            monotonic_fn=mono_fn,
-            now_fn=now_fn,
-            provider_roll_latency_seconds=10.0,
-            post_close_window_seconds=5.0,
+        response_received = target_close + timedelta(seconds=60.1)
+        packet = _packet_roll_delay(response_received, roll_delay_seconds=0.0)
+        packet["contract"] = {"id": identity[0]}
+        packet["decision_scope"] = {"generation": identity[1], "scope_hash": identity[2]}
+        packet["market_observation"]["last_succeeded_utc"] = target_close.isoformat().replace("+00:00", "Z")
+        rejected, _detail, reasons = _completed_bar_correlation(
+            packet=packet,
+            response_received_utc=response_received.isoformat().replace("+00:00", "Z"),
+            target_close=target_close,
+            cursor=BarCloseCursor(),
+            expected_identity=identity,
             max_late_completion_seconds=60.0,
         )
-        self.assertFalse(blocked["confirmed"])
-        self.assertEqual(blocked.get("classification"), "blocked_data_quality")
-        self.assertGreaterEqual((blocked.get("diagnostics") or {}).get("stale_observation", 0), 1)
+        self.assertFalse(rejected)
+        self.assertIn("network_latency", reasons)
+        self.assertIn("stale_observation", reasons)
 
     def test_correlation_rejects_repeat_partial_contract_and_stale_observation(self, helpers: mock.MagicMock) -> None:
         del helpers

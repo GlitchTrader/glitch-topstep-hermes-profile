@@ -1523,7 +1523,15 @@ def run_bar_close_aware_stability_window(
         captured = False
         # V3 keeps polling the same target through one finite late-completion window.
         active_window_end = late_window_end if v3_enabled else sample_window_end
-        while now_fn() <= active_window_end and not captured and not _valid_budget_exhausted():
+        while (
+            now_fn() <= active_window_end
+            and not captured
+            and not _valid_budget_exhausted()
+            and (
+                total_duration_limit is None
+                or monotonic_fn() - overall_started < total_duration_limit
+            )
+        ):
             sample_dt = now_fn()
             sample_utc = sample_dt.isoformat().replace("+00:00", "Z")
             try:
@@ -1690,6 +1698,18 @@ def run_bar_close_aware_stability_window(
             )
 
         if stop_reason and classification == BLOCKED_CLASSIFICATION:
+            break
+
+        # The bounded late-completion loop must not hand control back to the
+        # boundary scheduler after the operational total has expired.  Doing
+        # so would start another target and turn a finite timeout into an
+        # effectively unbounded sequence of late windows.
+        if (
+            total_duration_limit is not None
+            and monotonic_fn() - overall_started >= total_duration_limit
+        ):
+            stop_reason = "total_time_limit_exhausted"
+            classification = BLOCKED_DATA_QUALITY if v2_enabled else BLOCKED_BAR_CLOSE_WINDOW
             break
 
         if not captured:
