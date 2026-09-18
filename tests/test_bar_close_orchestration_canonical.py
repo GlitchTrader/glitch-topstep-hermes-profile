@@ -26,7 +26,9 @@ from live_stability_repo_guard import (  # noqa: E402
 )
 from operational_stability_gate import (  # noqa: E402
     BAR_CLOSE_ACCEPTANCE_V2,
+    BAR_CLOSE_ACCEPTANCE_V3,
     BarCloseCursor,
+    _completed_bar_correlation,
     run_bar_close_aware_stability_window,
     run_canonical_live_stability_window,
     wait_for_bar_complete,
@@ -676,9 +678,9 @@ class CanonicalOrchestrationIntegrationTests(unittest.TestCase):
         )
         self.assertTrue(result["confirmed"], msg=result.get("stop_reason"))
 
-    def test_delayed_rolls_10_to_75s_confirm(self, helpers: mock.MagicMock) -> None:
+    def test_v3_bounded_late_completion_matrix(self, helpers: mock.MagicMock) -> None:
         self._patch_helpers(helpers)
-        for delay in (10.0, 22.0, 45.0, 60.0, 75.0):
+        for delay in (5.0, 15.0, 22.0, 35.0, 60.0):
             with self.subTest(delay=delay):
                 start = _utc(2026, 9, 8, 14, 1, 2)
                 _state, now_fn, sleep_fn, mono_fn = _clock(start)
@@ -692,10 +694,78 @@ class CanonicalOrchestrationIntegrationTests(unittest.TestCase):
                     sleep_fn=sleep_fn,
                     monotonic_fn=mono_fn,
                     now_fn=now_fn,
-                    provider_roll_latency_seconds=max(10.0, delay),
+                    provider_roll_latency_seconds=10.0,
                     post_close_window_seconds=5.0,
+                    max_late_completion_seconds=60.0,
                 )
                 self.assertTrue(result["confirmed"], msg=f"delay={delay} stop={result.get('stop_reason')}")
+                self.assertEqual(result.get("acceptance_policy"), BAR_CLOSE_ACCEPTANCE_V3)
+                if delay > 5:
+                    self.assertGreaterEqual((result.get("diagnostics") or {}).get("ideal_window_missed", 0), 1)
+                    self.assertGreaterEqual((result.get("diagnostics") or {}).get("late_completed_bar_accepted", 0), 1)
+
+        start = _utc(2026, 9, 8, 14, 1, 2)
+        _state, now_fn, sleep_fn, mono_fn = _clock(start)
+        blocked = run_canonical_live_stability_window(
+            health_fetcher=lambda: _good_health(now_fn()),
+            packet_fetcher=lambda: _packet_roll_delay(now_fn(), roll_delay_seconds=61.0),
+            required_samples=1,
+            max_duration_seconds=90.0,
+            max_total_duration_seconds=120.0,
+            post_close_poll_seconds=0.0,
+            sleep_fn=sleep_fn,
+            monotonic_fn=mono_fn,
+            now_fn=now_fn,
+            provider_roll_latency_seconds=10.0,
+            post_close_window_seconds=5.0,
+            max_late_completion_seconds=60.0,
+        )
+        self.assertFalse(blocked["confirmed"])
+        self.assertEqual(blocked.get("classification"), "blocked_data_quality")
+        self.assertGreaterEqual((blocked.get("diagnostics") or {}).get("stale_observation", 0), 1)
+
+    def test_correlation_rejects_repeat_partial_contract_and_stale_observation(self, helpers: mock.MagicMock) -> None:
+        del helpers
+        target_close = _utc(2026, 9, 8, 14, 2, 0)
+        cursor = BarCloseCursor()
+        packet = _packet_roll_delay(_utc(2026, 9, 8, 14, 2, 22), roll_delay_seconds=0.0)
+        packet["contract"] = {"id": "CON.F.US.MNQ.U26"}
+        packet["decision_scope"] = {"generation": 1, "scope_hash": "scope-1"}
+        ok, detail, reasons = _completed_bar_correlation(
+            packet=packet,
+            response_received_utc="2026-09-08T14:02:22Z",
+            target_close=target_close,
+            cursor=cursor,
+            expected_identity=("CON.F.US.MNQ.U26", 1, "scope-1"),
+            max_late_completion_seconds=60.0,
+        )
+        self.assertTrue(ok, msg=reasons)
+        self.assertEqual(detail["bar_close_utc"], "2026-09-08T14:02:00Z")
+        cursor.mark_captured(target_close, "2026-09-08T14:01:00Z")
+        repeated, _detail, repeat_reasons = _completed_bar_correlation(
+            packet=packet,
+            response_received_utc="2026-09-08T14:02:22Z",
+            target_close=target_close,
+            cursor=cursor,
+            expected_identity=("CON.F.US.MNQ.U26", 1, "scope-1"),
+            max_late_completion_seconds=60.0,
+        )
+        self.assertFalse(repeated)
+        self.assertIn("cursor_mismatch", repeat_reasons)
+
+        partial = _packet_roll_delay(_utc(2026, 9, 8, 14, 2, 22), roll_delay_seconds=0.0)
+        partial["market_observation"]["observation"]["timeframes"][0]["latest_bar_partial"] = True
+        partial["market_observation"]["observation"]["timeframes"][0]["prior_completed_bar"] = None
+        partial_ok, _detail, partial_reasons = _completed_bar_correlation(
+            packet=partial,
+            response_received_utc="2026-09-08T14:02:22Z",
+            target_close=target_close,
+            cursor=BarCloseCursor(),
+            expected_identity=(None, None, None),
+            max_late_completion_seconds=60.0,
+        )
+        self.assertFalse(partial_ok)
+        self.assertIn("bar_1m_partial", partial_reasons)
 
     def test_repeated_preclose_polls_are_warmup_only(self, helpers: mock.MagicMock) -> None:
         """Provider lag behind civil cursor: many pre-close polls → warmup, not terminal fail."""
