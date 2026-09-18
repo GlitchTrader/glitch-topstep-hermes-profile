@@ -1778,5 +1778,39 @@
       "paired_contract_changed": false,
       "glitch_nt_changed": false
     }
+  },
+  "bar_close_acceptance_v3_2026_09_18": {
+    "status": "implemented_local_pending_pr_ci_audit",
+    "pull_request_dependency": "replacement_for_265",
+    "branch": "codex/bar-close-acceptance-v3-pr",
+    "scope": {
+      "acceptance_policy": "bar_close_acceptance_v3",
+      "max_late_completion_seconds": 60,
+      "effective_live_market_data": false,
+      "user_stream_fresh": false,
+      "delivery_enabled": false,
+      "state_complete_required": true,
+      "account_flat_required": true,
+      "intents": 0,
+      "orders": 0,
+      "glitch_nt_changed": false,
+      "hermes_glitch_nt_changed": false
+    },
+    "diagnostics": [
+      "ideal_window_missed",
+      "late_completed_bar_accepted",
+      "provider_bar_lag",
+      "network_latency",
+      "stale_observation",
+      "cursor_mismatch"
+    ],
+    "validation": {
+      "gateway_npm_check": "pass_680_tests",
+      "profile_python_suite": "not_run_python_unavailable",
+      "probe_rerun": false,
+      "runner_rerun": false,
+      "sha256sums_regenerated": true,
+      "remaining": ["pr_ci", "independent_audit", "merge"]
+    }
   }
 }

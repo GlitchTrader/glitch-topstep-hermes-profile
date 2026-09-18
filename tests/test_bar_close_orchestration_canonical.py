@@ -26,8 +26,10 @@ from live_stability_repo_guard import (  # noqa: E402
 )
 from operational_stability_gate import (  # noqa: E402
     BAR_CLOSE_ACCEPTANCE_V2,
+    BAR_CLOSE_ACCEPTANCE_V3,
     BarCloseCursor,
     classify_bar_close_blockage,
+    _completed_bar_correlation,
     run_bar_close_aware_stability_window,
     run_canonical_live_stability_window,
     wait_for_bar_complete,
@@ -741,6 +743,96 @@ class CanonicalOrchestrationIntegrationTests(unittest.TestCase):
                     post_close_window_seconds=5.0,
                 )
                 self.assertTrue(result["confirmed"], msg=f"delay={delay} stop={result.get('stop_reason')}")
+
+    def test_v3_bounded_late_completion_matrix(self, helpers: mock.MagicMock) -> None:
+        self._patch_helpers(helpers)
+        target_close = _utc(2026, 9, 8, 14, 2, 0)
+        identity = ("CON.F.US.MNQ.U26", 1, "scope-1")
+        for delay in (5.0, 15.0, 22.0, 22.2, 35.0, 60.0):
+            with self.subTest(delay=delay):
+                response_received = target_close + timedelta(seconds=delay)
+                packet = _packet_roll_delay(response_received, roll_delay_seconds=0.0)
+                packet["contract"] = {"id": identity[0]}
+                packet["decision_scope"] = {"generation": identity[1], "scope_hash": identity[2]}
+                packet["market_data_mode"] = "historical"
+                packet["market_observation"]["last_succeeded_utc"] = target_close.isoformat().replace("+00:00", "Z")
+                packet["market_alignment"] = {"packet_created_utc": response_received.isoformat().replace("+00:00", "Z")}
+                accepted, detail, reasons = _completed_bar_correlation(
+                    packet=packet,
+                    response_received_utc=response_received.isoformat().replace("+00:00", "Z"),
+                    target_close=target_close,
+                    cursor=BarCloseCursor(),
+                    expected_identity=identity,
+                    max_late_completion_seconds=60.0,
+                )
+                self.assertTrue(accepted, msg=f"delay={delay} reasons={reasons}")
+                self.assertEqual(detail["bar_close_utc"], "2026-09-08T14:02:00Z")
+                self.assertEqual(detail["latency_ms"], int(delay * 1000))
+                self.assertFalse(detail["effective_live_market_data"])
+
+        response_received = target_close + timedelta(seconds=60.1)
+        packet = _packet_roll_delay(response_received, roll_delay_seconds=0.0)
+        packet["contract"] = {"id": identity[0]}
+        packet["decision_scope"] = {"generation": identity[1], "scope_hash": identity[2]}
+        packet["market_observation"]["last_succeeded_utc"] = target_close.isoformat().replace("+00:00", "Z")
+        rejected, _detail, reasons = _completed_bar_correlation(
+            packet=packet,
+            response_received_utc=response_received.isoformat().replace("+00:00", "Z"),
+            target_close=target_close,
+            cursor=BarCloseCursor(),
+            expected_identity=identity,
+            max_late_completion_seconds=60.0,
+        )
+        self.assertFalse(rejected)
+        self.assertIn("network_latency", reasons)
+        self.assertIn("stale_observation", reasons)
+
+    def test_v3_rejects_repeat_partial_and_generation_mismatch(self, helpers: mock.MagicMock) -> None:
+        del helpers
+        target_close = _utc(2026, 9, 8, 14, 2, 0)
+        packet = _packet_roll_delay(_utc(2026, 9, 8, 14, 2, 22), roll_delay_seconds=0.0)
+        packet["contract"] = {"id": "CON.F.US.MNQ.U26"}
+        packet["decision_scope"] = {"generation": 1, "scope_hash": "scope-1"}
+        packet["market_observation"]["last_succeeded_utc"] = target_close.isoformat().replace("+00:00", "Z")
+        cursor = BarCloseCursor()
+        cursor.mark_captured(target_close, "2026-09-08T14:01:00Z")
+        repeated, _detail, reasons = _completed_bar_correlation(
+            packet=packet,
+            response_received_utc="2026-09-08T14:02:22Z",
+            target_close=target_close,
+            cursor=cursor,
+            expected_identity=("CON.F.US.MNQ.U26", 1, "scope-1"),
+            max_late_completion_seconds=60.0,
+        )
+        self.assertFalse(repeated)
+        self.assertIn("cursor_mismatch", reasons)
+
+        partial = _packet_roll_delay(_utc(2026, 9, 8, 14, 2, 22), roll_delay_seconds=0.0)
+        partial["market_observation"]["observation"]["timeframes"][0]["latest_bar_partial"] = True
+        partial["market_observation"]["observation"]["timeframes"][0]["prior_completed_bar"] = None
+        partial_ok, _detail, partial_reasons = _completed_bar_correlation(
+            packet=partial,
+            response_received_utc="2026-09-08T14:02:22Z",
+            target_close=target_close,
+            cursor=BarCloseCursor(),
+            expected_identity=None,
+            max_late_completion_seconds=60.0,
+        )
+        self.assertFalse(partial_ok)
+        self.assertIn("bar_1m_partial", partial_reasons)
+
+        mismatch = dict(packet)
+        mismatch["decision_scope"] = {"generation": 2, "scope_hash": "scope-2"}
+        mismatch_ok, _detail, mismatch_reasons = _completed_bar_correlation(
+            packet=mismatch,
+            response_received_utc="2026-09-08T14:02:22Z",
+            target_close=target_close,
+            cursor=BarCloseCursor(),
+            expected_identity=("CON.F.US.MNQ.U26", 1, "scope-1"),
+            max_late_completion_seconds=60.0,
+        )
+        self.assertFalse(mismatch_ok)
+        self.assertIn("contract_generation_mismatch", mismatch_reasons)
 
     def test_repeated_preclose_polls_are_warmup_only(self, helpers: mock.MagicMock) -> None:
         """Provider lag behind civil cursor: many pre-close polls → warmup, not terminal fail."""
