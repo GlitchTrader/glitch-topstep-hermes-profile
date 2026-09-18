@@ -1235,6 +1235,10 @@ def run_bar_close_aware_stability_window(
     )
     if max_late_completion_seconds <= 0 or max_late_completion_seconds > MAX_ALLOWED_LATE_COMPLETION_SECONDS:
         raise ValueError("max_late_completion_seconds must be > 0 and <= 300")
+    # A zero external poll interval is useful for tests only when the injected
+    # clock advances. The late-correlation loop must always make monotonic
+    # progress, otherwise its finite budget is not operationally finite.
+    poll_sleep = max(post_close_poll_seconds, 0.25)
     total_boundaries_limit = (
         max_total_boundaries
         if max_total_boundaries is not None
@@ -1532,17 +1536,17 @@ def run_bar_close_aware_stability_window(
                     exc=exc,
                     expected_close_utc=target_close_iso,
                 )
-                sleep_fn(post_close_poll_seconds)
+                sleep_fn(poll_sleep)
                 continue
 
             packet = _fetch_packet("valid" if counting_started else "warmup", target_close_iso)
             if packet is None:
-                sleep_fn(post_close_poll_seconds)
+                sleep_fn(poll_sleep)
                 continue
 
             ctx = extract_bar_close_context(packet, now=sample_dt)
             if ctx is None:
-                sleep_fn(post_close_poll_seconds)
+                sleep_fn(poll_sleep)
                 continue
 
             closed_bar_key = _close_reference_utc(ctx)
@@ -1623,7 +1627,7 @@ def run_bar_close_aware_stability_window(
                         "packet_close_utc": _close_iso(expected_close_for_context(ctx)),
                     }
                 )
-                sleep_fn(post_close_poll_seconds)
+                sleep_fn(poll_sleep)
                 continue
 
             if not verdict.ok or not correlated:
@@ -1634,11 +1638,11 @@ def run_bar_close_aware_stability_window(
                             "reason": "invalid_quote_sample",
                         }
                     )
-                    sleep_fn(post_close_poll_seconds)
+                    sleep_fn(poll_sleep)
                     continue
                 if v3_enabled and not correlated:
                     # A late packet is only diagnostic until exact target correlation succeeds.
-                    sleep_fn(post_close_poll_seconds)
+                    sleep_fn(poll_sleep)
                     continue
                 # Partial without prior anchor never counts and never maps to no_edge.
                 if "bar_1m_partial" in verdict.reasons and not ctx.prior_completed_bar_utc:
@@ -1649,7 +1653,7 @@ def run_bar_close_aware_stability_window(
                             "phase": "warmup",
                         }
                     )
-                    sleep_fn(post_close_poll_seconds)
+                    sleep_fn(poll_sleep)
                     continue
                 samples.append({**row, "sample_index": len(samples), "phase": "valid"})
                 stop_reason = verdict.reasons[0] if verdict.reasons else "sample_failed"
@@ -1663,7 +1667,7 @@ def run_bar_close_aware_stability_window(
                 break
 
             if cursor.already_seen(closed_bar_key):
-                sleep_fn(post_close_poll_seconds)
+                sleep_fn(poll_sleep)
                 continue
 
             # Start the valid-sample budget only on the first packet-aligned accepted sample.

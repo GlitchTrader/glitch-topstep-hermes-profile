@@ -1540,24 +1540,6 @@
     "offline_evidence": "docs/evidence/runner-offline-20260910/report.md",
     "remaining": ["live preflight only; do not start PRAC from implementation stage"]
   },
-  },
-  "hermes_skill_wiring_prompt_v17_2_2026_09_11": {
-    "status": "implemented_local_pending_independent_reaudit",
-    "summary": "Integrated the complete eight-commit Hermes runner series into the canonical profile, added fail-closed canonical skill preload verification for topstep-smart-money and topstep-indicators, and bumped the paired prompt contract from v17.1 to v17.2.",
-    "profile_prompt_version": "glitch-topstep-v17.2",
-    "orders_sent": 0,
-    "execution_mode": "shadow-only",
-    "overnight": false,
-    "evidence": [
-      "tests/test_specialty_skill_wiring.py",
-      "docs/release-notes/2026-09-11-skill-wiring-v17.2.md"
-    ],
-    "remaining": [
-      "independent confirmation of specialized model outputs and stability",
-      "live MES/MCL coverage remains unproven",
-      "no canary or overnight promotion"
-    ]
-  },
   "bar_close_acceptance_v3_2026_09_18": {
     "status": "implemented_local_pending_pr_ci_audit",
     "summary": "Canonical read-only runner now correlates target bar open/close, provider and packet observation timestamps, response receipt, latency, cursor, contract and generation identity. It accepts a closed target within a finite 60-second late-completion budget and blocks stale, partial, repeated, mismatched, or live-mode observations.",
