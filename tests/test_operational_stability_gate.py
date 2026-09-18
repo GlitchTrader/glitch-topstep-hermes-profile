@@ -918,7 +918,7 @@ class BarCloseAwareWindowTests(unittest.TestCase):
         )
         self.assertFalse(result["confirmed"])
         self.assertEqual(result["classification"], BLOCKED_BAR_CLOSE_WINDOW)
-        self.assertEqual(result["stop_reason"], "warmup_sync_timeout")
+        self.assertEqual(result["stop_reason"], "bar_close_blocked:provider_bar_lag")
 
     def test_warmup_missed_close_does_not_start_valid_window(self, helpers: mock.MagicMock) -> None:
         helpers.return_value = (lambda _p: [], lambda _p: (True, "capacity_gate"))
@@ -1131,7 +1131,7 @@ class BarCloseAwareWindowTests(unittest.TestCase):
         )
         self.assertFalse(result["confirmed"])
         self.assertEqual(result["classification"], BLOCKED_DATA_QUALITY)
-        self.assertEqual(result["stop_reason"], "total_time_limit_exhausted")
+        self.assertEqual(result["stop_reason"], "bar_close_blocked:provider_bar_lag")
 
 
 class PostCloseOfflineScenarioTests(unittest.TestCase):

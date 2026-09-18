@@ -27,6 +27,7 @@ from live_stability_repo_guard import (  # noqa: E402
 from operational_stability_gate import (  # noqa: E402
     BAR_CLOSE_ACCEPTANCE_V2,
     BarCloseCursor,
+    classify_bar_close_blockage,
     run_bar_close_aware_stability_window,
     run_canonical_live_stability_window,
     wait_for_bar_complete,
@@ -432,6 +433,50 @@ class CanonicalOrchestrationIntegrationTests(unittest.TestCase):
         # Warmup + valid budgets may stack briefly; outer total must stay bounded.
         self.assertLessEqual(result["elapsed_seconds"], 60.0)
         self.assertLessEqual(result.get("max_total_duration_seconds") or 35.0, 35.0)
+
+    def test_provider_lag_is_explicitly_classified(self, helpers: mock.MagicMock) -> None:
+        del helpers
+        now = _utc(2026, 9, 8, 14, 1, 0)
+        packet = _packet_roll_delay(now, roll_delay_seconds=60.0)
+        self.assertEqual(
+            classify_bar_close_blockage(packet=packet, health=_good_health(now), events=[], now=now),
+            "provider_bar_lag",
+        )
+
+    def test_packet_observation_lag_is_distinct_from_provider_lag(self, helpers: mock.MagicMock) -> None:
+        del helpers
+        now = _utc(2026, 9, 8, 14, 1, 0)
+        packet = _packet_roll_delay(now, roll_delay_seconds=3.0)
+        packet["market_observation"]["observation"]["generated_utc"] = "2026-09-08T14:00:00Z"
+        health = _good_health(now)
+        health["market_observation"]["last_succeeded_utc"] = "2026-09-08T14:00:30Z"
+        self.assertEqual(
+            classify_bar_close_blockage(packet=packet, health=health, events=[], now=now),
+            "packet_observation_lag",
+        )
+
+    def test_contract_rollover_mismatch_requires_expected_contract(self, helpers: mock.MagicMock) -> None:
+        del helpers
+        now = _utc(2026, 9, 8, 14, 1, 0)
+        packet = _packet_roll_delay(now, roll_delay_seconds=3.0)
+        packet["contract_id"] = "CON.F.US.MNQ.U26"
+        self.assertEqual(
+            classify_bar_close_blockage(
+                packet=packet,
+                health=_good_health(now),
+                events=[],
+                now=now,
+                expected_contract_id="CON.F.US.MNQ.Z26",
+            ),
+            "contract_rollover_mismatch",
+        )
+
+    def test_insufficient_evidence_does_not_claim_packet_lag(self, helpers: mock.MagicMock) -> None:
+        del helpers
+        self.assertEqual(
+            classify_bar_close_blockage(packet={}, health={}, events=[], now=_utc(2026, 9, 8, 14, 1, 0)),
+            "insufficient_bar_close_evidence",
+        )
 
     def test_import_outside_canonical_fails(self, helpers: mock.MagicMock) -> None:
         del helpers

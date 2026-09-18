@@ -21,6 +21,14 @@ BAR_CLOSE_ACCEPTANCE_V1 = "bar_close_acceptance_v1"
 BAR_CLOSE_ACCEPTANCE_V2 = "bar_close_acceptance_v2"
 CANONICAL_LIVE_STABILITY_ENTRY = "run_canonical_live_stability_window"
 
+BAR_DELAY_CLASSIFICATIONS = frozenset({
+    "provider_bar_lag",
+    "gateway_refresh_lag",
+    "packet_observation_lag",
+    "clock_skew",
+    "contract_rollover_mismatch",
+})
+
 DEFAULT_REQUIRED_SAMPLES = 5
 DEFAULT_MAX_DURATION_SECONDS = 600.0  # 10 minutes bounded (valid-sample window only)
 DEFAULT_POLL_INTERVAL_SECONDS = 30.0  # legacy poll mode only
@@ -178,6 +186,61 @@ def _age_seconds(now: datetime, ts: str | None) -> float | None:
         return max(0.0, (now - parse_utc(str(ts))).total_seconds())
     except (TypeError, ValueError):
         return None
+
+
+def classify_bar_close_blockage(
+    *,
+    packet: dict[str, Any] | None,
+    health: dict[str, Any] | None,
+    events: list[dict[str, Any]],
+    now: datetime,
+    expected_contract_id: str | None = None,
+) -> str:
+    """Classify a blocked close from observed timestamps, never from a timeout alone."""
+    packet = packet if isinstance(packet, dict) else {}
+    health = health if isinstance(health, dict) else {}
+    observation = packet.get("market_observation") if isinstance(packet.get("market_observation"), dict) else {}
+    nested = observation.get("observation") if isinstance(observation.get("observation"), dict) else {}
+    observed_contract = nested.get("contract_id") or packet.get("contract_id")
+    if expected_contract_id and observed_contract and str(observed_contract) != expected_contract_id:
+        return "contract_rollover_mismatch"
+
+    generated = nested.get("generated_utc")
+    health_observation = health.get("market_observation") if isinstance(health.get("market_observation"), dict) else {}
+    succeeded = health_observation.get("last_succeeded_utc")
+    if generated and succeeded:
+        try:
+            if parse_utc(str(generated)) < parse_utc(str(succeeded)):
+                return "packet_observation_lag"
+        except (TypeError, ValueError):
+            return "clock_skew"
+
+    tf1 = _tf1(packet)
+    latest = str(tf1.get("latest_bar_utc")) if tf1 and tf1.get("latest_bar_utc") else None
+    if latest:
+        try:
+            latest_dt = parse_utc(latest.replace("+00:00", "Z"))
+            if latest_dt and latest_dt > now + timedelta(seconds=2):
+                return "clock_skew"
+            if latest_dt and (now - latest_dt).total_seconds() > DEFAULT_PROVIDER_ROLL_LATENCY_SECONDS + DEFAULT_POST_CLOSE_WINDOW_SECONDS:
+                return "provider_bar_lag"
+        except (TypeError, ValueError):
+            return "clock_skew"
+
+    if succeeded:
+        age = _age_seconds(now, str(succeeded))
+        if age is not None and age > DEFAULT_MARKET_OBS_FRESHNESS_SECONDS:
+            return "gateway_refresh_lag"
+
+    for event in reversed(events):
+        if event.get("latest_bar_utc") and event.get("fetched_utc"):
+            try:
+                age_ms = float(event.get("bar_age_ms"))
+                if age_ms > (DEFAULT_PROVIDER_ROLL_LATENCY_SECONDS + DEFAULT_POST_CLOSE_WINDOW_SECONDS) * 1000:
+                    return "provider_bar_lag"
+            except (TypeError, ValueError):
+                continue
+    return "insufficient_bar_close_evidence"
 
 
 def _tf1(packet: dict[str, Any] | None) -> dict[str, Any] | None:
@@ -1056,6 +1119,7 @@ def run_bar_close_aware_stability_window(
     monotonic_fn: Callable[[], float] = time.monotonic,
     now_fn: Callable[[], datetime] | None = None,
     lease_checker: Callable[[], tuple[bool, str | None]] | None = None,
+    expected_contract_id: str | None = None,
 ) -> dict[str, Any]:
     """Wait for bar closes; sample only in post-close window; one valid sample per close.
 
@@ -1076,6 +1140,9 @@ def run_bar_close_aware_stability_window(
     attempted_boundaries: set[str] = set()
     stop_reason: str | None = None
     classification: str | None = None
+    bar_blockage_diagnostic: str | None = None
+    last_packet: dict[str, Any] | None = None
+    last_health: dict[str, Any] | None = None
     now_fn = now_fn or (lambda: datetime.now(timezone.utc))
     counting_started = False
     counting_started_at_utc: str | None = None
@@ -1146,11 +1213,25 @@ def run_bar_close_aware_stability_window(
 
     while len(samples) < required_samples and not _valid_budget_exhausted():
         if total_duration_limit is not None and (monotonic_fn() - overall_started) >= total_duration_limit:
-            stop_reason = "total_time_limit_exhausted"
+            bar_blockage_diagnostic = classify_bar_close_blockage(
+                packet=last_packet,
+                health=last_health,
+                events=warmup_events,
+                now=now_fn(),
+                expected_contract_id=expected_contract_id,
+            )
+            stop_reason = f"bar_close_blocked:{bar_blockage_diagnostic}"
             classification = BLOCKED_DATA_QUALITY if v2_enabled else BLOCKED_BAR_CLOSE_WINDOW
             break
         if not counting_started and (monotonic_fn() - overall_started) > max_warmup_seconds:
-            stop_reason = "warmup_sync_timeout"
+            bar_blockage_diagnostic = classify_bar_close_blockage(
+                packet=last_packet,
+                health=last_health,
+                events=warmup_events,
+                now=now_fn(),
+                expected_contract_id=expected_contract_id,
+            )
+            stop_reason = f"bar_close_blocked:{bar_blockage_diagnostic}"
             classification = BLOCKED_DATA_QUALITY if v2_enabled else BLOCKED_BAR_CLOSE_WINDOW
             break
 
@@ -1158,6 +1239,7 @@ def run_bar_close_aware_stability_window(
         if packet is None:
             sleep_fn(0.5)
             continue
+        last_packet = packet
 
         ctx = extract_bar_close_context(packet, now=now_fn())
         if ctx is None:
@@ -1350,6 +1432,7 @@ def run_bar_close_aware_stability_window(
             sample_utc = sample_dt.isoformat().replace("+00:00", "Z")
             try:
                 health = health_fetcher()
+                last_health = health
             except Exception as exc:
                 _record_fetch_failure(
                     gateway_timeouts,
@@ -1511,7 +1594,14 @@ def run_bar_close_aware_stability_window(
             stop_reason = "gateway_timeout_exhausted"
             classification = BLOCKED_CLASSIFICATION
         else:
-            stop_reason = stop_reason or ("valid_samples_not_completed_within_limits" if v2_enabled else BLOCKED_BAR_CLOSE_WINDOW)
+            bar_blockage_diagnostic = bar_blockage_diagnostic or classify_bar_close_blockage(
+                packet=last_packet,
+                health=last_health,
+                events=warmup_events,
+                now=now_fn(),
+                expected_contract_id=expected_contract_id,
+            )
+            stop_reason = stop_reason or f"bar_close_blocked:{bar_blockage_diagnostic}"
             classification = BLOCKED_DATA_QUALITY if v2_enabled else BLOCKED_BAR_CLOSE_WINDOW
 
     counting_started_at_utc_out = counting_started_at_utc
@@ -1537,6 +1627,7 @@ def run_bar_close_aware_stability_window(
         sampling_mode="bar_close_aware",
         post_close_window_seconds=post_close_window_seconds,
         provider_roll_latency_seconds=roll_latency,
+        bar_blockage_diagnostic=bar_blockage_diagnostic,
         counting_started_at_utc=counting_started_at_utc_out,
         valid_window_elapsed_seconds=(
             round(monotonic_fn() - valid_window_started_mono, 3)
@@ -1570,6 +1661,7 @@ def _finalize_window(
     sampling_mode: str = "bar_close_aware",
     post_close_window_seconds: float | None = None,
     provider_roll_latency_seconds: float | None = None,
+    bar_blockage_diagnostic: str | None = None,
     poll_interval_seconds: float | None = None,
     counting_started_at_utc: str | None = None,
     valid_window_elapsed_seconds: float | None = None,
@@ -1611,6 +1703,8 @@ def _finalize_window(
         doc["post_close_window_seconds"] = post_close_window_seconds
     if provider_roll_latency_seconds is not None:
         doc["provider_roll_latency_seconds"] = provider_roll_latency_seconds
+    if bar_blockage_diagnostic is not None:
+        doc["bar_blockage_diagnostic"] = bar_blockage_diagnostic
     if poll_interval_seconds is not None:
         doc["poll_interval_seconds"] = poll_interval_seconds
     if bar_close_cursor is not None:
@@ -1636,6 +1730,7 @@ def run_canonical_live_stability_window(
     monotonic_fn: Callable[[], float] = time.monotonic,
     now_fn: Callable[[], datetime] | None = None,
     lease_checker: Callable[[], tuple[bool, str | None]] | None = None,
+    expected_contract_id: str | None = None,
 ) -> dict[str, Any]:
     """Canonical live entry — one shared clock for warmup, roll, and sampling.
 
@@ -1664,6 +1759,7 @@ def run_canonical_live_stability_window(
         monotonic_fn=monotonic_fn,
         now_fn=now_fn,
         lease_checker=lease_checker,
+        expected_contract_id=expected_contract_id,
     )
     result["canonical_entry"] = True
     result["canonical_live_entry"] = CANONICAL_LIVE_STABILITY_ENTRY
@@ -1691,6 +1787,7 @@ def run_operational_stability_window(
     now_fn: Callable[[], datetime] | None = None,
     bar_close_aware: bool = True,
     lease_checker: Callable[[], tuple[bool, str | None]] | None = None,
+    expected_contract_id: str | None = None,
 ) -> dict[str, Any]:
     """Bounded stability window. Defaults to bar-close-aware when packet_fetcher is provided."""
     if bar_close_aware and packet_fetcher is not None:
@@ -1710,6 +1807,7 @@ def run_operational_stability_window(
             monotonic_fn=monotonic_fn,
             now_fn=now_fn,
             lease_checker=lease_checker,
+            expected_contract_id=expected_contract_id,
         )
 
     # ponytail: legacy fixed-interval poll retained for health-only callers/tests
