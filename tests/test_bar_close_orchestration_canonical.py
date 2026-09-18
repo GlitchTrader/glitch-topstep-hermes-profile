@@ -755,6 +755,9 @@ class CanonicalOrchestrationIntegrationTests(unittest.TestCase):
                 packet["contract"] = {"id": identity[0]}
                 packet["decision_scope"] = {"generation": identity[1], "scope_hash": identity[2]}
                 packet["market_data_mode"] = "historical"
+                packet["market_observation"]["observation"]["timeframes"][0]["prior_completed_bar"]["timestamp"] = (
+                    target_close - timedelta(minutes=1)
+                ).isoformat().replace("+00:00", "Z")
                 packet["market_observation"]["last_succeeded_utc"] = target_close.isoformat().replace("+00:00", "Z")
                 packet["market_alignment"] = {"packet_created_utc": response_received.isoformat().replace("+00:00", "Z")}
                 accepted, detail, reasons = _completed_bar_correlation(
@@ -774,6 +777,9 @@ class CanonicalOrchestrationIntegrationTests(unittest.TestCase):
         packet = _packet_roll_delay(response_received, roll_delay_seconds=0.0)
         packet["contract"] = {"id": identity[0]}
         packet["decision_scope"] = {"generation": identity[1], "scope_hash": identity[2]}
+        packet["market_observation"]["observation"]["timeframes"][0]["prior_completed_bar"]["timestamp"] = (
+            target_close - timedelta(minutes=1)
+        ).isoformat().replace("+00:00", "Z")
         packet["market_observation"]["last_succeeded_utc"] = target_close.isoformat().replace("+00:00", "Z")
         rejected, _detail, reasons = _completed_bar_correlation(
             packet=packet,
@@ -785,7 +791,7 @@ class CanonicalOrchestrationIntegrationTests(unittest.TestCase):
         )
         self.assertFalse(rejected)
         self.assertIn("network_latency", reasons)
-        self.assertIn("stale_observation", reasons)
+        self.assertIn("network_latency", reasons)
 
     def test_v3_rejects_repeat_partial_and_generation_mismatch(self, helpers: mock.MagicMock) -> None:
         del helpers

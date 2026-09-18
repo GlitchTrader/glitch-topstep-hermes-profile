@@ -1610,7 +1610,8 @@ def run_bar_close_aware_stability_window(
             and not captured
             and not _valid_budget_exhausted()
             and (
-                total_duration_limit is None
+                not v3_enabled
+                or total_duration_limit is None
                 or monotonic_fn() - overall_started < total_duration_limit
             )
         ):
@@ -1788,7 +1789,8 @@ def run_bar_close_aware_stability_window(
         # so would start another target and turn a finite timeout into an
         # effectively unbounded sequence of late windows.
         if (
-            total_duration_limit is not None
+            v3_enabled
+            and total_duration_limit is not None
             and monotonic_fn() - overall_started >= total_duration_limit
         ):
             stop_reason = "total_time_limit_exhausted"
