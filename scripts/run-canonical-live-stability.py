@@ -229,7 +229,6 @@ def main(argv: list[str] | None = None) -> int:
             gateway_root=gateway_root,
             expected_profile_sha=args.expected_profile_sha,
             expected_gateway_sha=args.expected_gateway_sha,
-            expected_contract_id=args.expected_contract_id,
             allow_worktree=args.allow_worktree,
         )
     except LiveRepoGuardError as exc:
