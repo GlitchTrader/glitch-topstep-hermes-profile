@@ -16,7 +16,6 @@ import json
 import math
 import os
 import re
-import shutil
 import subprocess
 import sys
 import time
@@ -932,9 +931,9 @@ def invoke_hermes(
     positioned_only: bool = False,
     trigger_review_only: bool = False,
 ) -> dict[str, Any]:
-    executable = shutil.which("hermes")
-    if not executable:
-        raise RuntimeError("hermes_executable_not_found")
+    from hermes_executable import resolve_hermes_executable
+
+    executable = resolve_hermes_executable()
 
     python_executable = Path(executable).with_name(
         "python.exe" if sys.platform == "win32" else "python"

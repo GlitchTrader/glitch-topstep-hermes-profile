@@ -15,7 +15,6 @@ import importlib.util
 import json
 import os
 import re
-import shutil
 import subprocess
 import sys
 import time
@@ -105,30 +104,12 @@ def _operator_identity() -> tuple[str, str]:
 
 def resolve_hermes_executable() -> str:
     """Resolve only the configured or official host Hermes installation."""
-    configured = os.environ.get("HERMES_EXECUTABLE", "").strip()
-    candidates: list[Path] = []
-    if configured:
-        candidates.append(Path(configured).expanduser())
-    path_candidate = shutil.which("hermes")
-    if path_candidate:
-        candidates.append(Path(path_candidate))
-    local_app = os.environ.get("LOCALAPPDATA", "").strip()
-    if local_app:
-        candidates.append(Path(local_app) / "hermes" / "hermes-agent" / "venv" / "Scripts" / "hermes.exe")
-    seen: set[str] = set()
-    path_candidate_text = str(path_candidate) if path_candidate else ""
-    for candidate in candidates:
-        try:
-            resolved = str(candidate.resolve())
-            exists = candidate.is_file()
-        except OSError:
-            continue
-        if resolved in seen:
-            continue
-        seen.add(resolved)
-        if exists or (path_candidate_text and str(candidate) == path_candidate_text):
-            return resolved
-    raise RunnerError("hermes_executable_not_found")
+    from hermes_executable import resolve_hermes_executable as resolve_host_hermes
+
+    try:
+        return resolve_host_hermes()
+    except RuntimeError as error:
+        raise RunnerError(str(error)) from error
 
 
 @dataclass(frozen=True)
@@ -365,12 +346,16 @@ def _invoke_hermes(profile: dict[str, Any], envelope: dict[str, Any], timeout_ms
         "--toolsets",
         DEFAULT_HERMES_TOOLSETS,
         "-Q",
-        "-q",
+        # ponytail: Windows CreateProcess ~32k argv ceiling — multimarket envelopes
+        # exceed -q ARG. --query-file - keeps the prompt on stdin.
+        "--query-file",
+        "-",
     ]
     started = time.monotonic()
     try:
         completed = subprocess.run(
-            [*command, prompt],
+            command,
+            input=prompt.encode("utf-8"),
             capture_output=True,
             text=False,
             timeout=max(0.001, timeout_ms / 1000),

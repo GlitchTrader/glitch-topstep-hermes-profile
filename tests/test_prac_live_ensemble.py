@@ -372,7 +372,7 @@ catch (error) { process.stdout.write(error?.errorCode || error?.message || 'reje
             stderr="diagnostic stderr\n".encode("utf-8"),
         )
         with mock.patch.object(runner, "default_glitch_topstep_hermes_home", return_value=self.hermes_home_test_double()), mock.patch.object(
-            runner.shutil, "which", return_value="hermes"
+            runner, "resolve_hermes_executable", return_value="hermes"
         ), mock.patch.object(
             runner.subprocess, "run", return_value=completed
         ) as run:
@@ -383,10 +383,14 @@ catch (error) { process.stdout.write(error?.errorCode || error?.message || 'reje
             )
         self.assertEqual(result["thesis"], "café 🚀")
         kwargs = run.call_args.kwargs
-        self.assertIn("-Q", run.call_args.args[0])
-        self.assertIn("--toolsets", run.call_args.args[0])
-        self.assertIn("memory", run.call_args.args[0])
-        prompt = json.loads(run.call_args.args[0][-1])
+        argv = run.call_args.args[0]
+        self.assertIn("-Q", argv)
+        self.assertIn("--toolsets", argv)
+        self.assertIn("memory", argv)
+        self.assertIn("--query-file", argv)
+        self.assertIn("-", argv)
+        self.assertNotIn("-q", argv)
+        prompt = json.loads(kwargs["input"].decode("utf-8"))
         self.assertTrue(prompt["output_contract"]["single_json_object"])
         self.assertIn("exactly one", prompt["instruction"])
         self.assertFalse(kwargs["text"])
@@ -397,9 +401,7 @@ catch (error) { process.stdout.write(error?.errorCode || error?.message || 'reje
         with tempfile.TemporaryDirectory() as root:
             executable = Path(root) / "hermes.exe"
             executable.write_bytes(b"official-runtime")
-            with mock.patch.dict("os.environ", {"HERMES_EXECUTABLE": str(executable)}, clear=False), mock.patch.object(
-                runner.shutil, "which", return_value=None
-            ):
+            with mock.patch.dict("os.environ", {"HERMES_EXECUTABLE": str(executable)}, clear=False):
                 self.assertEqual(runner.resolve_hermes_executable(), str(executable.resolve()))
 
     def test_hermes_invalid_bytes_or_json_are_safety_stop(self):
@@ -414,7 +416,7 @@ catch (error) { process.stdout.write(error?.errorCode || error?.message || 'reje
                 args=["hermes"], returncode=0, stdout=stdout, stderr=stderr
             )
             with self.subTest(reason=reason), mock.patch.object(runner, "default_glitch_topstep_hermes_home", return_value=self.hermes_home_test_double()), mock.patch.object(
-                runner.shutil, "which", return_value="hermes"
+                runner, "resolve_hermes_executable", return_value="hermes"
             ), mock.patch.object(
                 runner.subprocess, "run", return_value=completed
             ):
@@ -429,7 +431,7 @@ catch (error) { process.stdout.write(error?.errorCode || error?.message || 'reje
             stderr=b"connection reset; Bearer abc123",
         )
         with mock.patch.object(runner, "default_glitch_topstep_hermes_home", return_value=self.hermes_home_test_double()), mock.patch.object(
-            runner.shutil, "which", return_value="hermes"
+            runner, "resolve_hermes_executable", return_value="hermes"
         ), mock.patch.object(
             runner.subprocess, "run", return_value=completed
         ):
