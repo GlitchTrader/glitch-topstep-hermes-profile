@@ -608,7 +608,7 @@
           "capability_matrix": "evaluation/capability-matrix.json",
           "evaluation_manifest": "evaluation/runs/frozen-cohort-manifest-2026-09-14-adversarial-risk.json",
           "drift_detection": "scripts/ensemble_skill_gate.py",
-          "historical_manifest_preserved": "evaluation/runs/frozen-cohort-manifest-2026-09-11-v17.2.json"
+          "historical_manifest_preserved": "evaluation/history/runs/frozen-cohort-manifest-2026-09-11-v17.2.json"
         },
         "validation": {
           "ci_validation": {

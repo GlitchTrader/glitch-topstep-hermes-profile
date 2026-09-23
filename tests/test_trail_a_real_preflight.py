@@ -21,15 +21,15 @@ def _load(name: str, filename: str):
     return module
 
 
-PREFLIGHT = _load("run_trail_a_real_preflight", "run-trail-a-real-preflight.py")
+PREFLIGHT = _load("run_trail_a_real_preflight", "archive/evaluation-waves/run-trail-a-real-preflight.py")
 
 
 class TrailARealPreflightTests(unittest.TestCase):
     def test_pinned_envelope_validates(self) -> None:
         from common import read_json
 
-        config = read_json(ROOT / "evaluation" / "trail-a-real-run-config.v1.json")
-        scenarios = read_json(ROOT / "evaluation" / "trail-a-real-scenarios.v1.json")
+        config = read_json(ROOT / "evaluation" / "history" / "configs" / "trail-a-real-run-config.v1.json")
+        scenarios = read_json(ROOT / "evaluation" / "history" / "configs" / "trail-a-real-scenarios.v1.json")
         matrix = read_json(ROOT / "evaluation" / "capability-matrix.json")
         mapping = read_json(ROOT / "evaluation" / "packet_envelope_mapping.v1.json")
         result = PREFLIGHT.validate_pinned_envelope(
@@ -38,7 +38,7 @@ class TrailARealPreflightTests(unittest.TestCase):
         self.assertTrue(result["ok"], result.get("issues"))
 
     def test_live_runner_without_authorize_does_not_invoke(self) -> None:
-        LIVE = _load("run_trail_a_parallel_live", "run-trail-a-parallel-live-evaluation.py")
+        LIVE = _load("run_trail_a_parallel_live", "archive/evaluation-waves/run-trail-a-parallel-live-evaluation.py")
         result = LIVE.run_trail_a_parallel_live(
             run_id="trail-a-dry-run-test",
             authorize=False,

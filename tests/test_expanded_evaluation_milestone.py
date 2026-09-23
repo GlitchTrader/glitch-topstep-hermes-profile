@@ -27,9 +27,9 @@ def _load(name: str, filename: str):
 AGG = _load("ensemble_aggregator", "ensemble_aggregator.py")
 CAP = _load("ensemble_capability", "ensemble_capability.py")
 SHADOW = _load("shadow_observe_offline", "shadow-observe-offline.py")
-STABILITY = _load("report_trail_a_stability", "report-trail-a-stability.py")
-PROV = _load("validate_provenance", "validate-evaluation-provenance-chain.py")
-MILESTONE = _load("run_evaluation_milestone", "run-evaluation-milestone.py")
+STABILITY = _load("report_trail_a_stability", "archive/evaluation-waves/report-trail-a-stability.py")
+PROV = _load("validate_provenance", "archive/evaluation-waves/validate-evaluation-provenance-chain.py")
+MILESTONE = _load("run_evaluation_milestone", "archive/evaluation-waves/run-evaluation-milestone.py")
 RULES = json.loads((EVAL / "aggregator_rules.v1.json").read_text(encoding="utf-8"))
 SIX_CASES = json.loads(
     (EVAL / "fixtures" / "aggregator_decision_cases_six_profiles.v1.json").read_text(encoding="utf-8")
@@ -165,7 +165,7 @@ class ShadowOfflineTests(unittest.TestCase):
 
 class TrailAStabilityTests(unittest.TestCase):
     def test_stability_report_from_trail_a_bundle(self) -> None:
-        bundle = EVAL / "runs" / "trail-a-multi-envelope-2026-09-02.json"
+        bundle = EVAL / "history" / "runs" / "trail-a-multi-envelope-2026-09-02.json"
         if not bundle.is_file():
             self.skipTest("trail-a bundle missing")
         report = STABILITY.build_trail_a_stability_report(bundle_path=bundle)
@@ -176,7 +176,7 @@ class TrailAStabilityTests(unittest.TestCase):
 
 class ProvenanceChainTests(unittest.TestCase):
     def test_trail_a_multi_envelope_chain(self) -> None:
-        bundle_path = EVAL / "runs" / "trail-a-multi-envelope-2026-09-02.json"
+        bundle_path = EVAL / "history" / "runs" / "trail-a-multi-envelope-2026-09-02.json"
         if not bundle_path.is_file():
             self.skipTest("trail-a bundle missing")
         bundle = json.loads(bundle_path.read_text(encoding="utf-8"))

@@ -14,7 +14,7 @@ from distribution_manifest import file_sha256
 
 SCRIPTS = Path(__file__).resolve().parent
 REPO = SCRIPTS.parent
-DEFAULT_MANIFEST = REPO / "evaluation" / "runs" / "frozen-cohort-manifest-2026-09-01.json"
+DEFAULT_MANIFEST = REPO / "evaluation" / "runs" / "frozen-cohort-manifest-2026-09-14-adversarial-risk.json"
 MANIFEST_SCHEMA = "glitch.topstep.frozen_cohort_manifest.v1"
 
 

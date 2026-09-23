@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-SCRIPTS = Path(__file__).resolve().parent
+SCRIPTS = Path(__file__).resolve().parents[2]
 REPO = SCRIPTS.parent
 MILESTONE_SCHEMA = "glitch.topstep.evaluation_milestone_six_profiles.v1"
 
@@ -42,8 +42,8 @@ def run_milestone(*, run_id: str, frames_dir: Path) -> dict[str, Any]:
         return mod
 
     shadow_mod = _load_script("shadow_observe_offline", "shadow-observe-offline.py")
-    stability_mod = _load_script("report_trail_a_stability", "report-trail-a-stability.py")
-    provenance_mod = _load_script("validate_provenance", "validate-evaluation-provenance-chain.py")
+    stability_mod = _load_script("report_trail_a_stability", "archive/evaluation-waves/report-trail-a-stability.py")
+    provenance_mod = _load_script("validate_provenance", "archive/evaluation-waves/validate-evaluation-provenance-chain.py")
     from common import read_json
     from ensemble_envelope_seal import seal_evaluation_envelope_from_frame, sealed_envelope_identity
 
@@ -104,7 +104,7 @@ def run_milestone(*, run_id: str, frames_dir: Path) -> dict[str, Any]:
     shadow_path = runs_dir / f"{run_id}-shadow-offline.json"
     shadow_path.write_text(json.dumps(shadow_reports, indent=2) + "\n", encoding="utf-8")
 
-    trail_a = REPO / "evaluation" / "runs" / "trail-a-multi-envelope-2026-09-02.json"
+    trail_a = REPO / "evaluation" / "history" / "runs" / "trail-a-multi-envelope-2026-09-02.json"
     stability = stability_mod.build_trail_a_stability_report(bundle_path=trail_a) if trail_a.is_file() else None
     stability_path = runs_dir / f"{run_id}-stability-report.json"
     if stability:

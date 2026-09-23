@@ -376,7 +376,7 @@ class EnsembleEvaluationTests(unittest.TestCase):
             self.assertFalse(receipt_row.get("thesis_quality_eligible"))
 
     def test_prac_decision_export_inventory_exists(self) -> None:
-        inv_path = ROOT / "evaluation" / "runs" / "prac-decision-export-inventory.json"
+        inv_path = ROOT / "evaluation" / "history" / "runs" / "prac-decision-export-inventory.json"
         self.assertTrue(inv_path.is_file())
         inv = json.loads(inv_path.read_text(encoding="utf-8"))
         self.assertEqual(inv["session_id"], "PRAC-SOAK-2026-08-31")

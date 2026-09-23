@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-SCRIPTS = Path(__file__).resolve().parent
+SCRIPTS = Path(__file__).resolve().parents[2]
 REPO = SCRIPTS.parent
 sys.path.insert(0, str(SCRIPTS))
 
@@ -41,7 +41,7 @@ from evaluation_run_public_bundle import persist_public_run_bundle  # noqa: E402
 import importlib.util
 
 _PREFLIGHT_SPEC = importlib.util.spec_from_file_location(
-    "run_trail_a_real_preflight", SCRIPTS / "run-trail-a-real-preflight.py"
+    "run_trail_a_real_preflight", SCRIPTS / "archive" / "evaluation-waves" / "run-trail-a-real-preflight.py"
 )
 assert _PREFLIGHT_SPEC and _PREFLIGHT_SPEC.loader
 _PREFLIGHT = importlib.util.module_from_spec(_PREFLIGHT_SPEC)
@@ -52,8 +52,8 @@ is_multi_envelope_config = _PREFLIGHT.is_multi_envelope_config
 
 RUN_SCHEMA = "glitch.topstep.trail_a_parallel_live_run.v1"
 MULTI_RUN_SCHEMA = "glitch.topstep.trail_a_multi_envelope_live_run.v1"
-DEFAULT_CONFIG = REPO / "evaluation" / "trail-a-real-run-config.v1.json"
-DEFAULT_SCENARIOS = REPO / "evaluation" / "trail-a-real-scenarios.v1.json"
+DEFAULT_CONFIG = REPO / "evaluation" / "history" / "configs" / "trail-a-real-run-config.v1.json"
+DEFAULT_SCENARIOS = REPO / "evaluation" / "history" / "configs" / "trail-a-real-scenarios.v1.json"
 
 
 def utc_now() -> str:

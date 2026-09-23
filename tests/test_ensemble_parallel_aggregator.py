@@ -849,9 +849,9 @@ class EnvelopeIdentitySealTests(unittest.TestCase):
   def setUpClass(cls) -> None:
     cls.SEAL = _load("ensemble_envelope_seal", "ensemble_envelope_seal.py")
     cls.ENV = _load("ensemble_envelope", "ensemble_envelope.py")
-    cls.PREFLIGHT = _load("run_trail_a_real_preflight", "run-trail-a-real-preflight.py")
+    cls.PREFLIGHT = _load("run_trail_a_real_preflight", "archive/evaluation-waves/run-trail-a-real-preflight.py")
     cls.FRAME_PATH = FIXTURES / "frozen_corpus" / "minute-frames" / "20260820T1200Z.json"
-    cls.CONFIG = read_json(EVAL / "trail-a-real-run-config.v1.json")
+    cls.CONFIG = read_json(EVAL / "history" / "configs" / "trail-a-real-run-config.v1.json")
     cls.MATRIX = read_json(EVAL / "capability-matrix.json")
     cls.MAPPING = read_json(EVAL / "packet_envelope_mapping.v1.json")
 
@@ -876,7 +876,7 @@ class EnvelopeIdentitySealTests(unittest.TestCase):
     )
     check = self.PREFLIGHT.validate_pinned_envelope(
       config=self.CONFIG,
-      scenarios=read_json(EVAL / "trail-a-real-scenarios.v1.json"),
+      scenarios=read_json(EVAL / "history" / "configs" / "trail-a-real-scenarios.v1.json"),
       matrix=self.MATRIX,
       mapping=self.MAPPING,
     )

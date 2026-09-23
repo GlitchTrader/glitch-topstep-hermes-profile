@@ -41,7 +41,6 @@ PINNED_PATHS = (
     "scripts/build-evaluation-release-package.py",
     "scripts/report-shadow-metrics.py",
     "scripts/audit-shadow-isolation.py",
-    "scripts/run-shadow-phase7-validation.py",
 )
 
 SCHEMA_PATHS = (

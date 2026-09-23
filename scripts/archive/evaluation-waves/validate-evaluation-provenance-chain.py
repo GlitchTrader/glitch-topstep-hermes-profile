@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = Path(__file__).resolve().parents[3]
 import sys
 
 sys.path.insert(0, str(REPO / "scripts"))
@@ -138,7 +138,7 @@ def validate_bundle_chain(bundle: dict[str, Any]) -> dict[str, Any]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate evaluation provenance chain")
-    parser.add_argument("bundle", type=Path, nargs="?", default=REPO / "evaluation" / "runs" / "trail-a-multi-envelope-2026-09-02.json")
+    parser.add_argument("bundle", type=Path, nargs="?", default=REPO / "evaluation" / "history" / "runs" / "trail-a-multi-envelope-2026-09-02.json")
     parser.add_argument("--output", type=Path, default=None)
     args = parser.parse_args()
     bundle = json.loads(args.bundle.read_text(encoding="utf-8"))

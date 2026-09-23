@@ -19,7 +19,7 @@ _mod = importlib.util.module_from_spec(_spec)
 assert _spec.loader is not None
 _spec.loader.exec_module(_mod)
 
-HISTORICAL_MANIFEST = ROOT / "evaluation" / "runs" / "frozen-cohort-manifest-2026-09-01.json"
+HISTORICAL_MANIFEST = ROOT / "evaluation" / "history" / "runs" / "frozen-cohort-manifest-2026-09-01.json"
 MANIFEST = ROOT / "evaluation" / "runs" / "frozen-cohort-manifest-2026-09-14-adversarial-risk.json"
 
 

@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-PROFILE_ROOT = Path(__file__).resolve().parents[1]
+PROFILE_ROOT = Path(__file__).resolve().parents[3]
 SCRIPTS = PROFILE_ROOT / "scripts"
 EVAL = PROFILE_ROOT / "evaluation"
 FIXTURES = PROFILE_ROOT / "tests" / "fixtures"
@@ -590,7 +590,7 @@ def main() -> int:
     parser.add_argument(
         "--output",
         type=Path,
-        default=EVAL / "runs" / "trail-a-acceptance-report-2026-09-02.json",
+        default=EVAL / "history" / "runs" / "trail-a-acceptance-report-2026-09-02.json",
     )
     args = parser.parse_args()
     report = build_acceptance_report(
