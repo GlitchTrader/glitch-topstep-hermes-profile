@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-SCRIPTS = Path(__file__).resolve().parent
+SCRIPTS = Path(__file__).resolve().parents[2]
 REPO = SCRIPTS.parent
 sys.path.insert(0, str(SCRIPTS))
 
@@ -19,7 +19,7 @@ from evaluation_owner import production_state_root  # noqa: E402
 from evaluation_run_public_bundle import slot_normalized, slot_replay_fields  # noqa: E402
 
 AUDIT_SCHEMA = "glitch.topstep.trail_a_real_artifact_audit.v1"
-DEFAULT_CONFIG = REPO / "evaluation" / "trail-a-real-run-config.v1.json"
+DEFAULT_CONFIG = REPO / "evaluation" / "history" / "configs" / "trail-a-real-run-config.v1.json"
 
 
 def audit_trail_a_real_run(

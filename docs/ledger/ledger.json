@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
   "project": "glitch-topstep-hermes-profile",
-  "updated": "2026-09-11T15:00:00Z",
+  "updated": "2026-09-23T20:00:00Z",
   "release_target": "paired gateway/profile beta",
   "reconciliation": {
     "date": "2026-08-24",
@@ -278,12 +278,454 @@
     "cognition": "Hermes owns market judgment, direction, timing, quantity, geometry, management, abstention, review, and learning.",
     "worker": "The profile worker schedules explicit invocations and validates identity/schema/finite values/geometry/directives; it does not turn evidence into a hidden strategy.",
     "gateway": "The gateway owns authenticated ProjectX evidence, account and contract identity, factual execution boundaries, native mutation, protection, reconciliation, and receipts.",
-    "objective": "Optimize long-run after-fee expectancy, survival, and realized payout quality. Daily profit and payout progress are Hermes objectives backed by packet evidence\u0393\u00c7\u00f6not deterministic Glitch gates, quotas, or fixed risk baselines."
+    "objective": "Optimize long-run after-fee expectancy, survival, and realized payout quality. Daily profit and payout progress are Hermes objectives backed by packet evidenceΓÇönot deterministic Glitch gates, quotas, or fixed risk baselines."
   },
   "history": {
     "previous_schema": "1.0",
     "previous_main_commit": "d98fc7f6b38b5c83e58e466d540fce55ef8b7a42",
-    "note": "Completed RAIL-002, RAIL-003, RAIL-004, RAIL-007, and RAIL-008 remain in Git history. RAIL-005 is superseded by GTHP-009. PROFILE-BETA-01 remains the external paired-artifact boundary in issue #24."
+    "note": "Completed RAIL-002, RAIL-003, RAIL-004, RAIL-007, and RAIL-008 remain in Git history. RAIL-005 is superseded by GTHP-009. PROFILE-BETA-01 (PRAC session 2026-08-03, profile v0.1.6) remains the external paired-artifact boundary in issue #24; session artifacts archived under docs/evidence/archive/. 2026-08-20 audit baselines archived under docs/ledger/audits/archive/ (branches they referenced are merged).",
+    "ad_hoc_programs": {
+      "reaudit_program_2026_08_20": {
+        "status": "planned_armed_blocked",
+        "audit_commit": "ce8a26759302dd369e53d9b543b198936fcfae80",
+        "ledger_base_commit": "66ab507d09f096806046a0e23f3eb93e58b8f50a",
+        "primary_issues": [
+          140,
+          141,
+          142,
+          143
+        ],
+        "cross_repo_issues": [
+          "glitch-topstep#184",
+          "glitch-topstep#185",
+          "glitch-topstep#186",
+          "glitch-topstep#187",
+          "glitch-topstep#190",
+          "glitch-topstep#193",
+          "glitch-topstep#195"
+        ],
+        "implementation_order": [
+          "TS-REAUDIT-02 evidence outbox (gateway)",
+          "TS-REAUDIT-08 shutdown authority (gateway)",
+          "TS-REAUDIT-01 auth session complete (gateway)",
+          "TS-REAUDIT-03 flatten terminal complete (gateway)",
+          "GTHP-REAUDIT-01 atomic decision authority (profile)",
+          "TS-REAUDIT-04 paired delivery status + fixtures (both)",
+          "GTHP-AUDIT-03 outbox durable (profile)",
+          "TS-REAUDIT-05 cache bounds + soak (gateway)",
+          "TS-REAUDIT-06 safety invariants (gateway)",
+          "GTHP-REAUDIT-02 incremental reads (profile)",
+          "TS-REAUDIT-07 ports (gateway)",
+          "TS-REAUDIT-10 fault matrix (both)",
+          "GTHP-REAUDIT-04 quality gates (profile)",
+          "TS-REAUDIT-11 operational SLOs (gateway)",
+          "GTHP-REAUDIT-03 signed pair manifest (both)",
+          "TS-REAUDIT-12 armed runbook + validator (both)"
+        ],
+        "promotion_gate": [
+          "No armed promotion while any P0 re-audit item is open.",
+          "All critical fault regressions must be red-before-fix and green-after-fix.",
+          "A paired Sim/PRAC soak, rollback rehearsal, and human approval are required."
+        ],
+        "next_plan": "glitch-topstep:docs/plans/2026-08-21-reaudit-p0-p1-attack-plan.md"
+      },
+      "implementation_run_2026_08_19": {
+        "paired_protocol": "glitch.topstep.paired.v3",
+        "prompt_version": "glitch-topstep-v10",
+        "operator_universe": [
+          "MNQ",
+          "MES",
+          "MCL"
+        ],
+        "provider_alias_note": "MCL is Micro Crude Oil; MCLE is the ProjectX catalog family used only for exact runtime resolution.",
+        "implemented_orders": [
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          25
+        ],
+        "features": [
+          "0.5 percent daily context without quota",
+          "explicit partial and completed bar roles",
+          "frozen comparison trigger contract",
+          "v3 entry range and one reassessment",
+          "truthful worker lifecycle status",
+          "revision-aware outcome replacement and execution-fact separation",
+          "frozen-corpus prompt comparison harness",
+          "complete MNQ/MES/MCL candidate ledger and global ranking"
+        ],
+        "external_validation_pending": [
+          "live two-prompt run on operator production minute-frames (optional archive)"
+        ]
+      },
+      "foundation_update_2026_08_19": {
+        "scope": "revisioned outcome projection",
+        "implementation": [
+          "scripts/outcome_store.py owns the local SQLite projection and cursor transaction",
+          "scripts/common.py exports JSONL only after the SQLite commit, preserving compatibility",
+          "duplicate sequence replay is idempotent and conflicting content fails closed",
+          "restart, bootstrap, atomic export, and integrity checks are covered by tests/test_outcome_store.py"
+        ],
+        "validation": "175 tests passed, 1 expected skip",
+        "live_acceptance_pending": [
+          "paired gateway feed replay with more than 10000 revisions",
+          "restart soak with a real PRAC outcome correction",
+          "confirm learning consumes the SQLite-backed projection without duplicate episodes"
+        ],
+        "live_validation_2026_08_19": {
+          "gateway_reconnect_proof": "passed after stabilization retry; generation 2 to 3; final state complete and reconciled",
+          "gateway_fixture_capture": "15 sanitized fixtures captured",
+          "outcome_live_acceptance": "pending; no real correction/replay soak claimed",
+          "related_gateway_issue_comments": [
+            "https://github.com/GlitchTrader/glitch-topstep/issues/110#issuecomment-5344359580",
+            "https://github.com/GlitchTrader/glitch-topstep/issues/112#issuecomment-5344359835"
+          ]
+        }
+      },
+      "scanner_ledger_validation_2026_08_19": {
+        "status": "validated_foundation",
+        "gateway_evidence": {
+          "candidate_instruments": [
+            "MNQ",
+            "MES",
+            "MCL"
+          ],
+          "exact_contracts": [
+            "CON.F.US.MNQ.U26",
+            "CON.F.US.MES.U26",
+            "CON.F.US.MCLE.V26"
+          ],
+          "all_candidates_observation_ready": true,
+          "simultaneous_exposure_enabled": false,
+          "scope_hash": "22db22092e78bae1fa8d3a789f38c66136eda130de78993f14c7075398f229bd"
+        },
+        "profile_evidence": [
+          "177 profile tests passed with one expected skip",
+          "multi-candidate model-boundary test preserves all candidate identities and execution modes",
+          "scanner_contract rejects incomplete candidate ledgers before ranking",
+          "account_selection.v1 envelope is validated when supplied by the gateway"
+        ],
+        "paired_contract": {
+          "schema_version": "glitch.topstep.account_selection.v1",
+          "mode": "single_contract",
+          "selected_contract_identity_required": true,
+          "scope_generation_and_hash_required": true,
+          "simultaneous_exposure_default": false
+        },
+        "remaining_acceptance": [
+          "live armed trade outcome on MCL/MCLE (PARITY residual)"
+        ]
+      },
+      "prac_live_ensemble_runner_2026_09_10": {
+        "status": "runner_implemented_ready_for_live_preflight",
+        "scope": "six-profile Hermes runner with explicit offline, shadow, and authorized PRAC modes",
+        "gateway_execution_authority": true,
+        "orders_sent": 0,
+        "resets": 0,
+        "offline_evidence": "docs/evidence/runner-offline-20260910/report.md",
+        "remaining": [
+          "live preflight only; do not start PRAC from implementation stage"
+        ]
+      },
+      "hermes_skill_wiring_prompt_v17_2_2026_09_11": {
+        "status": "implemented_local_pending_independent_reaudit",
+        "summary": "Integrated the complete eight-commit Hermes runner series into the canonical profile, added fail-closed canonical skill preload verification for topstep-smart-money and topstep-indicators, and bumped the paired prompt contract from v17.1 to v17.2.",
+        "profile_prompt_version": "glitch-topstep-v17.2",
+        "orders_sent": 0,
+        "execution_mode": "shadow-only",
+        "overnight": false,
+        "evidence": [
+          "tests/test_specialty_skill_wiring.py",
+          "docs/release-notes/2026-09-11-skill-wiring-v17.2.md"
+        ],
+        "remaining": [
+          "independent confirmation of specialized model outputs and stability",
+          "live MES/MCL coverage remains unproven",
+          "no canary or overnight promotion"
+        ]
+      },
+      "documentary_merge_reconciliation_2026_09_14": {
+        "status": "documented_only_pending_separate_audit_review",
+        "canonical_base_before_merge": "041f60b9eb6a3591d9e9de2195ebe68bb192a044",
+        "canonical_main_after_merge": "9390c518989c7decbeaf5e26664ad1d961e5097c",
+        "documentary_pr": 247,
+        "documentary_merge_commit": "9390c518989c7decbeaf5e26664ad1d961e5097c",
+        "paired_gateway_documentary_pr": "glitch-topstep:#290",
+        "six_profile_provenance": {
+          "canonical_branch": "main",
+          "comparison_not_linear": true,
+          "versions": [
+            {
+              "commit": "5c788a6afecf90babaa80ec72407fdbc04e5f708",
+              "branch": "main",
+              "relation_to_main": "ancestor",
+              "content": "six-profile fixtures/replay tests including MES/MCL coverage",
+              "tests_present": [
+                "tests/test_ensemble_evaluation.py",
+                "tests/test_ensemble_parallel_aggregator.py"
+              ],
+              "tests_absent": [
+                "tests/test_prac_live_ensemble.py"
+              ]
+            },
+            {
+              "commit": "dde2937808097ff3de75f5666dd2d9984c5b6b53",
+              "branch": "codex/profile-runner-integration-reaudit",
+              "relation_to_main": "not_an_ancestor",
+              "content": "historical live-runner version",
+              "tests_present": [
+                "scripts/prac_live_ensemble.py"
+              ],
+              "tests_absent": []
+            },
+            {
+              "commit": "90d2ef6ec5a316de4af05638f11fd00cd02c810c",
+              "branch": "codex/profile-runner-integration-reaudit",
+              "relation_to_main": "not_an_ancestor",
+              "content": "historical runner, diagnostics and preload version",
+              "tests_present": [
+                "scripts/prac_live_ensemble.py"
+              ],
+              "tests_absent": []
+            },
+            {
+              "commit": "041f60b9eb6a3591d9e9de2195ebe68bb192a044",
+              "branch": "main",
+              "relation_to_main": "canonical_base_before_merge",
+              "content": "current canonical runner/replay state",
+              "tests_present": [
+                "tests/test_ensemble_evaluation.py",
+                "tests/test_ensemble_parallel_aggregator.py"
+              ],
+              "tests_absent": [
+                "tests/test_prac_live_ensemble.py"
+              ]
+            }
+          ]
+        },
+        "MES_MCL_status": {
+          "fixture_replay_coverage": true,
+          "live_proof": "absent",
+          "live_status": "unverified",
+          "no_live_promotion": true
+        },
+        "recoverable_historical_objects": [
+          "32c13276ae4d604e06d4b794376ec12876a5a8b7",
+          "2b90cec5848940b019e27c285a24d77826ea3cb4",
+          "0f530fd219054b403238488aa10aa3a5b90888d9",
+          "7451c994e45a6d4817fef0d01ebf7dc83a49bda0",
+          {
+            "reference": "11cffb4e60ed193bd3ddeca83cd4e4fe952e023",
+            "status": "invalid_unresolved",
+            "candidates_not_equated": [
+              "633f7fbe3c140fa895fc61babe3679932c3152bb",
+              "6c58e5f2c66e439d7b58cd06c8aded95729ad962"
+            ]
+          }
+        ],
+        "gateway_dependency": {
+          "authority": [
+            "identity",
+            "contract",
+            "risk",
+            "execution",
+            "ProjectX",
+            "receipts",
+            "recovery"
+          ],
+          "profile_projectx_mutation": false,
+          "paired_gateway_documentary_pr": 290,
+          "paired_gateway_merge_commit": "557f721095a0f2d65d24dba58e6f904066d2509f"
+        },
+        "ensemble_p0_test_gaps": [
+          "version_incompatible",
+          "delayed_result",
+          "divergent_identity",
+          "invalid_quantity",
+          "MES_MCL_end_to_end_selection",
+          "contract_outside_envelope",
+          "timeout",
+          "missing_profile"
+        ],
+        "preserved_statuses": {
+          "blocked": [
+            "shadow_live",
+            "overnight"
+          ],
+          "open_or_unverified": [
+            "MES_MCL_live",
+            "missing_ensemble_p0_coverage"
+          ],
+          "promoted_to_done": false
+        },
+        "preserved_constraints": "Documentation only; no code, tests, scripts, contracts, prompts, runtime, evidence, or operational state changed.",
+        "documentary_merges_2026_09_14": {
+          "status": "recorded_without_done_promotion",
+          "gateway_documentary_pr": 290,
+          "gateway_merge_commit": "557f721095a0f2d65d24dba58e6f904066d2509f",
+          "profile_objection_pr": 250,
+          "profile_objection_merge_commit": "effc634eef2c3c9e79163fe0b42a4bc67b19c5e7",
+          "profile_preload_pr": 251,
+          "profile_preload_merge_commit": "fa1d2448c7d3132303aa9ec4d0fa3cc26e9de3a1",
+          "preload_fix": {
+            "status": "implemented_and_ci_verified",
+            "root_cause": "topstep-smart-money and topstep-indicators lacked Hermes front matter required for discovery",
+            "ci_validation": "764 testes, 14 skips, 0 erros, 0 falhas",
+            "local_validation": "764 testes, 8 skips, 0 erros, 0 falhas, using the Hermes virtualenv",
+            "environment_difference": "The skip-count difference is environmental: CI and the local Hermes virtualenv expose different optional preload conditions; loader errors remain explicit and are not converted to success."
+          },
+          "authority_and_scope": {
+            "gateway_changed": false,
+            "paired_contract_changed": false,
+            "runtime_or_live_changed": false,
+            "operational_state_changed": false,
+            "gateway_remains_authority": true
+          },
+          "remaining_plan_gaps": {
+            "shadow_live_readonly": "blocked",
+            "overnight": "blocked",
+            "MES_MCL_live": "blocked_unverified",
+            "ensemble_p0_coverage": "open; documentary merges do not promote this to done",
+            "production_parallelism": "blocked"
+          },
+          "historical_recovery_objects": "Preserved as recoverable historical sources; no cleanup or pruning performed.",
+          "promoted_to_done": false
+        }
+      },
+      "adversarial_risk_implementation_2026_09_15": {
+        "status": "implemented_and_merged_pending_documentary_reconciliation",
+        "pull_request": 253,
+        "merge_commit": "467cb00eeb11edf2d8652cde5f8b5116d0d925a1",
+        "canonical_base_before_merge": "b1f35469af55980096e60639514d05a850e5ed7f",
+        "canonical_main_after_merge": "467cb00eeb11edf2d8652cde5f8b5116d0d925a1",
+        "implementation": {
+          "skill": "skills/adversarial-risk/SKILL.md",
+          "registry": "evaluation/registry.json",
+          "capability_matrix": "evaluation/capability-matrix.json",
+          "evaluation_manifest": "evaluation/runs/frozen-cohort-manifest-2026-09-14-adversarial-risk.json",
+          "drift_detection": "scripts/ensemble_skill_gate.py",
+          "historical_manifest_preserved": "evaluation/history/runs/frozen-cohort-manifest-2026-09-11-v17.2.json"
+        },
+        "validation": {
+          "ci_validation": {
+            "tests": 772,
+            "skips": 14,
+            "errors": 0,
+            "failures": 0,
+            "checks": [
+              "test-linux",
+              "test-windows",
+              "codeql",
+              "CodeQL",
+              "dependency-review",
+              "Cursor Security Agent"
+            ]
+          },
+          "local_validation": {
+            "tests": 772,
+            "skips": 8,
+            "errors": 0,
+            "failures": 0
+          },
+          "contract_changed": false,
+          "shadow_or_live_proof": false
+        },
+        "remaining_blockers": {
+          "credentials": "blocked",
+          "hermes_installation_drift": "blocked",
+          "operational_isolation": "blocked",
+          "projectx_authenticated": "unverified",
+          "indicators_stability": "unverified",
+          "execution_canonicality": "unverified",
+          "shadow_live": "blocked",
+          "overnight": "blocked",
+          "MES_MCL_live": "blocked_unverified"
+        },
+        "cross_repository": "glitch-topstep:#290",
+        "general_plan_promoted_to_done": false,
+        "scope_note": "The merge contains the approved adversarial-risk profile, explicit registry/capability composition, fail-closed installation drift detection, regression tests, and current evaluation manifest only; no gateway, paired contract, runtime, live path, credentials, or operational state changed."
+      },
+      "ensemble_p0_identity_validation_2026_09_15": {
+        "status": "implemented_local_pending_independent_review",
+        "pull_request_dependency": 255,
+        "branch": "codex/hermes-ensemble-p0-20260915",
+        "base_commit": "f7fa7ea27689f954c5478f87defb5e3c810437b6",
+        "implementation_commit": "cf7ec00900b702c0e988080a97ced57d683c46af",
+        "scope": {
+          "aggregator": "scripts/ensemble_aggregator.py",
+          "semantic_validation": "scripts/ensemble_semantic.py",
+          "regression_tests": [
+            "tests/test_ensemble_p0_regressions.py",
+            "tests/test_multimarket_selection_replay.py",
+            "tests/test_prac_live_ensemble.py"
+          ],
+          "documentation": "docs/ensemble/p0-validation-rules.md"
+        },
+        "rules": {
+          "exact_instrument_identity": true,
+          "announced_contract_identity_required": true,
+          "gateway_remains_execution_authority": true,
+          "evaluation_only": true,
+          "production_parallelism": false,
+          "shadow_live": "blocked",
+          "prac_live": "blocked",
+          "projectx": "not_used"
+        },
+        "validation": {
+          "focused": {
+            "tests": 100,
+            "skips": 2,
+            "errors": 0,
+            "failures": 0
+          },
+          "full_local": {
+            "tests": 797,
+            "skips": 10,
+            "errors": 0,
+            "failures": 0
+          },
+          "compileall": "pass",
+          "sha256sums": "pass",
+          "git_diff_check": "pass"
+        },
+        "limitations": {
+          "live_MES_MCL_proof": "absent",
+          "independent_audit": "pending",
+          "PR255_native_approval": "pending",
+          "general_ensemble_plan_done": false
+        },
+        "cross_repository": {
+          "gateway_changed": false,
+          "gateway_pr": null,
+          "paired_contract_changed": false,
+          "glitch_nt_changed": false
+        }
+      }
+    },
+    "archived_evidence": {
+      "profile_beta_01_prac_session_2026_08_03": {
+        "status": "archived",
+        "summary": "Eight-minute PRAC armed session on profile v0.1.6 / prompt v4; flat NOTHING → ENTER_LONG → HOLD → MOVE_STOP → flat.",
+        "paths": [
+          "docs/evidence/archive/PROFILE-BETA-01-prac-session-2026-08-03.md",
+          "docs/evidence/archive/PROFILE-BETA-01-prac-session-2026-08-03.decisions.jsonl",
+          "docs/evidence/archive/PROFILE-BETA-01-prac-session-2026-08-03.receipts.jsonl",
+          "docs/evidence/archive/PROFILE-BETA-01-prac-session-2026-08-03.gateway-receipts.jsonl"
+        ]
+      },
+      "audits_2026_08_20": {
+        "status": "archived",
+        "summary": "GTHP-AUDIT-04 regression matrix and workflow decomposition baseline; referenced open branches are merged.",
+        "paths": [
+          "docs/ledger/audits/archive/2026-08-20-regression-matrix.md",
+          "docs/ledger/audits/archive/2026-08-20-workflow-decomposition-baseline.md"
+        ]
+      }
+    }
   },
   "items": [
     {
@@ -388,16 +830,16 @@
         "Known limitations explicit; no beta-ready claim without operator promotion."
       ],
       "evidence": [
-        "2026-08-03: PRAC armed session NOTHING \u0393\u00e5\u00c6 ENTER_LONG \u0393\u00e5\u00c6 HOLD \u0393\u00e5\u00c6 MOVE_STOP \u0393\u00e5\u00c6 NOTHING.",
-        "docs/evidence/PROFILE-BETA-01-prac-session-2026-08-03.md (PR #34).",
+        "2026-08-03: PRAC armed session NOTHING ΓåÆ ENTER_LONG ΓåÆ HOLD ΓåÆ MOVE_STOP ΓåÆ NOTHING.",
+        "docs/evidence/archive/PROFILE-BETA-01-prac-session-2026-08-03.md (PR #34).",
         "Gateway terminal receipts gateway-receipts.jsonl (PR #35).",
         "Issue #24 operator acceptance comment 2026-08-03."
       ],
       "sources": [
-        "docs/evidence/PROFILE-BETA-01-prac-session-2026-08-03.md",
-        "docs/evidence/PROFILE-BETA-01-prac-session-2026-08-03.decisions.jsonl",
-        "docs/evidence/PROFILE-BETA-01-prac-session-2026-08-03.receipts.jsonl",
-        "docs/evidence/PROFILE-BETA-01-prac-session-2026-08-03.gateway-receipts.jsonl"
+        "docs/evidence/archive/PROFILE-BETA-01-prac-session-2026-08-03.md",
+        "docs/evidence/archive/PROFILE-BETA-01-prac-session-2026-08-03.decisions.jsonl",
+        "docs/evidence/archive/PROFILE-BETA-01-prac-session-2026-08-03.receipts.jsonl",
+        "docs/evidence/archive/PROFILE-BETA-01-prac-session-2026-08-03.gateway-receipts.jsonl"
       ],
       "stop_line": "No unattended evaluation/live claim. TS-BETA-01 promoted 2026-08-05 via operator shortcut acceptance (gateway docs/evidence/TS-BETA-01-immutable-baseline-2026-08-04.md)."
     },
@@ -483,7 +925,7 @@
       "evidence": [
         "2026-08-03: NT vs Topstep learning comparison documented.",
         "2026-08-05: learning worker sync_gateway_outcomes_meta on every run; rejection_class on decision episodes; debrief outcome_execution v1.1; outcome_backed_lessons in direct-cycle ledger context.",
-        "2026-08-05: PRAC acceptance \u0393\u00c7\u00f6 TS-R3-03 closed; learning_eligible outcomes debriefed into trade-episodes.jsonl.",
+        "2026-08-05: PRAC acceptance ΓÇö TS-R3-03 closed; learning_eligible outcomes debriefed into trade-episodes.jsonl.",
         "docs/specs/GTHP-012.md",
         "tests/test_learning.py"
       ],
@@ -620,7 +1062,7 @@
       ],
       "stop_line": "Do not implement v2 guardian profit lock or gateway daily PnL execution gates.",
       "evidence": [
-        "2026-08-05: operator direction \u0393\u00c7\u00f6 daily profit is strategic objective via cognition, not engine lock.",
+        "2026-08-05: operator direction ΓÇö daily profit is strategic objective via cognition, not engine lock.",
         "docs/specs/GTHP-017.md"
       ],
       "sources": [
@@ -654,7 +1096,7 @@
       ],
       "stop_line": "No hidden strategy gate; no learning cron suppression; no skip when positioned.",
       "evidence": [
-        "2026-08-05 PRAC: 16:00-17:00 CDT maintenance \u0393\u00c7\u00f6 12x llm_skipped stale_gateway_quote, trade_count_60s=0.",
+        "2026-08-05 PRAC: 16:00-17:00 CDT maintenance ΓÇö 12x llm_skipped stale_gateway_quote, trade_count_60s=0.",
         "2026-07-31: parity.market_quiescent_skip_details; events market_quiescent; GLITCH_TOPSTEP_SKIP_MARKET_QUIESCENT default true.",
         "2026-08-06: gate prefers packet.stream_health when present; reconnect_pending bypass; session.phase in recent_frames; PRICE_CROSS range uses session_high/low and order_flow window.",
         "docs/specs/GTHP-018.md",
@@ -686,7 +1128,7 @@
         "Dedup cooldown documented; GTHP-018 quiescence skip respected when flat.",
         "docs/specs/GTHP-019.md and regression tests."
       ],
-      "stop_line": "Triggers schedule invocation only \u0393\u00c7\u00f6 no pre-baked trade decisions or hidden ENTER veto.",
+      "stop_line": "Triggers schedule invocation only ΓÇö no pre-baked trade decisions or hidden ENTER veto.",
       "evidence": [
         "2026-08-06: PRICE_CROSS + SESSION_PHASE schema; run-wake-trigger-monitor loop; launch-wake-trigger-monitor cron job.",
         "parity evaluate_wake_triggers + cooldown fire_history; condition_change bypasses market_quiescent.",
@@ -781,7 +1223,7 @@
         "Bounded cluster tail may appear in direct-cycle ledger when configured.",
         "docs/specs/GTHP-021.md and tests/test_learning.py."
       ],
-      "stop_line": "Similarity clusters inform cognition only \u0393\u00c7\u00f6 no automatic intent submission or gateway gates.",
+      "stop_line": "Similarity clusters inform cognition only ΓÇö no automatic intent submission or gateway gates.",
       "sources": [
         "scripts/run-topstep-learning.py",
         "scripts/parity.py",
@@ -847,7 +1289,7 @@
     },
     {
       "id": "GTHP-022",
-      "title": "Participation breadth \u0393\u00c7\u00f6 partial timeframe alignment without universal gates",
+      "title": "Participation breadth ΓÇö partial timeframe alignment without universal gates",
       "status": "done",
       "priority": "P1",
       "owner_role": "architect",
@@ -880,7 +1322,7 @@
     },
     {
       "id": "GTHP-024",
-      "title": "NT-style flat participation doctrine \u0393\u00c7\u00f6 failed continuation, range edges, audit checklist",
+      "title": "NT-style flat participation doctrine ΓÇö failed continuation, range edges, audit checklist",
       "status": "done",
       "priority": "P1",
       "owner_role": "architect",
@@ -1150,7 +1592,7 @@
         "scripts/common.py",
         "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/123"
       ],
-      "implementation_note": "Open \u0393\u00c7\u00f6 wave 1 (#163) improved retain-safe 404 via /intent/status; residual: fsync outbox states, full fault matrix per acceptance."
+      "implementation_note": "Open ΓÇö wave 1 (#163) improved retain-safe 404 via /intent/status; residual: fsync outbox states, full fault matrix per acceptance."
     },
     {
       "id": "GTHP-AUDIT-04",
@@ -1395,388 +1837,5 @@
         "https://github.com/GlitchTrader/glitch-topstep-hermes-profile/issues/143"
       ]
     }
-  ],
-  "reaudit_program_2026_08_20": {
-    "status": "planned_armed_blocked",
-    "audit_commit": "ce8a26759302dd369e53d9b543b198936fcfae80",
-    "ledger_base_commit": "66ab507d09f096806046a0e23f3eb93e58b8f50a",
-    "primary_issues": [
-      140,
-      141,
-      142,
-      143
-    ],
-    "cross_repo_issues": [
-      "glitch-topstep#184",
-      "glitch-topstep#185",
-      "glitch-topstep#186",
-      "glitch-topstep#187",
-      "glitch-topstep#190",
-      "glitch-topstep#193",
-      "glitch-topstep#195"
-    ],
-    "implementation_order": [
-      "TS-REAUDIT-02 evidence outbox (gateway)",
-      "TS-REAUDIT-08 shutdown authority (gateway)",
-      "TS-REAUDIT-01 auth session complete (gateway)",
-      "TS-REAUDIT-03 flatten terminal complete (gateway)",
-      "GTHP-REAUDIT-01 atomic decision authority (profile)",
-      "TS-REAUDIT-04 paired delivery status + fixtures (both)",
-      "GTHP-AUDIT-03 outbox durable (profile)",
-      "TS-REAUDIT-05 cache bounds + soak (gateway)",
-      "TS-REAUDIT-06 safety invariants (gateway)",
-      "GTHP-REAUDIT-02 incremental reads (profile)",
-      "TS-REAUDIT-07 ports (gateway)",
-      "TS-REAUDIT-10 fault matrix (both)",
-      "GTHP-REAUDIT-04 quality gates (profile)",
-      "TS-REAUDIT-11 operational SLOs (gateway)",
-      "GTHP-REAUDIT-03 signed pair manifest (both)",
-      "TS-REAUDIT-12 armed runbook + validator (both)"
-    ],
-    "promotion_gate": [
-      "No armed promotion while any P0 re-audit item is open.",
-      "All critical fault regressions must be red-before-fix and green-after-fix.",
-      "A paired Sim/PRAC soak, rollback rehearsal, and human approval are required."
-    ],
-    "next_plan": "glitch-topstep:docs/plans/2026-08-21-reaudit-p0-p1-attack-plan.md"
-  },
-  "implementation_run_2026_08_19": {
-    "paired_protocol": "glitch.topstep.paired.v3",
-    "prompt_version": "glitch-topstep-v10",
-    "operator_universe": [
-      "MNQ",
-      "MES",
-      "MCL"
-    ],
-    "provider_alias_note": "MCL is Micro Crude Oil; MCLE is the ProjectX catalog family used only for exact runtime resolution.",
-    "implemented_orders": [
-      16,
-      17,
-      18,
-      19,
-      20,
-      21,
-      22,
-      25
-    ],
-    "features": [
-      "0.5 percent daily context without quota",
-      "explicit partial and completed bar roles",
-      "frozen comparison trigger contract",
-      "v3 entry range and one reassessment",
-      "truthful worker lifecycle status",
-      "revision-aware outcome replacement and execution-fact separation",
-      "frozen-corpus prompt comparison harness",
-      "complete MNQ/MES/MCL candidate ledger and global ranking"
-    ],
-    "external_validation_pending": [
-      "live two-prompt run on operator production minute-frames (optional archive)"
-    ]
-  },
-  "foundation_update_2026_08_19": {
-    "scope": "revisioned outcome projection",
-    "implementation": [
-      "scripts/outcome_store.py owns the local SQLite projection and cursor transaction",
-      "scripts/common.py exports JSONL only after the SQLite commit, preserving compatibility",
-      "duplicate sequence replay is idempotent and conflicting content fails closed",
-      "restart, bootstrap, atomic export, and integrity checks are covered by tests/test_outcome_store.py"
-    ],
-    "validation": "175 tests passed, 1 expected skip",
-    "live_acceptance_pending": [
-      "paired gateway feed replay with more than 10000 revisions",
-      "restart soak with a real PRAC outcome correction",
-      "confirm learning consumes the SQLite-backed projection without duplicate episodes"
-    ],
-    "live_validation_2026_08_19": {
-      "gateway_reconnect_proof": "passed after stabilization retry; generation 2 to 3; final state complete and reconciled",
-      "gateway_fixture_capture": "15 sanitized fixtures captured",
-      "outcome_live_acceptance": "pending; no real correction/replay soak claimed",
-      "related_gateway_issue_comments": [
-        "https://github.com/GlitchTrader/glitch-topstep/issues/110#issuecomment-5344359580",
-        "https://github.com/GlitchTrader/glitch-topstep/issues/112#issuecomment-5344359835"
-      ]
-    }
-  },
-  "scanner_ledger_validation_2026_08_19": {
-    "status": "validated_foundation",
-    "gateway_evidence": {
-      "candidate_instruments": [
-        "MNQ",
-        "MES",
-        "MCL"
-      ],
-      "exact_contracts": [
-        "CON.F.US.MNQ.U26",
-        "CON.F.US.MES.U26",
-        "CON.F.US.MCLE.V26"
-      ],
-      "all_candidates_observation_ready": true,
-      "simultaneous_exposure_enabled": false,
-      "scope_hash": "22db22092e78bae1fa8d3a789f38c66136eda130de78993f14c7075398f229bd"
-    },
-    "profile_evidence": [
-      "177 profile tests passed with one expected skip",
-      "multi-candidate model-boundary test preserves all candidate identities and execution modes",
-      "scanner_contract rejects incomplete candidate ledgers before ranking",
-      "account_selection.v1 envelope is validated when supplied by the gateway"
-    ],
-    "paired_contract": {
-      "schema_version": "glitch.topstep.account_selection.v1",
-      "mode": "single_contract",
-      "selected_contract_identity_required": true,
-      "scope_generation_and_hash_required": true,
-      "simultaneous_exposure_default": false
-    },
-    "remaining_acceptance": [
-      "live armed trade outcome on MCL/MCLE (PARITY residual)"
-    ]
-  },
-  "prac_live_ensemble_runner_2026_09_10": {
-    "status": "runner_implemented_ready_for_live_preflight",
-    "scope": "six-profile Hermes runner with explicit offline, shadow, and authorized PRAC modes",
-    "gateway_execution_authority": true,
-    "orders_sent": 0,
-    "resets": 0,
-    "offline_evidence": "docs/evidence/runner-offline-20260910/report.md",
-    "remaining": ["live preflight only; do not start PRAC from implementation stage"]
-  },
-  "hermes_skill_wiring_prompt_v17_2_2026_09_11": {
-    "status": "implemented_local_pending_independent_reaudit",
-    "summary": "Integrated the complete eight-commit Hermes runner series into the canonical profile, added fail-closed canonical skill preload verification for topstep-smart-money and topstep-indicators, and bumped the paired prompt contract from v17.1 to v17.2.",
-    "profile_prompt_version": "glitch-topstep-v17.2",
-    "orders_sent": 0,
-    "execution_mode": "shadow-only",
-    "overnight": false,
-    "evidence": [
-      "tests/test_specialty_skill_wiring.py",
-      "docs/release-notes/2026-09-11-skill-wiring-v17.2.md"
-    ],
-    "remaining": [
-      "independent confirmation of specialized model outputs and stability",
-      "live MES/MCL coverage remains unproven",
-      "no canary or overnight promotion"
-    ]
-  },
-  "documentary_merge_reconciliation_2026_09_14": {
-    "status": "documented_only_pending_separate_audit_review",
-    "canonical_base_before_merge": "041f60b9eb6a3591d9e9de2195ebe68bb192a044",
-    "canonical_main_after_merge": "9390c518989c7decbeaf5e26664ad1d961e5097c",
-    "documentary_pr": 247,
-    "documentary_merge_commit": "9390c518989c7decbeaf5e26664ad1d961e5097c",
-    "paired_gateway_documentary_pr": "glitch-topstep:#290",
-    "six_profile_provenance": {
-      "canonical_branch": "main",
-      "comparison_not_linear": true,
-      "versions": [
-        {
-          "commit": "5c788a6afecf90babaa80ec72407fdbc04e5f708",
-          "branch": "main",
-          "relation_to_main": "ancestor",
-          "content": "six-profile fixtures/replay tests including MES/MCL coverage",
-          "tests_present": ["tests/test_ensemble_evaluation.py", "tests/test_ensemble_parallel_aggregator.py"],
-          "tests_absent": ["tests/test_prac_live_ensemble.py"]
-        },
-        {
-          "commit": "dde2937808097ff3de75f5666dd2d9984c5b6b53",
-          "branch": "codex/profile-runner-integration-reaudit",
-          "relation_to_main": "not_an_ancestor",
-          "content": "historical live-runner version",
-          "tests_present": ["scripts/prac_live_ensemble.py"],
-          "tests_absent": []
-        },
-        {
-          "commit": "90d2ef6ec5a316de4af05638f11fd00cd02c810c",
-          "branch": "codex/profile-runner-integration-reaudit",
-          "relation_to_main": "not_an_ancestor",
-          "content": "historical runner, diagnostics and preload version",
-          "tests_present": ["scripts/prac_live_ensemble.py"],
-          "tests_absent": []
-        },
-        {
-          "commit": "041f60b9eb6a3591d9e9de2195ebe68bb192a044",
-          "branch": "main",
-          "relation_to_main": "canonical_base_before_merge",
-          "content": "current canonical runner/replay state",
-          "tests_present": ["tests/test_ensemble_evaluation.py", "tests/test_ensemble_parallel_aggregator.py"],
-          "tests_absent": ["tests/test_prac_live_ensemble.py"]
-        }
-      ]
-    },
-    "MES_MCL_status": {
-      "fixture_replay_coverage": true,
-      "live_proof": "absent",
-      "live_status": "unverified",
-      "no_live_promotion": true
-    },
-    "recoverable_historical_objects": [
-      "32c13276ae4d604e06d4b794376ec12876a5a8b7",
-      "2b90cec5848940b019e27c285a24d77826ea3cb4",
-      "0f530fd219054b403238488aa10aa3a5b90888d9",
-      "7451c994e45a6d4817fef0d01ebf7dc83a49bda0",
-      {
-        "reference": "11cffb4e60ed193bd3ddeca83cd4e4fe952e023",
-        "status": "invalid_unresolved",
-        "candidates_not_equated": [
-          "633f7fbe3c140fa895fc61babe3679932c3152bb",
-          "6c58e5f2c66e439d7b58cd06c8aded95729ad962"
-        ]
-      }
-    ],
-    "gateway_dependency": {
-      "authority": ["identity", "contract", "risk", "execution", "ProjectX", "receipts", "recovery"],
-      "profile_projectx_mutation": false,
-      "paired_gateway_documentary_pr": 290,
-      "paired_gateway_merge_commit": "557f721095a0f2d65d24dba58e6f904066d2509f"
-    },
-    "ensemble_p0_test_gaps": [
-      "version_incompatible",
-      "delayed_result",
-      "divergent_identity",
-      "invalid_quantity",
-      "MES_MCL_end_to_end_selection",
-      "contract_outside_envelope",
-      "timeout",
-      "missing_profile"
-    ],
-    "preserved_statuses": {
-      "blocked": ["shadow_live", "overnight"],
-      "open_or_unverified": ["MES_MCL_live", "missing_ensemble_p0_coverage"],
-      "promoted_to_done": false
-    },
-    "preserved_constraints": "Documentation only; no code, tests, scripts, contracts, prompts, runtime, evidence, or operational state changed.",
-    "documentary_merges_2026_09_14": {
-      "status": "recorded_without_done_promotion",
-      "gateway_documentary_pr": 290,
-      "gateway_merge_commit": "557f721095a0f2d65d24dba58e6f904066d2509f",
-      "profile_objection_pr": 250,
-      "profile_objection_merge_commit": "effc634eef2c3c9e79163fe0b42a4bc67b19c5e7",
-      "profile_preload_pr": 251,
-      "profile_preload_merge_commit": "fa1d2448c7d3132303aa9ec4d0fa3cc26e9de3a1",
-      "preload_fix": {
-        "status": "implemented_and_ci_verified",
-        "root_cause": "topstep-smart-money and topstep-indicators lacked Hermes front matter required for discovery",
-        "ci_validation": "764 testes, 14 skips, 0 erros, 0 falhas",
-        "local_validation": "764 testes, 8 skips, 0 erros, 0 falhas, using the Hermes virtualenv",
-        "environment_difference": "The skip-count difference is environmental: CI and the local Hermes virtualenv expose different optional preload conditions; loader errors remain explicit and are not converted to success."
-      },
-      "authority_and_scope": {
-        "gateway_changed": false,
-        "paired_contract_changed": false,
-        "runtime_or_live_changed": false,
-        "operational_state_changed": false,
-        "gateway_remains_authority": true
-      },
-      "remaining_plan_gaps": {
-        "shadow_live_readonly": "blocked",
-        "overnight": "blocked",
-        "MES_MCL_live": "blocked_unverified",
-        "ensemble_p0_coverage": "open; documentary merges do not promote this to done",
-        "production_parallelism": "blocked"
-      },
-      "historical_recovery_objects": "Preserved as recoverable historical sources; no cleanup or pruning performed.",
-      "promoted_to_done": false
-    }
-  },
-  "adversarial_risk_implementation_2026_09_15": {
-    "status": "implemented_and_merged_pending_documentary_reconciliation",
-    "pull_request": 253,
-    "merge_commit": "467cb00eeb11edf2d8652cde5f8b5116d0d925a1",
-    "canonical_base_before_merge": "b1f35469af55980096e60639514d05a850e5ed7f",
-    "canonical_main_after_merge": "467cb00eeb11edf2d8652cde5f8b5116d0d925a1",
-    "implementation": {
-      "skill": "skills/adversarial-risk/SKILL.md",
-      "registry": "evaluation/registry.json",
-      "capability_matrix": "evaluation/capability-matrix.json",
-      "evaluation_manifest": "evaluation/runs/frozen-cohort-manifest-2026-09-14-adversarial-risk.json",
-      "drift_detection": "scripts/ensemble_skill_gate.py",
-      "historical_manifest_preserved": "evaluation/runs/frozen-cohort-manifest-2026-09-11-v17.2.json"
-    },
-    "validation": {
-      "ci_validation": {
-        "tests": 772,
-        "skips": 14,
-        "errors": 0,
-        "failures": 0,
-        "checks": ["test-linux", "test-windows", "codeql", "CodeQL", "dependency-review", "Cursor Security Agent"]
-      },
-      "local_validation": {
-        "tests": 772,
-        "skips": 8,
-        "errors": 0,
-        "failures": 0
-      },
-      "contract_changed": false,
-      "shadow_or_live_proof": false
-    },
-    "remaining_blockers": {
-      "credentials": "blocked",
-      "hermes_installation_drift": "blocked",
-      "operational_isolation": "blocked",
-      "projectx_authenticated": "unverified",
-      "indicators_stability": "unverified",
-      "execution_canonicality": "unverified",
-      "shadow_live": "blocked",
-      "overnight": "blocked",
-      "MES_MCL_live": "blocked_unverified"
-    },
-    "cross_repository": "glitch-topstep:#290",
-    "general_plan_promoted_to_done": false,
-    "scope_note": "The merge contains the approved adversarial-risk profile, explicit registry/capability composition, fail-closed installation drift detection, regression tests, and current evaluation manifest only; no gateway, paired contract, runtime, live path, credentials, or operational state changed."
-  },
-  "ensemble_p0_identity_validation_2026_09_15": {
-    "status": "implemented_local_pending_independent_review",
-    "pull_request_dependency": 255,
-    "branch": "codex/hermes-ensemble-p0-20260915",
-    "base_commit": "f7fa7ea27689f954c5478f87defb5e3c810437b6",
-    "implementation_commit": "cf7ec00900b702c0e988080a97ced57d683c46af",
-    "scope": {
-      "aggregator": "scripts/ensemble_aggregator.py",
-      "semantic_validation": "scripts/ensemble_semantic.py",
-      "regression_tests": [
-        "tests/test_ensemble_p0_regressions.py",
-        "tests/test_multimarket_selection_replay.py",
-        "tests/test_prac_live_ensemble.py"
-      ],
-      "documentation": "docs/ensemble/p0-validation-rules.md"
-    },
-    "rules": {
-      "exact_instrument_identity": true,
-      "announced_contract_identity_required": true,
-      "gateway_remains_execution_authority": true,
-      "evaluation_only": true,
-      "production_parallelism": false,
-      "shadow_live": "blocked",
-      "prac_live": "blocked",
-      "projectx": "not_used"
-    },
-    "validation": {
-      "focused": {
-        "tests": 100,
-        "skips": 2,
-        "errors": 0,
-        "failures": 0
-      },
-      "full_local": {
-        "tests": 797,
-        "skips": 10,
-        "errors": 0,
-        "failures": 0
-      },
-      "compileall": "pass",
-      "sha256sums": "pass",
-      "git_diff_check": "pass"
-    },
-    "limitations": {
-      "live_MES_MCL_proof": "absent",
-      "independent_audit": "pending",
-      "PR255_native_approval": "pending",
-      "general_ensemble_plan_done": false
-    },
-    "cross_repository": {
-      "gateway_changed": false,
-      "gateway_pr": null,
-      "paired_contract_changed": false,
-      "glitch_nt_changed": false
-    }
-  }
+  ]
 }

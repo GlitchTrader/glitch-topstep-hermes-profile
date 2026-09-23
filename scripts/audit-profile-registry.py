@@ -70,10 +70,18 @@ def _artifact_basename(artifact_path: str) -> str:
 
 def _load_ensemble_artifacts(runs_dir: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
+    history_runs = runs_dir.parent / "history" / "runs"
+    search_dirs = [runs_dir]
+    if history_runs.is_dir() and history_runs.resolve() != runs_dir.resolve():
+        search_dirs.append(history_runs)
     for name in ENSEMBLE_RUN_GLOBS:
         bundle_path = runs_dir / name
         if not bundle_path.is_file():
-            continue
+            hist_bundle = history_runs / name
+            if hist_bundle.is_file():
+                bundle_path = hist_bundle
+            else:
+                continue
         bundle = read_json(bundle_path)
         for inv in bundle.get("invocations") or []:
             artifact_path = inv.get("artifact_path")
@@ -81,13 +89,18 @@ def _load_ensemble_artifacts(runs_dir: Path) -> list[dict[str, Any]]:
                 continue
             path = Path(str(artifact_path).replace("\\", "/"))
             if not path.is_file():
-                path = runs_dir / _artifact_basename(str(artifact_path))
+                basename = _artifact_basename(str(artifact_path))
+                path = next(
+                    (directory / basename for directory in search_dirs if (directory / basename).is_file()),
+                    runs_dir / basename,
+                )
             if path.is_file():
                 doc = read_json(path)
                 if doc.get("schema_version") == "glitch.topstep.minimal_cognitive_replay.v1":
                     doc["_audit_source_bundle"] = name
                     rows.append(doc)
     return rows
+
 
 
 def audit_profile_registry(

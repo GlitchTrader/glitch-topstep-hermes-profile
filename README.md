@@ -175,7 +175,7 @@ The current gateway implements one-account/contract scope, tranche-aware `MOVE_S
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Profile layout and workers |
 | [`docs/OPERATIONS.md`](docs/OPERATIONS.md) | Startup order, incidents |
 | [`docs/OUTCOME-CONTRACT.md`](docs/OUTCOME-CONTRACT.md) | Learning input contract |
-| [`docs/ledger/ledger.json`](docs/ledger/ledger.json) | Profile rail (`RAIL-*`) |
+| [`docs/ledger/ledger.json`](docs/ledger/ledger.json) | Profile work items (`GTHP-*`, legacy `RAIL-*`) |
 | [`docs/HANDOFF.md`](docs/HANDOFF.md) | Historical handoff notes |
 
 Gateway README (install, API, contributing): [glitch-topstep](https://github.com/GlitchTrader/glitch-topstep).

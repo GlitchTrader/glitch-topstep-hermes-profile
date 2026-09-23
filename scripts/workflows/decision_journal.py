@@ -94,6 +94,13 @@ class DecisionJournal:
         return self.store.tail_decisions(limit)
 
     def collect_decision_episodes(self, supervisor: Path) -> list[dict[str, Any]]:
+        """Collect decision episodes; always releases the SQLite store (Windows-safe)."""
+        try:
+            return self._collect_decision_episodes(supervisor)
+        finally:
+            self.close()
+
+    def _collect_decision_episodes(self, supervisor: Path) -> list[dict[str, Any]]:
         state_root = self.root
         output_path = supervisor / "decision-episodes.jsonl"
         existing = {
@@ -118,7 +125,7 @@ class DecisionJournal:
             intent_id = str(intent.get("intent_id") or receipt.get("intent_id") or "")
             if not intent_id or intent_id in existing or intent_id in seen_intents:
                 return
-            frame = frame_for_packet_id(frames_root, packet_id)
+            frame = frame_for_packet_id(frames_root, packet_id, store=self.store)
             if frame is None:
                 return
             minute_id = str(frame.get("minute_id") or "")

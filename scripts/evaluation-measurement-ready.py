@@ -20,10 +20,62 @@ RESULT_SCHEMA = "glitch.topstep.evaluation_measurement_ready.v1"
 GATE_ID = "evaluation_measurement_ready"
 BAR_LAG_MS_MAX = 120_000
 
-_BAR_SPEC = importlib.util.spec_from_file_location("audit_bar", SCRIPTS / "audit-capture-bar-quality.py")
-assert _BAR_SPEC and _BAR_SPEC.loader
-_BAR = importlib.util.module_from_spec(_BAR_SPEC)
-_BAR_SPEC.loader.exec_module(_BAR)
+
+def _bar_audit(packet: dict[str, Any]) -> dict[str, Any]:
+    """Classify 1m bar timing / partial-evidence risk for a capture packet."""
+    market = packet.get("market") if isinstance(packet.get("market"), dict) else {}
+    obs = packet.get("market_observation") if isinstance(packet.get("market_observation"), dict) else {}
+    dq = packet.get("data_quality") if isinstance(packet.get("data_quality"), dict) else {}
+    timeframes = []
+    partial_1m = None
+    last_bar_close = None
+    if isinstance(obs.get("observation"), dict):
+        for tf in obs["observation"].get("timeframes") or []:
+            if not isinstance(tf, dict):
+                continue
+            minutes = tf.get("timeframe_minutes")
+            bars = tf.get("bars") if isinstance(tf.get("bars"), list) else []
+            last = bars[-1] if bars else {}
+            timeframes.append(
+                {
+                    "timeframe_minutes": minutes,
+                    "bars_accepted": tf.get("bars_accepted"),
+                    "last_bar": {
+                        "open": last.get("open"),
+                        "close": last.get("close"),
+                        "high": last.get("high"),
+                        "low": last.get("low"),
+                        "volume": last.get("volume"),
+                        "timestamp": last.get("timestamp") or last.get("bar_end_utc"),
+                    },
+                }
+            )
+            if minutes == 1 and isinstance(last, dict):
+                last_bar_close = last.get("timestamp") or last.get("bar_end_utc")
+                partial_1m = last.get("partial")
+    capture_utc = str(packet.get("created_utc") or market.get("quote_timestamp") or "")
+    timing_class = "unknown"
+    if dq.get("state_complete") is True:
+        timing_class = "state_complete"
+    elif partial_1m is True:
+        timing_class = "mid_bar_partial"
+    elif partial_1m is False:
+        timing_class = "bar_close_complete"
+    return {
+        "capture_utc": capture_utc,
+        "quote_timestamp": market.get("quote_timestamp"),
+        "state_complete": dq.get("state_complete"),
+        "session_levels_reliable": market.get("session_levels_reliable"),
+        "timing_class": timing_class,
+        "partial_1m_bar": partial_1m,
+        "last_1m_bar_close_utc": last_bar_close,
+        "timeframes": timeframes,
+        "recommendation": (
+            "prefer_bar_close_or_state_complete_true"
+            if timing_class in {"mid_bar_partial", "unknown"}
+            else "acceptable"
+        ),
+    }
 
 
 def _check(
@@ -51,7 +103,7 @@ def _daily_capture_locked(packet: dict[str, Any] | None) -> bool:
 
 
 def _bar_issues(packet: dict[str, Any]) -> list[str]:
-    audit = _BAR._bar_audit(packet)
+    audit = _bar_audit(packet)
     issues: list[str] = []
     if audit.get("timing_class") == "mid_bar_partial":
         issues.append("bar_1m_partial")

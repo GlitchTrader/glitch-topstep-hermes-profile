@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO / "scripts"))
 from evaluation_run_public_bundle import slot_normalized, slot_replay_fields  # noqa: E402
 
@@ -126,7 +126,7 @@ def main() -> int:
     parser.add_argument(
         "--bundle",
         type=Path,
-        default=REPO / "evaluation" / "runs" / "trail-a-multi-envelope-2026-09-02.json",
+        default=REPO / "evaluation" / "history" / "runs" / "trail-a-multi-envelope-2026-09-02.json",
     )
     parser.add_argument("--output", type=Path, default=None)
     args = parser.parse_args()

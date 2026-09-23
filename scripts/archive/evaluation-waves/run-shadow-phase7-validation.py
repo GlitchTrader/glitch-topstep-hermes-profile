@@ -11,14 +11,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-SCRIPTS = Path(__file__).resolve().parent
+SCRIPTS = Path(__file__).resolve().parents[2]
 REPO = SCRIPTS.parent
 sys.path.insert(0, str(SCRIPTS))
 
 VALIDATION_SCHEMA = "glitch.topstep.shadow_phase7_validation.v1"
 DEFAULT_RUN_ID = "shadow-phase7-validation-2026-09-02"
-TRAIL_A_BUNDLE = REPO / "evaluation" / "runs" / "trail-a-multi-envelope-2026-09-02.json"
-MILESTONE_SHADOW = REPO / "evaluation" / "runs" / "eval-milestone-six-profiles-2026-09-02-shadow-offline.json"
+TRAIL_A_BUNDLE = REPO / "evaluation" / "history" / "runs" / "trail-a-multi-envelope-2026-09-02.json"
+MILESTONE_SHADOW = REPO / "evaluation" / "history" / "runs" / "eval-milestone-six-profiles-2026-09-02-shadow-offline.json"
 
 
 def utc_now() -> str:

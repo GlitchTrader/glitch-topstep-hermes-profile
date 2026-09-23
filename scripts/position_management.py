@@ -5,6 +5,8 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from common import is_placeholder_value
+
 MARKER = "POSITION_MANAGEMENT_V1"
 FIELDS = (
     "POSITION_SIDE",
@@ -39,14 +41,6 @@ def position_management_template(packet: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def _placeholder(value: str) -> bool:
-    normalized = value.strip()
-    if not normalized or normalized in {"...", "?"}:
-        return True
-    upper = normalized.upper()
-    return upper.startswith("REPLACE_WITH_") or upper == "REPLACE"
-
-
 def validate_position_management(
     text: Any,
     packet: dict[str, Any],
@@ -65,7 +59,7 @@ def validate_position_management(
         if not match or not match.group(1).strip():
             raise ValueError(f"position_management_field_missing:{field}")
         value = match.group(1).strip()
-        if _placeholder(value):
+        if is_placeholder_value(value):
             raise ValueError(f"position_management_field_placeholder:{field}")
         values[field] = value
     if values["SELECTION_ACTION"].upper() != str(action).upper():

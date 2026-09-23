@@ -1,4 +1,4 @@
-"""Tests for evaluation-classification-v2.py."""
+"""Tests for evaluation-classification.py."""
 
 from __future__ import annotations
 
@@ -12,14 +12,14 @@ SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 spec = importlib.util.spec_from_file_location(
-    "evaluation_classification_v2", SCRIPTS / "evaluation-classification-v2.py"
+    "evaluation_classification", SCRIPTS / "evaluation-classification.py"
 )
 assert spec and spec.loader
 mod = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(mod)
 
 
-class EvaluationClassificationV2Tests(unittest.TestCase):
+class EvaluationClassificationTests(unittest.TestCase):
     def test_daily_capture_locked_maps_to_operationally_blocked(self) -> None:
         packet = {"execution": {"daily_capture_locked": True}}
         self.assertEqual(

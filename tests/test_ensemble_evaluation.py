@@ -26,7 +26,7 @@ CAPABILITY = _load("ensemble_capability", "ensemble_capability.py")
 VALIDATE = _load("ensemble_validate", "ensemble_validate.py")
 SEMANTIC = _load("ensemble_semantic", "ensemble_semantic.py")
 GEOMETRY = _load("ensemble_geometry", "ensemble_geometry.py")
-OVERLAY = _load("ensemble_capacity_overlay", "ensemble_capacity_overlay.py")
+ADAPTER = _load("evaluation_output_adapter", "evaluation_output_adapter.py")
 COMPARE = _load("ensemble_compare", "ensemble_compare.py")
 RUNNER = _load("run_ensemble_evaluation", "run-ensemble-evaluation.py")
 
@@ -119,7 +119,7 @@ class EnsembleEvaluationTests(unittest.TestCase):
         )
         gate = CAPABILITY.capacity_gate(envelope, "structure", self.matrix)
         fixture = {"state": "held", "direction": "long", "thesis": "audit", "latency_ms": 1}
-        overlay = OVERLAY.apply_capacity_gate_overlay(fixture=fixture, gate=gate)
+        overlay = ADAPTER.adapt_evaluation_output(raw=fixture, gate=gate)
         self.assertEqual(overlay["state"], "missing_required_evidence")
         self.assertEqual(overlay["comparability"], "not_comparable")
         self.assertEqual(overlay["profile_declared_direction"], "long")
@@ -376,7 +376,7 @@ class EnsembleEvaluationTests(unittest.TestCase):
             self.assertFalse(receipt_row.get("thesis_quality_eligible"))
 
     def test_prac_decision_export_inventory_exists(self) -> None:
-        inv_path = ROOT / "evaluation" / "runs" / "prac-decision-export-inventory.json"
+        inv_path = ROOT / "evaluation" / "history" / "runs" / "prac-decision-export-inventory.json"
         self.assertTrue(inv_path.is_file())
         inv = json.loads(inv_path.read_text(encoding="utf-8"))
         self.assertEqual(inv["session_id"], "PRAC-SOAK-2026-08-31")

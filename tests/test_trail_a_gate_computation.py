@@ -15,7 +15,7 @@ sys.path.insert(0, str(SCRIPTS))
 
 
 def _load_trail():
-    path = SCRIPTS / "run-trail-a-acceptance.py"
+    path = SCRIPTS / "archive" / "evaluation-waves" / "run-trail-a-acceptance.py"
     spec = importlib.util.spec_from_file_location("run_trail_a_acceptance", path)
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
@@ -102,7 +102,7 @@ class TrailAGateComputationTests(unittest.TestCase):
         self.assertEqual(audit["status"], "unknown")
 
     def test_source_has_no_hardcoded_pass_literals(self) -> None:
-        source = (SCRIPTS / "run-trail-a-acceptance.py").read_text(encoding="utf-8")
+        source = (SCRIPTS / "archive" / "evaluation-waves" / "run-trail-a-acceptance.py").read_text(encoding="utf-8")
         self.assertNotIn('"runner_touches_forbidden_paths": False', source)
         self.assertNotIn('"failures_classified": True', source)
 

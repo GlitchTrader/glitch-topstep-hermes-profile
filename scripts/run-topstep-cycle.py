@@ -2139,7 +2139,6 @@ def main() -> int:
     root = configure_environment()
     state = state_root(root)
     state.mkdir(parents=True, exist_ok=True)
-    lock_path = state / "direct-cycle.lock"
     supervisor = state / "supervisor"
     supervisor.mkdir(parents=True, exist_ok=True)
     status_path = supervisor / "direct-worker-status.json"

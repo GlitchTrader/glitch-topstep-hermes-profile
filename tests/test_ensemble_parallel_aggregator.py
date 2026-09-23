@@ -558,10 +558,10 @@ class EvaluationLeaseCoordinationTests(unittest.TestCase):
 
 class ParallelRunnerTests(unittest.TestCase):
     def _simple_builder(self, **kwargs: Any) -> dict:
-        from ensemble_capacity_overlay import apply_capacity_gate_overlay
+        from evaluation_output_adapter import adapt_evaluation_output
 
         fixture = kwargs.get("fixture")
-        overlay = apply_capacity_gate_overlay(fixture=fixture, gate=kwargs["gate"]) if fixture else {"state": "error"}
+        overlay = adapt_evaluation_output(raw=fixture, gate=kwargs["gate"]) if fixture else {"state": "error"}
         return {
             "schema_version": "glitch.topstep.normalized_candidate.v1",
             "profile_id": kwargs["profile"]["profile_id"],
@@ -699,9 +699,9 @@ class ParallelRunnerTests(unittest.TestCase):
             return {"state": "no_edge", "direction": "flat", "thesis": "x", "latency_ms": 50}
 
         def builder(**kwargs: Any) -> dict:
-            from ensemble_capacity_overlay import apply_capacity_gate_overlay
+            from evaluation_output_adapter import adapt_evaluation_output
 
-            overlay = apply_capacity_gate_overlay(fixture=kwargs["fixture"], gate=kwargs["gate"])
+            overlay = adapt_evaluation_output(raw=kwargs["fixture"], gate=kwargs["gate"])
             return {
                 "schema_version": "glitch.topstep.normalized_candidate.v1",
                 "profile_id": kwargs["profile"]["profile_id"],
@@ -849,9 +849,9 @@ class EnvelopeIdentitySealTests(unittest.TestCase):
   def setUpClass(cls) -> None:
     cls.SEAL = _load("ensemble_envelope_seal", "ensemble_envelope_seal.py")
     cls.ENV = _load("ensemble_envelope", "ensemble_envelope.py")
-    cls.PREFLIGHT = _load("run_trail_a_real_preflight", "run-trail-a-real-preflight.py")
+    cls.PREFLIGHT = _load("run_trail_a_real_preflight", "archive/evaluation-waves/run-trail-a-real-preflight.py")
     cls.FRAME_PATH = FIXTURES / "frozen_corpus" / "minute-frames" / "20260820T1200Z.json"
-    cls.CONFIG = read_json(EVAL / "trail-a-real-run-config.v1.json")
+    cls.CONFIG = read_json(EVAL / "history" / "configs" / "trail-a-real-run-config.v1.json")
     cls.MATRIX = read_json(EVAL / "capability-matrix.json")
     cls.MAPPING = read_json(EVAL / "packet_envelope_mapping.v1.json")
 
@@ -876,7 +876,7 @@ class EnvelopeIdentitySealTests(unittest.TestCase):
     )
     check = self.PREFLIGHT.validate_pinned_envelope(
       config=self.CONFIG,
-      scenarios=read_json(EVAL / "trail-a-real-scenarios.v1.json"),
+      scenarios=read_json(EVAL / "history" / "configs" / "trail-a-real-scenarios.v1.json"),
       matrix=self.MATRIX,
       mapping=self.MAPPING,
     )

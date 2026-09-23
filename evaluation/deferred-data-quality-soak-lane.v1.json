@@ -11,7 +11,7 @@
   "auto_start_prac": false,
   "auto_start_live_validation": false,
   "reuses_existing_lane": {
-    "runner": "scripts/run-trail-a-parallel-live-evaluation.py",
+    "runner": "scripts/archive/evaluation-waves/run-trail-a-parallel-live-evaluation.py",
     "shadow_observer": "scripts/shadow-observe-live.py",
     "lease": "scripts/evaluation_lease.py",
     "owner": "scripts/evaluation_owner.py",

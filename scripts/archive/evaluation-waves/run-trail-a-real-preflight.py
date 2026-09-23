@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-SCRIPTS = Path(__file__).resolve().parent
+SCRIPTS = Path(__file__).resolve().parents[2]
 REPO = SCRIPTS.parent
 sys.path.insert(0, str(SCRIPTS))
 
@@ -46,10 +46,10 @@ preflight_evaluation_replay = _PREFLIGHT_REPLAY.preflight_evaluation_replay
 
 PREFLIGHT_SCHEMA = "glitch.topstep.trail_a_real_preflight.v1"
 MULTI_PREFLIGHT_SCHEMA = "glitch.topstep.trail_a_multi_envelope_preflight.v1"
-DEFAULT_CONFIG = REPO / "evaluation" / "trail-a-real-run-config.v1.json"
-DEFAULT_SCENARIOS = REPO / "evaluation" / "trail-a-real-scenarios.v1.json"
-DEFAULT_MULTI_CONFIG = REPO / "evaluation" / "trail-a-multi-envelope-run-config.v1.json"
-DEFAULT_MULTI_SCENARIOS = REPO / "evaluation" / "trail-a-multi-envelope-scenarios.v1.json"
+DEFAULT_CONFIG = REPO / "evaluation" / "history" / "configs" / "trail-a-real-run-config.v1.json"
+DEFAULT_SCENARIOS = REPO / "evaluation" / "history" / "configs" / "trail-a-real-scenarios.v1.json"
+DEFAULT_MULTI_CONFIG = REPO / "evaluation" / "history" / "configs" / "trail-a-multi-envelope-run-config.v1.json"
+DEFAULT_MULTI_SCENARIOS = REPO / "evaluation" / "history" / "configs" / "trail-a-multi-envelope-scenarios.v1.json"
 COHORT_REGISTRY = REPO / "evaluation" / "runs" / "stratified-cohort-execution-registry.json"
 
 
@@ -256,7 +256,7 @@ def run_trail_a_real_preflight(
     cost_cap = float((config.get("budget") or {}).get("max_cost_usd_per_session") or budget.get("max_cost_usd_per_session") or 2.5)
     checks.append({"id": "cost_budget_known", "ok": cost_cap > 0, "detail": cost_cap})
 
-    offline_acceptance = REPO / "evaluation" / "runs" / "trail-a-acceptance-report-2026-09-02.json"
+    offline_acceptance = REPO / "evaluation" / "history" / "runs" / "trail-a-acceptance-report-2026-09-02.json"
     offline_ok = False
     if offline_acceptance.is_file():
         offline_doc = read_json(offline_acceptance)
@@ -285,7 +285,7 @@ def run_trail_a_real_preflight(
 
     if multi:
         auth_path = REPO / "evaluation" / "reviews" / "TRAIL-A-MULTI-ENVELOPE-AUTHORIZATION.md"
-        manifest_path = REPO / "evaluation" / "trail-a-multi-envelope-manifest.v1.json"
+        manifest_path = REPO / "evaluation" / "history" / "configs" / "trail-a-multi-envelope-manifest.v1.json"
         auth_ok = auth_path.is_file() and manifest_path.is_file()
         checks.append(
             {
@@ -330,7 +330,7 @@ def main() -> int:
     parser.add_argument(
         "--output",
         type=Path,
-        default=REPO / "evaluation" / "runs" / "trail-a-real-preflight-report.json",
+        default=REPO / "evaluation" / "history" / "runs" / "trail-a-real-preflight-report.json",
     )
     args = parser.parse_args()
 

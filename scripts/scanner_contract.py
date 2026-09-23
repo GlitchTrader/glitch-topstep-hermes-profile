@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from common import is_placeholder_value
 from selection_ev import SELECTION_EV_TEMPLATE, validate_selection_ev
 
 MARKER = "INSTRUMENT_COMPARISON_V1"
@@ -109,15 +110,6 @@ def comparison_text_starts(text: str) -> bool:
         raise ValueError("instrument_comparison_legacy_json")
     first_line = stripped.splitlines()[0].strip() if stripped else ""
     return first_line == MARKER or stripped.startswith(MARKER + "\n")
-
-
-
-def _placeholder_value(value: str) -> bool:
-    normalized = value.strip()
-    if not normalized or normalized in {"...", "?"}:
-        return True
-    upper = normalized.upper()
-    return upper.startswith("REPLACE_WITH_") or upper == "REPLACE"
 
 
 _TAIL_KEYS = {
@@ -414,12 +406,12 @@ def validate_comparison_ledger(
         instrument = str(row.get("instrument") or "").upper()
         for field in PATH_FIELDS:
             field_value = str(row.get(field) or "").strip()
-            if not field_value or field_value == "REPLACE" or _placeholder_value(field_value):
+            if not field_value or field_value == "REPLACE" or is_placeholder_value(field_value):
                 raise ValueError(f"instrument_candidate_field_invalid:{instrument}:{field}")
         for line_field in NT_LEDGER_LINE_FIELDS:
             snake = line_field.lower()
             field_value = str(row.get(snake) or "").strip()
-            if not field_value or _placeholder_value(field_value):
+            if not field_value or is_placeholder_value(field_value):
                 raise ValueError(f"instrument_candidate_field_invalid:{instrument}:{snake}")
         triggers = row.get("triggers")
         if not isinstance(triggers, list) or not triggers:
@@ -446,17 +438,17 @@ def validate_comparison_ledger(
         raise ValueError("selected_instrument_invalid")
 
     selection_action = str(value.get("selection_action") or "").upper()
-    if _placeholder_value(selection_action):
+    if is_placeholder_value(selection_action):
         raise ValueError("candidate_comparison_selection_incomplete")
     if action is not None and selection_action != str(action).upper():
         raise ValueError("candidate_comparison_selection_action_mismatch")
 
     selection_reason = str(value.get("selection_reason") or "").strip()
-    if not selection_reason or _placeholder_value(selection_reason):
+    if not selection_reason or is_placeholder_value(selection_reason):
         raise ValueError("candidate_comparison_selection_incomplete")
 
     selection_ev = str(value.get("selection_ev") or "").strip()
-    if not selection_ev or _placeholder_value(selection_ev):
+    if not selection_ev or is_placeholder_value(selection_ev):
         raise ValueError("selection_ev_missing:comparison")
     if action is not None:
         validate_selection_ev(selection_ev, action, source="comparison")
