@@ -65,3 +65,14 @@ When the gateway publishes `daily_economics`, Hermes may use intraday PnL mirror
 ## Builder responsibility
 
 Codex owns the reliability of the profile distribution, launcher, persistence, schema validation, and delivery. Failures must be visible, append-only, and recoverable. Codex must not choose the trade.
+
+## Infrastructure change test
+
+Same culture test as the gateway `docs/AUTHORITY.md`. Before adding a gate, validation script, evaluation or audit tool, or process document, ask:
+
+1. Does this layer catch a bug the existing layer genuinely misses — or only restates what it already covers?
+2. Does some place already compute this fact? If yes, call it; do not reimplement it.
+3. Who deletes this when the incident that created it is closed — and when?
+4. Does this change reduce or increase the number of places the same truth can drift?
+
+If the answer to question 1 is no, or question 2 is yes and the existing owner can be called, do not add the layer.
