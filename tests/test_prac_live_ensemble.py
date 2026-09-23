@@ -262,12 +262,49 @@ class PracLiveEnsembleTests(unittest.TestCase):
         envelope = {"envelope_id": "env", "instrument": "MNQ", "snapshot_hash": "a" * 64, "envelope_hash": "a" * 64, "contract": {"tick_size": 0.25}, "packet": {"market": {"last": 20000}}}
         absent = runner.aggregate_global(envelope=envelope, slots=self._global_slots(None), rules=rules, run_id="absent")
         self.assertEqual(absent["adversarial_objection_status"], "absent")
-        with self.assertRaisesRegex(runner.RunnerError, "adversarial_objection_transport_failed"):
+        timed_out = runner.aggregate_global(
+            envelope=envelope,
+            slots=self._global_slots({"state": "timeout", "error_code": "ensemble_timeout"}),
+            rules=rules,
+            run_id="timeout-absent",
+        )
+        self.assertEqual(timed_out["adversarial_objection_status"], "absent")
+        with self.assertRaisesRegex(runner.RunnerError, r"adversarial_objection_transport_failed:objections_not_list:"):
             runner.aggregate_global(envelope=envelope, slots=self._global_slots({"state": "no_edge", "objections": {}}), rules=rules, run_id="malformed")
         broken = self._global_slots(None)
         broken[-1]["raw_profile_output"] = None
-        with self.assertRaisesRegex(runner.RunnerError, "adversarial_objection_transport_failed"):
+        with self.assertRaisesRegex(runner.RunnerError, r"adversarial_objection_transport_failed:raw_not_dict:"):
             runner.aggregate_global(envelope=envelope, slots=broken, rules=rules, run_id="transport")
+
+    def test_adversarial_transport_failure_suffix_names_the_fail_point(self):
+        rules = json.loads((ROOT / "evaluation" / "aggregator_rules.v1.json").read_text())
+        envelope = {"envelope_id": "env", "instrument": "MNQ", "snapshot_hash": "a" * 64, "envelope_hash": "a" * 64, "contract": {"tick_size": 0.25}, "packet": {"market": {"last": 20000}}}
+        raw_not_dict = self._global_slots(None)
+        raw_not_dict[-1]["raw_profile_output"] = "not-a-dict"
+        cases = [
+            ("slot_missing", [row for row in self._global_slots(None) if row["profile_id"] != "adversarial-risk"]),
+            ("raw_not_dict", raw_not_dict),
+            ("objections_not_list", self._global_slots({"state": "no_edge", "objections": "prose"})),
+            ("item_not_dict", self._global_slots({"state": "no_edge", "objections": ["not-an-object"]})),
+            (
+                "schema_invalid",
+                self._global_slots({
+                    "state": "no_edge",
+                    "objections": [{
+                        "target_profile_id": "baseline-current",
+                        "risk_code": "invalid_stop_geometry",
+                        "severity": "critical",
+                        "objective_rule_match": True,
+                        "evidence": "Stop is outside the permitted geometry.",
+                        "evidence_refs": ["quote:1"],
+                    }],
+                }),
+            ),
+        ]
+        for cause, slots in cases:
+            with self.subTest(cause=cause):
+                with self.assertRaisesRegex(runner.RunnerError, rf"adversarial_objection_transport_failed:{cause}:"):
+                    runner.aggregate_global(envelope=envelope, slots=slots, rules=rules, run_id=cause)
 
     def test_delivery_requires_stop_and_rejects_ambiguous_receipt(self):
         live = config("prac_live")
