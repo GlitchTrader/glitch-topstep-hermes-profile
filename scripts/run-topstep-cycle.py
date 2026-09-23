@@ -1677,7 +1677,393 @@ def fetch_cycle_packet(*, token: str, health: dict[str, Any]) -> dict[str, Any]:
     return packet
 
 
+# Sentinel: restart the live cycle from the top (former recursive run_once).
+_CYCLE_RETRY = object()
+
+
+def _deliver_pending_outbox(
+    *,
+    args: argparse.Namespace,
+    state: Path,
+    packet: dict[str, Any],
+    token: str,
+    pending_id: str,
+    pending_path: Path,
+    pending_intent: dict[str, Any],
+) -> Any:
+    """Deliver a pending outbox intent. Returns exit code or _CYCLE_RETRY."""
+    if defer_instrument_scope_mismatch(state, pending_id, pending_intent, packet):
+        return 0
+    if discard_stale_outbox_intent(
+        state,
+        pending_path,
+        pending_id,
+        pending_intent,
+        token=token,
+    ):
+        return _CYCLE_RETRY
+    if discard_superseded_pending_outbox(
+        state,
+        pending_path,
+        pending_id,
+        pending_intent,
+        packet,
+        token=token,
+    ):
+        return _CYCLE_RETRY
+    pending_packet = packet_for_outbox_id(state, pending_id)
+    if pending_packet is None:
+        raise ValueError("pending_outbox_packet_not_found")
+    validate_intent(pending_intent, pending_packet, None)
+    ensure_model_attempt(state, pending_id, reason="pending_outbox_delivery")
+    if args.dry_run:
+        print(
+            json.dumps(
+                {"packet_id": pending_id, "submitted": False, "reused_outbox": True},
+                separators=(",", ":"),
+            )
+        )
+        return 0
+    try:
+        result = deliver_intent(state, pending_id, pending_intent, None)
+    except ValueError as error:
+        if discard_unexecutable_entry_outbox(
+            state, pending_path, pending_id, pending_intent, error
+        ):
+            return _CYCLE_RETRY
+        if discard_superseded_delivery_error(
+            state,
+            pending_path,
+            pending_id,
+            pending_intent,
+            error,
+            token=token,
+        ):
+            return _CYCLE_RETRY
+        raise
+    classification = classify_delivery_result(result)
+    finalize_outbox_after_delivery(pending_path, pending_intent, classification)
+    if classification != "transport_uncertain":
+        receipt = {
+            "schema_version": "glitch.topstep.delivery_receipt.v2",
+            "recorded_utc": utc_now(),
+            "packet_id": pending_id,
+            "intent_id": pending_intent["intent_id"],
+            "result": result,
+        }
+        write_json_atomic(state / "receipts" / f"{pending_id}.json", receipt)
+        append_jsonl(state / "receipts.jsonl", receipt)
+        pending_path.unlink(missing_ok=True)
+        clear_delivery_wire(state, pending_id)
+    mark_attempt_from_receipt(state, pending_id, result)
+    _emit_cycle_json({"packet_id": pending_id, "result": result})
+    return 0 if classification == "successful" else 1
+
+
+def _resolve_invocation_context(
+    state: Path,
+    packet: dict[str, Any],
+    directive: dict[str, Any] | None,
+) -> tuple[str | None, dict[str, Any] | None, str | None]:
+    """Resolve why this cycle should invoke cognition and any wake metadata."""
+    reason, wake_detail = resolve_cycle_invocation(
+        state,
+        packet,
+        directive,
+        flat_decision_interval_minutes=flat_decision_interval_minutes(),
+    )
+    wake_source = None
+    if reason == "condition_change":
+        pending_wake = read_pending_wake_invocation(state)
+        if pending_wake:
+            clear_pending_wake_invocation(state)
+            wake_source = "monitor"
+            if wake_detail is None:
+                wake_detail = {
+                    "wake_reason": pending_wake.get("wake_reason"),
+                    "wake_trigger": pending_wake.get("wake_trigger"),
+                    "trigger_key": pending_wake.get("trigger_key"),
+                }
+        elif wake_detail is not None:
+            wake_source = "cycle"
+        else:
+            wake_detail, wake_source = resolve_wake_invocation_context(
+                state,
+                packet,
+                reason,
+                None,
+            )
+    return reason, wake_detail, wake_source
+
+
+def _run_multimarket_ensemble(
+    *,
+    state: Path,
+    packet: dict[str, Any],
+    health: dict[str, Any],
+    token: str,
+) -> int:
+    """Flat shadow multimarket ensemble path; gateway remains sole executor."""
+    ensemble = run_operational_ensemble(
+        health=health,
+        token=token,
+        run_id=str(uuid.uuid4()),
+    )
+    decision = ensemble["decision"]
+    append_jsonl(
+        state / "events.jsonl",
+        {
+            "schema_version": "glitch.topstep.cycle_event.v2",
+            "event": "multimarket_shadow_ensemble_completed",
+            "recorded_utc": utc_now(),
+            "packet_id": packet.get("packet_id"),
+            "run_id": ensemble["run_id"],
+            "envelope_id": ensemble["envelope"].get("envelope_id"),
+            "envelope_hash": ensemble["envelope"].get("envelope_hash"),
+            "profile_count": len(ensemble["profiles"]),
+            "profile_ids": [row.get("profile_id") for row in ensemble["profiles"]],
+            "invocation_ids": [row.get("invocation_id") for row in ensemble["profiles"]],
+            "outcome": decision.get("outcome"),
+            "decision_code": decision.get("decision_code"),
+            "selected_instrument": decision.get("selected_instrument"),
+            "selected_contract_id": decision.get("selected_contract_id"),
+            "intent_schema": (ensemble.get("intent") or {}).get("schema_version"),
+            "orders_sent": 0,
+            "projectx_mutations": 0,
+        },
+    )
+    return 0
+
+
+def _invoke_and_persist_decision(
+    *,
+    args: argparse.Namespace,
+    state: Path,
+    packet: dict[str, Any],
+    frames: list[Any],
+    context: dict[str, Any],
+    directive: dict[str, Any] | None,
+    trade_state: dict[str, Any] | None,
+    reason: str,
+    wake_detail: dict[str, Any] | None,
+    packet_id: str,
+    outbox_path: Path,
+    attempt_path: Path,
+    token: str,
+) -> Any:
+    """Invoke model, validate, and persist decision/outbox. Returns intent, 0, or _CYCLE_RETRY."""
+    existing_attempt = read_optional_json(attempt_path)
+    if isinstance(existing_attempt, dict) and existing_attempt.get("status") in {
+        "completed",
+        "decision_ready",
+        "failed",
+        "stale_packet_discarded",
+    }:
+        return 0
+
+    try:
+        review_mode = trigger_review_mode(reason, wake_detail)
+        intent, repair_count = invoke_valid_intent(
+            args.profile,
+            build_prompt(
+                packet,
+                frames,
+                context,
+                directive,
+                trade_state,
+                invocation_reason=reason,
+                wake_detail=wake_detail,
+                state=state,
+            ),
+            packet,
+            directive,
+            args.timeout_seconds,
+            frames=frames,
+            require_trigger_review=review_mode,
+        )
+    except Exception as error:
+        attempt = load_model_attempt(attempt_path)
+        attempt.update(
+            completed_utc=utc_now(),
+            status="failed",
+            error=f"{type(error).__name__}:{error}"[:500],
+        )
+        write_json_atomic(attempt_path, attempt)
+        append_jsonl(
+            state / "events.jsonl",
+            {
+                "schema_version": "glitch.topstep.cycle_event.v2",
+                "event": "decision_failed",
+                "recorded_utc": utc_now(),
+                "packet_id": packet_id,
+                **cycle_wake_fields(reason, wake_detail),
+                "error": attempt["error"],
+            },
+        )
+        raise
+
+    if discard_stale_outbox_intent(state, outbox_path, packet_id, intent, token=token):
+        attempt = load_model_attempt(attempt_path)
+        attempt.update(
+            completed_utc=utc_now(),
+            status="stale_packet_discarded",
+            invocation_reason=reason,
+        )
+        write_json_atomic(attempt_path, attempt)
+        return _CYCLE_RETRY
+
+    persist_wake_triggers(state, intent, packet_id)
+    persist_comparison_triggers(
+        state,
+        intent,
+        packet_id,
+        flat_decision_interval_minutes=flat_decision_interval_minutes(),
+    )
+    write_outbox_record(outbox_path, intent, state="prepared")
+    decision_record = {
+        "schema_version": "glitch.topstep.decision_record.v2",
+        "recorded_utc": utc_now(),
+        "packet_id": packet_id,
+        "regime_detected": detect_regime(packet),
+        "intent": intent,
+    }
+    store = ProfileStateStore(state)
+    try:
+        store.append_decision(decision_record, jsonl_path=state / "decisions.jsonl")
+    finally:
+        store.close()
+    record_cycle_empirical(
+        state,
+        empirical_from_decision(
+            packet=packet,
+            intent=intent,
+            invocation_reason=reason,
+            phase="decision_ready",
+        ),
+    )
+    write_last_evidence_fingerprint(
+        state,
+        packet,
+        evidence_fingerprint(packet),
+    )
+    attempt = load_model_attempt(attempt_path)
+    attempt.update(
+        completed_utc=utc_now(),
+        status="decision_ready",
+        output_repair_count=repair_count,
+        invocation_reason=reason,
+    )
+    write_json_atomic(attempt_path, attempt)
+    append_jsonl(
+        state / "events.jsonl",
+        {
+            "schema_version": "glitch.topstep.cycle_event.v2",
+            "event": "decision_ready",
+            "recorded_utc": utc_now(),
+            "packet_id": packet_id,
+            **cycle_wake_fields(reason, wake_detail),
+        },
+    )
+    if directive:
+        consume_directive(state, directive, packet_id)
+    return intent
+
+
+def _deliver_new_intent(
+    *,
+    args: argparse.Namespace,
+    state: Path,
+    packet: dict[str, Any],
+    directive: dict[str, Any] | None,
+    reason: str | None,
+    packet_id: str,
+    intent: dict[str, Any],
+    outbox_path: Path,
+    receipt_path: Path,
+    token: str,
+) -> Any:
+    """Deliver a freshly prepared intent. Returns exit code or _CYCLE_RETRY."""
+    if args.dry_run:
+        print(
+            json.dumps(
+                {"packet_id": packet_id, "submitted": False},
+                separators=(",", ":"),
+            )
+        )
+        return 0
+
+    try:
+        result = deliver_intent(state, packet_id, intent, directive)
+    except ValueError as error:
+        if discard_unexecutable_entry_outbox(
+            state, outbox_path, packet_id, intent, error
+        ):
+            return 0
+        if discard_superseded_delivery_error(
+            state,
+            outbox_path,
+            packet_id,
+            intent,
+            error,
+            token=token,
+        ):
+            return _CYCLE_RETRY
+        raise
+    classification = classify_delivery_result(result)
+    finalize_outbox_after_delivery(outbox_path, intent, classification)
+    if classification != "transport_uncertain":
+        receipt = {
+            "schema_version": "glitch.topstep.delivery_receipt.v2",
+            "recorded_utc": utc_now(),
+            "packet_id": packet_id,
+            "intent_id": intent["intent_id"],
+            "result": result,
+        }
+        write_json_atomic(receipt_path, receipt)
+        append_jsonl(state / "receipts.jsonl", receipt)
+        outbox_path.unlink(missing_ok=True)
+        clear_delivery_wire(state, packet_id)
+        _emit_cycle_json(receipt)
+        if classification == "terminal_rejection":
+            detail = delivery_diagnostic_detail(result)
+            if detail:
+                append_jsonl(
+                    state / "events.jsonl",
+                    {
+                        "schema_version": "glitch.topstep.cycle_event.v2",
+                        "event": "intent_delivery_rejected",
+                        "recorded_utc": utc_now(),
+                        "packet_id": packet_id,
+                        "intent_id": intent["intent_id"],
+                        **detail,
+                    },
+                )
+    else:
+        _emit_cycle_json({"packet_id": packet_id, "result": result})
+    mark_attempt_from_receipt(state, packet_id, result)
+    record_cycle_empirical(
+        state,
+        empirical_from_decision(
+            packet=packet,
+            intent=intent,
+            invocation_reason=reason,
+            phase="delivery_complete",
+            delivery_classification=classification,
+        ),
+    )
+    return 0 if classification == "successful" else 1
+
+
 def run_once(args: argparse.Namespace, root: Path) -> int:
+    """Run one live cycle. Retries restart via loop (not recursion)."""
+    while True:
+        outcome = _run_once_attempt(args, root)
+        if outcome is _CYCLE_RETRY:
+            continue
+        return int(outcome)
+
+
+def _run_once_attempt(args: argparse.Namespace, root: Path) -> Any:
     token = local_token()
     health_status, health = request_json("/health", token=token)
     if health_status != 200 or health.get("status") not in {"ok", "degraded"}:
@@ -1709,100 +2095,19 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     if pending is not None:
         pending_id, pending_path = pending
         _, pending_intent = load_outbox_record(pending_path)
-        if defer_instrument_scope_mismatch(state, pending_id, pending_intent, packet):
-            return 0
-        if discard_stale_outbox_intent(
-            state,
-            pending_path,
-            pending_id,
-            pending_intent,
+        return _deliver_pending_outbox(
+            args=args,
+            state=state,
+            packet=packet,
             token=token,
-        ):
-            return run_once(args, root)
-        if discard_superseded_pending_outbox(
-            state,
-            pending_path,
-            pending_id,
-            pending_intent,
-            packet,
-            token=token,
-        ):
-            return run_once(args, root)
-        pending_packet = packet_for_outbox_id(state, pending_id)
-        if pending_packet is None:
-            raise ValueError("pending_outbox_packet_not_found")
-        validate_intent(pending_intent, pending_packet, None)
-        ensure_model_attempt(state, pending_id, reason="pending_outbox_delivery")
-        if args.dry_run:
-            print(
-                json.dumps(
-                    {"packet_id": pending_id, "submitted": False, "reused_outbox": True},
-                    separators=(",", ":"),
-                )
-            )
-            return 0
-        try:
-            result = deliver_intent(state, pending_id, pending_intent, None)
-        except ValueError as error:
-            if discard_unexecutable_entry_outbox(
-                state, pending_path, pending_id, pending_intent, error
-            ):
-                return run_once(args, root)
-            if discard_superseded_delivery_error(
-                state,
-                pending_path,
-                pending_id,
-                pending_intent,
-                error,
-                token=token,
-            ):
-                return run_once(args, root)
-            raise
-        classification = classify_delivery_result(result)
-        finalize_outbox_after_delivery(pending_path, pending_intent, classification)
-        if classification != "transport_uncertain":
-            receipt = {
-                "schema_version": "glitch.topstep.delivery_receipt.v2",
-                "recorded_utc": utc_now(),
-                "packet_id": pending_id,
-                "intent_id": pending_intent["intent_id"],
-                "result": result,
-            }
-            write_json_atomic(state / "receipts" / f"{pending_id}.json", receipt)
-            append_jsonl(state / "receipts.jsonl", receipt)
-            pending_path.unlink(missing_ok=True)
-            clear_delivery_wire(state, pending_id)
-        mark_attempt_from_receipt(state, pending_id, result)
-        _emit_cycle_json({"packet_id": pending_id, "result": result})
-        return 0 if classification == "successful" else 1
+            pending_id=pending_id,
+            pending_path=pending_path,
+            pending_intent=pending_intent,
+        )
 
-    reason, wake_detail = resolve_cycle_invocation(
-        state,
-        packet,
-        directive,
-        flat_decision_interval_minutes=flat_decision_interval_minutes(),
+    reason, wake_detail, wake_source = _resolve_invocation_context(
+        state, packet, directive
     )
-    wake_source = None
-    if reason == "condition_change":
-        pending_wake = read_pending_wake_invocation(state)
-        if pending_wake:
-            clear_pending_wake_invocation(state)
-            wake_source = "monitor"
-            if wake_detail is None:
-                wake_detail = {
-                    "wake_reason": pending_wake.get("wake_reason"),
-                    "wake_trigger": pending_wake.get("wake_trigger"),
-                    "trigger_key": pending_wake.get("trigger_key"),
-                }
-        elif wake_detail is not None:
-            wake_source = "cycle"
-        else:
-            wake_detail, wake_source = resolve_wake_invocation_context(
-                state,
-                packet,
-                reason,
-                None,
-            )
     if reason is None:
         if flat_outside_session_window(packet, directive):
             if packet_minute(packet) % flat_decision_interval_minutes() == 0:
@@ -1882,35 +2187,12 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
     if multimarket_capable and not positioned(packet):
         if gateway_mode != "shadow":
             raise RuntimeError("multimarket_operational_requires_shadow")
-        ensemble = run_operational_ensemble(
+        return _run_multimarket_ensemble(
+            state=state,
+            packet=packet,
             health=health,
             token=token,
-            run_id=str(uuid.uuid4()),
         )
-        decision = ensemble["decision"]
-        append_jsonl(
-            state / "events.jsonl",
-            {
-                "schema_version": "glitch.topstep.cycle_event.v2",
-                "event": "multimarket_shadow_ensemble_completed",
-                "recorded_utc": utc_now(),
-                "packet_id": packet.get("packet_id"),
-                "run_id": ensemble["run_id"],
-                "envelope_id": ensemble["envelope"].get("envelope_id"),
-                "envelope_hash": ensemble["envelope"].get("envelope_hash"),
-                "profile_count": len(ensemble["profiles"]),
-                "profile_ids": [row.get("profile_id") for row in ensemble["profiles"]],
-                "invocation_ids": [row.get("invocation_id") for row in ensemble["profiles"]],
-                "outcome": decision.get("outcome"),
-                "decision_code": decision.get("decision_code"),
-                "selected_instrument": decision.get("selected_instrument"),
-                "selected_contract_id": decision.get("selected_contract_id"),
-                "intent_schema": (ensemble.get("intent") or {}).get("schema_version"),
-                "orders_sent": 0,
-                "projectx_mutations": 0,
-            },
-        )
-        return 0
 
     frames = cycle_recent_frames(state, packet)
 
@@ -1934,190 +2216,37 @@ def run_once(args: argparse.Namespace, root: Path) -> int:
         _, intent = load_outbox_record(outbox_path)
         validate_intent(intent, packet, None)
     else:
-        existing_attempt = read_optional_json(attempt_path)
-        if isinstance(existing_attempt, dict) and existing_attempt.get("status") in {
-            "completed",
-            "decision_ready",
-            "failed",
-            "stale_packet_discarded",
-        }:
-            return 0
-
-        try:
-            review_mode = trigger_review_mode(reason, wake_detail)
-            intent, repair_count = invoke_valid_intent(
-                args.profile,
-                build_prompt(
-                    packet,
-                    frames,
-                    context,
-                    directive,
-                    trade_state,
-                    invocation_reason=reason,
-                    wake_detail=wake_detail,
-                    state=state,
-                ),
-                packet,
-                directive,
-                args.timeout_seconds,
-                frames=frames,
-                require_trigger_review=review_mode,
-            )
-        except Exception as error:
-            attempt = load_model_attempt(attempt_path)
-            attempt.update(
-                completed_utc=utc_now(),
-                status="failed",
-                error=f"{type(error).__name__}:{error}"[:500],
-            )
-            write_json_atomic(attempt_path, attempt)
-            append_jsonl(
-                state / "events.jsonl",
-                {
-                    "schema_version": "glitch.topstep.cycle_event.v2",
-                    "event": "decision_failed",
-                    "recorded_utc": utc_now(),
-                    "packet_id": packet_id,
-                    **cycle_wake_fields(reason, wake_detail),
-                    "error": attempt["error"],
-                },
-            )
-            raise
-
-        if discard_stale_outbox_intent(state, outbox_path, packet_id, intent, token=token):
-            attempt = load_model_attempt(attempt_path)
-            attempt.update(
-                completed_utc=utc_now(),
-                status="stale_packet_discarded",
-                invocation_reason=reason,
-            )
-            write_json_atomic(attempt_path, attempt)
-            return run_once(args, root)
-
-        persist_wake_triggers(state, intent, packet_id)
-        persist_comparison_triggers(
-            state,
-            intent,
-            packet_id,
-            flat_decision_interval_minutes=flat_decision_interval_minutes(),
-        )
-        write_outbox_record(outbox_path, intent, state="prepared")
-        decision_record = {
-            "schema_version": "glitch.topstep.decision_record.v2",
-            "recorded_utc": utc_now(),
-            "packet_id": packet_id,
-            "regime_detected": detect_regime(packet),
-            "intent": intent,
-        }
-        store = ProfileStateStore(state)
-        try:
-            store.append_decision(decision_record, jsonl_path=state / "decisions.jsonl")
-        finally:
-            store.close()
-        record_cycle_empirical(
-            state,
-            empirical_from_decision(
-                packet=packet,
-                intent=intent,
-                invocation_reason=reason,
-                phase="decision_ready",
-            ),
-        )
-        write_last_evidence_fingerprint(
-            state,
-            packet,
-            evidence_fingerprint(packet),
-        )
-        attempt = load_model_attempt(attempt_path)
-        attempt.update(
-            completed_utc=utc_now(),
-            status="decision_ready",
-            output_repair_count=repair_count,
-            invocation_reason=reason,
-        )
-        write_json_atomic(attempt_path, attempt)
-        append_jsonl(
-            state / "events.jsonl",
-            {
-                "schema_version": "glitch.topstep.cycle_event.v2",
-                "event": "decision_ready",
-                "recorded_utc": utc_now(),
-                "packet_id": packet_id,
-                **cycle_wake_fields(reason, wake_detail),
-            },
-        )
-        if directive:
-            consume_directive(state, directive, packet_id)
-
-    if args.dry_run:
-        print(
-            json.dumps(
-                {"packet_id": packet_id, "submitted": False},
-                separators=(",", ":"),
-            )
-        )
-        return 0
-
-    try:
-        result = deliver_intent(state, packet_id, intent, directive)
-    except ValueError as error:
-        if discard_unexecutable_entry_outbox(
-            state, outbox_path, packet_id, intent, error
-        ):
-            return 0
-        if discard_superseded_delivery_error(
-            state,
-            outbox_path,
-            packet_id,
-            intent,
-            error,
-            token=token,
-        ):
-            return run_once(args, root)
-        raise
-    classification = classify_delivery_result(result)
-    finalize_outbox_after_delivery(outbox_path, intent, classification)
-    if classification != "transport_uncertain":
-        receipt = {
-            "schema_version": "glitch.topstep.delivery_receipt.v2",
-            "recorded_utc": utc_now(),
-            "packet_id": packet_id,
-            "intent_id": intent["intent_id"],
-            "result": result,
-        }
-        write_json_atomic(receipt_path, receipt)
-        append_jsonl(state / "receipts.jsonl", receipt)
-        outbox_path.unlink(missing_ok=True)
-        clear_delivery_wire(state, packet_id)
-        _emit_cycle_json(receipt)
-        if classification == "terminal_rejection":
-            detail = delivery_diagnostic_detail(result)
-            if detail:
-                append_jsonl(
-                    state / "events.jsonl",
-                    {
-                        "schema_version": "glitch.topstep.cycle_event.v2",
-                        "event": "intent_delivery_rejected",
-                        "recorded_utc": utc_now(),
-                        "packet_id": packet_id,
-                        "intent_id": intent["intent_id"],
-                        **detail,
-                    },
-                )
-    else:
-        _emit_cycle_json({"packet_id": packet_id, "result": result})
-    mark_attempt_from_receipt(state, packet_id, result)
-    record_cycle_empirical(
-        state,
-        empirical_from_decision(
+        prepared = _invoke_and_persist_decision(
+            args=args,
+            state=state,
             packet=packet,
-            intent=intent,
-            invocation_reason=reason,
-            phase="delivery_complete",
-            delivery_classification=classification,
-        ),
+            frames=frames,
+            context=context,
+            directive=directive,
+            trade_state=trade_state,
+            reason=reason,
+            wake_detail=wake_detail,
+            packet_id=packet_id,
+            outbox_path=outbox_path,
+            attempt_path=attempt_path,
+            token=token,
+        )
+        if not isinstance(prepared, dict):
+            return prepared
+        intent = prepared
+
+    return _deliver_new_intent(
+        args=args,
+        state=state,
+        packet=packet,
+        directive=directive,
+        reason=reason,
+        packet_id=packet_id,
+        intent=intent,
+        outbox_path=outbox_path,
+        receipt_path=receipt_path,
+        token=token,
     )
-    return 0 if classification == "successful" else 1
 
 
 def main() -> int:
