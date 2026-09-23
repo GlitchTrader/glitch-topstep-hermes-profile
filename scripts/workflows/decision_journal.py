@@ -94,6 +94,13 @@ class DecisionJournal:
         return self.store.tail_decisions(limit)
 
     def collect_decision_episodes(self, supervisor: Path) -> list[dict[str, Any]]:
+        """Collect decision episodes; always releases the SQLite store (Windows-safe)."""
+        try:
+            return self._collect_decision_episodes(supervisor)
+        finally:
+            self.close()
+
+    def _collect_decision_episodes(self, supervisor: Path) -> list[dict[str, Any]]:
         state_root = self.root
         output_path = supervisor / "decision-episodes.jsonl"
         existing = {
