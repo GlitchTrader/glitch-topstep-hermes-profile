@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-import shutil
 import subprocess
 import sys
 from pathlib import Path
 from typing import Any
 
 from common import extract_single_json_object, hermes_chat_model_cli_args, profile_root
+from hermes_executable import resolve_hermes_executable
 from process_supervisor import run_supervised
 
 from hermes_toolsets import DEFAULT_HERMES_TOOLSETS
@@ -22,9 +22,7 @@ def invoke_learning_hermes(
     skills: str,
     timeout_seconds: int,
 ) -> dict[str, Any]:
-    executable = shutil.which("hermes")
-    if not executable:
-        raise RuntimeError("hermes_executable_not_found")
+    executable = resolve_hermes_executable()
     python_executable = Path(executable).with_name(
         "python.exe" if sys.platform == "win32" else "python"
     )
