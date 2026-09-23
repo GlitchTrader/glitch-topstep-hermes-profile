@@ -87,7 +87,7 @@ Exigir várias sessões estáveis:
 ## Validação offline (sem live)
 
 ```powershell
-python scripts/run-shadow-phase7-validation.py --run-id shadow-phase7-validation-2026-09-02
+python scripts/archive/evaluation-waves/run-shadow-phase7-validation.py --run-id shadow-phase7-validation-2026-09-02
 python -m unittest tests.test_shadow_phase7 -v
 ```
 
