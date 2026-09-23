@@ -152,6 +152,17 @@ def sanitize_text(value: Any) -> str:
     return SENSITIVE.sub(r"\1[REDACTED]", str(value))
 
 
+def _raise_adversarial_transport_failed(cause: str, raw: Any = None) -> None:
+    """Fail-closed with a distinct cause suffix and a sanitized raw dump.
+
+    The cycle wrapper only records str(error) in events.jsonl, so the dump
+    must live on the exception. Behavior stays fail-closed; only the code
+    is more specific than the historical generic transport_failed.
+    """
+    snippet = sanitize_text(json.dumps(raw, default=str, ensure_ascii=False))[:4000]
+    raise RunnerError(f"adversarial_objection_transport_failed:{cause}:{snippet}")
+
+
 def _parse_utc(value: Any) -> datetime:
     if not isinstance(value, str) or not value:
         raise RunnerError("timestamp_missing")
@@ -471,21 +482,21 @@ def aggregate_global(*, envelope: dict[str, Any], slots: list[dict[str, Any]], r
     candidates = [row["normalized"] for row in slots if isinstance(row.get("normalized"), dict)]
     adversarial = next((row for row in slots if row.get("profile_id") == "adversarial-risk"), None)
     if not isinstance(adversarial, dict):
-        raise RunnerError("adversarial_objection_transport_failed")
+        _raise_adversarial_transport_failed("slot_missing")
     raw_adversarial = adversarial.get("raw_profile_output")
     if not isinstance(raw_adversarial, dict):
-        raise RunnerError("adversarial_objection_transport_failed")
+        _raise_adversarial_transport_failed("raw_not_dict", raw_adversarial)
     if "objections" not in raw_adversarial:
         objections: list[dict[str, Any]] = []
         objection_status = "absent"
     else:
         raw_objections = raw_adversarial.get("objections")
         if not isinstance(raw_objections, list):
-            raise RunnerError("adversarial_objection_transport_failed")
+            _raise_adversarial_transport_failed("objections_not_list", raw_adversarial)
         objections = []
         for item in raw_objections:
             if not isinstance(item, dict):
-                raise RunnerError("adversarial_objection_transport_failed")
+                _raise_adversarial_transport_failed("item_not_dict", raw_adversarial)
             target = item.get("target_profile_id")
             risk_code = item.get("risk_code")
             severity = item.get("severity")
@@ -499,7 +510,7 @@ def aggregate_global(*, envelope: dict[str, Any], slots: list[dict[str, Any]], r
                 or not isinstance(reason, str) or not reason.strip()
                 or not isinstance(evidence_refs, list) or not evidence_refs or not all(isinstance(ref, str) and ref.strip() for ref in evidence_refs)
             ):
-                raise RunnerError("adversarial_objection_transport_failed")
+                _raise_adversarial_transport_failed("schema_invalid", raw_adversarial)
             objections.append({
                 "source_profile_id": "adversarial-risk",
                 "target_profile_id": target,
