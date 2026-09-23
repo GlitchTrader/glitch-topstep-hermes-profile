@@ -19,6 +19,7 @@ BLOCKED_BAR_CLOSE_WINDOW = "blocked_bar_close_window"
 BLOCKED_DATA_QUALITY = "blocked_data_quality"
 BAR_CLOSE_ACCEPTANCE_V1 = "bar_close_acceptance_v1"
 BAR_CLOSE_ACCEPTANCE_V2 = "bar_close_acceptance_v2"
+BAR_CLOSE_ACCEPTANCE_V3 = "bar_close_acceptance_v3"
 CANONICAL_LIVE_STABILITY_ENTRY = "run_canonical_live_stability_window"
 
 BAR_DELAY_CLASSIFICATIONS = frozenset({
@@ -35,6 +36,8 @@ DEFAULT_POLL_INTERVAL_SECONDS = 30.0  # legacy poll mode only
 DEFAULT_MAX_WARMUP_SECONDS = 120.0
 DEFAULT_POST_CLOSE_WINDOW_SECONDS = 5.0
 DEFAULT_PROVIDER_ROLL_LATENCY_SECONDS = 10.0
+DEFAULT_MAX_LATE_COMPLETION_SECONDS = 60.0
+MAX_ALLOWED_LATE_COMPLETION_SECONDS = 300.0
 DEFAULT_HEALTH_FRESHNESS_SECONDS = 90.0
 DEFAULT_MARKET_OBS_FRESHNESS_SECONDS = 120.0
 # v2 outer bounds — never infinite; 12 closes ≈ 12 minutes wall + warmup budget.
@@ -65,6 +68,15 @@ def resolve_provider_roll_latency_seconds() -> float:
     if not raw:
         return DEFAULT_PROVIDER_ROLL_LATENCY_SECONDS
     return float(raw)
+
+
+def resolve_max_late_completion_seconds() -> float:
+    """Return a finite late-completion budget; never permit an unbounded wait."""
+    raw = os.environ.get("GLITCH_MAX_LATE_COMPLETION_SECONDS", "").strip()
+    value = DEFAULT_MAX_LATE_COMPLETION_SECONDS if not raw else float(raw)
+    if value <= 0 or value > MAX_ALLOWED_LATE_COMPLETION_SECONDS:
+        raise ValueError("GLITCH_MAX_LATE_COMPLETION_SECONDS must be > 0 and <= 300")
+    return value
 
 
 def _measurement_helpers() -> tuple[Any, Any]:
@@ -139,6 +151,130 @@ class BarCloseCursor:
             ),
             "seen_closed_bar_keys": sorted(self.seen_closed_bar_keys),
         }
+
+
+def _iso_or_none(value: Any) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    try:
+        return parse_utc(text.replace("+00:00", "Z")).isoformat().replace("+00:00", "Z")
+    except (TypeError, ValueError):
+        return None
+
+
+def _packet_contract_identity(packet: dict[str, Any] | None) -> tuple[str | None, Any, str | None]:
+    packet = packet or {}
+    contract = packet.get("contract") if isinstance(packet.get("contract"), dict) else {}
+    scope = packet.get("decision_scope") if isinstance(packet.get("decision_scope"), dict) else {}
+    return (
+        str(contract.get("id") or "") or None,
+        scope.get("generation"),
+        str(scope.get("scope_hash") or "") or None,
+    )
+
+
+def _effective_live_market_data(packet: dict[str, Any] | None) -> bool:
+    """Read the gateway's effective mode; missing legacy metadata is the safe false default."""
+    packet = packet or {}
+    mode = packet.get("market_data_mode")
+    if mode is None and isinstance(packet.get("market"), dict):
+        mode = packet["market"].get("market_data_mode")
+    if isinstance(mode, str):
+        return mode.lower() == "live"
+    if isinstance(mode, bool):
+        return mode
+    return bool(packet.get("liveMarketData", False))
+
+
+def _completed_bar_correlation(
+    *,
+    packet: dict[str, Any],
+    response_received_utc: str,
+    target_close: datetime,
+    cursor: BarCloseCursor,
+    expected_identity: tuple[str | None, Any, str | None] | None,
+    max_late_completion_seconds: float,
+) -> tuple[bool, dict[str, Any], list[str]]:
+    """Correlate one packet observation to one target without fabricating a bar."""
+    now = parse_utc(response_received_utc.replace("+00:00", "Z"))
+    ctx = extract_bar_close_context(packet, now=now)
+    reasons: list[str] = []
+    detail: dict[str, Any] = {
+        "bar_open_utc": None,
+        "bar_close_utc": _close_iso(target_close),
+        "provider_timestamp": None,
+        "response_received_utc": response_received_utc,
+        "packet_observation_timestamp": None,
+        "latency_ms": None,
+        "bar_age_ms": None,
+        "ideal_window_missed": False,
+        "effective_live_market_data": _effective_live_market_data(packet),
+    }
+    if ctx is None:
+        reasons.append("stale_observation")
+        return False, detail, reasons
+
+    # A packet can already contain the target bar while the shared clock is
+    # still before its civil close.  Identity correlation is not permission
+    # to accept a pre-close sample.
+    if now < target_close:
+        reasons.append("sample_before_bar_close_window")
+
+    bar_open_utc = _close_reference_utc(ctx)
+    bar_open = parse_utc(bar_open_utc.replace("+00:00", "Z"))
+    bar_close = bar_open + timedelta(minutes=1)
+    mo = packet.get("market_observation") if isinstance(packet.get("market_observation"), dict) else {}
+    obs = mo.get("observation") if isinstance(mo.get("observation"), dict) else {}
+    alignment = packet.get("market_alignment") if isinstance(packet.get("market_alignment"), dict) else {}
+    alignment_bars = alignment.get("bars") if isinstance(alignment.get("bars"), dict) else {}
+    alignment_1m = alignment_bars.get("1") if isinstance(alignment_bars.get("1"), dict) else {}
+    provider_ts = _iso_or_none(
+        mo.get("last_succeeded_utc")
+        or alignment_1m.get("observation_succeeded_utc")
+        or obs.get("generated_utc")
+    )
+    packet_ts = _iso_or_none(
+        alignment.get("packet_created_utc")
+        or packet.get("packet_created_utc")
+        or packet.get("generated_utc")
+        or packet.get("created_utc")
+    )
+    detail.update({
+        "bar_open_utc": _iso_or_none(bar_open_utc),
+        "bar_close_utc": _close_iso(bar_close),
+        "provider_timestamp": provider_ts,
+        "packet_observation_timestamp": packet_ts,
+        "latency_ms": (
+            max(0, int((now - parse_utc(provider_ts)).total_seconds() * 1000))
+            if provider_ts else None
+        ),
+        "bar_age_ms": max(0, int((now - bar_close).total_seconds() * 1000)),
+    })
+    if detail["effective_live_market_data"] is True:
+        reasons.append("live_market_data_mismatch")
+    if abs((bar_close - target_close).total_seconds()) >= 1:
+        reasons.append("cursor_mismatch")
+    if ctx.latest_bar_partial and bar_open_utc == ctx.latest_bar_utc:
+        reasons.append("bar_1m_partial")
+    if not ctx.latest_bar_partial and not ctx.prior_completed_bar_utc and bar_open_utc != ctx.latest_bar_utc:
+        reasons.append("stale_observation")
+    if cursor.already_seen(bar_open_utc):
+        reasons.append("cursor_mismatch")
+    identity = _packet_contract_identity(packet)
+    if expected_identity is not None and identity != expected_identity:
+        reasons.append("contract_generation_mismatch")
+    age_ms = detail["bar_age_ms"]
+    latency_ms = detail["latency_ms"]
+    if age_ms is None or age_ms < 0 or age_ms > int(max_late_completion_seconds * 1000):
+        reasons.append("stale_observation")
+    if latency_ms is not None and latency_ms > int(max_late_completion_seconds * 1000):
+        reasons.append("network_latency")
+    if bar_close < target_close:
+        reasons.append("cursor_mismatch")
+    return not reasons, detail, sorted(set(reasons))
 
 
 def _quote_geometry_issue_present(detail: dict[str, Any]) -> bool:
@@ -1111,6 +1247,7 @@ def run_bar_close_aware_stability_window(
     max_total_duration_seconds: float | None = None,
     post_close_window_seconds: float = DEFAULT_POST_CLOSE_WINDOW_SECONDS,
     provider_roll_latency_seconds: float | None = None,
+    max_late_completion_seconds: float | None = None,
     post_close_poll_seconds: float = 0.25,
     max_warmup_seconds: float = DEFAULT_MAX_WARMUP_SECONDS,
     health_freshness_seconds: float = DEFAULT_HEALTH_FRESHNESS_SECONDS,
@@ -1137,6 +1274,15 @@ def run_bar_close_aware_stability_window(
     invalid_quote_samples: list[dict[str, Any]] = []
     cursor = BarCloseCursor()
     abandoned_boundaries: set[str] = set()
+    expected_identity: tuple[str | None, Any, str | None] | None = None
+    diagnostics = {
+        "ideal_window_missed": 0,
+        "late_completed_bar_accepted": 0,
+        "provider_bar_lag": 0,
+        "network_latency": 0,
+        "stale_observation": 0,
+        "cursor_mismatch": 0,
+    }
     attempted_boundaries: set[str] = set()
     stop_reason: str | None = None
     classification: str | None = None
@@ -1153,7 +1299,19 @@ def run_bar_close_aware_stability_window(
         if provider_roll_latency_seconds is not None
         else resolve_provider_roll_latency_seconds()
     )
-    v2_enabled = acceptance_policy == BAR_CLOSE_ACCEPTANCE_V2
+    v2_enabled = acceptance_policy in {BAR_CLOSE_ACCEPTANCE_V2, BAR_CLOSE_ACCEPTANCE_V3}
+    v3_enabled = acceptance_policy == BAR_CLOSE_ACCEPTANCE_V3
+    max_late_completion_seconds = (
+        max_late_completion_seconds
+        if max_late_completion_seconds is not None
+        else resolve_max_late_completion_seconds()
+    )
+    if max_late_completion_seconds <= 0 or max_late_completion_seconds > MAX_ALLOWED_LATE_COMPLETION_SECONDS:
+        raise ValueError("max_late_completion_seconds must be > 0 and <= 300")
+    # A zero external poll interval is useful for tests only when the injected
+    # clock advances. The late-correlation loop must always make monotonic
+    # progress, otherwise its finite budget is not operationally finite.
+    poll_sleep = max(post_close_poll_seconds, 0.25)
     total_boundaries_limit = (
         max_total_boundaries
         if max_total_boundaries is not None
@@ -1248,6 +1406,18 @@ def run_bar_close_aware_stability_window(
             sleep_fn(1.0)
             continue
 
+        if expected_identity is None:
+            expected_identity = _packet_contract_identity(packet)
+        elif _packet_contract_identity(packet) != expected_identity:
+            diagnostics["cursor_mismatch"] += 1
+            skipped.append({
+                "reason": "contract_generation_mismatch",
+                "phase": "warmup" if not counting_started else "valid",
+                "fetched_utc": utc_now(),
+            })
+            sleep_fn(max(post_close_poll_seconds, 0.25))
+            continue
+
         now = now_fn()
         packet_close = expected_close_for_context(ctx)
         packet_close_iso = _close_iso(packet_close)
@@ -1283,6 +1453,7 @@ def run_bar_close_aware_stability_window(
             target_close = cursor.resolve_target(_target_close_after_abandon(ctx, now))
         phase = "warmup" if not counting_started else "valid"
         target_close_iso = _close_iso(target_close)
+        late_window_end = target_close + timedelta(seconds=max_late_completion_seconds)
         sample_window_end = _sample_window_end(
             target_close,
             post_close_window_seconds=post_close_window_seconds,
@@ -1303,7 +1474,19 @@ def run_bar_close_aware_stability_window(
 
         target_matches_packet = abs((target_close - packet_close).total_seconds()) < 0.5
 
-        if now > sample_window_end:
+        late_candidate_poll = v3_enabled and target_close <= now <= late_window_end
+        if now > sample_window_end and late_candidate_poll:
+            if target_close_iso not in abandoned_boundaries:
+                diagnostics["ideal_window_missed"] += 1
+                warmup_events.append({
+                    "reason": "ideal_window_missed",
+                    "phase": phase,
+                    "expected_close_utc": target_close_iso,
+                    "fetched_utc": now.isoformat().replace("+00:00", "Z"),
+                    "max_late_completion_seconds": max_late_completion_seconds,
+                })
+                abandoned_boundaries.add(target_close_iso)
+        elif now > sample_window_end:
             # Cursor ahead of provider roll: keep polling as warmup — do not abandon yet.
             if not target_matches_packet:
                 warmup_events.append(
@@ -1349,7 +1532,7 @@ def run_bar_close_aware_stability_window(
             sleep_fn(1.0)
             continue
 
-        if not is_target_post_close_sample(
+        if not late_candidate_poll and not is_target_post_close_sample(
             now,
             target_close,
             ctx,
@@ -1397,7 +1580,7 @@ def run_bar_close_aware_stability_window(
             continue
 
         # Packet-anchored window must agree with scheduler target before valid sampling.
-        if not is_post_close_sample(
+        if not late_candidate_poll and not is_post_close_sample(
             now,
             ctx,
             post_close_window_seconds=post_close_window_seconds,
@@ -1426,8 +1609,18 @@ def run_bar_close_aware_stability_window(
                 break
 
         captured = False
-        # Sample only while both scheduler target and packet close windows remain open.
-        while now_fn() <= sample_window_end and not captured and not _valid_budget_exhausted():
+        # V3 keeps polling the same target through one finite late-completion window.
+        active_window_end = late_window_end if v3_enabled else sample_window_end
+        while (
+            now_fn() <= active_window_end
+            and not captured
+            and not _valid_budget_exhausted()
+            and (
+                not v3_enabled
+                or total_duration_limit is None
+                or monotonic_fn() - overall_started < total_duration_limit
+            )
+        ):
             sample_dt = now_fn()
             sample_utc = sample_dt.isoformat().replace("+00:00", "Z")
             try:
@@ -1441,20 +1634,43 @@ def run_bar_close_aware_stability_window(
                     exc=exc,
                     expected_close_utc=target_close_iso,
                 )
-                sleep_fn(post_close_poll_seconds)
+                sleep_fn(poll_sleep)
                 continue
 
             packet = _fetch_packet("valid" if counting_started else "warmup", target_close_iso)
             if packet is None:
-                sleep_fn(post_close_poll_seconds)
+                sleep_fn(poll_sleep)
                 continue
 
             ctx = extract_bar_close_context(packet, now=sample_dt)
             if ctx is None:
-                sleep_fn(post_close_poll_seconds)
+                sleep_fn(poll_sleep)
                 continue
 
             closed_bar_key = _close_reference_utc(ctx)
+            correlated, correlation, correlation_reasons = _completed_bar_correlation(
+                packet=packet,
+                response_received_utc=sample_utc,
+                target_close=target_close,
+                cursor=cursor,
+                expected_identity=expected_identity,
+                max_late_completion_seconds=max_late_completion_seconds,
+            )
+            health_dq = health.get("data_quality") if isinstance(health.get("data_quality"), dict) else {}
+            health_op = health_dq.get("operational") if isinstance(health_dq.get("operational"), dict) else {}
+            health_generation = health_op.get("generation")
+            packet_generation = _packet_contract_identity(packet)[1]
+            if health_generation is not None and packet_generation is not None and health_generation != packet_generation:
+                correlated = False
+                correlation_reasons = sorted(set(correlation_reasons + ["contract_generation_mismatch"]))
+                diagnostics["cursor_mismatch"] += 1
+            if correlation.get("bar_age_ms", 0) > int(post_close_window_seconds * 1000):
+                diagnostics["provider_bar_lag"] += 1
+            if correlation.get("latency_ms") is not None and correlation["latency_ms"] > int(post_close_window_seconds * 1000):
+                diagnostics["network_latency"] += 1
+            for reason in correlation_reasons:
+                if reason in diagnostics:
+                    diagnostics[reason] += 1
             verdict = evaluate_operational_stability_sample(
                 health=health,
                 packet=packet,
@@ -1477,6 +1693,9 @@ def run_bar_close_aware_stability_window(
                 "closed_bar_utc": closed_bar_key,
                 "phase": "valid" if counting_started else "warmup",
             }
+            row["detail"]["bar_correlation"] = correlation
+            if correlation_reasons:
+                row["correlation_reasons"] = correlation_reasons
 
             packet_window_ok = is_post_close_sample(
                 sample_dt,
@@ -1496,7 +1715,7 @@ def run_bar_close_aware_stability_window(
                 not target_window_ok
                 or not packet_window_ok
                 or "sample_before_bar_close_window" in verdict.reasons
-            ):
+            ) and not (v3_enabled and correlated):
                 warmup_events.append(
                     {
                         **row,
@@ -1506,10 +1725,10 @@ def run_bar_close_aware_stability_window(
                         "packet_close_utc": _close_iso(expected_close_for_context(ctx)),
                     }
                 )
-                sleep_fn(post_close_poll_seconds)
+                sleep_fn(poll_sleep)
                 continue
 
-            if not verdict.ok:
+            if not verdict.ok or not correlated:
                 if v2_enabled and _invalid_quote_sample(verdict):
                     invalid_quote_samples.append(
                         {
@@ -1517,7 +1736,26 @@ def run_bar_close_aware_stability_window(
                             "reason": "invalid_quote_sample",
                         }
                     )
-                    sleep_fn(post_close_poll_seconds)
+                    sleep_fn(poll_sleep)
+                    continue
+                if v3_enabled and "sample_before_bar_close_window" in verdict.reasons:
+                    # A packet may correlate to the scheduler target while
+                    # the packet-anchored close window is still early.  This
+                    # is recoverable warmup, never a terminal V3 failure.
+                    warmup_events.append(
+                        {
+                            **row,
+                            "reason": "sample_before_bar_close_window",
+                            "phase": "warmup",
+                            "expected_close_utc": target_close_iso,
+                            "packet_close_utc": _close_iso(expected_close_for_context(ctx)),
+                        }
+                    )
+                    sleep_fn(poll_sleep)
+                    continue
+                if v3_enabled and not correlated:
+                    # A late packet is only diagnostic until exact target correlation succeeds.
+                    sleep_fn(poll_sleep)
                     continue
                 # Partial without prior anchor never counts and never maps to no_edge.
                 if "bar_1m_partial" in verdict.reasons and not ctx.prior_completed_bar_utc:
@@ -1528,7 +1766,7 @@ def run_bar_close_aware_stability_window(
                             "phase": "warmup",
                         }
                     )
-                    sleep_fn(post_close_poll_seconds)
+                    sleep_fn(poll_sleep)
                     continue
                 samples.append({**row, "sample_index": len(samples), "phase": "valid"})
                 stop_reason = verdict.reasons[0] if verdict.reasons else "sample_failed"
@@ -1542,13 +1780,15 @@ def run_bar_close_aware_stability_window(
                 break
 
             if cursor.already_seen(closed_bar_key):
-                sleep_fn(post_close_poll_seconds)
+                sleep_fn(poll_sleep)
                 continue
 
             # Start the valid-sample budget only on the first packet-aligned accepted sample.
             if not counting_started:
                 _begin_valid_window()
             cursor.mark_captured(target_close, closed_bar_key)
+            if v3_enabled and sample_dt > target_close + timedelta(seconds=post_close_window_seconds):
+                diagnostics["late_completed_bar_accepted"] += 1
             row["sample_index"] = len(samples)
             row["phase"] = "valid"
             samples.append(row)
@@ -1563,6 +1803,19 @@ def run_bar_close_aware_stability_window(
             )
 
         if stop_reason and classification == BLOCKED_CLASSIFICATION:
+            break
+
+        # The bounded late-completion loop must not hand control back to the
+        # boundary scheduler after the operational total has expired.  Doing
+        # so would start another target and turn a finite timeout into an
+        # effectively unbounded sequence of late windows.
+        if (
+            v3_enabled
+            and total_duration_limit is not None
+            and monotonic_fn() - overall_started >= total_duration_limit
+        ):
+            stop_reason = "total_time_limit_exhausted"
+            classification = BLOCKED_DATA_QUALITY if v2_enabled else BLOCKED_BAR_CLOSE_WINDOW
             break
 
         if not captured:
@@ -1635,6 +1888,8 @@ def run_bar_close_aware_stability_window(
             else None
         ),
         bar_close_cursor=cursor.snapshot(),
+        diagnostics=diagnostics,
+        max_late_completion_seconds=max_late_completion_seconds,
         canonical_entry=False,
     )
 
@@ -1666,6 +1921,8 @@ def _finalize_window(
     counting_started_at_utc: str | None = None,
     valid_window_elapsed_seconds: float | None = None,
     bar_close_cursor: dict[str, Any] | None = None,
+    diagnostics: dict[str, int] | None = None,
+    max_late_completion_seconds: float | None = None,
     canonical_entry: bool = False,
 ) -> dict[str, Any]:
     doc: dict[str, Any] = {
@@ -1709,6 +1966,10 @@ def _finalize_window(
         doc["poll_interval_seconds"] = poll_interval_seconds
     if bar_close_cursor is not None:
         doc["bar_close_cursor"] = bar_close_cursor
+    if diagnostics is not None:
+        doc["diagnostics"] = diagnostics
+    if max_late_completion_seconds is not None:
+        doc["max_late_completion_seconds"] = max_late_completion_seconds
     return doc
 
 
@@ -1722,6 +1983,7 @@ def run_canonical_live_stability_window(
     max_total_duration_seconds: float | None = None,
     post_close_window_seconds: float | None = None,
     provider_roll_latency_seconds: float | None = None,
+    max_late_completion_seconds: float | None = None,
     post_close_poll_seconds: float = 0.25,
     max_warmup_seconds: float = DEFAULT_MAX_WARMUP_SECONDS,
     health_freshness_seconds: float = DEFAULT_HEALTH_FRESHNESS_SECONDS,
@@ -1742,7 +2004,7 @@ def run_canonical_live_stability_window(
         packet_fetcher=packet_fetcher,
         required_samples=required_samples,
         max_duration_seconds=max_duration_seconds,
-        acceptance_policy=BAR_CLOSE_ACCEPTANCE_V2,
+        acceptance_policy=BAR_CLOSE_ACCEPTANCE_V3,
         max_total_boundaries=max_total_boundaries,
         max_total_duration_seconds=max_total_duration_seconds,
         post_close_window_seconds=(
@@ -1751,6 +2013,7 @@ def run_canonical_live_stability_window(
             else resolve_post_close_window_seconds()
         ),
         provider_roll_latency_seconds=provider_roll_latency_seconds,
+        max_late_completion_seconds=max_late_completion_seconds,
         post_close_poll_seconds=post_close_poll_seconds,
         max_warmup_seconds=max_warmup_seconds,
         health_freshness_seconds=health_freshness_seconds,
