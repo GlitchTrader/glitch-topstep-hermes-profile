@@ -19,7 +19,7 @@ from evaluation_cost import (
     cost_gate_blocks_expansion,
 )
 from ensemble_capability import capacity_gate
-from ensemble_capacity_overlay import apply_capacity_gate_overlay
+from evaluation_output_adapter import adapt_evaluation_output
 from ensemble_envelope import envelope_hash
 from ensemble_envelope_seal import (
     envelope_validity_seconds,
@@ -411,7 +411,7 @@ def run_minimal_cognitive_replay(
             provider=provider,
         )
         raw_output = invoke_result.parsed
-        adapter_overlay = apply_capacity_gate_overlay(fixture=raw_output, gate=gate)
+        adapter_overlay = adapt_evaluation_output(raw=raw_output, gate=gate)
         cost_record = account_evaluation_cost(
             prompt=prompt,
             capture=HermesInvocationCapture(

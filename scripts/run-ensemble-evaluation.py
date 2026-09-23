@@ -13,8 +13,8 @@ from typing import Any
 
 import importlib.util
 
-from ensemble_capacity_overlay import apply_capacity_gate_overlay
 from ensemble_capability import capacity_gate
+from evaluation_output_adapter import adapt_evaluation_output
 from ensemble_compare import compare_frame_profiles
 from ensemble_validate import (
     validate_aggregator_rules,
@@ -127,7 +127,7 @@ def build_normalized_candidate(
     finished_utc: str,
     latency_ms: int,
 ) -> dict[str, Any]:
-    overlay = apply_capacity_gate_overlay(fixture=fixture, gate=gate)
+    overlay = adapt_evaluation_output(raw=fixture, gate=gate)
     direction = overlay.get("direction")
     objections = []
     for objection in list((fixture or {}).get("objections") or []):

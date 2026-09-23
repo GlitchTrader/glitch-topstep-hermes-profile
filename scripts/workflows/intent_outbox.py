@@ -65,12 +65,28 @@ def frame_for_packet_id(
     return None
 
 
-def packet_for_outbox_id(state: Path, packet_id: str) -> dict[str, Any] | None:
-    frame = frame_for_packet_id(state, packet_id)
-    if frame is None:
-        return None
-    packet = frame.get("packet")
-    return packet if isinstance(packet, dict) else None
+def packet_for_outbox_id(
+    state: Path,
+    packet_id: str,
+    *,
+    store: Any | None = None,
+) -> dict[str, Any] | None:
+    own_store = False
+    active = store
+    if active is None:
+        from state_store import ProfileStateStore
+
+        active = ProfileStateStore(state)
+        own_store = True
+    try:
+        frame = frame_for_packet_id(state, packet_id, store=active)
+        if frame is None:
+            return None
+        packet = frame.get("packet")
+        return packet if isinstance(packet, dict) else None
+    finally:
+        if own_store:
+            active.close()
 
 
 def pending_outbox(state: Path) -> tuple[str, Path] | None:

@@ -118,20 +118,23 @@ python scripts/preflight-pairing.py --gateway-root ~/Projects/glitch-topstep
 
 Use `preflight-pairing.py` to verify gateway/profile prompt pairing before restart.
 
-Apply gateway issue #73 packet/422 changes when the bot cannot push `glitch-topstep` directly:
+Apply gateway issue #73 packet/422 changes only when restoring a historical gateway tree that still lacks them. The patch is archived (paired with profile **0.1.32**; current profile is newer and the change is already upstream):
 
 ```bash
 cd ~/Projects/glitch-topstep
 git checkout main && git pull origin main
 git checkout -b fix/issue-73-packet-quality
-git apply --index "$(dirname "$0")/../patches/glitch-topstep-issue-73-gateway.patch"  # from profile repo root:
-# git apply --index patches/glitch-topstep-issue-73-gateway.patch
+git apply --index "$(dirname "$0")/../patches/archive/glitch-topstep-issue-73-gateway.patch"
 npm run check
 git commit -m "feat: packet data quality and structured 422 diagnostics (#73)"
 git push -u origin fix/issue-73-packet-quality
 ```
 
-Patch file: `patches/glitch-topstep-issue-73-gateway.patch` (pairs with profile **0.1.32**).
+Archived patch: `patches/archive/glitch-topstep-issue-73-gateway.patch`.
+
+### Manual repair helpers
+
+- `scripts/prune_stale_attempts.py` — marks orphan `state/attempts/*.json` rows stuck in `started` as `failed`. Not scheduled; run manually when a crashed cycle leaves retry loops. Expired HELD comparison triggers are already reconciled each cycle by `trigger_lifecycle.reconcile_comparison_triggers()` (no separate prune script).
 
 ### ProjectX Auto OCO Brackets (operator configuration)
 

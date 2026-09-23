@@ -118,7 +118,7 @@ class DecisionJournal:
             intent_id = str(intent.get("intent_id") or receipt.get("intent_id") or "")
             if not intent_id or intent_id in existing or intent_id in seen_intents:
                 return
-            frame = frame_for_packet_id(frames_root, packet_id)
+            frame = frame_for_packet_id(frames_root, packet_id, store=self.store)
             if frame is None:
                 return
             minute_id = str(frame.get("minute_id") or "")

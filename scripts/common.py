@@ -5,7 +5,6 @@ import hashlib
 import os
 import sys
 import tempfile
-import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -570,43 +569,13 @@ def process_matches_owner(pid: int, started_utc: Any) -> bool:
     return abs((actual - recorded).total_seconds()) <= 30
 
 
-def acquire_cycle_lock(lock_path: Path, unreadable_grace_seconds: int = 15) -> bool:
-    lock_path.parent.mkdir(parents=True, exist_ok=True)
-    for _ in range(2):
-        try:
-            descriptor = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-        except FileExistsError:
-            try:
-                owner = read_json(lock_path)
-                if process_matches_owner(int(owner.get("pid", 0)), owner.get("started_utc")):
-                    return False
-                lock_path.unlink()
-                continue
-            except (OSError, ValueError, TypeError, json.JSONDecodeError):
-                try:
-                    if time.time() - lock_path.stat().st_mtime <= unreadable_grace_seconds:
-                        return False
-                    lock_path.unlink()
-                    continue
-                except (FileNotFoundError, OSError):
-                    continue
-        else:
-            try:
-                started = process_start_utc(os.getpid())
-                payload = json.dumps(
-                    {
-                        "pid": os.getpid(),
-                        "started_utc": (started or datetime.now(timezone.utc))
-                        .isoformat()
-                        .replace("+00:00", "Z"),
-                    },
-                    separators=(",", ":"),
-                )
-                os.write(descriptor, payload.encode("utf-8"))
-            finally:
-                os.close(descriptor)
-            return True
-    return False
+def is_placeholder_value(value: str) -> bool:
+    """True when a model field still holds a REPLACE_* / empty / ellipsis stub."""
+    normalized = value.strip()
+    if not normalized or normalized in {"...", "?"}:
+        return True
+    upper = normalized.upper()
+    return upper.startswith("REPLACE_WITH_") or upper == "REPLACE"
 
 
 def prune_files(paths: Iterable[Path], keep: int) -> None:

@@ -558,10 +558,10 @@ class EvaluationLeaseCoordinationTests(unittest.TestCase):
 
 class ParallelRunnerTests(unittest.TestCase):
     def _simple_builder(self, **kwargs: Any) -> dict:
-        from ensemble_capacity_overlay import apply_capacity_gate_overlay
+        from evaluation_output_adapter import adapt_evaluation_output
 
         fixture = kwargs.get("fixture")
-        overlay = apply_capacity_gate_overlay(fixture=fixture, gate=kwargs["gate"]) if fixture else {"state": "error"}
+        overlay = adapt_evaluation_output(raw=fixture, gate=kwargs["gate"]) if fixture else {"state": "error"}
         return {
             "schema_version": "glitch.topstep.normalized_candidate.v1",
             "profile_id": kwargs["profile"]["profile_id"],
@@ -699,9 +699,9 @@ class ParallelRunnerTests(unittest.TestCase):
             return {"state": "no_edge", "direction": "flat", "thesis": "x", "latency_ms": 50}
 
         def builder(**kwargs: Any) -> dict:
-            from ensemble_capacity_overlay import apply_capacity_gate_overlay
+            from evaluation_output_adapter import adapt_evaluation_output
 
-            overlay = apply_capacity_gate_overlay(fixture=kwargs["fixture"], gate=kwargs["gate"])
+            overlay = adapt_evaluation_output(raw=kwargs["fixture"], gate=kwargs["gate"])
             return {
                 "schema_version": "glitch.topstep.normalized_candidate.v1",
                 "profile_id": kwargs["profile"]["profile_id"],

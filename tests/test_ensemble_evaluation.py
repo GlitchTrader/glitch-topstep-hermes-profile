@@ -26,7 +26,7 @@ CAPABILITY = _load("ensemble_capability", "ensemble_capability.py")
 VALIDATE = _load("ensemble_validate", "ensemble_validate.py")
 SEMANTIC = _load("ensemble_semantic", "ensemble_semantic.py")
 GEOMETRY = _load("ensemble_geometry", "ensemble_geometry.py")
-OVERLAY = _load("ensemble_capacity_overlay", "ensemble_capacity_overlay.py")
+ADAPTER = _load("evaluation_output_adapter", "evaluation_output_adapter.py")
 COMPARE = _load("ensemble_compare", "ensemble_compare.py")
 RUNNER = _load("run_ensemble_evaluation", "run-ensemble-evaluation.py")
 
@@ -119,7 +119,7 @@ class EnsembleEvaluationTests(unittest.TestCase):
         )
         gate = CAPABILITY.capacity_gate(envelope, "structure", self.matrix)
         fixture = {"state": "held", "direction": "long", "thesis": "audit", "latency_ms": 1}
-        overlay = OVERLAY.apply_capacity_gate_overlay(fixture=fixture, gate=gate)
+        overlay = ADAPTER.adapt_evaluation_output(raw=fixture, gate=gate)
         self.assertEqual(overlay["state"], "missing_required_evidence")
         self.assertEqual(overlay["comparability"], "not_comparable")
         self.assertEqual(overlay["profile_declared_direction"], "long")
