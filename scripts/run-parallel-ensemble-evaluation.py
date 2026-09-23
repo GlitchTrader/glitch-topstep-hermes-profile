@@ -16,24 +16,29 @@ from ensemble_envelope import envelope_hash
 from ensemble_envelope_seal import envelope_validity_seconds, seal_evaluation_envelope_from_frame
 from ensemble_metrics import compute_ensemble_metrics
 from ensemble_parallel_runner import cleanup_work_dirs, run_profiles_parallel
+from ensemble_runner_common import (
+    assert_runner_isolation,
+    build_normalized_candidate,
+    load_candidate_fixture,
+    read_json,
+)
 from ensemble_validate import (
     validate_aggregator_rules,
+    validate_aggregator_rules_semantic,
     validate_capability_matrix,
+    validate_capability_matrix_semantic,
+    validate_candidate_semantic,
+    validate_config_semantic,
     validate_ensemble_config,
+    validate_envelope_semantic,
     validate_evaluation_envelope,
     validate_normalized_candidate,
     validate_registry,
+    validate_registry_semantic,
 )
 
 _SCRIPTS = Path(__file__).resolve().parent
 _REPO = _SCRIPTS.parent
-
-_SEQ_SPEC = importlib.util.spec_from_file_location(
-    "run_ensemble_evaluation", _SCRIPTS / "run-ensemble-evaluation.py"
-)
-assert _SEQ_SPEC and _SEQ_SPEC.loader
-_SEQ = importlib.util.module_from_spec(_SEQ_SPEC)
-_SEQ_SPEC.loader.exec_module(_SEQ)
 
 _FROZEN_SPEC = importlib.util.spec_from_file_location(
     "run_frozen_cognition", _SCRIPTS / "run-frozen-cognition.py"
@@ -48,10 +53,6 @@ DEFAULT_REGISTRY = _REPO / "evaluation" / "registry.json"
 DEFAULT_CONFIG = _REPO / "evaluation" / "ensemble_config.json"
 DEFAULT_RULES = _REPO / "evaluation" / "aggregator_rules.v1.json"
 DEFAULT_MAPPING = _REPO / "evaluation" / "packet_envelope_mapping.v1.json"
-
-
-def read_json(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def collect_normalized_objections(slot_results: list[Any]) -> list[dict[str, Any]]:
@@ -79,7 +80,7 @@ def build_parallel_run(
     mapping_path: Path,
     candidate_fixtures_dir: Path,
 ) -> dict[str, Any]:
-    _SEQ.assert_runner_isolation()
+    assert_runner_isolation(Path(__file__))
     matrix = read_json(matrix_path)
     registry = read_json(registry_path)
     config = read_json(config_path)
@@ -89,6 +90,16 @@ def build_parallel_run(
     validate_registry(registry)
     validate_ensemble_config(config)
     validate_aggregator_rules(rules)
+    # Structural then semantic (H17): close the sequential/parallel gap.
+    validate_capability_matrix_semantic(matrix)
+    validate_registry_semantic(
+        registry,
+        matrix_version=str(matrix.get("matrix_version") or ""),
+        config_version=str(config.get("config_version") or ""),
+        rules_version=str(rules.get("rules_version") or ""),
+    )
+    validate_config_semantic(config, profile_count=len(registry.get("profiles", [])))
+    validate_aggregator_rules_semantic(rules)
 
     frames = _FROZEN.load_frames(frames_dir)
     run_id = str(uuid.uuid4())
@@ -101,10 +112,10 @@ def build_parallel_run(
     source_catalog = matrix["source_catalog"]
 
     def loader(profile_id: str, frame_id: str) -> dict[str, Any] | None:
-        return _SEQ.load_candidate_fixture(candidate_fixtures_dir, profile_id, frame_id)
+        return load_candidate_fixture(candidate_fixtures_dir, profile_id, frame_id)
 
     def builder(**kwargs: Any) -> dict[str, Any]:
-        return _SEQ.build_normalized_candidate(**kwargs)
+        return build_normalized_candidate(**kwargs)
 
     frame_results: list[dict[str, Any]] = []
     session_cost = 0.0
@@ -120,6 +131,7 @@ def build_parallel_run(
             frame_path=str(frames_dir),
         )
         validate_evaluation_envelope(envelope)
+        validate_envelope_semantic(envelope, mapping)
         sealed = str(envelope["snapshot_hash"])
         gates = {str(p["profile_id"]): capacity_gate(envelope, str(p["profile_id"]), matrix) for p in profiles}
 
@@ -144,6 +156,7 @@ def build_parallel_run(
             if slot.normalized is None:
                 continue
             validate_normalized_candidate(slot.normalized)
+            validate_candidate_semantic(slot.normalized, envelope=envelope)
             normalized_candidates.append(slot.normalized)
             profile_rows.append(
                 {
@@ -224,7 +237,6 @@ def build_parallel_run(
     }
     run_doc["metrics"] = compute_ensemble_metrics(run_doc)
     return run_doc
-
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Parallel offline ensemble evaluation")
