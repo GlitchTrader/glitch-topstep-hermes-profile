@@ -625,563 +625,406 @@ def _cost_fields_from_artifact(row: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _audit_limits(budget: dict[str, Any] | None) -> dict[str, Any]:
+    """Resolve budget ceilings used by the offline cost audit."""
+    limits = budget or load_evaluation_budget()
+    per_profile_limits = limits.get("per_profile") if isinstance(limits.get("per_profile"), dict) else {}
+    return {
+        "raw": limits,
+        "per_profile_limits": per_profile_limits,
+        "max_session_cost": float(limits.get("max_cost_usd_per_session") or 2.5),
+        "max_tokens_call": int(limits.get("max_tokens_per_call") or 50_000),
+        "max_tokens_session": int(limits.get("max_tokens_per_session") or 500_000),
+        "max_calls_per_session": int(limits.get("max_calls_per_session") or 36),
+        "max_calls_per_snapshot": int(limits.get("max_calls_per_snapshot") or 6),
+        "per_profile_timeout_ms": int(limits.get("per_profile_timeout_ms") or 35_000),
+        "total_timeout_ms": int(limits.get("total_timeout_ms") or 120_000),
+        "total_latency_budget_ms": int(limits.get("total_latency_budget_ms") or 180_000),
+    }
 
+
+def _audit_accumulate_pricing(
+    fields: dict[str, Any],
+    *,
+    basis_counts: dict[str, int],
+    violations: list[dict[str, Any]],
+    row: dict[str, Any],
+    totals: dict[str, float | int],
+) -> None:
+    """Accumulate per-artifact pricing basis, totals, and unknown-pricing violations."""
+    basis = fields["cost_basis"]
+    basis_counts[basis] = basis_counts.get(basis, 0) + 1
+    if fields["cost_unknown"]:
+        totals["unknown_pricing_count"] = int(totals["unknown_pricing_count"]) + 1
+        violations.append(
+            {
+                "kind": "unknown_pricing",
+                "run_id": row.get("run_id"),
+                "profile_id": fields["profile_id"],
+                "model": fields["model"],
+            }
+        )
+        return
+    if fields["cost_usd"] is None:
+        return
+    cost_val = float(fields["cost_usd"])
+    if basis in {"estimated_tokens", "provider_reported_usage"} and fields["estimated_cost_usd"] is not None:
+        totals["estimated_total"] = float(totals["estimated_total"]) + float(fields["estimated_cost_usd"])
+    elif basis == "estimated_tokens":
+        totals["estimated_total"] = float(totals["estimated_total"]) + cost_val
+    if fields["provider_reported_cost_usd"] is not None:
+        totals["provider_total"] = float(totals["provider_total"]) + float(fields["provider_reported_cost_usd"])
+        totals["confirmed_total"] = float(totals["confirmed_total"]) + float(fields["provider_reported_cost_usd"])
+    elif basis == "provider_reported_cost":
+        totals["provider_total"] = float(totals["provider_total"]) + cost_val
+        totals["confirmed_total"] = float(totals["confirmed_total"]) + cost_val
+    elif basis == "provider_reported_usage":
+        totals["confirmed_total"] = float(totals["confirmed_total"]) + cost_val
+
+
+def _audit_accumulate_session(
+    fields: dict[str, Any],
+    *,
+    sessions: dict[str, dict[str, Any]],
+    profile_sessions: dict[str, dict[str, dict[str, Any]]],
+    max_session_cost: float,
+    max_tokens_session: int,
+) -> str:
+    """Update session and per-profile session accumulators; return session_id."""
+    session_id = str(fields["session_id"] or "unknown")
+    session = sessions.setdefault(
+        session_id,
+        {
+            "session_id": session_id,
+            "invocation_count": 0,
+            "accumulated_cost_usd": 0.0,
+            "accumulated_tokens": 0,
+            "unknown_pricing_count": 0,
+            "within_session_cost_limit": True,
+            "within_session_token_limit": True,
+        },
+    )
+    session["invocation_count"] += 1
+    if fields["cost_unknown"]:
+        session["unknown_pricing_count"] += 1
+    elif fields["cost_usd"] is not None:
+        session["accumulated_cost_usd"] += float(fields["cost_usd"])
+    session["accumulated_tokens"] += fields["total_tokens"]
+    if session["accumulated_cost_usd"] > max_session_cost:
+        session["within_session_cost_limit"] = False
+    if session["accumulated_tokens"] > max_tokens_session:
+        session["within_session_token_limit"] = False
+
+    profile_id = fields["profile_id"] or "unknown"
+    profile_bucket = profile_sessions.setdefault(profile_id, {})
+    profile_session = profile_bucket.setdefault(
+        session_id, {"accumulated_cost_usd": 0.0, "invocation_count": 0}
+    )
+    profile_session["invocation_count"] += 1
+    if not fields["cost_unknown"] and fields["cost_usd"] is not None:
+        profile_session["accumulated_cost_usd"] += float(fields["cost_usd"])
+    return session_id
+
+
+def _audit_invocation_violations(
+    fields: dict[str, Any],
+    *,
+    row: dict[str, Any],
+    profile_id: str,
+    basis: str,
+    max_tokens_call: int,
+    per_profile_timeout_ms: int,
+    violations: list[dict[str, Any]],
+) -> None:
+    """Record per-invocation token, timeout, and cost-gate violations."""
+    if fields["total_tokens"] > max_tokens_call:
+        violations.append(
+            {
+                "kind": "tokens_per_call_exceeded",
+                "run_id": row.get("run_id"),
+                "profile_id": profile_id,
+                "total_tokens": fields["total_tokens"],
+                "limit": max_tokens_call,
+            }
+        )
+    latency_ms = fields.get("latency_ms")
+    if isinstance(latency_ms, int) and latency_ms > per_profile_timeout_ms:
+        violations.append(
+            {
+                "kind": "per_profile_timeout_exceeded",
+                "run_id": row.get("run_id"),
+                "profile_id": profile_id,
+                "latency_ms": latency_ms,
+                "limit": per_profile_timeout_ms,
+            }
+        )
+    if not fields["cost_gate_passed"]:
+        violations.append(
+            {
+                "kind": "cost_gate_failed",
+                "run_id": row.get("run_id"),
+                "profile_id": profile_id,
+                "cost_basis": basis,
+            }
+        )
+
+
+def _audit_session_budget_violations(
+    sessions: dict[str, dict[str, Any]],
+    *,
+    max_session_cost: float,
+    max_tokens_session: int,
+    violations: list[dict[str, Any]],
+) -> None:
+    for session_id, session in sessions.items():
+        if not session["within_session_cost_limit"]:
+            violations.append(
+                {
+                    "kind": "session_cost_exceeded",
+                    "session_id": session_id,
+                    "accumulated_cost_usd": round(session["accumulated_cost_usd"], 6),
+                    "limit": max_session_cost,
+                }
+            )
+        if not session["within_session_token_limit"]:
+            violations.append(
+                {
+                    "kind": "session_tokens_exceeded",
+                    "session_id": session_id,
+                    "accumulated_tokens": session["accumulated_tokens"],
+                    "limit": max_tokens_session,
+                }
+            )
+
+
+def _audit_per_profile_limits(
+    profile_sessions: dict[str, dict[str, dict[str, Any]]],
+    *,
+    per_profile_limits: dict[str, Any],
+    violations: list[dict[str, Any]],
+) -> dict[str, Any]:
+    per_profile_audit: dict[str, Any] = {}
+    for profile_id, session_map in sorted(profile_sessions.items()):
+        profile_limit_cfg = per_profile_limits.get(profile_id) if isinstance(per_profile_limits, dict) else None
+        max_profile_cost = (
+            float(profile_limit_cfg.get("max_cost_usd_per_session"))
+            if isinstance(profile_limit_cfg, dict) and profile_limit_cfg.get("max_cost_usd_per_session") is not None
+            else None
+        )
+        profile_sessions_out = {
+            sid: {
+                "accumulated_cost_usd": round(data["accumulated_cost_usd"], 6),
+                "invocation_count": data["invocation_count"],
+                "within_profile_cost_limit": (
+                    data["accumulated_cost_usd"] <= max_profile_cost
+                    if max_profile_cost is not None
+                    else None
+                ),
+            }
+            for sid, data in sorted(session_map.items())
+        }
+        if max_profile_cost is not None:
+            for sid, data in session_map.items():
+                if data["accumulated_cost_usd"] > max_profile_cost:
+                    violations.append(
+                        {
+                            "kind": "profile_session_cost_exceeded",
+                            "profile_id": profile_id,
+                            "session_id": sid,
+                            "accumulated_cost_usd": round(data["accumulated_cost_usd"], 6),
+                            "limit": max_profile_cost,
+                        }
+                    )
+        per_profile_audit[profile_id] = {
+            "limits_configured": max_profile_cost is not None,
+            "max_cost_usd_per_session": max_profile_cost,
+            "sessions": profile_sessions_out,
+        }
+    return per_profile_audit
+
+
+def _audit_calls_and_latency(
+    sessions: dict[str, dict[str, Any]],
+    latencies: list[int],
+    *,
+    max_calls_per_session: int,
+    per_profile_timeout_ms: int,
+    total_timeout_ms: int,
+    total_latency_budget_ms: int,
+    violations: list[dict[str, Any]],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    calls_audit: dict[str, Any] = {}
+    for session_id, session in sessions.items():
+        within_calls = session["invocation_count"] <= max_calls_per_session
+        calls_audit[session_id] = {
+            "invocation_count": session["invocation_count"],
+            "max_calls_per_session": max_calls_per_session,
+            "within_session_call_limit": within_calls,
+        }
+        if not within_calls:
+            violations.append(
+                {
+                    "kind": "session_calls_exceeded",
+                    "session_id": session_id,
+                    "invocation_count": session["invocation_count"],
+                    "limit": max_calls_per_session,
+                }
+            )
+    latency_sum = sum(latencies) if latencies else 0
+    execution_time_audit = {
+        "per_profile_timeout_ms": per_profile_timeout_ms,
+        "total_timeout_ms": total_timeout_ms,
+        "total_latency_budget_ms": total_latency_budget_ms,
+        "latency_sum_ms": latency_sum,
+        "within_total_latency_budget": latency_sum <= total_latency_budget_ms if latencies else True,
+        "latency_p50_ms": (sorted(latencies)[len(latencies) // 2] if latencies else None),
+        "latency_count": len(latencies),
+    }
+    if latencies and latency_sum > total_latency_budget_ms:
+        violations.append(
+            {
+                "kind": "total_latency_budget_exceeded",
+                "latency_sum_ms": latency_sum,
+                "limit": total_latency_budget_ms,
+            }
+        )
+    return calls_audit, execution_time_audit
 
 
 def audit_evaluation_costs(
-
     artifacts: list[dict[str, Any]],
-
     *,
-
     budget: dict[str, Any] | None = None,
-
 ) -> dict[str, Any]:
-
     """Offline cost audit across replay artifacts — no Hermes calls."""
-
-    limits = budget or load_evaluation_budget()
-
-    per_profile_limits = limits.get("per_profile") if isinstance(limits.get("per_profile"), dict) else {}
-
-    max_session_cost = float(limits.get("max_cost_usd_per_session") or 2.5)
-
-    max_tokens_call = int(limits.get("max_tokens_per_call") or 50_000)
-
-    max_tokens_session = int(limits.get("max_tokens_per_session") or 500_000)
-
-
-
+    cfg = _audit_limits(budget)
     basis_counts: dict[str, int] = {}
-
     violations: list[dict[str, Any]] = []
-
     per_invocation: list[dict[str, Any]] = []
-
     sessions: dict[str, dict[str, Any]] = {}
-
     profile_sessions: dict[str, dict[str, dict[str, Any]]] = {}
-
-    estimated_total = 0.0
-
-    provider_total = 0.0
-
-    confirmed_total = 0.0
-
-    unknown_pricing_count = 0
-
+    totals: dict[str, float | int] = {
+        "estimated_total": 0.0,
+        "provider_total": 0.0,
+        "confirmed_total": 0.0,
+        "unknown_pricing_count": 0,
+    }
     latencies: list[int] = []
 
-    max_calls_per_session = int(limits.get("max_calls_per_session") or 36)
-
-    max_calls_per_snapshot = int(limits.get("max_calls_per_snapshot") or 6)
-
-    per_profile_timeout_ms = int(limits.get("per_profile_timeout_ms") or 35_000)
-
-    total_timeout_ms = int(limits.get("total_timeout_ms") or 120_000)
-
-    total_latency_budget_ms = int(limits.get("total_latency_budget_ms") or 180_000)
-
-
-
     for row in artifacts:
-
         fields = _cost_fields_from_artifact(row)
-
-        basis = fields["cost_basis"]
-
-        basis_counts[basis] = basis_counts.get(basis, 0) + 1
-
-        if fields["cost_unknown"]:
-
-            unknown_pricing_count += 1
-
-            violations.append(
-
-                {
-
-                    "kind": "unknown_pricing",
-
-                    "run_id": row.get("run_id"),
-
-                    "profile_id": fields["profile_id"],
-
-                    "model": fields["model"],
-
-                }
-
-            )
-
-        elif fields["cost_usd"] is not None:
-
-            cost_val = float(fields["cost_usd"])
-
-            if basis in {"estimated_tokens", "provider_reported_usage"} and fields["estimated_cost_usd"] is not None:
-
-                estimated_total += float(fields["estimated_cost_usd"])
-
-            elif basis == "estimated_tokens":
-
-                estimated_total += cost_val
-
-            if fields["provider_reported_cost_usd"] is not None:
-
-                provider_total += float(fields["provider_reported_cost_usd"])
-
-                confirmed_total += float(fields["provider_reported_cost_usd"])
-
-            elif basis == "provider_reported_cost":
-
-                provider_total += cost_val
-
-                confirmed_total += cost_val
-
-            elif basis == "provider_reported_usage":
-
-                confirmed_total += cost_val
-
-
-
+        _audit_accumulate_pricing(
+            fields,
+            basis_counts=basis_counts,
+            violations=violations,
+            row=row,
+            totals=totals,
+        )
         if isinstance(fields["latency_ms"], int):
-
             latencies.append(fields["latency_ms"])
-
-
-
-        session_id = str(fields["session_id"] or "unknown")
-
-        session = sessions.setdefault(
-
-            session_id,
-
-            {
-
-                "session_id": session_id,
-
-                "invocation_count": 0,
-
-                "accumulated_cost_usd": 0.0,
-
-                "accumulated_tokens": 0,
-
-                "unknown_pricing_count": 0,
-
-                "within_session_cost_limit": True,
-
-                "within_session_token_limit": True,
-
-            },
-
+        session_id = _audit_accumulate_session(
+            fields,
+            sessions=sessions,
+            profile_sessions=profile_sessions,
+            max_session_cost=cfg["max_session_cost"],
+            max_tokens_session=cfg["max_tokens_session"],
         )
-
-        session["invocation_count"] += 1
-
-        if fields["cost_unknown"]:
-
-            session["unknown_pricing_count"] += 1
-
-        elif fields["cost_usd"] is not None:
-
-            session["accumulated_cost_usd"] += float(fields["cost_usd"])
-
-        session["accumulated_tokens"] += fields["total_tokens"]
-
-        if session["accumulated_cost_usd"] > max_session_cost:
-
-            session["within_session_cost_limit"] = False
-
-        if session["accumulated_tokens"] > max_tokens_session:
-
-            session["within_session_token_limit"] = False
-
-
-
         profile_id = fields["profile_id"] or "unknown"
-
-        profile_bucket = profile_sessions.setdefault(profile_id, {})
-
-        profile_session = profile_bucket.setdefault(session_id, {"accumulated_cost_usd": 0.0, "invocation_count": 0})
-
-        profile_session["invocation_count"] += 1
-
-        if not fields["cost_unknown"] and fields["cost_usd"] is not None:
-
-            profile_session["accumulated_cost_usd"] += float(fields["cost_usd"])
-
-
-
-        if fields["total_tokens"] > max_tokens_call:
-
-            violations.append(
-
-                {
-
-                    "kind": "tokens_per_call_exceeded",
-
-                    "run_id": row.get("run_id"),
-
-                    "profile_id": profile_id,
-
-                    "total_tokens": fields["total_tokens"],
-
-                    "limit": max_tokens_call,
-
-                }
-
-            )
-
-        latency_ms = fields.get("latency_ms")
-
-        if isinstance(latency_ms, int) and latency_ms > per_profile_timeout_ms:
-
-            violations.append(
-
-                {
-
-                    "kind": "per_profile_timeout_exceeded",
-
-                    "run_id": row.get("run_id"),
-
-                    "profile_id": profile_id,
-
-                    "latency_ms": latency_ms,
-
-                    "limit": per_profile_timeout_ms,
-
-                }
-
-            )
-
-        if not fields["cost_gate_passed"]:
-
-            violations.append(
-
-                {
-
-                    "kind": "cost_gate_failed",
-
-                    "run_id": row.get("run_id"),
-
-                    "profile_id": profile_id,
-
-                    "cost_basis": basis,
-
-                }
-
-            )
-
-
-
+        _audit_invocation_violations(
+            fields,
+            row=row,
+            profile_id=profile_id,
+            basis=fields["cost_basis"],
+            max_tokens_call=cfg["max_tokens_call"],
+            per_profile_timeout_ms=cfg["per_profile_timeout_ms"],
+            violations=violations,
+        )
         per_invocation.append(
-
             {
-
                 "run_id": row.get("run_id"),
-
                 "profile_id": profile_id,
-
                 "session_id": session_id,
-
                 **fields,
-
             }
-
         )
 
+    _audit_session_budget_violations(
+        sessions,
+        max_session_cost=cfg["max_session_cost"],
+        max_tokens_session=cfg["max_tokens_session"],
+        violations=violations,
+    )
+    per_profile_audit = _audit_per_profile_limits(
+        profile_sessions,
+        per_profile_limits=cfg["per_profile_limits"],
+        violations=violations,
+    )
+    calls_audit, execution_time_audit = _audit_calls_and_latency(
+        sessions,
+        latencies,
+        max_calls_per_session=cfg["max_calls_per_session"],
+        per_profile_timeout_ms=cfg["per_profile_timeout_ms"],
+        total_timeout_ms=cfg["total_timeout_ms"],
+        total_latency_budget_ms=cfg["total_latency_budget_ms"],
+        violations=violations,
+    )
 
-
-    for session_id, session in sessions.items():
-
-        if not session["within_session_cost_limit"]:
-
-            violations.append(
-
-                {
-
-                    "kind": "session_cost_exceeded",
-
-                    "session_id": session_id,
-
-                    "accumulated_cost_usd": round(session["accumulated_cost_usd"], 6),
-
-                    "limit": max_session_cost,
-
-                }
-
-            )
-
-        if not session["within_session_token_limit"]:
-
-            violations.append(
-
-                {
-
-                    "kind": "session_tokens_exceeded",
-
-                    "session_id": session_id,
-
-                    "accumulated_tokens": session["accumulated_tokens"],
-
-                    "limit": max_tokens_session,
-
-                }
-
-            )
-
-
-
-    per_profile_audit: dict[str, Any] = {}
-
-    for profile_id, session_map in sorted(profile_sessions.items()):
-
-        profile_limit_cfg = per_profile_limits.get(profile_id) if isinstance(per_profile_limits, dict) else None
-
-        max_profile_cost = (
-
-            float(profile_limit_cfg.get("max_cost_usd_per_session"))
-
-            if isinstance(profile_limit_cfg, dict) and profile_limit_cfg.get("max_cost_usd_per_session") is not None
-
-            else None
-
-        )
-
-        profile_sessions_out = {
-
-            sid: {
-
-                "accumulated_cost_usd": round(data["accumulated_cost_usd"], 6),
-
-                "invocation_count": data["invocation_count"],
-
-                "within_profile_cost_limit": (
-
-                    data["accumulated_cost_usd"] <= max_profile_cost
-
-                    if max_profile_cost is not None
-
-                    else None
-
-                ),
-
-            }
-
-            for sid, data in sorted(session_map.items())
-
-        }
-
-        if max_profile_cost is not None:
-
-            for sid, data in session_map.items():
-
-                if data["accumulated_cost_usd"] > max_profile_cost:
-
-                    violations.append(
-
-                        {
-
-                            "kind": "profile_session_cost_exceeded",
-
-                            "profile_id": profile_id,
-
-                            "session_id": sid,
-
-                            "accumulated_cost_usd": round(data["accumulated_cost_usd"], 6),
-
-                            "limit": max_profile_cost,
-
-                        }
-
-                    )
-
-        per_profile_audit[profile_id] = {
-
-            "limits_configured": max_profile_cost is not None,
-
-            "max_cost_usd_per_session": max_profile_cost,
-
-            "sessions": profile_sessions_out,
-
-        }
-
-
-
+    estimated_total = float(totals["estimated_total"])
+    provider_total = float(totals["provider_total"])
+    confirmed_total = float(totals["confirmed_total"])
+    unknown_pricing_count = int(totals["unknown_pricing_count"])
     session_cost_max = max((s["accumulated_cost_usd"] for s in sessions.values()), default=0.0)
-
-    calls_audit: dict[str, Any] = {}
-
-    for session_id, session in sessions.items():
-
-        within_calls = session["invocation_count"] <= max_calls_per_session
-
-        calls_audit[session_id] = {
-
-            "invocation_count": session["invocation_count"],
-
-            "max_calls_per_session": max_calls_per_session,
-
-            "within_session_call_limit": within_calls,
-
-        }
-
-        if not within_calls:
-
-            violations.append(
-
-                {
-
-                    "kind": "session_calls_exceeded",
-
-                    "session_id": session_id,
-
-                    "invocation_count": session["invocation_count"],
-
-                    "limit": max_calls_per_session,
-
-                }
-
-            )
-
-    latency_sum = sum(latencies) if latencies else 0
-
-    execution_time_audit = {
-
-        "per_profile_timeout_ms": per_profile_timeout_ms,
-
-        "total_timeout_ms": total_timeout_ms,
-
-        "total_latency_budget_ms": total_latency_budget_ms,
-
-        "latency_sum_ms": latency_sum,
-
-        "within_total_latency_budget": latency_sum <= total_latency_budget_ms if latencies else True,
-
-        "latency_p50_ms": (sorted(latencies)[len(latencies) // 2] if latencies else None),
-
-        "latency_count": len(latencies),
-
-    }
-
-    if latencies and latency_sum > total_latency_budget_ms:
-
-        violations.append(
-
-            {
-
-                "kind": "total_latency_budget_exceeded",
-
-                "latency_sum_ms": latency_sum,
-
-                "limit": total_latency_budget_ms,
-
-            }
-
-        )
-
     audit_gate_passed = unknown_pricing_count == 0 and not violations
 
-
-
     return {
-
         "schema_version": "glitch.topstep.evaluation_cost_audit.v1",
-
         "budget_reference": "evaluation/ensemble_config.json",
-
         "limits": {
-
-            "max_cost_usd_per_session": max_session_cost,
-
-            "max_tokens_per_call": max_tokens_call,
-
-            "max_tokens_per_session": max_tokens_session,
-
-            "max_calls_per_session": max_calls_per_session,
-
-            "max_calls_per_snapshot": max_calls_per_snapshot,
-
-            "per_profile_timeout_ms": per_profile_timeout_ms,
-
-            "total_timeout_ms": total_timeout_ms,
-
-            "total_latency_budget_ms": total_latency_budget_ms,
-
-            "per_profile_limits_configured": bool(per_profile_limits),
-
+            "max_cost_usd_per_session": cfg["max_session_cost"],
+            "max_tokens_per_call": cfg["max_tokens_call"],
+            "max_tokens_per_session": cfg["max_tokens_session"],
+            "max_calls_per_session": cfg["max_calls_per_session"],
+            "max_calls_per_snapshot": cfg["max_calls_per_snapshot"],
+            "per_profile_timeout_ms": cfg["per_profile_timeout_ms"],
+            "total_timeout_ms": cfg["total_timeout_ms"],
+            "total_latency_budget_ms": cfg["total_latency_budget_ms"],
+            "per_profile_limits_configured": bool(cfg["per_profile_limits"]),
         },
-
         "invocation_count": len(artifacts),
-
         "unknown_pricing_count": unknown_pricing_count,
-
         "cost_basis_counts": basis_counts,
-
         "cost_breakdown": {
-
             "estimated_total_usd": round(estimated_total, 6) if estimated_total else 0.0,
-
             "confirmed_total_usd": round(confirmed_total, 6) if confirmed_total else 0.0,
-
             "unknown_invocation_count": unknown_pricing_count,
-
         },
-
         "estimated_vs_provider": {
-
             "estimated_total_usd": round(estimated_total, 6) if estimated_total else 0.0,
-
             "provider_reported_total_usd": round(provider_total, 6) if provider_total else 0.0,
-
             "confirmed_total_usd": round(confirmed_total, 6) if confirmed_total else 0.0,
-
             "unknown_invocation_count": unknown_pricing_count,
-
         },
-
         "calls_audit": calls_audit,
-
         "execution_time_audit": execution_time_audit,
-
         "per_invocation": per_invocation,
-
         "sessions": {
-
             sid: {
-
                 **data,
-
                 "accumulated_cost_usd": round(data["accumulated_cost_usd"], 6),
-
             }
-
             for sid, data in sorted(sessions.items())
-
         },
-
         "per_profile": per_profile_audit,
-
         "session_cost_usd_max": round(session_cost_max, 6) if session_cost_max else None,
-
         "latency_ms": {
-
             "p50_ms": (sorted(latencies)[len(latencies) // 2] if latencies else None),
-
             "count": len(latencies),
-
         },
-
         "violations": violations,
-
         "audit_gate_passed": audit_gate_passed,
-
         "notes": [
-
             "unknown_pricing (cost_usd null) fails audit_gate_passed.",
-
             "per_profile limits enforced only when evaluation budget defines per_profile.",
-
         ],
-
     }
-
 

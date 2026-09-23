@@ -1100,6 +1100,283 @@ def wait_for_bar_complete(
     }
 
 
+@dataclass
+class _PostCloseCaptureResult:
+    captured: bool
+    stop_reason: str | None = None
+    classification: str | None = None
+    counting_started: bool = False
+    counting_started_at_utc: str | None = None
+    valid_window_started_mono: float | None = None
+    valid_deadline: float | None = None
+
+
+def _bar_close_policy_limits(
+    *,
+    acceptance_policy: str,
+    max_total_boundaries: int | None,
+    max_total_duration_seconds: float | None,
+    provider_roll_latency_seconds: float | None,
+) -> tuple[bool, float, int | None, float | None]:
+    """Resolve v2 flags, roll latency, and optional total boundary/duration caps."""
+    roll_latency = (
+        provider_roll_latency_seconds
+        if provider_roll_latency_seconds is not None
+        else resolve_provider_roll_latency_seconds()
+    )
+    v2_enabled = acceptance_policy == BAR_CLOSE_ACCEPTANCE_V2
+    total_boundaries_limit = (
+        max_total_boundaries
+        if max_total_boundaries is not None
+        else DEFAULT_V2_MAX_TOTAL_BOUNDARIES if v2_enabled else None
+    )
+    total_duration_limit = (
+        max_total_duration_seconds
+        if max_total_duration_seconds is not None
+        else DEFAULT_V2_MAX_TOTAL_DURATION_SECONDS if v2_enabled else None
+    )
+    return v2_enabled, roll_latency, total_boundaries_limit, total_duration_limit
+
+
+def _capture_post_close_acceptance_sample(
+    *,
+    health_fetcher: Callable[[], dict[str, Any]],
+    packet_fetcher: Callable[[], dict[str, Any]],
+    cursor: BarCloseCursor,
+    target_close: datetime,
+    target_close_iso: str,
+    sample_window_end: datetime,
+    roll_latency: float,
+    post_close_window_seconds: float,
+    post_close_poll_seconds: float,
+    health_freshness_seconds: float,
+    market_obs_freshness_seconds: float,
+    v2_enabled: bool,
+    counting_started: bool,
+    counting_started_at_utc: str | None,
+    valid_window_started_mono: float | None,
+    valid_deadline: float | None,
+    max_duration_seconds: float,
+    samples: list[dict[str, Any]],
+    warmup_events: list[dict[str, Any]],
+    gateway_timeouts: list[dict[str, Any]],
+    invalid_quote_samples: list[dict[str, Any]],
+    sleep_fn: Callable[[float], None],
+    monotonic_fn: Callable[[], float],
+    now_fn: Callable[[], datetime],
+) -> tuple[_PostCloseCaptureResult, dict[str, Any] | None]:
+    """Poll within an open post-close window until one sample is captured or the window ends."""
+    captured = False
+    stop_reason: str | None = None
+    classification: str | None = None
+    last_health: dict[str, Any] | None = None
+
+    def _valid_budget_exhausted() -> bool:
+        return counting_started and valid_deadline is not None and monotonic_fn() >= valid_deadline
+
+    def _begin_valid_window() -> None:
+        nonlocal counting_started, valid_window_started_mono, valid_deadline, counting_started_at_utc
+        if counting_started:
+            return
+        counting_started = True
+        counting_started_at_utc = utc_now()
+        valid_window_started_mono = monotonic_fn()
+        valid_deadline = valid_window_started_mono + max_duration_seconds
+
+    def _fetch_packet(phase: str, expected_close_utc: str | None = None) -> dict[str, Any] | None:
+        try:
+            return packet_fetcher()
+        except Exception as exc:
+            _record_fetch_failure(
+                gateway_timeouts,
+                phase=phase,
+                endpoint="/packet",
+                exc=exc,
+                expected_close_utc=expected_close_utc,
+            )
+            return None
+
+    while now_fn() <= sample_window_end and not captured and not _valid_budget_exhausted():
+        sample_dt = now_fn()
+        sample_utc = sample_dt.isoformat().replace("+00:00", "Z")
+        try:
+            health = health_fetcher()
+            last_health = health
+        except Exception as exc:
+            _record_fetch_failure(
+                gateway_timeouts,
+                phase="valid" if counting_started else "warmup",
+                endpoint="/health",
+                exc=exc,
+                expected_close_utc=target_close_iso,
+            )
+            sleep_fn(post_close_poll_seconds)
+            continue
+
+        packet = _fetch_packet("valid" if counting_started else "warmup", target_close_iso)
+        if packet is None:
+            sleep_fn(post_close_poll_seconds)
+            continue
+
+        ctx = extract_bar_close_context(packet, now=sample_dt)
+        if ctx is None:
+            sleep_fn(post_close_poll_seconds)
+            continue
+
+        closed_bar_key = _close_reference_utc(ctx)
+        verdict = evaluate_operational_stability_sample(
+            health=health,
+            packet=packet,
+            fetched_utc=sample_utc,
+            health_freshness_seconds=health_freshness_seconds,
+            market_obs_freshness_seconds=market_obs_freshness_seconds,
+            now=sample_dt,
+            require_closed_bar=True,
+            bar_close_context=ctx,
+            post_close_window_seconds=post_close_window_seconds,
+            provider_roll_latency_seconds=roll_latency,
+        )
+
+        row = {
+            "sample_index": None,
+            "fetched_utc": sample_utc,
+            "ok": verdict.ok,
+            "reasons": verdict.reasons,
+            "detail": verdict.detail,
+            "closed_bar_utc": closed_bar_key,
+            "phase": "valid" if counting_started else "warmup",
+        }
+
+        packet_window_ok = is_post_close_sample(
+            sample_dt,
+            ctx,
+            post_close_window_seconds=post_close_window_seconds,
+            provider_roll_latency_seconds=roll_latency,
+        )
+        target_window_ok = is_target_post_close_sample(
+            sample_dt,
+            target_close,
+            ctx,
+            post_close_window_seconds=post_close_window_seconds,
+            provider_roll_latency_seconds=roll_latency,
+        )
+        # Pre-close / misaligned polls are warmup only — never terminal, never consume valid slots.
+        if (
+            not target_window_ok
+            or not packet_window_ok
+            or "sample_before_bar_close_window" in verdict.reasons
+        ):
+            warmup_events.append(
+                {
+                    **row,
+                    "reason": "sample_before_bar_close_window",
+                    "phase": "warmup",
+                    "expected_close_utc": target_close_iso,
+                    "packet_close_utc": _close_iso(expected_close_for_context(ctx)),
+                }
+            )
+            sleep_fn(post_close_poll_seconds)
+            continue
+
+        if not verdict.ok:
+            if v2_enabled and _invalid_quote_sample(verdict):
+                invalid_quote_samples.append(
+                    {
+                        **row,
+                        "reason": "invalid_quote_sample",
+                    }
+                )
+                sleep_fn(post_close_poll_seconds)
+                continue
+            # Partial without prior anchor never counts and never maps to no_edge.
+            if "bar_1m_partial" in verdict.reasons and not ctx.prior_completed_bar_utc:
+                warmup_events.append(
+                    {
+                        **row,
+                        "reason": "bar_1m_partial_without_anchor",
+                        "phase": "warmup",
+                    }
+                )
+                sleep_fn(post_close_poll_seconds)
+                continue
+            samples.append({**row, "sample_index": len(samples), "phase": "valid"})
+            stop_reason = verdict.reasons[0] if verdict.reasons else "sample_failed"
+            if any(r.startswith("status_degraded") or r == "degraded" for r in verdict.reasons):
+                stop_reason = "degraded_during_window"
+            elif "account_state_stale" in verdict.reasons:
+                stop_reason = "account_state_stale"
+            elif "health_packet_state_complete_divergence" in verdict.reasons:
+                stop_reason = "health_packet_divergence"
+            classification = BLOCKED_CLASSIFICATION
+            break
+
+        if cursor.already_seen(closed_bar_key):
+            sleep_fn(post_close_poll_seconds)
+            continue
+
+        # Start the valid-sample budget only on the first packet-aligned accepted sample.
+        if not counting_started:
+            _begin_valid_window()
+        cursor.mark_captured(target_close, closed_bar_key)
+        row["sample_index"] = len(samples)
+        row["phase"] = "valid"
+        samples.append(row)
+        captured = True
+        next_bar_close = cursor.next_target_close or (target_close + timedelta(minutes=1))
+        _sleep_until(
+            next_bar_close,
+            sleep_fn=sleep_fn,
+            now_fn=now_fn,
+            monotonic_fn=monotonic_fn,
+            monotonic_deadline=valid_deadline,
+        )
+
+    return (
+        _PostCloseCaptureResult(
+            captured=captured,
+            stop_reason=stop_reason,
+            classification=classification,
+            counting_started=counting_started,
+            counting_started_at_utc=counting_started_at_utc,
+            valid_window_started_mono=valid_window_started_mono,
+            valid_deadline=valid_deadline,
+        ),
+        last_health,
+    )
+
+
+def _record_uncaptured_boundary(
+    *,
+    cursor: BarCloseCursor,
+    bar_key: str,
+    target_close: datetime,
+    target_close_iso: str,
+    abandoned_boundaries: set[str],
+    skipped: list[dict[str, Any]],
+) -> None:
+    """Record a miss or already-captured skip when the acceptance window did not capture."""
+    if cursor.already_seen(bar_key):
+        skipped.append(
+            {
+                "reason": "boundary_already_captured",
+                "phase": "valid",
+                "expected_close_utc": target_close_iso,
+                "fetched_utc": utc_now(),
+            }
+        )
+    else:
+        skipped.append(
+            {
+                "reason": "missed_post_close_window",
+                "phase": "valid",
+                "expected_close_utc": target_close_iso,
+                "fetched_utc": utc_now(),
+            }
+        )
+        abandoned_boundaries.add(target_close_iso)
+        cursor.advance_after_miss_or_skip(target_close)
+
+
 def run_bar_close_aware_stability_window(
     *,
     health_fetcher: Callable[[], dict[str, Any]],
@@ -1148,21 +1425,11 @@ def run_bar_close_aware_stability_window(
     counting_started_at_utc: str | None = None
     valid_window_started_mono: float | None = None
     valid_deadline: float | None = None
-    roll_latency = (
-        provider_roll_latency_seconds
-        if provider_roll_latency_seconds is not None
-        else resolve_provider_roll_latency_seconds()
-    )
-    v2_enabled = acceptance_policy == BAR_CLOSE_ACCEPTANCE_V2
-    total_boundaries_limit = (
-        max_total_boundaries
-        if max_total_boundaries is not None
-        else DEFAULT_V2_MAX_TOTAL_BOUNDARIES if v2_enabled else None
-    )
-    total_duration_limit = (
-        max_total_duration_seconds
-        if max_total_duration_seconds is not None
-        else DEFAULT_V2_MAX_TOTAL_DURATION_SECONDS if v2_enabled else None
+    v2_enabled, roll_latency, total_boundaries_limit, total_duration_limit = _bar_close_policy_limits(
+        acceptance_policy=acceptance_policy,
+        max_total_boundaries=max_total_boundaries,
+        max_total_duration_seconds=max_total_duration_seconds,
+        provider_roll_latency_seconds=provider_roll_latency_seconds,
     )
 
     if lease_checker is not None:
@@ -1188,15 +1455,6 @@ def run_bar_close_aware_stability_window(
 
     def _valid_budget_exhausted() -> bool:
         return counting_started and valid_deadline is not None and monotonic_fn() >= valid_deadline
-
-    def _begin_valid_window() -> None:
-        nonlocal counting_started, valid_window_started_mono, valid_deadline, counting_started_at_utc
-        if counting_started:
-            return
-        counting_started = True
-        counting_started_at_utc = utc_now()
-        valid_window_started_mono = monotonic_fn()
-        valid_deadline = valid_window_started_mono + max_duration_seconds
 
     def _fetch_packet(phase: str, expected_close_utc: str | None = None) -> dict[str, Any] | None:
         try:
@@ -1425,168 +1683,52 @@ def run_bar_close_aware_stability_window(
                 classification = BLOCKED_DATA_QUALITY if v2_enabled else BLOCKED_BAR_CLOSE_WINDOW
                 break
 
-        captured = False
-        # Sample only while both scheduler target and packet close windows remain open.
-        while now_fn() <= sample_window_end and not captured and not _valid_budget_exhausted():
-            sample_dt = now_fn()
-            sample_utc = sample_dt.isoformat().replace("+00:00", "Z")
-            try:
-                health = health_fetcher()
-                last_health = health
-            except Exception as exc:
-                _record_fetch_failure(
-                    gateway_timeouts,
-                    phase="valid" if counting_started else "warmup",
-                    endpoint="/health",
-                    exc=exc,
-                    expected_close_utc=target_close_iso,
-                )
-                sleep_fn(post_close_poll_seconds)
-                continue
-
-            packet = _fetch_packet("valid" if counting_started else "warmup", target_close_iso)
-            if packet is None:
-                sleep_fn(post_close_poll_seconds)
-                continue
-
-            ctx = extract_bar_close_context(packet, now=sample_dt)
-            if ctx is None:
-                sleep_fn(post_close_poll_seconds)
-                continue
-
-            closed_bar_key = _close_reference_utc(ctx)
-            verdict = evaluate_operational_stability_sample(
-                health=health,
-                packet=packet,
-                fetched_utc=sample_utc,
-                health_freshness_seconds=health_freshness_seconds,
-                market_obs_freshness_seconds=market_obs_freshness_seconds,
-                now=sample_dt,
-                require_closed_bar=True,
-                bar_close_context=ctx,
-                post_close_window_seconds=post_close_window_seconds,
-                provider_roll_latency_seconds=roll_latency,
-            )
-
-            row = {
-                "sample_index": None,
-                "fetched_utc": sample_utc,
-                "ok": verdict.ok,
-                "reasons": verdict.reasons,
-                "detail": verdict.detail,
-                "closed_bar_utc": closed_bar_key,
-                "phase": "valid" if counting_started else "warmup",
-            }
-
-            packet_window_ok = is_post_close_sample(
-                sample_dt,
-                ctx,
-                post_close_window_seconds=post_close_window_seconds,
-                provider_roll_latency_seconds=roll_latency,
-            )
-            target_window_ok = is_target_post_close_sample(
-                sample_dt,
-                target_close,
-                ctx,
-                post_close_window_seconds=post_close_window_seconds,
-                provider_roll_latency_seconds=roll_latency,
-            )
-            # Pre-close / misaligned polls are warmup only — never terminal, never consume valid slots.
-            if (
-                not target_window_ok
-                or not packet_window_ok
-                or "sample_before_bar_close_window" in verdict.reasons
-            ):
-                warmup_events.append(
-                    {
-                        **row,
-                        "reason": "sample_before_bar_close_window",
-                        "phase": "warmup",
-                        "expected_close_utc": target_close_iso,
-                        "packet_close_utc": _close_iso(expected_close_for_context(ctx)),
-                    }
-                )
-                sleep_fn(post_close_poll_seconds)
-                continue
-
-            if not verdict.ok:
-                if v2_enabled and _invalid_quote_sample(verdict):
-                    invalid_quote_samples.append(
-                        {
-                            **row,
-                            "reason": "invalid_quote_sample",
-                        }
-                    )
-                    sleep_fn(post_close_poll_seconds)
-                    continue
-                # Partial without prior anchor never counts and never maps to no_edge.
-                if "bar_1m_partial" in verdict.reasons and not ctx.prior_completed_bar_utc:
-                    warmup_events.append(
-                        {
-                            **row,
-                            "reason": "bar_1m_partial_without_anchor",
-                            "phase": "warmup",
-                        }
-                    )
-                    sleep_fn(post_close_poll_seconds)
-                    continue
-                samples.append({**row, "sample_index": len(samples), "phase": "valid"})
-                stop_reason = verdict.reasons[0] if verdict.reasons else "sample_failed"
-                if any(r.startswith("status_degraded") or r == "degraded" for r in verdict.reasons):
-                    stop_reason = "degraded_during_window"
-                elif "account_state_stale" in verdict.reasons:
-                    stop_reason = "account_state_stale"
-                elif "health_packet_state_complete_divergence" in verdict.reasons:
-                    stop_reason = "health_packet_divergence"
-                classification = BLOCKED_CLASSIFICATION
-                break
-
-            if cursor.already_seen(closed_bar_key):
-                sleep_fn(post_close_poll_seconds)
-                continue
-
-            # Start the valid-sample budget only on the first packet-aligned accepted sample.
-            if not counting_started:
-                _begin_valid_window()
-            cursor.mark_captured(target_close, closed_bar_key)
-            row["sample_index"] = len(samples)
-            row["phase"] = "valid"
-            samples.append(row)
-            captured = True
-            next_bar_close = cursor.next_target_close or (target_close + timedelta(minutes=1))
-            _sleep_until(
-                next_bar_close,
-                sleep_fn=sleep_fn,
-                now_fn=now_fn,
-                monotonic_fn=monotonic_fn,
-                monotonic_deadline=valid_deadline,
-            )
-
-        if stop_reason and classification == BLOCKED_CLASSIFICATION:
+        capture, sample_health = _capture_post_close_acceptance_sample(
+            health_fetcher=health_fetcher,
+            packet_fetcher=packet_fetcher,
+            cursor=cursor,
+            target_close=target_close,
+            target_close_iso=target_close_iso,
+            sample_window_end=sample_window_end,
+            roll_latency=roll_latency,
+            post_close_window_seconds=post_close_window_seconds,
+            post_close_poll_seconds=post_close_poll_seconds,
+            health_freshness_seconds=health_freshness_seconds,
+            market_obs_freshness_seconds=market_obs_freshness_seconds,
+            v2_enabled=v2_enabled,
+            counting_started=counting_started,
+            counting_started_at_utc=counting_started_at_utc,
+            valid_window_started_mono=valid_window_started_mono,
+            valid_deadline=valid_deadline,
+            max_duration_seconds=max_duration_seconds,
+            samples=samples,
+            warmup_events=warmup_events,
+            gateway_timeouts=gateway_timeouts,
+            invalid_quote_samples=invalid_quote_samples,
+            sleep_fn=sleep_fn,
+            monotonic_fn=monotonic_fn,
+            now_fn=now_fn,
+        )
+        if sample_health is not None:
+            last_health = sample_health
+        counting_started = capture.counting_started
+        counting_started_at_utc = capture.counting_started_at_utc
+        valid_window_started_mono = capture.valid_window_started_mono
+        valid_deadline = capture.valid_deadline
+        if capture.stop_reason and capture.classification == BLOCKED_CLASSIFICATION:
+            stop_reason = capture.stop_reason
+            classification = capture.classification
             break
 
-        if not captured:
-            # Never turn reprocessing of an already-captured boundary into a miss.
-            if cursor.already_seen(bar_key):
-                skipped.append(
-                    {
-                        "reason": "boundary_already_captured",
-                        "phase": "valid",
-                        "expected_close_utc": target_close_iso,
-                        "fetched_utc": utc_now(),
-                    }
-                )
-            else:
-                skipped.append(
-                    {
-                        "reason": "missed_post_close_window",
-                        "phase": "valid",
-                        "expected_close_utc": target_close_iso,
-                        "fetched_utc": utc_now(),
-                    }
-                )
-                abandoned_boundaries.add(target_close_iso)
-                cursor.advance_after_miss_or_skip(target_close)
+        if not capture.captured:
+            _record_uncaptured_boundary(
+                cursor=cursor,
+                bar_key=bar_key,
+                target_close=target_close,
+                target_close_iso=target_close_iso,
+                abandoned_boundaries=abandoned_boundaries,
+                skipped=skipped,
+            )
 
     confirmed = len(samples) >= required_samples and stop_reason is None
     if not confirmed and classification is None:
